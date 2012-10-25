@@ -1,0 +1,111 @@
+.clear {
+  clear:both;
+}
+
+.productLeft {
+  float:left;
+  width:300px;
+  min-height:280px;
+  margin-right: 10px;
+}
+
+.avaibility span {
+  font-size:15px;
+}
+.pricePart {
+ width:200px;
+ background:#f0fddc;
+ float: left;
+ border-radius:5px;
+   -moz-border-radius:5px;
+   -webkit-border-radius:5px;
+ border:1px #add949 solid;
+ padding:15px;
+ font-weight:bold;
+ margin-right:10px;
+}
+.pricePart b{
+  font-size:24px;
+  color:#609d00;
+  display:block;
+}
+.pricePart {
+  font-size:14px;
+}
+
+.additionalActions {
+  width: 194px;
+  padding-bottom: 5px;
+  float: left;
+  margin-left: 10px;
+}
+.additionalActions input {
+  width:100%;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.additionalActions a {
+  text-decoration: none;
+}
+
+div.desc {
+  text-align:justify;
+  clear: right;
+  padding-top: 10px;
+}
+
+#showDetails, #descriptionSnippet {
+  float: right;
+}
+
+#showDetails {
+  position: relative;
+  float:right;
+  clear:right;
+}
+
+#descriptionSnippet {
+  width:448px;
+}
+
+.shortView { 
+  max-height: 150px;
+  overflow: hidden;
+  position: relative;
+}
+
+.shortView::before { 
+  background: -o-linear-gradient(top, rgba(255, 255, 255, 0.4) 0px, #fff 100%) transparent;
+  background: -moz-linear-gradient(top, rgba(255, 255, 255, 0.4) 0px, #fff 100%) transparent;
+  background: -webkit-linear-gradient(top, rgba(255, 255, 255, 0.4) 0px, #fff 100%) transparent;
+  bottom: 0px;
+  content: "";
+  display: block;
+  height: 40px;
+  left: 0px;
+  position: absolute;
+  right: 0px;
+}
+
+.compareAjaxMessage {
+  font-size: 15px;
+  text-align: center;
+}
+.compareAjaxMessage a {
+  text-decoration: underline;
+}
+
+.compareAjaxMessage a:hover {
+  text-decoration: none;
+}
+
+
+.soc_buttons { 
+  height:62px; 
+  display:inline-block; 
+} 
+.soc_buttons .sbutton { 
+  float:left; 
+  margin:0 2px; 
+}

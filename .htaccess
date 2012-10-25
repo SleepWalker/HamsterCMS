@@ -1,0 +1,24 @@
+AddDefaultCharset utf-8
+# Отключить просмотр файлов в папке, если нету index
+Options -Indexes 
+
+#Убрать слеш в конце адреса
+#RewriteCond %{REQUEST_FILENAME} !-f 
+#RewriteCond %{REQUEST_URI} (.*)/$ 
+#RewriteRule ^(.*)/$ /$1 [R=301,L]
+
+# редирект с зеркала www на основной сайт
+#RewriteCond %{HTTP_HOST} ^www.shop.pwn-zone.com [NC]
+#RewriteRule ^(.*)$ http://shop.pwn-zone.com/$1 [L,R=301]
+
+# Боримся с FireFox, который пытается искать favicon.ico на всех уровнях сайта
+RewriteCond $0 !=favicon.ico
+RewriteRule ^([^/]+/)*favicon\.ico$ favicon.ico [L]
+
+RewriteEngine on
+
+# если директория или файл существуют, использовать их напрямую
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+# иначе отправлять запрос на файл index.php
+RewriteRule . index.php

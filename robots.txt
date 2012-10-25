@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /fail/
+Disallow: /success/
+Disallow: /admin/
+Disallow: /cart/
+Disallow: /api/

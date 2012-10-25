@@ -1,0 +1,2 @@
+http://www.yiiframework.com/extension/prettyphoto
+http://www.no-margin-for-errors.com/projects/prettyphoto-jquery-lightbox-clone/documentation/

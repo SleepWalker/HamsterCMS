@@ -1,0 +1,1174 @@
+html, body {
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  background: #272929;
+}
+
+body {
+  font-family: verdana, arial, helvetica;
+  font-size: 8pt;
+  color: #fff;
+}
+
+img {
+  border: none;
+}
+
+hr {
+  color: #320606;
+  background: #320606;
+  border: 0;
+  height: 1px;
+}
+
+p {
+  margin: 10px 0;
+}
+
+a {
+  color: #fff;
+}
+
+a:hover, a:active {
+  text-decoration: none;
+}
+
+h1 {
+  font-size: 16pt;
+}
+
+h2{
+  font-size: 13pt;
+}
+
+h3, h4 {
+  font-size: 10pt;
+}
+
+h5 {
+  text-align: center;
+  font-size: 8pt;
+  margin: 0;
+  padding:8px 0;
+}
+
+.displayNone {
+  display: none;
+}
+
+/*******************
+ *
+ * Верхняя часть
+ *
+ ******************/
+.header_big, .header_big .header_bg, #header {
+  height: 110px;
+}
+.header_small, .header_small .header_bg {
+height: 40px;
+}
+
+.header_bg {
+  z-index:2;
+  position:relative;
+}
+
+.header_big .header_bg {
+  background: url('../images/header_bg.png');
+  text-align: center;
+}
+
+.header_small .header_bg {
+  background: url('../images/header_bg.png');
+  text-align: center;
+  position:fixed;
+  z-index:3;
+  width:100%;
+}
+.header_small img {
+  height:32px;
+}
+.header_small a.menu_top img {
+  margin-top:7px;
+  opacity: 0.2; -moz-opacity: 0.2; -khtml-opacity: 0.2; filter:progid:DXImageTransform.Microsoft.Alpha(opacity=20);
+}
+.header_small img#logo {
+  margin-top: 4px;
+}
+.header_big a.menu_top img {
+  margin: 10px;
+  opacity: 0.2; -moz-opacity: 0.2; -khtml-opacity: 0.2; filter:progid:DXImageTransform.Microsoft.Alpha(opacity=20);
+}
+/*#header:hover a.menu_top img {
+  opacity: 0.5;
+}   */
+
+#header a:hover.menu_top img {
+  opacity: 1; -moz-opacity: 1; -khtml-opacity: 1; filter:progid:DXImageTransform.Microsoft.Alpha(opacity=100);
+}
+
+.header_big img#logo {
+  margin-top: 7px;
+}
+
+.header_bottom {
+  height: 1px;
+  background: url('../images/header_bottom.png') center 0 no-repeat;
+}
+
+
+/*******************
+ *
+ * Каркас
+ *
+ ******************/
+
+.wrapper {
+  margin: 20px 15px;
+}
+
+.content_wrapper {
+  margin-right: 190px;
+  padding-bottom:25px;
+}
+
+#footer {
+  height:19px;
+  background: url('../images/footer_bg.png') 0 bottom repeat-x;
+  position:fixed;
+  bottom:0;
+  z-index:3;
+  width:100%;
+}
+
+.footer_line {
+  height:1px;
+  background:url('../images/header_bottom.png') center 0 no-repeat;
+}
+
+/*******************
+ *
+ * Правая колонка
+ *
+ ******************/
+
+.block_wrapper{
+  width: 183px;
+  float: right;
+}
+
+.block {
+  background: url('../images/block_top.png') no-repeat #000;
+  margin-bottom: 10px;
+}
+
+.block_bottom {
+  background: url('../images/block_bottom.png') 0 bottom no-repeat;
+  padding-bottom: 1px;
+}
+
+.block_top_light {
+  background: url('../images/block_top_light.png') center 1px no-repeat;
+  padding-top: 8px;
+}
+
+.block_bottom_light {
+  background: url('../images/block_bottom_light.png') center bottom no-repeat;
+  padding-bottom: 25px;
+}
+
+#side_menu a {
+  display: block;
+  height: 26px;
+  line-height: 26px;
+  background: url('../images/block_separator.png') center bottom no-repeat;
+  text-indent: 10px;
+  text-decoration: none;
+}
+#side_menu a:hover {
+  color:#aa0000;
+}
+/*******************
+ *
+ * Стили breadcrumps
+ *
+ ******************/
+
+.breadcrumps {}
+
+.breadcrumps, .breadcrumps li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  height: 21px;
+  margin-bottom:10px;
+}
+
+.breadcrumps li {
+  float: left;
+  padding-right: 14px;
+  margin-left: -14px;
+  position: relative;
+  background: url('../images/breadcrumps.png') right 0 no-repeat;
+}
+
+.breadcrumps a {
+  text-decoration: none;
+  display: block;
+  height: 19px;
+  background: #1f1f1f;
+  border-top: 1px #0b0b0b solid;
+  border-bottom: 1px #0b0b0b solid;
+  line-height: 19px;
+  padding-left: 20px;
+  float: left;
+}
+
+.breadcrumps li:first-child {
+  margin-left: 0;
+  border-left: 1px #0b0b0b solid;
+}
+
+.breadcrumps li:first-child a {
+  padding-left: 5px;
+}
+
+.breadcrumps li:last-child {
+  background: url('../images/breadcrumps.png') right bottom no-repeat;
+}
+
+.breadcrumps li:last-child a {
+  background: #320606;
+}
+
+.breadcrumps li:hover {
+  background: url('../images/breadcrumps.png') right center no-repeat;
+}
+
+.breadcrumps li:hover a {
+  background: #3b3b3b;
+}
+
+.breadcrumps li:last-child:hover {
+  background: url('../images/breadcrumps.png') right bottom no-repeat;
+}
+
+.breadcrumps li:last-child:hover a {
+  background: #320606;
+}
+/*******************
+ *
+ * Стили сообщений
+ *
+ ******************/
+
+/*.attention, .fail, .success, .edit_block {
+  padding: 10px 5px;
+  margin: 10px;
+  border-radius: 3px;
+  -moz-border-radius: 3px;
+  width:300px;
+  position:fixed;
+}
+
+.attention img, .fail img, .success img, .edit_block img {
+  cursor:pointer;
+  float:right;
+}
+
+.attention {
+  background: #66641d;
+  color: #c5c14a;
+  border: 1px #c0bb0c solid;
+}
+
+.attention a {
+  color: #fff94d;
+}
+
+.fail {
+  background: #5b1f1f;
+  color: #942f2f;
+  border: 1px #7b1919 solid;
+}
+
+.fail a {
+  color: #ff3a3a;
+}
+
+.success {
+  background: #3a4723;
+  color: #557927;
+  border: 1px #467c19 solid;
+}
+
+.success a {
+  color: #afff48;
+}
+
+.edit_block {
+  background: #333333;
+  color: #666666;
+  border: 1px #898989 solid;
+}
+
+.edit_block a {
+  color: #f7f7f7;
+}*/
+
+/*******************
+ *
+ * Стили вкладок
+ *
+ ******************/
+
+.tabs {
+  border-bottom: 1px #320606 solid;
+  margin-right: 30px;
+  height: 20px;
+  margin-bottom: 10px;
+  overflow:hidden;
+}
+
+.tabs a {
+  line-height: 19px;
+  text-decoration: none;
+  display: block;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  -moz-border-radius-topright: 5px;
+  -moz-border-radius-topleft: 5px;
+  height: 19px;
+  float: left;
+  border: 1px #000 solid;
+  border-bottom: 0;
+  margin-left: -1px;
+  background: #1f1f1f;
+  padding: 0 5px;
+}
+
+.tabs a:hover {
+  background: #3b3b3b;
+}
+
+.tabs a.active {
+  background: #320606;
+}
+
+.tabs a:first-child {
+  margin-left: 0;
+}
+/*******************
+ *
+ * Стили таблиц
+ *
+ ******************/
+
+table {
+  margin: 10px 0;
+  padding: 0;
+  border-collapse: separate;
+  border-spacing: 1px;
+}
+
+td, th {
+  padding: 3px;
+}
+
+tbody tr:nth-child(even), #dnd tbody tr:nth-child(odd) {
+  background: #1f1f1f;
+}
+
+tbody tr:nth-child(odd) {
+  background: #3b3b3b;
+}
+
+tbody tr:hover {
+  background: #5c5c5c;
+}
+
+th{
+  background-color: #320606;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  -moz-border-radius-topright: 5px;
+  -moz-border-radius-topleft: 5px;
+}
+
+th:empty, th.button-column{
+  background: transparent;
+  border: none;
+}
+
+th a.asc, th a.desc {
+  padding-left:20px;
+  background: url('../images/sort_asc.png') 0 2px no-repeat;
+}
+th a.desc {
+  background-image: url('../images/sort_desc.png');
+}
+
+table td select {
+  min-width: 0; !important
+  width: auto; !important
+}
+
+table tr.filters td {
+  position: relative;
+  overflow: hidden;
+  padding:0;
+}
+
+table tr.filters td input,
+table tr.filters td select {
+  display: block;
+  width:96%;
+  padding: 2px 1%;
+  margin: 2px 1%;
+  float:left;
+  clear:both;
+}
+
+/*******************
+ *
+ * Стили форм
+ *
+ ******************/
+form {
+  color: #999999;
+}
+
+form .buttons {
+  margin: 10px 0;
+}
+
+input, textarea {
+  padding: 5px;
+  border: solid 1px #878787;
+  outline: 0;
+  width: 200px;
+  color: #320606;
+  background: #5c5c5c;
+  border-radius: 3px;
+  -moz-border-radius: 3px;
+}
+
+select, input[type=file] {
+  min-width: 210px;
+  padding:5px;
+  display:block;
+}
+
+fieldset {
+  margin-bottom: 10px;
+  border:1px solid #898989;
+}
+
+fieldset input,
+fieldset textarea {
+  width: 95%;
+}
+
+fieldset textarea {
+  height: 80px;
+}
+
+.small_input  input{
+  width:100px;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  cursor:pointer;
+}
+
+.icodes {
+  width: 150px;
+  background: #cecdcc;
+  padding: 0;
+  cursor: pointer;
+}
+
+span.required {
+  color:#f00;
+}
+
+div.form div.error label:first-child,
+div.form label.error,
+div.form span.error
+{
+	color: #C00;
+}
+
+div.form div.error input,
+div.form div.error textarea,
+div.form div.error select,
+div.form input.error,
+div.form textarea.error,
+div.form select.error
+{
+	background: #FEE;
+	border-color: #C00;
+}
+
+div.form div.success input,
+div.form div.success textarea,
+div.form div.success select,
+div.form div.success .redactor_frame,
+div.form input.success,
+div.form textarea.success,
+div.form select.success
+{
+	background: #E6EFC2;
+	border-color: #C6D880;
+}
+
+div.success label:first-child {
+  color: #C6D880;
+}
+
+
+div.form .errorSummary
+{
+	border: 2px solid #C00;
+	padding: 7px 7px 12px 7px;
+	margin: 0 0 20px 0;
+	background: #FEE;
+	color:#500000;
+	font-size: 0.9em;
+}
+
+div.form .errorMessage
+{
+	color: red;
+	font-size: 0.9em;
+}
+
+div.form .errorSummary p
+{
+	margin: 0;
+	padding: 5px;
+}
+
+div.form .errorSummary ul
+{
+	margin: 0;
+	padding: 0 0 0 20px;
+}
+
+
+textarea {
+  width: 90%;
+  height: 300px;
+}
+
+input:hover, textarea:hover, input:focus, textarea:focus {
+  border-color: #970000;
+  background: #f7f7f7;
+}
+
+label {
+  color: #999999;
+  font-size: 10pt;
+  cursor: pointer;
+  padding-right:5px;
+}
+
+.form label {
+  display:block;
+  position: relative;
+}
+
+.form input + label {
+  display:inline;
+}
+
+input[type = submit], input[type = button] {
+  width: auto;
+  height: 26px;
+  line-height: 26px;
+  padding: 0 20px;
+  background: #6a2822;
+  border: 0;
+  font-size: 14px;
+  color: #FFFFFF;
+  cursor: pointer;
+  border: 1px #380912 solid;
+}
+
+input[type = radio], input[type = checkbox] {
+  width: auto;
+}
+
+.field_group {
+  border-radius: 3px;
+  -moz-border-radius: 3px; 
+  border: solid 1px #878787;
+  padding:10px;
+  background:#111;
+  margin:10px 0;
+}
+.field_container {
+  display:block;
+}
+/*******************
+ *
+ * Стили выпадающих блоков и блоков Drag&Drop
+ *
+ ******************/
+
+.drop_down {
+  overflow: hidden;
+  height: 20px;
+}
+.drop_down_active, .drop_down {
+  margin:5px 0;
+}
+.drop_down_active div:last-child {
+  padding:10px;
+}
+
+.dd_title, #dnd li.dnd_block {
+  float: left;
+  text-indent: 25px;
+  cursor: pointer;
+  height:20px;
+  font-size:10pt;
+  font-weight:bold;
+  line-height:20px;
+  background: url('../images/sort_desc.png') 5px 5px no-repeat #320606;
+  width: 100%;
+  margin-bottom:3px;
+  border-radius: 5px;
+  -moz-border-radius: 5px;
+}
+
+#dnd li.dnd_block {
+  cursor:auto;
+  float:none;
+  width:auto;
+  background-image:none;
+  text-indent:5px;
+  border:1px #320606 solid;
+}
+
+#dnd li.dnd_block:hover {
+  border:1px #ccc solid;	
+}
+
+#dnd, #dnd li, #dnd ul {
+  margin:0;
+  padding:0;
+  list-style:none;
+  display:block;
+}
+
+#dnd ul {
+  margin-left:20px;
+}
+
+ul.shadow ul.highlight li {
+  opacity: 1; -moz-opacity: 1; -khtml-opacity: 1; filter:progid:DXImageTransform.Microsoft.Alpha(opacity=100);
+}
+
+ul.shadow li, ul.shadow  ul.highlight ul li {
+  opacity: 0.3; -moz-opacity: 0.3; -khtml-opacity: 0.3; filter:progid:DXImageTransform.Microsoft.Alpha(opacity=30);
+}
+
+#dnd li {
+  padding-right:10px;
+}
+
+#dnd #dnd_temp_row, .shadow a {
+  opacity: 0.3; -moz-opacity: 0.3; -khtml-opacity: 0.3; filter:progid:DXImageTransform.Microsoft.Alpha(opacity=30);
+}
+
+.dnd_drager {
+  float:left;
+  height:20px;
+  width:10px;
+  margin-left:5px;
+  background:url('../images/icon_grippy.png') center center no-repeat;
+  cursor:pointer;
+}
+
+td .dnd_drager {
+  margin-right:5px;
+}
+
+#dnd .dnd_landing {
+  height:3px;
+  width:100%;
+}
+
+#dnd #dnd_landing_hover {
+  height:25px;
+  border:1px #fff dashed;
+}
+
+table#dnd #dnd_landing_hover {
+  height:50px;
+}
+
+.drop_down_active .dd_title {
+  background-image: url('../images/sort_asc.png');
+}
+
+
+/*******************
+ *
+ * Стили переключателя страниц
+ *
+ ******************/
+.pager {
+  line-height:8px;
+  margin-top:20px;
+}
+.pager ul, .pager li{
+  margin:0;
+  padding:0;
+}
+.pager ul {
+  display:inline-block;
+}
+.pager li{
+  list-style:none;
+  float:left;
+}
+.pager a {
+  text-decoration:none;
+  background:#1f1f1f;
+  border:1px #000 solid;
+  border-radius: 3px;
+  -moz-border-radius: 3px;
+  margin:0 2px;
+  padding:3px;
+}
+.pager a:hover {
+  background:#3b3b3b;
+}
+
+.pager .selected a {
+  background:#320606;
+}
+/*******************
+*
+* Стили списков
+*
+******************/
+ul {
+  margin:10px;
+  padding:0;
+}
+ul ul {
+margin:0 10px;
+}
+
+ul.filseList li {
+  list-style:none;
+  margin:5px 0;
+}
+ul.filseList canvas, ul.filseList img {
+  vertical-align:-45px;
+  margin-right:10px;
+}
+
+ul.filseList canvas {
+  display:none;
+}
+/*******************
+*
+* Стили блока со статусом ajax
+*
+******************/
+/*#ajax_status_wrapper {
+  width:100%;
+  position:fixed;
+  display:none;
+  z-index:10;
+}
+
+.header_big #ajax_status_wrapper {
+  position:absolute;
+  top:110px;
+}
+
+
+.ajax_status {
+  width:52px;
+  text-align:center;
+  background:#000;
+  margin:0 auto;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+  -moz-border-radius-bottomright: 5px;
+  -moz-border-radius-bottomleft: 5px;
+}
+.ajax_status img {
+  padding:10px;
+  padding-top:5px;
+}*/
+
+/*******************
+ *
+ * Стили сообщений
+ *
+ ******************/
+
+/*.modalwnd {
+  background:#333333;
+  border: 1px #a8a8a8 solid;
+  border-radius: 5px;
+  border-radius: 5px;
+  -moz-border-radius: 5px;
+  -moz-border-radius: 5px;
+  width:100%;
+  height:100%;
+}
+
+
+.modalwnd_header {
+  height:26px;
+  width:100%;
+  background:#320606;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  -moz-border-radius-topright: 5px;
+  -moz-border-radius-topleft: 5px;
+  border-bottom: 1px #a8a8a8 solid;
+  line-height:26px;
+  color:#fff;
+  text-align:center;
+  font-weight:bold;
+}
+
+.modalwnd_body {
+  padding:5px;
+  padding-bottom:0;
+  overflow:auto;
+}
+
+.modalwnd_bottom {
+  height:10px;
+  width:100%;
+}*/
+
+
+#ajax_loader {
+  position:fixed;
+  z-index:9999;
+}
+
+.ajax_loading {
+  background:url('../images/ajax.gif') center center no-repeat #000;
+  opacity: 0.7; -moz-opacity: 0.7; -khtml-opacity: 0.7; filter:progid:DXImageTransform.Microsoft.Alpha(opacity=70);
+  position:fixed;
+  top:0;
+  z-index:9999;
+  width:100%;
+  height:100%;
+}
+/*******************
+*
+* Стили выпадающего меню
+*
+******************/
+.ddmenu {
+  width:200px;
+  text-align:center;
+  background:#000;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+  -moz-border-radius-bottomright: 5px;
+  -moz-border-radius-bottomleft: 5px;
+  position:fixed;
+  z-index:100;
+  top:40px;
+  display:none;
+}
+.header_big .ddmenu {
+  position:absolute;
+  top:110px;
+}
+
+
+.ddmenu a {
+  display: block;
+  height: 26px;
+  line-height: 26px;
+  background: url('../images/block_separator.png') center bottom no-repeat;
+  text-indent: 10px;
+  text-decoration: none;
+}
+.ddmenu a:hover {
+  color:#aa0000;
+}
+/*******************
+*
+* Стили страницы входа
+*
+******************/
+.loginPage {
+  width:100%;
+  height:100%;
+  margin:0;
+}
+.loginPage td, .loginPage tr:hover, .loginPage tr:nth-child(odd), .loginPage tr:nth-child(even) {
+  background:none;
+  text-align:center;
+  vertical-align:middle;
+}
+/*******************
+*
+* Стили иконок управления
+*
+******************/
+.icon_sort {
+  width:16px;
+  vertical-align:-5px;
+  margin:0 5px;
+}
+/*Новые иконки*/
+.icon_delete, .icon_edit, .icon_refresh, .icon_add, .icon_stared, .icon_unstared, .icon_ok, .icon_square, .icon_table, .icon_view, .icon_print, .icon_sort_asc, .icon_sort_desc {
+  background:url('../images/icon_delete.png') no-repeat;
+  width:16px;
+  height:16px;
+  margin-top:2px;
+  margin-left:5px;
+  display:inline-block;
+}
+
+#dnd .icon_delete, #dnd .icon_edit, #dnd .icon_refresh, #dnd .icon_add, #dnd .icon_table, #dnd .icon_view, #dnd .icon_print {
+  float:right;
+}
+
+#dnd .icon_stared, #dnd .icon_unstared, #dnd .icon_ok, #dnd .icon_square {
+  float:left;
+}
+
+.icon_edit {
+  background:url('../images/icon_edit.png') no-repeat;
+}
+
+.icon_refresh {
+  background:url('../images/icon_refresh.png') no-repeat;
+}
+
+.icon_add {
+  background:url('../images/icon_add.png') no-repeat;
+}
+
+.icon_stared {
+  background:url('../images/icon_stared.png') no-repeat;
+}
+
+.icon_unstared {
+  background:url('../images/icon_unstared.png') no-repeat;
+}
+
+.icon_unstared:hover {
+  background:url('../images/icon_stared.png') no-repeat;
+}
+
+.icon_ok {
+  background:url('../images/icon_ok.png') no-repeat;
+}
+
+.icon_square {
+  background:url('../images/icon_square.png') no-repeat;
+}
+
+.icon_table {
+  background:url('../images/icon_table.png') no-repeat;
+}
+
+.icon_view {
+  background:url('../images/icon_view.png') no-repeat;
+}
+
+.icon_print {
+  background:url('../images/icon_print.png') no-repeat;
+}
+
+.icon_sort_asc {
+  background:url('../images/sort_asc.png') no-repeat;
+}
+
+.icon_sort_desc {
+  background:url('../images/sort_desc.png') no-repeat;
+}
+
+.add_button {
+  background:url('../images/icon_add.png') no-repeat;
+  width:16px;
+  height:16px;
+  display:inline-block;
+  cursor:pointer;
+  margin:0 5px;
+}
+
+.close_button {
+  background:url('../images/icon_delete.png') no-repeat;
+  width:16px;
+  height:16px;
+  cursor:pointer;
+  right:5px;
+  top:5px;
+  z-index:9;
+  position:absolute;
+}
+
+
+/*******************
+*
+* ToDo
+*
+******************/
+.todo_priority_4 {
+    background-color:#063032;
+}
+.todo_priority_3 {
+  background-color:#00690a;
+}
+.todo_priority_2 {
+    background-color:#be8b00;
+}
+.todo_priority_1 {
+}
+.todo_finished_task {
+    color:#60a149;
+}
+.todo_return {
+    color:#6a0079;
+}
+.todo_task {
+    color:#a14949;
+}
+.todo_in_process {
+    color:#d2cd36;
+}
+/*******************
+*
+* Меню сортировки
+*
+******************/
+.history {
+    display:inline-block;
+    padding:5px;
+    margin:5px;
+    border-radius: 5px;
+  -moz-border-radius: 5px;
+}
+.red {
+   background:#320606;
+}
+
+/*******************
+*
+* Циферка в кружечке
+*
+******************/
+.quantity {
+  width:45px;
+  height:45px;
+  padding:0 10px 10px 0;
+  position:relative;  
+}
+
+.quantity span {
+ width:18px;
+ height:18px;
+ display:block;
+ border-radius:9px;
+ -moz-border-radius:9px;
+ -webkit-border-radius:9px;
+ -khtml-border-radius:9px;
+ color:#f0f0f0;
+ font-size:13px;
+ font-weight:bold;
+ line-height:18px;
+ text-align:center;
+ font-weight:bold;
+ background:#b8da5c;
+ background: rgba(50, 0, 0, 0.50);
+ cursor:pointer;
+ position:absolute;
+ right:0;
+ bottom:0;
+ margin-left:9px;
+ margin-top:9px;
+ border:1px rgba(80, 80, 80, 0.7) solid;
+}
+
+/**
+* Цвета статусов
+**/
+.status_1,
+.level_error { /* Не выполненно */
+    background:#a14949;
+	color: #ff7474;
+}
+
+.status_1 label {
+	color: #ff7474;
+}
+
+.status_2,
+.level_info {/* В процессе */
+    background:#d2cd36;
+}
+
+.status_2 label {
+	color: #605e23;
+}
+
+.status_3,
+.level_profile { /* Выполненно */
+    background:#60a149;
+}
+
+.status_3 label {
+	color: #98ff74;
+}
+
+.status_4,
+.level_warning { /* Отмена */
+    background:#6a0079;
+}
+
+.status_4 label {
+	color: #df00ff;
+}
+
+#ui-datepicker-div select {
+  width: 100%;
+  min-width: 0;
+}
+.ui-datepicker-calendar th span {
+  color: #fff;
+}
+
+/**
+ * Переключатили модулей
+ */
+.switchOn,
+.switchOff {
+  display:inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 2px;
+  background: green;
+  box-shadow: 0 0 5px 2px green;
+  margin-left:-5px;
+  margin-bottom:2px;
+  margin-right:2px;
+  text-indent: -50000px;
+  cursor:pointer;
+}
+
+.switchOff {
+  background: red;
+  box-shadow: 0 0 5px 2px red;
+}
