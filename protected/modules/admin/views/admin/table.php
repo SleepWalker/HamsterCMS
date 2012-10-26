@@ -124,7 +124,7 @@ $defOpts = array(
   ),
   'cssFile'=>false,
   'beforeAjaxUpdate' => 'startLoad',
-  'afterAjaxUpdate' => 'stopLoad',
+  'afterAjaxUpdate' => new CJavaScriptExpression('function(){stopLoad();reinstallDatePicker();}'),
   'enableHistory' => true,
   //'ajaxUpdate' => false,
 );
@@ -137,4 +137,13 @@ $this->widget('zii.widgets.grid.CGridView', array_merge(
   $defOpts,
   $options
 ));
+
+// Script that reinitialises events on datepicker fields and sets deffault localisation
+// for this feature all parameters of datepicker must be set in 'defaultOptions'
+// and field with datepicker must be of class reinstallDatePicker
+Yii::app()->clientScript->registerScript('re-install-date-picker', '
+function reinstallDatePicker() {
+    $(".reinstallDatePicker").each(function(){$(this).datepicker($.datepicker.regional["' . Yii::app()->language . '"])});
+}
+');
 ?>

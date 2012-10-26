@@ -130,7 +130,7 @@ return
   				
   				//T!: в новом менеджере урл нужно, что бы была проверка для урл shop/asd по двум пунктам: shop/Controller и shop/shop/action
           //'shop/<action:(rating|categorie|brand|dbrenew|search|compare)>/<alias:[^\/]+>'=>'shop/shop/<action>', // категории, бренды
-  				'shop/<action:(rating|categorie|brand|dbrenew|search|compare)>/?<alias:[^\/]+>?/?<relId:[^\/]+>?'=>'shop/shop/<action>',
+  				//'shop/<action:(rating|categorie|brand|dbrenew|search|compare)>/?<alias:[^\/]+>?/?<relId:[^\/]+>?'=>'shop/shop/<action>',
   				//'shop/<id:[^\/]*>'=>'shop/shop/view', // страница с товаром
   				
 
