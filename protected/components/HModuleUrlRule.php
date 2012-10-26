@@ -45,6 +45,10 @@ class HModuleUrlRule extends CBaseUrlRule
   public function parseUrl($manager,$request,$pathInfo,$rawPathInfo)
   {
     $url = explode('/', $pathInfo);
+    
+    //exception for standard yii module 'Gii'
+    if($url[0] == 'gii') return false;
+    
     if (count($url))
     {
       $modules = Yii::app()->modules;
