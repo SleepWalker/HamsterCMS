@@ -487,8 +487,8 @@ class CartController extends Controller
           // подгружаем данные из сессии
           $clientModel->attributes = $this->order['user'];
           
-          // задаем ноль как id юзера, что бы переключить на order_client
-          $userId = null;
+          // задаем null как id юзера, что бы переключить на order_client
+          $userId = new CDbExpression('NULL');
         }
       }     
       

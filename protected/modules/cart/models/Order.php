@@ -86,7 +86,7 @@ class Order extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('user_id, address_id, type, currency', 'required'),
+			array('address_id, type, currency', 'required'),
 			array('status, type, currency', 'numerical', 'integerOnly'=>true),
 			array('type, status, currency', 'default', 'value'=>1, 'setOnEmpty' => true),
       array('comment', 'safe'),
