@@ -624,6 +624,11 @@ class CartController extends Controller
 	**/
 	public function sendOrderSummary()
 	{
+    $bccEmails = Yii::app()->modules['cart']['params']['bccEmails'];
+    if(empty($bccEmails)) return;
+    if(strpos($bccEmails, ',')) $bccEmails = preg_split('/ *, */', $bccEmails);
+    else $bccEmails = array($bccEmails);
+    
 	  $message = new YiiMailMessage;
     $message->view = 'orderSummary';
     
@@ -638,7 +643,7 @@ class CartController extends Controller
       
     
     $message->addTo($user['email']);
-    $message->setBcc(array('e-sale@pwn-zone.com','sales@pwn-zone.com'));
+    $message->setBcc($bccEmails);
     $message->subject = 'Информация о заказе №' . $this->order['summary']['orderNo'];
     $message->from = array(Yii::app()->params['noReplyEmail'] => 'Shop.PWN-Zone.com');
     Yii::app()->mail->send($message);
