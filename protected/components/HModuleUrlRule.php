@@ -28,7 +28,7 @@ class HModuleUrlRule extends CBaseUrlRule
       $routeParts = array_values($routeParts);
       $route = implode("/", $routeParts);
       
-      return $route . '?' . http_build_query($params);
+      return $route . '/' . implode("/", $params);
     }
     
     return false;  // не применяем данное правило
@@ -47,16 +47,18 @@ class HModuleUrlRule extends CBaseUrlRule
     $url = explode('/', $pathInfo);
     if (count($url))
     {
-      $modules = Yii::app()->modules;
+      Yii::import('application.modules.admin.models.Config', true);
       
-      foreach($modules as $moduleId => $moduleConfig)
+      $modules = Config::hamsterModules();
+      if(!is_array($modules['modules']) || !is_array($modules['enabledModules'])) return false;
+      
+      foreach($modules['enabledModules'] as $moduleId => $moduleAlias)
       {
-        $moduleUrl = $moduleConfig['moduleUrl'];
+        $moduleUrl = $modules['modules'][$moduleId]['params']['moduleUrl'];
         // Массив с адресами всех модулей
         $moduleUrls[$moduleId] = $moduleUrl ? $moduleUrl : $moduleId;
       }
-      // админский модуль пока живет сам по себе!
-      //$moduleUrls['admin'] = 'admin';
+      $moduleUrls['admin'] = 'admin';
       
       if(in_array($url[0], $moduleUrls)) // есть такой модуль
       {
