@@ -135,7 +135,7 @@ class AdminAction extends CAction
 			    'name'=>'Имя/Фамилия',
 			    'value'=>
           '(
-          !$data->user_id ?
+          empty($data->user_id) ?
           CHtml::encode($data->client->first_name) . "<br />" . CHtml::encode($data->client->last_name)
           : CHtml::link(CHtml::encode($data->user->first_name) . "<br />" . CHtml::encode($data->user->last_name), "'.$this->controller->actionPath.'user/".$data->user_id, array("class"=>"ajaxInfo"))
           
@@ -152,7 +152,7 @@ class AdminAction extends CAction
 			  ),
 			  array(
           'header'=>'Контакты',
-          'value'=>'"<span class=\"status_" . ( $data->user->is_active ? "3" : (!$data->user_id ? "4" : "1")) . "\">" . (!$data->user_id ? CHtml::encode($data->client->email) : CHtml::encode($data->user->email) ) . "</span><br />" . CHtml::encode($data->address->telephone)
+          'value'=>'"<span class=\"status_" . ( $data->user->is_active ? "3" : (empty($data->user_id) ? "4" : "1")) . "\">" . (empty($data->user_id) ? CHtml::encode($data->client->email) : CHtml::encode($data->user->email) ) . "</span><br />" . CHtml::encode($data->address->telephone)
            . ($data->address->fullAddress ? "<br />" . $data->address->fullAddress : "") . "<br />" . $data->ip',
            'type'=>'raw',			  
 			  ), 
@@ -244,30 +244,46 @@ class AdminAction extends CAction
     
     if($form->submitted('submit') && $form->validate())
     {
-      $address->user_id = $client->primaryKey;
-      if($address->save(false))
+      $transaction = Yii::app()->db->beginTransaction();
+      try 
       {
-        $order->operator_id = Yii::app()->user->id;
-        $order->user_id = 0;//$client->primaryKey;
-        $order->address_id = $address->primaryKey;
-        if($order->save(false))
+        $address->user_id = new CDbExpression('NULL');//$client->primaryKey;
+        if($address->save(false))
         {
-          // добавляем нового клиента
-          $client->order_id = $order->primaryKey;
-          $client->save(false);
-          //$OrderCheck = array('prod_id'=>'quantity');
-          $prods = Shop::model()->findAllByPk(array_keys($OrderCheck));
-          foreach($prods as $prod)
+          $order->operator_id = Yii::app()->user->id;
+          $order->user_id = new CDbExpression('NULL');//$client->primaryKey;
+          $order->address_id = $address->primaryKey;
+          if($order->save(false))
           {
-            $check = new OrderCheck;
-            $check->order_id = $order->primaryKey;
-            $check->prod_id = $prod->primaryKey;
-            $check->quantity = $OrderCheck[$prod->primaryKey];
-            $check->price = $prod->price * $check->quantity;
-            $check->save();
+            // добавляем нового клиента
+            $client->order_id = $order->primaryKey;
+            $client->save(false);
+            //$OrderCheck = array('prod_id'=>'quantity');
+            $prods = Shop::model()->findAllByPk(array_keys($OrderCheck));
+            foreach($prods as $prod)
+            {
+              $check = new OrderCheck;
+              $check->order_id = $order->primaryKey;
+              $check->prod_id = $prod->primaryKey;
+              $check->quantity = $OrderCheck[$prod->primaryKey];
+              $check->price = $prod->price * $check->quantity;
+              $check->save();
+            }
+            
+            // все успешно
+            Yii::app()->user->setFlash('success', "Заказ оформлен успешно");
+            $this->controller->refresh();
           }
-          $this->controller->refresh();
         }
+        
+        $transaction->commit();
+      }
+      catch (Exception $e)
+      {
+        // откат транзакции, сообщаем юзеру об ошибке
+        $transaction->rollBack();
+        Yii::app()->user->setFlash('error', "Ошибка обработки заказа: {$e->getMessage()}");
+        $this->controller->refresh();
       }
     }
     

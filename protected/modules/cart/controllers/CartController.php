@@ -453,130 +453,144 @@ class CartController extends Controller
    */
   protected function step4()
   {
-    $valid = 1;
-    // для случая оплаты электронными деньгами
-    // если элемент массива $this->order['summary']['action'] уже определен, значит юзер уже пытался оплачивать заказ
-    // потому пропускаем обработку данных заказа
-    // при оплате наличкой к этот блок кода будет выполняться один раз
-    if(!isset($this->order['summary']['action']))
-    { // Производим обработку введенных данных
-      $orderModel = new Order;
-      // если это новый юзер/гостевой заказ
-      $userId = $this->order['userRegistered']['id'];
-      if(empty($userId))
-      {
-        // регистрируем юзера, в том случае, если он ввел пароли
-        if(!empty($this->order['user']['password1']))
+    // Начинаем транзакцию
+    $transaction = Yii::app()->db->beginTransaction();
+    try
+    {
+      $valid = 1;
+      // для случая оплаты электронными деньгами
+      // если элемент массива $this->order['summary']['action'] уже определен, значит юзер уже пытался оплачивать заказ
+      // потому пропускаем обработку данных заказа
+      // при оплате наличкой к этот блок кода будет выполняться один раз
+      if(!isset($this->order['summary']['action']))
+      { // Производим обработку введенных данных
+        $orderModel = new Order;
+        $userId = $this->order['userRegistered']['id'];
+        // если это новый юзер/гостевой заказ
+        if(empty($userId))
         {
-          $userModel = new User('register');
+          // регистрируем юзера, в том случае, если он ввел пароли
+          if(!empty($this->order['user']['password1']))
+          {
+            $userModel = new User('register');
+            // подгружаем данные из сессии
+            $userModel->attributes = $this->order['user'];
+            $valid = $userModel->save();
+            // авторизируем юзера
+            $userModel->login();
+            // Отправляем письмо с подтверждением email адреса
+            $userModel->sendMailConfirm();
+            if(!$valid)
+              Yii::log("UserModel: \n" . CVarDumper::dumpAsString($this->order['user']) . "\n\nErrors: \n" . CVarDumper::dumpAsString($userModel->errors), 'error', 'order');
+            $userId = $userModel->id;
+          }
+          else
+          {
+            // Пишем контактные данные юзера в таблицу order_client
+            $clientModel = new Client('withEmail');
+            // подгружаем данные из сессии
+            $clientModel->attributes = $this->order['user'];
+            
+            // задаем null как id юзера, что бы переключить на order_client
+            $userId = new CDbExpression('NULL');
+          }
+        }     
+        
+        $addressId = $this->order['oldAddress'];
+        // если юзер ввел новый адрес
+        if(empty($addressId))
+        {
+          // если тип заказа соответствует заказу с доставкой, активируем соответствующий сценарий
+          $adressModel = new OrderAddress( (($this->order['order']['type'] == 2)?'':'delivery') );
           // подгружаем данные из сессии
-          $userModel->attributes = $this->order['user'];
-          $valid = $userModel->save();
-          // авторизируем юзера
-          $userModel->login();
-          // Отправляем письмо с подтверждением email адреса
-          $userModel->sendMailConfirm();
+          $adressModel->attributes = $this->order['address'];
+          // вставляем id юзера
+          $adressModel->user_id = isset($this->order['userRegistered']) ? $this->order['userRegistered']['id'] : $userId;
+          $valid = $adressModel->save() && $valid;
           if(!$valid)
-            Yii::log("UserModel: \n" . CVarDumper::dumpAsString($this->order['user']) . "\n\nErrors: \n" . CVarDumper::dumpAsString($userModel->errors), 'error', 'order');
-          $userId = $userModel->id;
+            Yii::log("AddressModel: \n" . CVarDumper::dumpAsString($this->order['address']) . "\n\nErrors: \n" . CVarDumper::dumpAsString($adressModel->errors), 'error', 'order');
+          $addressId = $adressModel->primaryKey;
         }
-        else
-        {
-          // Пишем контактные данные юзера в таблицу order_client
-          $clientModel = new Client('withEmail');
-          // подгружаем данные из сессии
-          $clientModel->attributes = $this->order['user'];
           
-          // задаем null как id юзера, что бы переключить на order_client
-          $userId = new CDbExpression('NULL');
-        }
-      }     
-      
-      $addressId = $this->order['oldAddress'];
-      // если юзер ввел новый адрес
-      if(empty($addressId))
-      {
-        // если тип заказа соответствует заказу с доставкой, активируем соответствующий сценарий
-        $adressModel = new OrderAddress( (($this->order['order']['type'] == 2)?'':'delivery') );
+        $this->order['order']['user_id'] = $userId;
+        $this->order['order']['address_id'] = $addressId;
+        
+        // Если оплата электронными деньгами
+        // Присваеваем статус "отмененного" заказа, до того момента, пока не произойдет оплата
+        if($this->order['order']['currency'] > 1  && $this->order['order']['currency'] != 8)
+          $this->order['order']['status'] = 4; 
+          
         // подгружаем данные из сессии
-        $adressModel->attributes = $this->order['address'];
-        // вставляем id юзера
-        $adressModel->user_id = isset($this->order['userRegistered']) ? $this->order['userRegistered']['id'] : $userId;
-        $valid = $adressModel->save() && $valid;
+        $orderModel->attributes = $this->order['order'];
+        $valid = $orderModel->save() && $valid;
         if(!$valid)
-          Yii::log("AddressModel: \n" . CVarDumper::dumpAsString($this->order['address']) . "\n\nErrors: \n" . CVarDumper::dumpAsString($adressModel->errors), 'error', 'order');
-        $addressId = $adressModel->primaryKey;
-      }
+            Yii::log("OrderModel: \n" . CVarDumper::dumpAsString($this->order['order']) . "\n\nErrors: \n" . CVarDumper::dumpAsString($orderModel->errors), 'error', 'order');
+         
+        // если пользователь не захотел регистрироваться во время заказа
+        if(isset($clientModel))
+        {
+          $clientModel->order_id = $orderModel->primaryKey;
+          $valid = $clientModel->save() && $valid;
+          if(!$valid)
+            Yii::log("clientModel: \n" . CVarDumper::dumpAsString($this->order['user']) . "\n\nErrors: \n" . CVarDumper::dumpAsString($clientModel->errors), 'error', 'order');
+        }
         
-      $this->order['order']['user_id'] = $userId;
-      $this->order['order']['address_id'] = $addressId;
+        // Создаем чек
+        $paymentAmount = 0; // Сумма заказа
+        // вводим коефициент для конвертации валюты для разных способов оплаты
+        if($this->order['order']['currency'] > 1)
+          $currencyCoeff = Yii::app()->params->currency['toEmoney']/Yii::app()->params->currency['toDollar'];
+        else
+          $currencyCoeff = 1;
+        foreach($this->order['cart'] as $prodId => $cartProduct)
+        {
+          $checkModel = new OrderCheck;
+          $checkModel->order_id = $orderModel->primaryKey;
+          $checkModel->prod_id = $prodId;
+          $checkModel->quantity = $cartProduct->quantity;
+          $checkModel->price = $cartProduct->price * $currencyCoeff;
+          $valid = $checkModel->save() && $valid;
+          
+          $paymentAmount += $checkModel->price * $cartProduct->quantity;
+          if(!$valid)
+            Yii::log("CheckModel: \n" . CVarDumper::dumpAsString($checkModel->errors), 'error', 'order');
+        }
+        
+        // Если оплата электронными деньгами, создаем массив с параметрами
+        if($orderModel->currency > 1 && $orderModel->currency != 8)
+        {
+          if($orderModel->currency < 5 ) // WM
+            $merchantName = 'WM';
+          elseif($orderModel->currency < 8 ) // Privat24
+            $merchantName = 'Privat24';
+          
+          // генерируем форму для оплаты электронными деньгами
+          // сохраняем ее в кэш, для последующего использования при валидации запросов от мерчанта
+          $emoney = Emoney::choose($merchantName)
+          ->createPayment(array(
+            'orderNo' => $orderModel->id,
+            'amount' => $paymentAmount,
+            'desc' => 'Shop.PWN-Zone.com: Оплата заказа №'.$orderModel->primaryKey,
+          ))
+          ->save();
+          
+          $this->order['summary']['action'] = $emoney->formAction;
+          $this->order['summary']['fields'] = $emoney->formFields;
+        }
+        // добавляем номер заказа и дату
+        $this->order['summary']['orderNo'] = $orderModel->id;
+        $this->order['summary']['orderDate'] = Yii::app()->dateFormatter->formatDateTime((string)$orderModel->date);
+      }// if(!isset($this->order['summary']['action']))
       
-      // Если оплата электронными деньгами
-      // Присваеваем статус "отмененного" заказа, до того момента, пока не произойдет оплата
-      if($this->order['order']['currency'] > 1  && $this->order['order']['currency'] != 8)
-        $this->order['order']['status'] = 4; 
-        
-      // подгружаем данные из сессии
-      $orderModel->attributes = $this->order['order'];
-      $valid = $orderModel->save() && $valid;
-      if(!$valid)
-          Yii::log("OrderModel: \n" . CVarDumper::dumpAsString($this->order['order']) . "\n\nErrors: \n" . CVarDumper::dumpAsString($orderModel->errors), 'error', 'order');
-       
-      // если пользователь не захотел регистрироваться во время заказа
-      if(isset($clientModel))
-      {
-        $clientModel->order_id = $orderModel->primaryKey;
-        $valid = $clientModel->save() && $valid;
-        if(!$valid)
-          Yii::log("clientModel: \n" . CVarDumper::dumpAsString($this->order['user']) . "\n\nErrors: \n" . CVarDumper::dumpAsString($clientModel->errors), 'error', 'order');
-      }
-      
-      // Создаем чек
-      $paymentAmount = 0; // Сумма заказа
-      // вводим коефициент для конвертации валюты для разных способов оплаты
-      if($this->order['order']['currency'] > 1)
-        $currencyCoeff = Yii::app()->params->currency['toEmoney']/Yii::app()->params->currency['toDollar'];
-      else
-        $currencyCoeff = 1;
-      foreach($this->order['cart'] as $prodId => $cartProduct)
-      {
-        $checkModel = new OrderCheck;
-        $checkModel->order_id = $orderModel->primaryKey;
-        $checkModel->prod_id = $prodId;
-        $checkModel->quantity = $cartProduct->quantity;
-        $checkModel->price = $cartProduct->price * $currencyCoeff;
-        $valid = $checkModel->save() && $valid;
-        
-        $paymentAmount += $checkModel->price * $cartProduct->quantity;
-        if(!$valid)
-          Yii::log("CheckModel: \n" . CVarDumper::dumpAsString($checkModel->errors), 'error', 'order');
-      }
-      
-      // Если оплата электронными деньгами, создаем массив с параметрами
-      if($orderModel->currency > 1 && $orderModel->currency != 8)
-      {
-        if($orderModel->currency < 5 ) // WM
-          $merchantName = 'WM';
-        elseif($orderModel->currency < 8 ) // Privat24
-          $merchantName = 'Privat24';
-        
-        // генерируем форму для оплаты электронными деньгами
-        // сохраняем ее в кэш, для последующего использования при валидации запросов от мерчанта
-        $emoney = Emoney::choose($merchantName)
-        ->createPayment(array(
-          'orderNo' => $orderModel->id,
-          'amount' => $paymentAmount,
-          'desc' => 'Shop.PWN-Zone.com: Оплата заказа №'.$orderModel->primaryKey,
-        ))
-        ->save();
-        
-        $this->order['summary']['action'] = $emoney->formAction;
-        $this->order['summary']['fields'] = $emoney->formFields;
-      }
-      // добавляем номер заказа и дату
-      $this->order['summary']['orderNo'] = $orderModel->id;
-      $this->order['summary']['orderDate'] = Yii::app()->dateFormatter->formatDateTime((string)$orderModel->date);
-    }// if(!isset($this->order['summary']['action']))
+      //коммитим транзакцию
+      $transaction->commit();
+    }
+    catch (Exception $e)
+    {
+      // откат транзакции, сообщаем юзеру об ошибке
+      $transaction->rollBack();
+      $valid = 0;
+    }
       
     return (object)array(
       'valid' => $valid,

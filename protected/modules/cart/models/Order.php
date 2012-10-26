@@ -87,7 +87,7 @@ class Order extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('address_id, type, currency', 'required'),
-			array('status, type, currency', 'numerical', 'integerOnly'=>true),
+			array('status, type, currency, user_id', 'numerical', 'integerOnly'=>true),
 			array('type, status, currency', 'default', 'value'=>1, 'setOnEmpty' => true),
       array('comment', 'safe'),
 			// The following rule is used by search().

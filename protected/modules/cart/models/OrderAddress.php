@@ -46,6 +46,7 @@ class OrderAddress extends CActiveRecord
 		  array('telephone', 'required'),
 			array('street, house', 'required', 'on' => 'delivery'),
 			array('user_id', 'length', 'max'=>11),
+      array('user_id', 'numerical', 'integerOnly'=>true),
 			array('street', 'length', 'max'=>300),
 			array('house, flat', 'length', 'max'=>10),
 			array('telephone', 'length', 'max'=>20),
