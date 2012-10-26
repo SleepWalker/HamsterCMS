@@ -159,7 +159,7 @@ class AdminController extends Controller
       if(file_exists($filePath.$_GET['delete']))
       {
         if(unlink($filePath.$_GET['delete']) === true)
-          Yii::app()->user->setFlash('success','Бекап ' . $_GET['delete'] . ' удален');
+          Yii::app()->user->setFlash('success','Бекап ' . $_GET['delete'] . ' успешно удален');
       }
       $this->redirect(array('/admin/backup'));
     }

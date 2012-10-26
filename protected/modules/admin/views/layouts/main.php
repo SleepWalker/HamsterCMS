@@ -123,7 +123,15 @@ if($menu) {
 <div class="tabs">
 <?php echo $this->tabs; ?>
 </div>
-<?php 
+
+<?php
+// Yii Flash
+$flashes = array('success', 'fail', 'info');
+foreach($flashes as $flash)
+  if(Yii::app()->user->hasFlash($flash))
+    echo '<div class="' . $flash . 'FlashBlock">' . Yii::app()->user->getFlash($flash) . '</div>';
+
+
 echo '<h1>';
 echo CHtml::encode($this->pageTitle);
 echo '</h1>';

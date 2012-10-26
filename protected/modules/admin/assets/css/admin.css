@@ -264,59 +264,48 @@ height: 40px;
  *
  ******************/
 
-/*.attention, .fail, .success, .edit_block {
-  padding: 10px 5px;
+.infoFlashBlock, .failFlashBlock, .successFlashBlock {
+  padding: 10px;
   margin: 10px;
   border-radius: 3px;
   -moz-border-radius: 3px;
-  width:300px;
-  position:fixed;
+  /*position:fixed;*/
 }
 
-.attention img, .fail img, .success img, .edit_block img {
+.infoFlashBlock img, .failFlashBlock img, .successFlashBlock img {
   cursor:pointer;
   float:right;
 }
 
-.attention {
+.infoFlashBlock {
   background: #66641d;
   color: #c5c14a;
   border: 1px #c0bb0c solid;
 }
 
-.attention a {
+.infoFlashBlock a {
   color: #fff94d;
 }
 
-.fail {
+.failFlashBlock {
   background: #5b1f1f;
   color: #942f2f;
   border: 1px #7b1919 solid;
 }
 
-.fail a {
+.failFlashBlock a {
   color: #ff3a3a;
 }
 
-.success {
+.successFlashBlock {
   background: #3a4723;
   color: #557927;
   border: 1px #467c19 solid;
 }
 
-.success a {
+.successFlashBlock a {
   color: #afff48;
 }
-
-.edit_block {
-  background: #333333;
-  color: #666666;
-  border: 1px #898989 solid;
-}
-
-.edit_block a {
-  color: #f7f7f7;
-}*/
 
 /*******************
  *
