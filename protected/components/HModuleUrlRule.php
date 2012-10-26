@@ -114,11 +114,66 @@ class HModuleUrlRule extends CBaseUrlRule
         }
 
         $actionParams = array_diff($actionParams, $actionParts);
-        $_GET['alias'] = strtolower(implode('/', $actionParams));
+        $this->parseActionParams($controllerClass, $actionId, $actionParams);
         $route[] = strtolower($actionId);
         return implode('/', $route);
       }
     }
     return false;  // не применяем данное правило
+  }
+  
+  /**
+   * Проверяем последний параметр метода экшена на предмет наличия в нем регулярного выражения для парсинга оставшейся части url
+   * @param string $controllerClass controller class name
+   * @param string $actionId action id
+   * @param array $urlParts array with unparsed part of url
+   */
+  function parseActionParams($controllerClass, $actionId, $urlParts)
+  {      
+    $urlParts = array_map('strtolower', $urlParts);
+    $urlParts = array_values($urlParts);
+    
+    $methodName='action'.$actionId;
+    $method=new ReflectionMethod($controllerClass, $methodName);
+    if($method->getNumberOfParameters()>0)
+    {
+      $actionParams = $method->getParameters();
+      $lastParam = array_pop($actionParams);
+      
+      // если у последнего параметра есть значение по умолчанию проверяем, нет ли там регулярного выражение для параметров
+      if($lastParam->isDefaultValueAvailable() && $lastParam->getName() == '_pattern')
+        $_pattern = $lastParam->getDefaultValue();
+        
+        // тут идет кусок скоращенного и немного переделанного кода конструктора CUrlRule
+        // =========================
+        if(preg_match_all('/<(\w+):?(.*?)?>/',$_pattern,$matches))
+        {
+          $tr['/']='\\/';
+          $tokens=array_combine($matches[1],$matches[2]);
+          foreach($tokens as $name=>$value)
+          {
+            if($value==='')
+              $value='[^\/]+';
+            $tr["<$name>"]="(?P<$name>$value)";
+          }
+        }
+        
+        $template=preg_replace('/<(\w+):?.*?>/','<$1>',$_pattern);
+        $pattern='/^'.strtr($template,$tr).'$/u';
+        
+        if(YII_DEBUG && @preg_match($pattern,'test')===false)
+          throw new CException(Yii::t('yii','The URL pattern "{pattern}" for action "{action}" is not a valid regular expression.',
+            array('{action}'=>$actionId,'{pattern}'=>$pattern)));
+        // =========================
+        // конец куска кода CUrlRule
+        
+        // присваиваем массиву гет параметры, прошедшие валидацию
+        if(preg_match($pattern, implode('/', $urlParts)))
+          foreach($actionParams as $i => $param)
+          {
+            if(isset($urlParts[$i]))
+              $_GET[$param->getName()] = $urlParts[$i];
+          }
+    }
   }
 }
