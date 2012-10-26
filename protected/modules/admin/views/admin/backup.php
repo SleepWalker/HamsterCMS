@@ -1,8 +1,5 @@
 <?php
 $this->pageTitle = 'Резервные копии';
-
-if(Yii::app()->user->hasFlash('dbbackup'))
-  echo Yii::app()->user->getFlash('dbbackup');
       
 echo CHtml::beginForm();
 echo '<p>' . CHtml::submitButton('Сделать резервную копию') . ' ' . 
@@ -29,7 +26,9 @@ $this->widget('zii.widgets.grid.CGridView', array(
       array(
         'name' => 'restore',
         'header' => '',
-        'value' => '"<a href=\"?restore=" . $data["name"] . "\" title=\"Восстановить этот бекап\" class=\"icon_refresh\"></a>"',
+        'value' => '"<a href=\"?restore=" . $data["name"] . "\" title=\"Восстановить этот бекап\" class=\"icon_refresh\"></a>"
+          ."<a href=\"?delete=" . $data["name"] . "\" title=\"Удалить бекап\" class=\"icon_delete\" onclick=\"return confirm(\'Вы действительно хотите удалить этот бекап?\');\"></a>"
+        ',
         'type' => "raw",
       ),
     ),

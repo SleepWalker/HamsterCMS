@@ -127,6 +127,7 @@ class AdminController extends Controller
       
     $filePath = Yii::getPathOfAlias('application.runtime.backup').DIRECTORY_SEPARATOR;
       
+    // Восстановление из бекапа
     if($_GET['restore'])
     {
       $sqlFile = $filePath.$_GET['restore'];
@@ -146,18 +147,30 @@ class AdminController extends Controller
         $command=$db->createCommand($sql);
         $rowCount=$command->execute();
         
-        Yii::app()->user->setFlash('dbbackup','База успешно восстановлена. Затронуто строк: '.$rowCount);
+        Yii::app()->user->setFlash('success','База успешно восстановлена. Затронуто строк: '.$rowCount);
       }
       // T!: сделать отправку на восстановление из бекапа через пост
       $this->redirect(array('/admin/backup'));
     }
+    
+    // удаление бекапа
+    if($_GET['delete'])
+    {
+      if(file_exists($filePath.$_GET['delete']))
+      {
+        if(unlink($filePath.$_GET['delete']) === true)
+          Yii::app()->user->setFlash('success','Бекап ' . $_GET['delete'] . ' удален');
+      }
+      $this->redirect(array('/admin/backup'));
+    }
+    
     if(Yii::app()->request->isPostRequest)
     {
       if($_POST['flushDb'])
       {
         $dumper = new SDatabaseDumper;
         if($dumper->flushDb())
-          Yii::app()->user->setFlash('dbbackup','База успешно очищена');
+          Yii::app()->user->setFlash('success','База успешно очищена');
       }else{
         $dumper = new SDatabaseDumper;
         // Get path to backup file
