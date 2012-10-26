@@ -104,14 +104,77 @@ class Config extends CFormModel
     $hamsterModules = $this->hamsterModules;
       
     // добавляем поля из области admin
-    $this->_attributes[] = 'adminTitle';
-    $this->_attLabels['adminTitle'] = 'Название модуля в админ панели';
-    $this->_attValsDef['adminTitle'] = $this->_config['hamster']['admin']['title'];
-    $this->_attVals['adminTitle'] = '';
-    $this->_curModConfig['modulesInfo'][$this->moduleId]['title'] = &$this->_attVals['adminTitle'];
-    $this->_CFormConfig['adminTitle'] = array('type' => 'text');
+    $this->addConfigFields(array(
+      'adminTitle' => array(
+        'label' => 'Название модуля в админ панели',
+        'default' => isset($this->_config['hamster']['admin']['title']) ? $this->_config['hamster']['admin']['title'] : $this->moduleId,
+        'type' => 'text',
+        'linkTo' => &$this->_curModConfig['modulesInfo'][$this->moduleId]['title'],
+      ),
+    ));
+    
+    // добавляем поля url и имя модуля, которые будут отображаться на сайте
+    if(!$this->_config['hamster']['admin']['internal'])
+    {
+      if(!isset($this->_config['moduleName']))
+        $this->addConfigFields(array(
+          'moduleName' => array(
+            'label' => 'Название модуля',
+            'type' => 'text',
+            'default' => ucfirst($this->moduleId),
+          ),
+        ));
+        
+      if(!isset($this->_config['moduleUrl']))
+        $this->addConfigFields(array(
+          'moduleUrl' => array(
+            'label' => 'URI Адрес модуля',
+            'type' => 'text',
+            'default' => $this->moduleId,
+          ),
+        ));
+    }
     
     $this->_hamsterModules = CMap::mergeArray($this->_curModConfig, $hamsterModules);
+  }
+  
+  /**
+   * Adds new field or fields in config
+   *
+   * Example of usage:
+   * $this->addConfigField(array(
+   *    'adminTitle' => array(
+   *      'label' => 'Название модуля в админ панели',
+   *      'default' => $this->_config['hamster']['admin']['title'],
+   *      'type' => 'text',
+   *    ),
+   *    'adminTitle2' => array(
+   *      'label' => 'Название модуля в админ панели',
+   *      'default' => $this->_config['hamster']['admin']['title'],
+   *      'type' => 'text',
+   *    ),
+   *  ));
+   *
+   * Also you can specify option 'linkTo' that to link field value not to module params.
+   *
+   * @param array $options field options
+   */
+  public function addConfigFields($options)
+  {
+    foreach($options as $fieldId => $fieldOptions)
+    {
+      $this->_attributes[] = $fieldId;
+      $this->_attLabels[$fieldId] = $fieldOptions['label'];
+      if(!empty($fieldOptions['default']))
+        $this->_attValsDef[$fieldId] = $fieldOptions['default'];
+        
+      $this->_attVals[$fieldId] = '';
+      if(isset($fieldOptions['linkTo']))
+        $fieldOptions['linkTo'] = &$this->_attVals[$fieldId];
+      else
+        $this->_curModConfig['modules'][$this->moduleId]['params'][$fieldId] = &$this->_attVals[$fieldId];
+      $this->_CFormConfig[$fieldId] = array('type' => 'text');
+    }
   }
   
   /**
@@ -123,6 +186,7 @@ class Config extends CFormModel
    */
   protected function att2CFormConfig($name, $params, $return = false)
   {    
+    // configuration for different field types
     switch($params['type'])
     {
       case 'email':
@@ -151,8 +215,8 @@ class Config extends CFormModel
     
     $this->_attributes[] = $name;
     
-    if(!empty($params['defaultValue']))
-      $this->_attValsDef[$name] = $params['defaultValue'];
+    if(!empty($params['default']))
+      $this->_attValsDef[$name] = $params['default'];
     
     if(!empty($params['label']))
       $this->_attLabels[$name] = $params['label'];
@@ -381,26 +445,4 @@ if(isset($_SERVER['REMOTE_ADDR']))
     else
       return false;
 	}
-  
-  /**
-   * Рекурсивный аналог функции php array_key_exists
-   *
-   * @param string $needle ключ для поиска
-   * @param array $haystack массив, в котором нужно производить поиск
-   * @return bool есть ли в массиве $haystack ключ $needle
-   */
-  /*public function array_key_exists($needle, $haystack)
-  {
-    $result = array_key_exists($needle, $haystack);
-    if ($result)
-      return $result;
-    foreach ($haystack as $v)
-    {
-      if (is_array($v) || is_object($v))
-        $result = array_key_exists_r($needle, $v);
-      if ($result)
-        return $result;
-    }
-    return $result;
-  }*/
 }

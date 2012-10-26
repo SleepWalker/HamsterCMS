@@ -4,12 +4,12 @@ return array(
   'moduleName' => array(
     'label' => 'Название модуля',
     'type' => 'text',
-    'defaultValue' => 'Мероприятия',
+    'default' => 'Мероприятия',
   ),
   'moduleUrl' => array(
-    'label' => 'URI Адрес модуля (Например: blog)',
+    'label' => 'URI Адрес модуля',
     'type' => 'text',
-    'defaultValue' => 'event',
+    'default' => 'event',
   ),
   'yandexApiKey' => array(
     'label' => '<a href="http://api.yandex.ru/maps/form.xml">Ключ API</a> для Яндекс Карт',

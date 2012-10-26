@@ -4,12 +4,12 @@ return array(
   'moduleName' => array(
     'label' => 'Название модуля',
     'type' => 'text',
-    'defaultValue' => 'Блог',
+    'default' => 'Блог',
   ),
   'moduleUrl' => array(
-    'label' => 'URI Адрес модуля (Например: blog)',
+    'label' => 'URI Адрес модуля',
     'type' => 'text',
-    'defaultValue' => 'blog',
+    'default' => 'blog',
   ),
   
   // global params schema and admin panel settings

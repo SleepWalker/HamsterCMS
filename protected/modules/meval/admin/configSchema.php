@@ -2,9 +2,9 @@
 return array(
   // modulewide params schema
   'scriptsAlias' => array(
-    'label' => 'Alias папки с скриптами',
+    'label' => 'Alias папки со скриптами',
     'type' => 'text',
-    'defaultValue' => 'application.mevalScripts',
+    'default' => 'application.mevalScripts',
   ),
   
   // global params schema and admin panel settings
@@ -13,6 +13,7 @@ return array(
     ),
     'admin' => array(
       'title' => 'Скрипты',
+      'internal' => true, // этот модуль работает только внутри админки
     ),
   ),
 );
