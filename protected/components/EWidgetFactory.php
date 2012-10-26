@@ -28,9 +28,9 @@ class EWidgetFactory extends CWidgetFactory
       // into $properties.
       if(isset($this->widgets[$widgetName]))
         $properties=$properties===array() ? $this->widgets[$widgetName] : CMap::mergeArray($this->widgets[$widgetName],$properties);
-        
+
       // для админки у нас особые условия!
-      if(property_exists($owner, 'module') && $owner->module->id == 'admin') {
+      if(method_exists($owner, 'getModule') && $owner->module->id == 'admin') {
         $properties['themeUrl'] = $owner->module->assetsUrl . '/css/jui';
       }
 

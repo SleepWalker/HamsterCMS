@@ -507,11 +507,12 @@ class AdminAction extends CAction
             'filter' => $this->controller->widget('zii.widgets.jui.CJuiDatePicker', array(
               'model'=> $model, 
               'attribute'=>'date_add_from', 
-              'language' => 'ru',
+              'language' => Yii::app()->language,
               /*'htmlOptions' => array(
                 'id' => 'datepicker_for_due_date',
                 'size' => '10',
               ),*/
+              'htmlOptions' => array('class'=>'reinstallDatePicker'),
               'defaultOptions' => array(  
                 'showOn' => 'focus', 
                 'showOtherMonths' => true,
@@ -521,13 +522,14 @@ class AdminAction extends CAction
                 'showButtonPanel' => true,
                 'autoSize' => true,
                 'dateFormat' => "yy-mm-dd",
-              )
+              ),
             ), true)
             .
             $this->controller->widget('zii.widgets.jui.CJuiDatePicker', array(
               'model'=> $model, 
               'attribute'=>'date_add_to', 
-              'language' => 'ru',
+              'language' => Yii::app()->language,
+              'htmlOptions' => array('class'=>'reinstallDatePicker'),
             ), true),
         ),
         array(            
@@ -537,13 +539,15 @@ class AdminAction extends CAction
             'filter' => $this->controller->widget('zii.widgets.jui.CJuiDatePicker', array(
               'model'=> $model, 
               'attribute'=>'date_edit_from', 
-              'language' => 'ru',
+              'language' => Yii::app()->language,
+              'htmlOptions' => array('class'=>'reinstallDatePicker'),
             ), true)
             .
             $this->controller->widget('zii.widgets.jui.CJuiDatePicker', array(
               'model'=> $model, 
               'attribute'=>'date_edit_to', 
-              'language' => 'ru',
+              'language' => Yii::app()->language,
+              'htmlOptions' => array('class'=>'reinstallDatePicker'),
             ), true),
         ),
       ),
