@@ -542,7 +542,7 @@ class Shop extends CActiveRecord
     if((isset($this->date_add_from) && trim($this->date_add_from) != "") && (isset($this->date_add_to) && trim($this->date_add_to) != ""))
       $criteria->addBetweenCondition('t.add_date', ''.date_format(new DateTime($this->date_add_from), 'Y-m-d').'', ''.date_format(new DateTime($this->date_add_to), 'Y-m-d').'');
     if((isset($this->date_edit_from) && trim($this->date_edit_from) != "") && (isset($this->date_edit_to) && trim($this->date_edit_to) != ""))
-      $criteria->addBetweenCondition('t.add_date', ''.date_format(new DateTime($this->date_edit_from), 'Y-m-d').'', ''.date_format(new DateTime($this->date_edit_to), 'Y-m-d').'');
+      $criteria->addBetweenCondition('t.edit_date', ''.date_format(new DateTime($this->date_edit_from), 'Y-m-d').'', ''.date_format(new DateTime($this->date_edit_to), 'Y-m-d').'');
 
 		//$criteria->compare('page_title',$this->page_title,true);
 		//$criteria->compare('page_alias',$this->page_alias,true);
