@@ -135,7 +135,7 @@ class AdminAction extends CAction
 			    'name'=>'Имя/Фамилия',
 			    'value'=>
           '(
-          $data->user->first_name == "NullUser" ?
+          !$data->user_id ?
           CHtml::encode($data->client->first_name) . "<br />" . CHtml::encode($data->client->last_name)
           : CHtml::link(CHtml::encode($data->user->first_name) . "<br />" . CHtml::encode($data->user->last_name), "'.$this->controller->actionPath.'user/".$data->user_id, array("class"=>"ajaxInfo"))
           
@@ -152,7 +152,7 @@ class AdminAction extends CAction
 			  ),
 			  array(
           'header'=>'Контакты',
-          'value'=>'"<span class=\"status_" . ( $data->user->is_active ? "3" : ($data->user->first_name == "NullUser" ? "4" : "1")) . "\">" . ($data->user->first_name == "NullUser" ? CHtml::encode($data->client->email) : CHtml::encode($data->user->email) ) . "</span><br />" . CHtml::encode($data->address->telephone)
+          'value'=>'"<span class=\"status_" . ( $data->user->is_active ? "3" : (!$data->user_id ? "4" : "1")) . "\">" . (!$data->user_id ? CHtml::encode($data->client->email) : CHtml::encode($data->user->email) ) . "</span><br />" . CHtml::encode($data->address->telephone)
            . ($data->address->fullAddress ? "<br />" . $data->address->fullAddress : "") . "<br />" . $data->ip',
            'type'=>'raw',			  
 			  ), 

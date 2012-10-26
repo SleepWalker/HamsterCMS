@@ -75,7 +75,7 @@ class CartController extends Controller
 	*  Действие добавление товара в корзину
   *  @param string $id id товара, который нужно добавить в корзину
 	**/
-	public function actionAdd($id)
+	public function actionAdd($id, $_pattern = '<id:\d+>')
 	{
     $model = Shop::model()->published()->findByPk($id);
     if(!$model)
@@ -113,7 +113,7 @@ class CartController extends Controller
 	*  Если $id=null очищает всю корзину
   *  @param string $id id товара, который нужно удалить из корзины
 	*/
-	public function actionClear($id = null)
+	public function actionClear($id = null, $_pattern = '(<id:\d+>)?')
 	{
 	  if($id)
 	  {
@@ -487,8 +487,8 @@ class CartController extends Controller
           // подгружаем данные из сессии
           $clientModel->attributes = $this->order['user'];
           
-          // задаем ноль как id юзера, что бы прописать во все таблицы связь с NullUser
-          $userId = 0;
+          // задаем ноль как id юзера, что бы переключить на order_client
+          $userId = null;
         }
       }     
       

@@ -225,7 +225,7 @@ echo 'У пользователя ' . written_number($m_count) . ' ' . $friendm[
               <td><u>Покупатель:</u></td>
               <td><b><?php
                 $user = $order->user;
-                if($user->id == 0) // NullUser, тоесть заказ без регистрации -> тянем юзера из другой модели
+                if(!$user->id) // заказ без регистрации -> тянем юзера из другой модели
                   $user = $order->client;
                 echo $user->last_name . ' ' . $user->first_name;
               ?></b></td>
