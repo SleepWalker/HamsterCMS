@@ -56,7 +56,7 @@ class HModuleUrlRule extends CBaseUrlRule
         $moduleUrls[$moduleId] = $moduleUrl ? $moduleUrl : $moduleId;
       }
       // админский модуль пока живет сам по себе!
-      //$moduleUrls['admin'] = 'admin';
+      $moduleUrls['admin'] = 'admin';
       
       if(in_array($url[0], $moduleUrls)) // есть такой модуль
       {
