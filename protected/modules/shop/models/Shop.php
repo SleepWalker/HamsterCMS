@@ -462,7 +462,7 @@ class Shop extends CActiveRecord
 	{
 	  if(parent::beforeValidate())
     {
-      $this->page_alias = empty($this->page_alias) ? $this->page_title : Translit::url($this->page_alias);
+      $this->page_alias = empty($this->page_alias) ? Translit::url($this->product_name) : Translit::url($this->page_alias);
       return true;
     }
     else

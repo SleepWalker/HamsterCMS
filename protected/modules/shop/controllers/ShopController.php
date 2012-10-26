@@ -46,22 +46,6 @@ class ShopController extends Controller
 			),
 		);
 	}
-	
-	public function actionDbrenew()
-	{	
-    return;
-	  $models = Shop::model()->findAll();
-
-	  foreach($models as $model)
-	  { 
-      $model->prId = str_pad(substr($model->id, 3), 5, "0", STR_PAD_LEFT);
-      $model->supplier_id = substr($model->id, 1, 2);
-      echo $model->supplier_id . ' ';
-      echo $model->prId . '<br />';
-      $model->save();
-	  }
-	  echo 'success';
-	}
 
 	/**
 	 * Displays a particular model.
@@ -78,16 +62,16 @@ class ShopController extends Controller
 	/**
 	 * Выводит результаты поиска по запросу $_GET['query']
 	 */
-	public function actionSearch()
+	public function actionSearch($query)
 	{
 	  //T!:поиск должен быть через модель, иначе не будут работать правила валидации
 	  $criteria=new CDbCriteria;
-		$criteria->compare('page_title',$_GET['query'],true, 'OR');
-		$criteria->compare('page_alias',$_GET['query'],true, 'OR');
-		$criteria->compare('description',$_GET['query'],true, 'OR');
+		$criteria->compare('page_title',$query,true, 'OR');
+		$criteria->compare('page_alias',$query,true, 'OR');
+		$criteria->compare('description',$query,true, 'OR');
 		//$criteria->compare('cat_id',$this->cat_id);
 		//$criteria->compare('brand_id',$this->brand_id);
-		$criteria->compare('product_name',$_GET['query'],true, 'OR');
+		$criteria->compare('product_name',$query,true, 'OR');
 
 		$dataProvider=new CActiveDataProvider(Shop::model()->published(), array(
 	    'criteria'=>$criteria,
@@ -104,9 +88,9 @@ class ShopController extends Controller
 	 * Выводит список категорий или товары, пренадлежащие определенной категории.
 	 * @param integer $id the ID of the model to be displayed
 	 */
-	public function actionCategorie()
+	public function actionCategorie($alias, $_pattern = '<alias>')
 	{
-	  if($_GET['alias'] == '') // страница /shop/categorie не доступна для просмотра
+	  if($alias == '') // страница /shop/categorie не доступна для просмотра
 	    throw new CHttpException(404,'Запрашиваемая страница не найдена');
 
     try
@@ -127,11 +111,11 @@ class ShopController extends Controller
 	}
   
   /**
-   * @param mixed $_GET['alias'] в этом параметре может быть либо id, либо alias категории
    * @return Возвращает модель текущей категории в зависимости от параметра, указанного в alias
    */
   public function getCurCat()
   {
+    if(empty($_GET['alias'])) return;
     if(!$this->_curCat)
     {
       $criteria = new CDbCriteria;
@@ -151,9 +135,9 @@ class ShopController extends Controller
 	 * Выводит список брендов или товары, пренадлежащие определенному бренду и категории товаров.
 	 * @param integer $id the ID of the model to be displayed
 	 */
-	public function actionBrand()
+	public function actionBrand($alias, $_pattern = '<alias>')
 	{
-	  if($_GET['alias'] == '')
+	  if($alias == '')
 	    $this->renderAllBrands();
 	  else
 	    $this->renderProdByCriteria('brand');
@@ -359,17 +343,19 @@ class ShopController extends Controller
 	/**
 	 *  Сравнение товаров
 	 */
-	public function actionCompare()
+	public function actionCompare($action, $id = false, $_pattern = '<action>(/<id:\d+>)?')
 	{
-	  if($_GET['alias'] == 'add') $this->compareAdd();
-	  if($_GET['alias'] == 'reset') $this->compareRemove();
-	  if($_GET['alias'] == 'remove') $this->compareRemove();
+	  if($action == 'add') $this->compareAdd($id);
+	  if($action == 'reset') $this->compareRemove($id);
+	  if($action == 'remove') $this->compareRemove($id);
+    
+    // если код добрался сюда, значит нам надо попытаться вывести таблицу сравнения
 	  $compare = Yii::app()->session['ProdCompare'];
 	  if(!$compare) $this->redirect('/');
-	  
+
 	  $this->layout='//layouts/column2';
 	  
-	  $ids = array_flip($compare[$_GET['alias']]); // теперь в значениях элементов массива находятся id товаров
+	  $ids = array_keys($compare[$action]); // теперь в значениях элементов массива находятся id товаров
 	  
 	  $criteria = new CDbCriteria;
 	  $criteria->with = array(
@@ -394,14 +380,14 @@ class ShopController extends Controller
 	/**
 	 *  Добавить товар к сравнению
 	 */
-	protected function compareAdd()
+	protected function compareAdd($id)
 	{
-	  if(empty($_GET['cat']) || empty($_GET['relId'])) return;
+	  if(empty($_GET['cat']) || !$id) return;
 	  if(empty(Yii::app()->session['ProdCompare']))
       Yii::app()->session->add('ProdCompare', array());
     
     $compare = Yii::app()->session['ProdCompare'];  
-    $compare[$_GET['cat']][$_GET['relId']] = $_GET['thumb'];
+    $compare[$_GET['cat']][$id] = $_GET['thumb'];
     
     Yii::app()->session['ProdCompare'] = $compare;
     Yii::app()->end();
@@ -410,7 +396,7 @@ class ShopController extends Controller
 	/**
 	 *  Удалить товар / все товары из сравнения
 	 */
-	protected function compareRemove()
+	protected function compareRemove($id)
 	{
 	  if(isset($_GET['cat']))
 	  {
@@ -419,8 +405,8 @@ class ShopController extends Controller
   	    Yii::app()->session->remove('ProdCompare');
   	  else
   	  {
-  	    if(isset($_GET['relId']))
-    	    unset($compare[$_GET['cat']][$_GET['relId']]);
+  	    if($id)
+    	    unset($compare[$_GET['cat']][$id]);
     	  else
   	     unset($compare[$_GET['cat']]);
   	    Yii::app()->session['ProdCompare'] = $compare;
@@ -432,17 +418,19 @@ class ShopController extends Controller
 	}
 	
 	/**
-	 * Меняет рейтинг товара (AJAX)
+	 * Changes product rating (AJAX)
+   * @param int $id product id
+   * @param int $val raing val
 	 */
-	public function actionRating()
+	public function actionRating($id, $val)
   { 
     if ( Yii::app()->request->isAjaxRequest )
     {
       $ratingModel = new Rating;
       $ratingModel->attributes = array(
-			  'prod_id' => $_GET['id'],
+			  'prod_id' => $id,
 			  'user_id' => Yii::app()->user->id,
-			  'value' => $_GET['val'],
+			  'value' => $val,
       );
       try {
         $ratingModel->save();
@@ -455,11 +443,11 @@ class ShopController extends Controller
         return;
       }
 
-      $model = Shop::model()->published()->findByPk($_GET['id']); 
+      $model = Shop::model()->published()->findByPk($id); 
       if (empty($model->rating))
-        $rating = '1.'.$_GET['val']*100;
+        $rating = '1.'.$val*100;
       else
-        $rating = ($model->votesCount + 1) . '.' . (($model->ratingVal/100 + $_GET['val']) / 2 * 100);
+        $rating = ($model->votesCount + 1) . '.' . (($model->ratingVal/100 + $val) / 2 * 100);
       
       $model->rating = (float)$rating;
       $model->save();
