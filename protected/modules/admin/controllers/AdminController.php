@@ -347,10 +347,11 @@ class AdminController extends Controller
 	 */
   public function getCrud()
   {
-    if (strpos($_GET['action'], 'create') !== false) $crud = 'create';
-    if (strpos($_GET['action'], 'update') !== false) $crud = 'update';
-    if (strpos($_GET['action'], 'delete') !== false) $crud = 'delete';
-    else $crud = array_pop(explode('/' , $_GET['action']));
+    $action = $_GET['action'];
+    if (strpos($action, 'create') !== false) $crud = 'create';
+    if (strpos($action, 'update') !== false) $crud = 'update';
+    if (strpos($action, 'delete') !== false) $crud = 'delete';
+    else $crud = array_pop(explode('/' , $action));
     
     return $crud;
   }
