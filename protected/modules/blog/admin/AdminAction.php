@@ -8,12 +8,12 @@
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
  
-class AdminAction extends CAction
+class AdminAction extends HAdminAction
 {
   public function run()
   {    
     // import the module-level models and components
-		$this->controller->module->setImport(array(
+		$this->module->setImport(array(
 			'blog.models.*',
 			'blog.components.*',
 		));
@@ -66,8 +66,8 @@ class AdminAction extends CAction
 	  if(!is_dir($uploadPath)) // создаем директорию для картинок
 	    mkdir($uploadPath, 0777);
 	  
-    if ($this->controller->crudid)
-      $model=Post::model()->findByPk($this->controller->crudid);
+    if ($this->crudid)
+      $model=Post::model()->findByPk($this->crudid);
     else
       $model = new Post;
     
@@ -126,15 +126,15 @@ class AdminAction extends CAction
 		if($_POST['ajaxIframe'] || $_POST['ajaxSubmit'])
     {
       // если модель сохранена и это было действие добавления, переадресовываем на страницу редактирования этого же материала
-      if($saved && $this->controller->crud == 'create')
+      if($saved && $this->crud == 'create')
         $data = array(
           'action' => 'redirect',
-          'content' => $this->controller->curModuleUrl . 'update/'.$model->id,
+          'content' => $this->curModuleUrl . 'update/'.$model->id,
         );
       else
         $data = array(
           'action' => 'renewForm',
-          'content' => $this->controller->renderPartial('update',array(
+          'content' => $this->renderPartial('update',array(
                          'model'=>$model,
                        ), true, true),
         );
@@ -144,7 +144,7 @@ class AdminAction extends CAction
     }
 		
 		if(!$_POST['ajaxSubmit'])
-      $this->controller->render('update',array(
+      $this->render('update',array(
 			  'model'=>$model,
 		  ));
   }
@@ -173,9 +173,9 @@ class AdminAction extends CAction
     {
       array_push($tagsMenu, $tag->name);
     }
-    $this->controller->aside['Теги'] = $tagsMenu;
+    $this->aside['Теги'] = $tagsMenu;
 	  
-		$this->controller->render('table',array(
+		$this->render('table',array(
 			'dataProvider'=> $model->latest()->search(),
 			'options' => array(
 			 'filter'=>$model,
@@ -206,7 +206,7 @@ class AdminAction extends CAction
             'name'=>'add_date',
             'value' => 'str_replace(" ", "<br />", Yii::app()->dateFormatter->formatDateTime($data->add_date))',
             'type' => 'raw',
-            'filter' => $this->controller->widget('zii.widgets.jui.CJuiDatePicker', array(
+            'filter' => $this->widget('zii.widgets.jui.CJuiDatePicker', array(
               'model'=> $model, 
               'attribute'=>'date_add_from', 
               'language' => 'ru',
@@ -222,7 +222,7 @@ class AdminAction extends CAction
               )
             ), true)
             .
-            $this->controller->widget('zii.widgets.jui.CJuiDatePicker', array(
+            $this->widget('zii.widgets.jui.CJuiDatePicker', array(
               'model'=> $model, 
               'attribute'=>'date_add_to', 
               'language' => 'ru',
@@ -232,13 +232,13 @@ class AdminAction extends CAction
             'name'=>'edit_date',
             'value' => 'str_replace(" ", "<br />", Yii::app()->dateFormatter->formatDateTime($data->edit_date))',
             'type' => 'raw',
-            'filter' => $this->controller->widget('zii.widgets.jui.CJuiDatePicker', array(
+            'filter' => $this->widget('zii.widgets.jui.CJuiDatePicker', array(
               'model'=> $model, 
               'attribute'=>'date_edit_from', 
               'language' => 'ru',
             ), true)
             .
-            $this->controller->widget('zii.widgets.jui.CJuiDatePicker', array(
+            $this->widget('zii.widgets.jui.CJuiDatePicker', array(
               'model'=> $model, 
               'attribute'=>'date_edit_to', 
               'language' => 'ru',
@@ -259,7 +259,7 @@ class AdminAction extends CAction
 		if(Yii::app()->request->isPostRequest)
 		{
 			// we only allow deletion via POST request
-			$model = Post::model()->findByPk($this->controller->crudid);
+			$model = Post::model()->findByPk($this->crudid);
 			// Удаляем изображение
 		  if(file_exists($uploadPath.$model->image)) unlink($uploadPath.$model->image);
 			$model->delete();

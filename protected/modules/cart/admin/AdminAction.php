@@ -3,11 +3,11 @@
  * Admin action class for cart module
  *
  * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @package    cart.controllers.cart.AdminAction
+ * @package    Hamster.modules.cart.admin.AdminAction
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
-class AdminAction extends CAction
+class AdminAction extends HAdminAction
 {
   public function run()
   {
@@ -32,12 +32,12 @@ class AdminAction extends CAction
   public function actionIndex($criteria = false, $render = 'render', $id = 'orderIndex') 
   {
     // Диалоговые окошки для просмотра чеков
-		$this->controller->widget('application.widgets.juiajaxdialog.AjaxDialogWidget', array(
+		$this->widget('application.widgets.juiajaxdialog.AjaxDialogWidget', array(
       'id'=>'cart',
       'selectors' => array(
         '.ajaxInfo',
       ),
-      'themeUrl' => $this->controller->adminAssetsUrl . '/css/jui',
+      'themeUrl' => $this->adminAssetsUrl . '/css/jui',
       'options' => array(
         'title'=>'Информация о заказе',
       )
@@ -58,7 +58,7 @@ class AdminAction extends CAction
       $orderModel->statusArr = $statusIsChecked;
       
       ob_start();
-      echo CHtml::beginForm($this->controller->curModuleUrl, 'GET');;
+      echo CHtml::beginForm($this->curModuleUrl, 'GET');;
       echo 'Фильтр по статусу: ';
       foreach($statusArr as $statusId => $statusName)
       {
@@ -83,7 +83,7 @@ class AdminAction extends CAction
     if ($criteria)
       $dataProvider->criteria->mergeWith($criteria);
       
-		$this->controller->{$render}('table',array(
+		$this->{$render}('table',array(
 			'dataProvider'=>$dataProvider,
       'buttons' => array(
         'print', 
@@ -126,7 +126,7 @@ class AdminAction extends CAction
               {
                 $str += $check->price*$check->quantity;
               }
-              return CHtml::link(number_format($str, 2, ",", " "), "/'.$this->controller->module->id.'/cart/check/".$data->id, array("class"=>"ajaxInfo"));
+              return CHtml::link(number_format($str, 2, ",", " "), "/'.$this->module->id.'/cart/check/".$data->id, array("class"=>"ajaxInfo"));
             })            			    
 			    ',
 			    'type'=>'raw',
@@ -137,7 +137,7 @@ class AdminAction extends CAction
           '(
           empty($data->user_id) ?
           CHtml::encode($data->client->first_name) . "<br />" . CHtml::encode($data->client->last_name)
-          : CHtml::link(CHtml::encode($data->user->first_name) . "<br />" . CHtml::encode($data->user->last_name), "'.$this->controller->actionPath.'user/".$data->user_id, array("class"=>"ajaxInfo"))
+          : CHtml::link(CHtml::encode($data->user->first_name) . "<br />" . CHtml::encode($data->user->last_name), "'.$this->actionPath.'user/".$data->user_id, array("class"=>"ajaxInfo"))
           
           )',
 			    'type'=>'raw',
@@ -168,7 +168,7 @@ class AdminAction extends CAction
             array(
               "ajax" => array(
                 "type"=>"POST",
-                "url"=>"'.$this->controller->actionPath.'status", 
+                "url"=>"'.$this->actionPath.'status", 
                 "beforeSend" => "startLoad",
                 "complete" => "stopLoad",
                 "context" => "js:jQuery(\"#status_" . $data->id . "\")",
@@ -190,7 +190,7 @@ class AdminAction extends CAction
    */
   public function actionMore() 
   {
-    $model = Order::model()->findByPk($this->controller->crudid);
+    $model = Order::model()->findByPk($this->crudid);
     echo '<h1>' . $model->getAttributeLabel('comment') . '</h1><pre>' . CHtml::encode($model->comment) . '</pre>';
     
     Yii::app()->end();
@@ -272,7 +272,7 @@ class AdminAction extends CAction
             
             // все успешно
             Yii::app()->user->setFlash('success', "Заказ оформлен успешно");
-            $this->controller->refresh();
+            $this->refresh();
           }
         }
         
@@ -283,17 +283,17 @@ class AdminAction extends CAction
         // откат транзакции, сообщаем юзеру об ошибке
         $transaction->rollBack();
         Yii::app()->user->setFlash('error', "Ошибка обработки заказа: {$e->getMessage()}");
-        $this->controller->refresh();
+        $this->refresh();
       }
     }
     
     // Вторым параметром передаем (captureOutput) true.
     // таким образом мы запустим инициализацию скриптов, но текстовое поле писать не будем,
     // это сделает за нас CForm
-    $this->controller->widget('zii.widgets.jui.CJuiAutoComplete', array(
+    $this->widget('zii.widgets.jui.CJuiAutoComplete', array(
       'name' => 'Shop_id',
-      'sourceUrl'=>$this->controller->curModuleUrl . 'acprod',
-      'themeUrl' => $this->controller->adminAssetsUrl . '/css/jui',
+      'sourceUrl'=>$this->curModuleUrl . 'acprod',
+      'themeUrl' => $this->adminAssetsUrl . '/css/jui',
       // additional javascript options for the autocomplete plugin
       'options'=>array(
           'minLength'=>'3',
@@ -376,7 +376,7 @@ class AdminAction extends CAction
     
     $check->prod_id = '';
     
-    $this->controller->render('CFormUpdate', array(
+    $this->render('CFormUpdate', array(
       'form' => $form,
     ));
   }
@@ -431,17 +431,17 @@ class AdminAction extends CAction
 	{
 	  $dataProvider=new CActiveDataProvider('OrderCheck', array(
         'criteria'=>array(
-            'condition'=>'order_id='.$this->controller->crudId,
+            'condition'=>'order_id='.$this->crudId,
         ),
         'sort' => array('defaultOrder' => 'price DESC'),
 	    )
 	  );
 	  	  
-		$this->controller->renderPartial('table',array(
+		$this->renderPartial('table',array(
 			'dataProvider'=>$dataProvider,
 			'buttons'=>array('view'),
 			'options'=>array(
-			  'id' => 'popup_'.$this->controller->crudId,
+			  'id' => 'popup_'.$this->crudId,
 			),
 			'columns'=>array(
 			  array(
@@ -465,7 +465,7 @@ class AdminAction extends CAction
 	public function actionUser()
 	{
 	  $this->actionIndex(array(
-      'condition'=>'user_id='.$this->controller->crudId,	  
+      'condition'=>'user_id='.$this->crudId,	  
 	  ), 'renderPartial', 'orderUser');
 	}  
   
@@ -474,17 +474,17 @@ class AdminAction extends CAction
    */
   function actionPrint()
   {
-    $id = $this->controller->crudId;
+    $id = $this->crudId;
     
     $order = Order::model()->findByPk($id);
     
     $mpdf = Yii::app()->ePdf->mpdf();
     $mpdf->logo = file_get_contents(Yii::getPathOfAlias('cart.views.cart.check') . '/PWNZ_grayscale.png');
-    $mpdf->WriteHTML($this->controller->renderPartial('cart.views.cart.check.check', array('order' => $order), true));
+    $mpdf->WriteHTML($this->renderPartial('cart.views.cart.check.check', array('order' => $order), true));
     
     $mpdf->AddPage();
     $mpdf->logo = file_get_contents(Yii::getPathOfAlias('cart.views.cart.check') . '/PWNZ.png');
-    $mpdf->WriteHTML($this->controller->renderPartial('cart.views.cart.check.waranty', array('order' => $order), true));
+    $mpdf->WriteHTML($this->renderPartial('cart.views.cart.check.waranty', array('order' => $order), true));
     
     $mpdf->Output('confirm_' . $order->id . '.pdf', EYiiPdf::OUTPUT_TO_BROWSER);
   }

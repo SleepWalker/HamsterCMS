@@ -7,12 +7,12 @@
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
-class AdminAction extends CAction
+class AdminAction extends HAdminAction
 {
   public function run()
   {    
     // import the module-level models and components
-		$this->controller->module->setImport(array(
+		$this->module->setImport(array(
 			'shop.models.*',
 			'shop.components.*',
 		));
@@ -64,7 +64,7 @@ class AdminAction extends CAction
     array(
       'ajax' => array(
         'type'=>'POST', //request type
-        'url'=>$this->controller->actionPath, //url to call.
+        'url'=>$this->actionPath, //url to call.
         'beforeSend' => 'startLoad',
         'complete' => 'stopLoad',
         'update'=>'#cat_id_update', //selector to update
@@ -127,7 +127,7 @@ class AdminAction extends CAction
       }
 
       $charShemas = CharShema::model()->findAll($criteria);
-      $this->controller->renderPartial('shop.views.admin.chtbl', array(
+      $this->renderPartial('shop.views.admin.chtbl', array(
         'charShemas' => $charShemas,
         'charValues' => $charValues,
       ));
@@ -149,9 +149,9 @@ class AdminAction extends CAction
 	    
     //JS для обработки зависимых выпадающих списков выбора категории и подгрузки полей характеристик
     $this->registerFormUpdScript();
-	  
-    if ($this->controller->crudid)
-      $model=Shop::model()->findByPk($this->controller->crudid);
+
+    if ($this->crudid)
+      $model=Shop::model()->findByPk($this->crudid);
     else
       $model = new Shop;
     
@@ -255,7 +255,7 @@ class AdminAction extends CAction
   			    }
   			    
   		      // Зачищаем старые характеристики (только в случае редактирования)
-  		      if ($this->controller->crudid)
+  		      if ($this->crudid)
               Char::model()->deleteAllByAttributes(array(
                   'prod_id' => $model->id,
                 ),
@@ -273,15 +273,15 @@ class AdminAction extends CAction
 		if($_POST['ajaxIframe'])
     {
       // если модель сохранена и это было действие добавления, переадресовываем на страницу редактирования этого же материала
-      if($saved && $this->controller->crud == 'create')
+      if($saved && $this->crud == 'create')
         $data = array(
           'action' => 'redirect',
-          'content' => $this->controller->curModuleUrl . 'update/'.$model->id,
+          'content' => $this->curModuleUrl . 'update/'.$model->id,
         );
       else
         $data = array(
           'action' => 'renewForm',
-          'content' => $this->controller->renderPartial('update',array(
+          'content' => $this->renderPartial('update',array(
                          'model'=>$model,
                        ), true, true),
         );
@@ -291,7 +291,7 @@ class AdminAction extends CAction
     }
 		
 		if(!$_POST['ajaxSubmit'])
-      $this->controller->render('update',array(
+      $this->render('update',array(
 			  'model'=>$model,
 		  ));
   }
@@ -310,12 +310,12 @@ class AdminAction extends CAction
 	 */
   function registerFormUpdScript()
   {
-    $prodId = ($this->controller->crudid)?$this->controller->crudid:'0';
+    $prodId = ($this->crudid)?$this->crudid:'0';
     $catUpdInitJs = '
 	    var catId = $("#Shop_cat_id").val(); // Выбранная категория 
 	    // контейнер для выпадающих списков
 	    $("<div id=\"cat_id_update\"></div>").insertAfter($("#Shop_cat_id"));
-	    jQuery.ajax("' . $this->controller->actionPath . 'ddd", {
+	    jQuery.ajax("' . $this->actionPath . 'ddd", {
 	      type: "POST",
 	      data: {catId:catId},
 	      success: function (answer)
@@ -363,7 +363,7 @@ class AdminAction extends CAction
 	    // Обновляем таблицу характеристик Char
 	    var renewChar = function(catId)
 	    {
-	      jQuery.ajax("' . $this->controller->actionPath . 'chtbl", {
+	      jQuery.ajax("' . $this->actionPath . 'chtbl", {
 	        type: "POST",
 	        data: {catId:catId, prodId:' . $prodId . '},
 	        success: function (answer)
@@ -449,7 +449,7 @@ class AdminAction extends CAction
     if(isset($_GET['Shop']))
       $model->attributes=$_GET['Shop'];
 	  
-		$this->controller->render('table',array(
+		$this->render('table',array(
 			'dataProvider'=> $model->latest()->search(),
 			'options' => array(
 			 'filter'=>$model,
@@ -504,7 +504,7 @@ class AdminAction extends CAction
             'name'=>'add_date',
             'value' => 'str_replace(" ", "<br />", Yii::app()->dateFormatter->formatDateTime($data->add_date))',
             'type' => 'raw',
-            'filter' => $this->controller->widget('zii.widgets.jui.CJuiDatePicker', array(
+            'filter' => $this->widget('zii.widgets.jui.CJuiDatePicker', array(
               'model'=> $model, 
               'attribute'=>'date_add_from', 
               'language' => Yii::app()->language,
@@ -525,7 +525,7 @@ class AdminAction extends CAction
               ),
             ), true)
             .
-            $this->controller->widget('zii.widgets.jui.CJuiDatePicker', array(
+            $this->widget('zii.widgets.jui.CJuiDatePicker', array(
               'model'=> $model, 
               'attribute'=>'date_add_to', 
               'language' => Yii::app()->language,
@@ -536,14 +536,14 @@ class AdminAction extends CAction
             'name'=>'edit_date',
             'value' => 'str_replace(" ", "<br />", Yii::app()->dateFormatter->formatDateTime($data->edit_date))',
             'type' => 'raw',
-            'filter' => $this->controller->widget('zii.widgets.jui.CJuiDatePicker', array(
+            'filter' => $this->widget('zii.widgets.jui.CJuiDatePicker', array(
               'model'=> $model, 
               'attribute'=>'date_edit_from', 
               'language' => Yii::app()->language,
               'htmlOptions' => array('class'=>'reinstallDatePicker'),
             ), true)
             .
-            $this->controller->widget('zii.widgets.jui.CJuiDatePicker', array(
+            $this->widget('zii.widgets.jui.CJuiDatePicker', array(
               'model'=> $model, 
               'attribute'=>'date_edit_to', 
               'language' => Yii::app()->language,
@@ -564,7 +564,7 @@ class AdminAction extends CAction
 		if(Yii::app()->request->isPostRequest && Yii::app()->user->checkAccess('admin'))
 		{
 			// we only allow deletion via POST request
-			Shop::model()->findByPk($this->controller->crudid)->delete();
+			Shop::model()->findByPk($this->crudid)->delete();
 		}
 		else
 			throw new CHttpException(400,'Не правильный запрос. Пожалуйста не повторяйте этот запрос еще раз.');
@@ -581,7 +581,7 @@ class AdminAction extends CAction
         ),
 	    )
 	  );
-		$this->controller->render('table',array(
+		$this->render('table',array(
 			'dataProvider'=>$dataProvider,
 			'columns'=>array(
 			  'brand_name',
@@ -603,8 +603,8 @@ class AdminAction extends CAction
 	  if(!is_dir($uploadPath)) // создаем директорию для картинок
 	    mkdir($uploadPath, 0777);
 	    
-	  if (!empty($this->controller->crudid))
-      $model=Brand::model()->findByPk($this->controller->crudid);
+	  if (!empty($this->crudid))
+      $model=Brand::model()->findByPk($this->crudid);
     else
       $model = new Brand;
     
@@ -657,7 +657,7 @@ class AdminAction extends CAction
     {
       $data = array(
         'action' => 'renewForm',
-        'content' => $this->controller->renderPartial('update',array(
+        'content' => $this->renderPartial('update',array(
 	                     'model'=>$model,
                      ), true),
       );
@@ -667,7 +667,7 @@ class AdminAction extends CAction
     }
 		
 		if(!$_POST['ajaxSubmit'])
-      $this->controller->render('update',array(
+      $this->render('update',array(
 			  'model'=>$model,
 		  ));
 	}
@@ -686,7 +686,7 @@ class AdminAction extends CAction
 		if(Yii::app()->request->isPostRequest && Yii::app()->user->checkAccess('admin'))
 		{
 			// we only allow deletion via POST request
-			$model = Brand::model()->findByPk($this->controller->crudid);
+			$model = Brand::model()->findByPk($this->crudid);
 			// Удаляем изображение
 		  if(file_exists($uploadPath.$model->brand_logo)) unlink($uploadPath.$model->brand_logo);
 			$model->delete();
@@ -703,7 +703,7 @@ class AdminAction extends CAction
 	  $models = Categorie::model()->findAll(array(
 	    'order'=>'cat_sindex ASC'
 	  ));
-	  $this->controller->render('dragndrop',array(
+	  $this->render('dragndrop',array(
 			'models'=>$models,
 			'attSindex'=>'cat_sindex',
 			'attParent'=>'cat_parent',
@@ -723,8 +723,8 @@ class AdminAction extends CAction
 	  if(!is_dir($uploadPath)) // создаем директорию для картинок
 	    mkdir($uploadPath, 0777);
 	    
-	  if (!empty($this->controller->crudid) && $this->controller->crud == 'update')
-      $model=Categorie::model()->findByPk($this->controller->crudid);
+	  if (!empty($this->crudid) && $this->crud == 'update')
+      $model=Categorie::model()->findByPk($this->crudid);
     else
       $model = new Categorie;
     
@@ -739,10 +739,10 @@ class AdminAction extends CAction
 		{
 			$model->attributes=$_POST['Categorie'];
 			
-			if ($this->controller->crud == 'create')
+			if ($this->crud == 'create')
 			{
-			  if (!empty($this->controller->crudid)) // Если задан id, значит это форма добавления подкатегории
-			    $model->cat_parent = $this->controller->crudid;
+			  if (!empty($this->crudid)) // Если задан id, значит это форма добавления подкатегории
+			    $model->cat_parent = $this->crudid;
 			}
 			  
 			if(empty($model->cat_parent)) $model->cat_parent = 0; // Если родитель пустой, значит это категория верхнего уровня
@@ -782,7 +782,7 @@ class AdminAction extends CAction
     {
       $data = array(
         'action' => 'renewForm',
-        'content' => $this->controller->renderPartial('update',array(
+        'content' => $this->renderPartial('update',array(
 	                     'model'=>$model,
                      ), true),
       );
@@ -792,7 +792,7 @@ class AdminAction extends CAction
     }
     
 		if(!$_POST['ajaxSubmit'])
-      $this->controller->renderPartial('update',array(
+      $this->renderPartial('update',array(
 			  'model'=>$model,
 		  ), false, true);
 	}
@@ -810,7 +810,7 @@ class AdminAction extends CAction
 		if(Yii::app()->request->isPostRequest && Yii::app()->user->checkAccess('admin'))
 		{
 			// we only allow deletion via POST request
-			$model = Categorie::model()->findByPk($this->controller->crudid);
+			$model = Categorie::model()->findByPk($this->crudid);
 			// Удаляем изображение
 		  if(file_exists($uploadPath.$model->cat_logo)) unlink($uploadPath.$model->cat_logo);
 			$model->delete();
@@ -824,9 +824,9 @@ class AdminAction extends CAction
 	 */
 	public function actionCategorieCharshema()
 	{
-	  if(empty($this->controller->crudid)) return false;
+	  if(empty($this->crudid)) return false;
 	  
-	  $parentIds = Categorie::model()->getParentsCatIds($this->controller->crudid);
+	  $parentIds = Categorie::model()->getParentsCatIds($this->crudid);
 	  if(count($parentIds))
 	  {
 	    $header = '<h1>Родительские характеристики</h1>';
@@ -838,7 +838,7 @@ class AdminAction extends CAction
 	    }
 	  }
 	  
-	  $models = CharShema::model()->findAllByCat($this->controller->crudid);
+	  $models = CharShema::model()->findAllByCat($this->crudid);
     // пересчитываем все модели в массив char_id=>charModel
     foreach($models as $modelItem)
       $modelByCharId[$modelItem->char_id] = $modelItem;
@@ -860,7 +860,7 @@ class AdminAction extends CAction
         elseif (!isset($item['char_id'])) //это новое поле
         {
           $curModel = new CharShema;
-          $curModel->cat_id = (int)$this->controller->crudid;
+          $curModel->cat_id = (int)$this->crudid;
         }
         // загружаем данные в модели новых полей и в модели полей, которые редактируются
         $curModel->attributes = $item;
@@ -878,7 +878,7 @@ class AdminAction extends CAction
       Yii::app()->clientscript->scriptMap['jquery.js'] = Yii::app()->clientscript->scriptMap['jquery.min.js'] = false; 
       $data = array(
           'action' => 'renewForm',
-          /*'content' => $this->controller->renderPartial('shop.views.admin.batchUpdate',array(
+          /*'content' => $this->renderPartial('shop.views.admin.batchUpdate',array(
               'model'=>$models,
               'attributes'=>array(
                 'char_name',
@@ -895,7 +895,7 @@ class AdminAction extends CAction
 	  
 	  
 	  if(!$_POST['ajaxSubmit'])
-      $this->controller->render('shop.views.admin.batchUpdate',array(
+      $this->render('shop.views.admin.batchUpdate',array(
         'model'=>$models,
 		    'header'=>$header,
 	    ));
@@ -955,7 +955,7 @@ class AdminAction extends CAction
     if(isset($_GET['Supplier']))
             $model->attributes=$_GET['Supplier'];
 	  
-		$this->controller->render('table',array(
+		$this->render('table',array(
 			'dataProvider'=> $model->search(),
 			'options' => array(
 			 'filter'=>$model,
@@ -972,8 +972,8 @@ class AdminAction extends CAction
 	 */
 	function actionSuppliersUpdate()
 	{
-	  if (!empty($this->controller->crudid) && $this->controller->crud == 'update')
-      $model=Supplier::model()->findByPk($this->controller->crudid);
+	  if (!empty($this->crudid) && $this->crud == 'update')
+      $model=Supplier::model()->findByPk($this->crudid);
     else
       $model = new Supplier;
     
@@ -995,7 +995,7 @@ class AdminAction extends CAction
 		
 		
 		if(!$_POST['ajaxSubmit'])
-      $this->controller->render('update',array(
+      $this->render('update',array(
 			  'model'=>$model,
 		  ));
 	}

@@ -1,11 +1,19 @@
 <?php
-
-class AdminAction extends CAction
+/**
+ * Admin action class for photo module
+ *
+ * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
+ * @author     Evgeniy Pochekuev
+ * @package    Hamster.modules.photo.admin.AdminAction
+ * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
+ * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
+ */
+class AdminAction extends HAdminAction
 {
   public function run()
   {    
     // import the module-level models and components
-		$this->controller->module->setImport(array(
+		$this->module->setImport(array(
 			'photo.models.*',
 			'photo.components.*',
 		));
@@ -43,8 +51,8 @@ class AdminAction extends CAction
 	 */
 	public function actionUpdate()
 	{      
-		if ($this->controller->crudid)
-      $model=Photo::model()->findByPk($this->controller->crudid);
+		if ($this->crudid)
+      $model=Photo::model()->findByPk($this->crudid);
     else
       $model = new Photo;
 
@@ -72,15 +80,15 @@ class AdminAction extends CAction
     if($_POST['ajaxIframe'] || $_POST['ajaxSubmit'])
     {
       // если модель сохранена и это было действие добавления, переадресовываем на страницу редактирования этого же материала
-      if($saved && $this->controller->crud == 'create')
+      if($saved && $this->crud == 'create')
         $data = array(
           'action' => 'redirect',
-          'content' => $this->controller->curModuleUrl . 'update/'.$model->id,
+          'content' => $this->curModuleUrl . 'update/'.$model->id,
         );
       else
         $data = array(
           'action' => 'renewForm',
-          'content' => $this->controller->renderPartial('update',array(
+          'content' => $this->renderPartial('update',array(
                          'model'=>$model,
                        ), true, true),
         );
@@ -90,7 +98,7 @@ class AdminAction extends CAction
     }
 
 		if(!$_POST['ajaxSubmit'])
-      $this->controller->render('update',array(
+      $this->render('update',array(
 			  'model'=>$model,
 		  ));
 	}
@@ -109,7 +117,7 @@ class AdminAction extends CAction
 		if(Yii::app()->request->isPostRequest && Yii::app()->user->checkAccess('admin'))
 		{
 			// we only allow deletion via POST request
-			$model = Photo::model()->findByPk($this->controller->crudid)->delete();
+			$model = Photo::model()->findByPk($this->crudid)->delete();
 	  }
 		else
 			throw new CHttpException(400,'Не правильный запрос. Пожалуйста не повторяйте этот запрос еще раз.');
@@ -126,7 +134,7 @@ class AdminAction extends CAction
 		if(isset($_GET['Photo']))
 			$model->attributes=$_GET['Photo'];
 
-		$this->controller->render('table',array(
+		$this->render('table',array(
 			'dataProvider'=>$model->search(),
       'options' => array(
 			 'filter'=>$model,
@@ -155,8 +163,8 @@ class AdminAction extends CAction
 	 */
 	public function actionAlbumUpdate()
 	{
-		if ($this->controller->crudid)
-      $model=Album::model()->findByPk($this->controller->crudid);
+		if ($this->crudid)
+      $model=Album::model()->findByPk($this->crudid);
     else
       $model = new Album;
 
@@ -179,15 +187,15 @@ class AdminAction extends CAction
     if($_POST['ajaxIframe'] || $_POST['ajaxSubmit'])
     {
       // если модель сохранена и это было действие добавления, переадресовываем на страницу редактирования этого же материала
-      if($saved && $this->controller->crud == 'create')
+      if($saved && $this->crud == 'create')
         $data = array(
           'action' => 'redirect',
-          'content' => $this->controller->curModuleUrl . 'update/'.$model->id,
+          'content' => $this->curModuleUrl . 'update/'.$model->id,
         );
       else
         $data = array(
           'action' => 'renewForm',
-          'content' => $this->controller->renderPartial('update',array(
+          'content' => $this->renderPartial('update',array(
                          'model'=>$model,
                        ), true, true),
         );
@@ -197,7 +205,7 @@ class AdminAction extends CAction
     }
 
 		if(!$_POST['ajaxSubmit'])
-      $this->controller->render('update',array(
+      $this->render('update',array(
 			  'model'=>$model,
 		  ));
 	}
@@ -216,7 +224,7 @@ class AdminAction extends CAction
 		if(Yii::app()->request->isPostRequest && Yii::app()->user->checkAccess('admin'))
 		{
 			// we only allow deletion via POST request
-			$model = Album::model()->findByPk($this->controller->crudid)->delete();
+			$model = Album::model()->findByPk($this->crudid)->delete();
 	  }
 		else
 			throw new CHttpException(400,'Не правильный запрос. Пожалуйста не повторяйте этот запрос еще раз.');
@@ -233,7 +241,7 @@ class AdminAction extends CAction
 		if(isset($_GET['Album']))
 			$model->attributes=$_GET['Album'];
 
-		$this->controller->render('table',array(
+		$this->render('table',array(
 			'dataProvider'=>$model->search(),
       'options' => array(
 			 'filter'=>$model,

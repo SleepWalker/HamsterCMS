@@ -3,17 +3,17 @@
  * Admin action class for blog module
  *
  * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @package    blog.controllers.blog.AdminAction
+ * @package    Hamster.modules.blog.admin.AdminAction
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
  
-class AdminAction extends CAction
+class AdminAction extends HAdminAction
 {
   public function run()
   {    
     // import the module-level models and components
-		$this->controller->module->setImport(array(
+		$this->module->setImport(array(
 			'event.models.*',
 			'event.components.*',
 		));
@@ -43,8 +43,8 @@ class AdminAction extends CAction
 	 */
   public function actionUpdate() 
   {	  
-    if ($this->controller->crudid)
-      $model=Event::model()->findByPk($this->controller->crudid);
+    if ($this->crudid)
+      $model=Event::model()->findByPk($this->crudid);
     else
       $model = new Event;
     
@@ -71,15 +71,15 @@ class AdminAction extends CAction
 		if($_POST['ajaxIframe'] || $_POST['ajaxSubmit'])
     {
       // если модель сохранена и это было действие добавления, переадресовываем на страницу редактирования этого же материала
-      if($saved && $this->controller->crud == 'create')
+      if($saved && $this->crud == 'create')
         $data = array(
           'action' => 'redirect',
-          'content' => $this->controller->curModuleUrl . 'update/'.$model->id,
+          'content' => $this->curModuleUrl . 'update/'.$model->id,
         );
       else
         $data = array(
           'action' => 'renewForm',
-          'content' => $this->controller->renderPartial('update',array(
+          'content' => $this->renderPartial('update',array(
                          'model'=>$model,
                        ), true, true),
         );
@@ -89,7 +89,7 @@ class AdminAction extends CAction
     }
 		
 		if(!$_POST['ajaxSubmit'])
-      $this->controller->render('update',array(
+      $this->render('update',array(
 			  'model'=>$model,
 		  ));
   }
@@ -107,7 +107,7 @@ class AdminAction extends CAction
    */
   public function actionIndex() 
   {
-		$this->controller->render('table', array(
+		$this->render('table', array(
 			'dataProvider'=> new CActiveDataProvider(Event),
 			'columns'=>array(
 			  'eventId',
@@ -130,7 +130,7 @@ class AdminAction extends CAction
 		if(Yii::app()->request->isEventRequest)
 		{
 			// we only allow deletion via POST request
-			$model = Event::model()->findByPk($this->controller->crudid);
+			$model = Event::model()->findByPk($this->crudid);
 			// Удаляем изображение
 		  if(file_exists($uploadPath.$model->image)) unlink($uploadPath.$model->image);
 			$model->delete();
