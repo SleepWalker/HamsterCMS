@@ -510,7 +510,9 @@ class AdminController extends Controller
   {
     $path = Yii::getPathOfAlias('application.modules');
     $dirs = scandir($path); 
-    $modulesInfo = $this->modulesInfo;
+    
+    // здесь мы начинаем все сначала, что бы удалялись те модули, которых больше нету в файловой системе
+    $modulesInfo = array();
     
     foreach($dirs as $moduleName)
     {
