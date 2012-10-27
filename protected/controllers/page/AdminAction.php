@@ -3,11 +3,11 @@
  * Admin action file for page controller
  *
  * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @package    shop.ShopController
+ * @package    Hamster.controllers.page.AdminAction
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
-class AdminAction extends CAction
+class AdminAction extends HAdminAction
 {
   public function run()
   {
@@ -35,8 +35,8 @@ class AdminAction extends CAction
 	 */
   public function actionUpdate() 
   {
-    if (!empty($this->controller->crudid))
-      $model=Page::model()->findByPk($this->controller->crudid);
+    if (!empty($this->crudid))
+      $model=Page::model()->findByPk($this->crudid);
     else
       $model = new Page;
     
@@ -58,16 +58,16 @@ class AdminAction extends CAction
 		}
 		if($_POST['ajaxSubmit'])
     {
-      if($saved && $this->controller->crud == 'create')
+      if($saved && $this->crud == 'create')
         $data = array(
           'action' => 'redirect',
-          'content' => $this->controller->curModuleUrl . 'update/'.$model->id,
+          'content' => $this->curModuleUrl . 'update/'.$model->id,
         );
       
       echo json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
     }
     else
-      $this->controller->render('update',array(
+      $this->render('update',array(
 			  'model'=>$model,
 		  ));
   }
@@ -89,7 +89,7 @@ class AdminAction extends CAction
         ),
 	    )
 	  );
-		$this->controller->render('table',array(
+		$this->render('table',array(
 			'dataProvider'=>$dataProvider,
 			'columns'=>array(
         'full_path', 
@@ -108,7 +108,7 @@ class AdminAction extends CAction
 		if(Yii::app()->request->isPostRequest)
 		{
 			// we only allow deletion via POST request
-			Page::model()->findByPk($this->controller->crudid)->delete();
+			Page::model()->findByPk($this->crudid)->delete();
 
 			// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
 			/*if(!isset($_GET['ajax']))

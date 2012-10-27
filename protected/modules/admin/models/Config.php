@@ -163,17 +163,22 @@ class Config extends CFormModel
   {
     foreach($options as $fieldId => $fieldOptions)
     {
-      $this->_attributes[] = $fieldId;
+      $this->att2CFormConfig($fieldId, $fieldOptions);
+      /*$this->_attributes[] = $fieldId;
       $this->_attLabels[$fieldId] = $fieldOptions['label'];
       if(!empty($fieldOptions['default']))
+      {
         $this->_attValsDef[$fieldId] = $fieldOptions['default'];
+        $this->_attLabels[$fieldId] .= ' (По умолчанию: ' . $fieldOptions['default'] . ')';
+      }
+      $this->_CFormConfig[$fieldId] = array('type' => 'text');
+      */
         
       $this->_attVals[$fieldId] = '';
       if(isset($fieldOptions['linkTo']))
         $fieldOptions['linkTo'] = &$this->_attVals[$fieldId];
       else
         $this->_curModConfig['modules'][$this->moduleId]['params'][$fieldId] = &$this->_attVals[$fieldId];
-      $this->_CFormConfig[$fieldId] = array('type' => 'text');
     }
   }
   
@@ -215,11 +220,13 @@ class Config extends CFormModel
     
     $this->_attributes[] = $name;
     
-    if(!empty($params['default']))
-      $this->_attValsDef[$name] = $params['default'];
-    
     if(!empty($params['label']))
       $this->_attLabels[$name] = $params['label'];
+    
+    if(!empty($params['default'])) {
+      $this->_attValsDef[$name] = $params['default'];
+      $this->_attLabels[$name] .= ' (По умолчанию: ' . $params['default'] . ')';
+    }
     
     $CFormArr = array(
       'type' => $params['type'],
@@ -236,9 +243,9 @@ class Config extends CFormModel
    *
    * @param string $name имя атрибута
    * @param array $params настройки для текущего элемента конфигурации модуля
-   * @param bool $isGlobal флаг, включающий глобальный уровень параметров для конфига Yii
+   * @param bool $linkTo определяет к какому полю в конфиге будет привязываться аттрибут. Можно передать global, что бы привязать к глобальным параметрам или переменную
    */
-  protected function hamsterConfigSchema($name, $params, $isGlobal = false)
+  protected function hamsterConfigSchema($name, $params, $linkTo = false)
   {
     if($params['type'] == '') return;
     // fieldset должен в конфиге отображаться как вложенные массивы
@@ -254,10 +261,12 @@ class Config extends CFormModel
       $this->_attVals[$name] = '';
       $attVal = &$this->_attVals[$name];
     }
-    if($isGlobal)
-    {
+    if($linkTo == 'global') // вяжем к глобальным параметрам Yii
+    { 
       $this->_curModConfig['params'][$name] = &$attVal;
-    }else{
+    } elseif($linkTo) { // вяжем еще куда-то
+      $linkTo = &$attVal;
+    }else{ // вяжем в локальные параметры модуля
       $this->_curModConfig['modules'][$this->moduleId]['params'][$name] = &$attVal;
     }
   }
