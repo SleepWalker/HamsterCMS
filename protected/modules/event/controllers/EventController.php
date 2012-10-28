@@ -72,20 +72,7 @@ class EventController extends Controller
     Yii::import('application.vendors.iCalcreator.*');
     require_once 'iCalcreator.class.php';
     $event = $this->loadModel($id);
-    /*?>
-    BEGIN:VCALENDAR
-    VERSION:2.0
-    PRODID:-//hacksw/handcal//NONSGML v1.0//RU
-    BEGIN:VEVENT
-    UID:<?php echo $event->eventId ?>@<?php echo $_SERVER['SERVER_NAME'] ?>
-    DTSTAMP:19970714T170000Z
-    ORGANIZER;CN=<?php echo Yii::app()->name ?>:MAILTO:john.doe@example.com
-    DTSTART:<?php echo strtotime($event->start_date); ?>
-    DTEND:19970715T035959Z
-    SUMMARY:<?php echo $event->name ?>
-    END:VEVENT
-    END:VCALENDAR
-    <?php*/
+    
     $config    = array(
       "unique_id" => $event->eventId . "@" . $_SERVER['SERVER_NAME'] ,
       'filename' => 'event'.$event->eventId.'_' . $_SERVER['SERVER_NAME'] . '.ics',

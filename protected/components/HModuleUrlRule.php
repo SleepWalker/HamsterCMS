@@ -22,6 +22,9 @@ class HModuleUrlRule extends CBaseUrlRule
   public function createUrl($manager,$route,$params,$ampersand)
   {
     $routeParts = explode("/", $route);
+    if(count($routeParts) < 3) return false; // мы работаем только с модулями
+
+    $urlExtra = array(); //в этом массиве будут хранится строки добавляемые к пути через слеш
     if($routeParts[0] == $routeParts[1]) // что-то на подобии admin/admin/action
     {
       unset($routeParts[0]); // удлаяем повторяющуюся часть из url
@@ -35,6 +38,14 @@ class HModuleUrlRule extends CBaseUrlRule
       {
         unset($routeParts[1]); // удлаяем view часть из url
         $urlExtra[] = array_shift($params);
+      }else{
+        $methodParams = $this->getActionParamsByRoute($route);
+        //TODO: добавить парсинг по регулярным выражениям
+        if($methodParams)
+          foreach($methodParams as $i => $mparam)
+          {
+            $urlExtra[] = array_shift($params);
+          }
       }
       
       $url = implode("/", $routeParts) . '/' . implode("/", $urlExtra);
@@ -147,16 +158,15 @@ class HModuleUrlRule extends CBaseUrlRule
     $urlParts = array_map('strtolower', $urlParts);
     $urlParts = array_values($urlParts);
     
-    $methodName='action'.$actionId;
-    $method=new ReflectionMethod($controllerClass, $methodName);
-    if($method->getNumberOfParameters()>0)
+    $actionParams = $this->getActionParams($controllerClass, $actionId);
+    if($actionParams)
     {
-      $actionParams = $method->getParameters();
-      $lastParam = array_pop($actionParams);
+      $lastParam = end($actionParams);
       
       // если у последнего параметра есть значение по умолчанию проверяем, нет ли там регулярного выражение для параметров
       if($lastParam->isDefaultValueAvailable() && $lastParam->getName() == '_pattern')
       {
+        array_pop($actionParams); // удаляем элемент _pattern
         $_pattern = $lastParam->getDefaultValue();
         
         // тут идет кусок скоращенного и немного переделанного кода конструктора CUrlRule
@@ -193,6 +203,35 @@ class HModuleUrlRule extends CBaseUrlRule
         if(isset($urlParts[$i]))
           $_GET[$param->getName()] = $urlParts[$i];
       }
+    }
+  }
+
+  /**
+   * @param string $controllerClass имя класса контроллера
+   * @param string $actionId идентификатор экшена
+   * @return array $actionParams массив обьектов с информацией о параметрах метода действия
+   */
+  public function getActionParams($controllerClass, $actionId)
+  {
+    $methodName='action'.$actionId;
+    $method=new ReflectionMethod($controllerClass, $methodName);
+    if($method->getNumberOfParameters()>0)
+    {
+      $actionParams = $method->getParameters();
+    }
+
+    return $actionParams;
+  }
+
+  public function getActionParamsByRoute($route)
+  {
+    $route = explode('/', $route);
+    try
+    {
+      $controllerClass = Yii::import('application.modules.' . $route[0] . '.controllers.' . ucfirst($route[1]) . 'Controller', true);
+      return $this->getActionParams($controllerClass, $route[2]);
+    }catch(Exception $e){
+      return false;
     }
   }
 }
