@@ -26,6 +26,7 @@ return
   	'language' => 'ru',
   	'sourceLanguage'=>'ru_ru',
     'charset'=>'UTF-8',
+    'theme' => 'default',
     
   	// preloading 'log' component
   	'preload'=>array('log'),
