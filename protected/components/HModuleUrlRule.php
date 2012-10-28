@@ -26,9 +26,21 @@ class HModuleUrlRule extends CBaseUrlRule
     {
       unset($routeParts[0]); // удлаяем повторяющуюся часть из url
       $routeParts = array_values($routeParts);
-      $route = implode("/", $routeParts);
+
+      // узнаем, изменен ли у модуля не стандартный url
+      if(Yii::app()->modules[$routeParts[0]]['params']['moduleUrl']) 
+        $routeParts[0] = Yii::app()->modules[$routeParts[0]]['params']['moduleUrl'];
+
+      if($routeParts[1] == 'view') // если это действие actionview - убираем его из url
+      {
+        unset($routeParts[1]); // удлаяем view часть из url
+        $urlExtra[] = array_shift($params);
+      }
       
-      return $route . '?' . http_build_query($params);
+      $url = implode("/", $routeParts) . '/' . implode("/", $urlExtra);
+
+      $url .= count($params) ? '?' . http_build_query($params) : '';
+      return $url;
     }
     
     return false;  // не применяем данное правило
@@ -144,6 +156,7 @@ class HModuleUrlRule extends CBaseUrlRule
       
       // если у последнего параметра есть значение по умолчанию проверяем, нет ли там регулярного выражение для параметров
       if($lastParam->isDefaultValueAvailable() && $lastParam->getName() == '_pattern')
+      {
         $_pattern = $lastParam->getDefaultValue();
         
         // тут идет кусок скоращенного и немного переделанного кода конструктора CUrlRule
@@ -169,13 +182,17 @@ class HModuleUrlRule extends CBaseUrlRule
         // =========================
         // конец куска кода CUrlRule
         
-        // присваиваем массиву гет параметры, прошедшие валидацию
-        if(preg_match($pattern, implode('/', $urlParts)))
-          foreach($actionParams as $i => $param)
-          {
-            if(isset($urlParts[$i]))
-              $_GET[$param->getName()] = $urlParts[$i];
-          }
+        // проводим валидацию параметров
+        if(!preg_match($pattern, implode('/', $urlParts)))
+          return false;
+      }
+      
+      // Добавляем параметры в $_GET
+      foreach($actionParams as $i => $param)
+      {
+        if(isset($urlParts[$i]))
+          $_GET[$param->getName()] = $urlParts[$i];
+      }
     }
   }
 }
