@@ -110,6 +110,11 @@ class Album extends CActiveRecord
 	  
 	  return $ddList;
 	}
+  
+  function getViewUrl()
+  {
+    return Yii::app()->createUrl('photo/photo/album', array($this->primaryKey));
+  }
 
 	/**
 	 * Retrieves a list of models based on the current search/filter conditions.

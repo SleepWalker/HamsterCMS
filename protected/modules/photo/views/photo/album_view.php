@@ -19,7 +19,7 @@ $this->menu=array(
 ?>
 
 <h1><?php echo  CHtml::encode($model->name); ?></h1>
-<p><?php echo  CHtml::encode($model->desc); ?></p>
+<p><?php echo  $model->desc; ?></p>
 
 
 <div class="album_photos">

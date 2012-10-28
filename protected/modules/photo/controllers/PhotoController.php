@@ -45,10 +45,21 @@ class PhotoController extends Controller
 	 * Displays a particular model.
 	 * @param integer $id the ID of the model to be displayed
 	 */
-	public function actionView($id)
+	public function actionAlbum($id)
 	{
 		$this->render('album_view',array(
 			'model'=>Album::model()->with('photo')->FindByPk($id),
+		));
+	}
+  
+  /**
+	 * Отображает страницу с информацией о фотографии
+	 * @param integer $id the ID of the model to be displayed
+	 */
+	public function actionView($id)
+	{
+		$this->render('photo_view',array(
+			'model'=>Photo::model()->with('album')->FindByPk($id),
 		));
 	}
 

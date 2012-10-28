@@ -5,12 +5,12 @@
 
 <div class="album">
 
-  <h4><?php echo CHtml::link(CHtml::encode($data->name), array('view', 'id'=>$data->id)); ?></h4>
+  <h4><?php echo CHtml::link(CHtml::encode($data->name), $data->viewUrl); ?></h4>
 	
   
-  <?php if($data->photo)echo CHtml::image($data->photo->preview_url(), CHtml::encode($data->name)); ?>
+  <?php if($data->photo) echo CHtml::link($data->photo->img('thumb'), $data->viewUrl); ?>
 	
   
-	<p><?php echo CHtml::encode($data->desc); ?></p>
+	<p><?php echo strip_tags($data->desc); ?></p>
 
 </div>

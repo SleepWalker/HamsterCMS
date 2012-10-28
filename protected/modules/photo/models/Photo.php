@@ -52,21 +52,6 @@ class Photo extends CActiveRecord
     ),
   );
   
-  public function generate_url($type){
-    return '/_upload/'.$this->photo;
-  }
-  
-  public function preview_url(){
-    return $this->generate_url('preview');
-  }
-  
-  public function big_url(){
-    return $this->generate_url('big');
-  }
-  
-  public function full_url(){
-    return $this->generate_url('full');
-  }
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @param string $className active record class name.
@@ -224,7 +209,21 @@ class Photo extends CActiveRecord
   public function img($code = 'normal')
   {
     if($this->photo)
-      return CHtml::image(self::$uploadsUrl.$this->sizes[$code]['prefix'].$this->photo, $this->name, array('width'=>$this->sizes[$code]['width']));
+      return CHtml::image($this->imgSrc($code), $this->name, array('width'=>$this->sizes[$code]['width']));
+  }
+  
+  /**
+   * Возвращает ссылку на изображение
+   * @param string $code размер изображения
+   */
+  public function imgSrc($code = 'normal')
+  {
+    return self::$uploadsUrl.$this->sizes[$code]['prefix'].$this->photo;
+  }
+  
+  public function getViewUrl()
+  {
+    return Yii::app()->createUrl('photo/photo/view', array($this->primaryKey));
   }
   
 	/**
