@@ -55,7 +55,7 @@ class HModuleUrlRule extends CBaseUrlRule
       
       foreach($modules as $moduleId => $moduleConfig)
       {
-        $moduleUrl = $moduleConfig['moduleUrl'];
+        $moduleUrl = $moduleConfig['params']['moduleUrl'];
         // Массив с адресами всех модулей
         $moduleUrls[$moduleId] = $moduleUrl ? $moduleUrl : $moduleId;
       }
