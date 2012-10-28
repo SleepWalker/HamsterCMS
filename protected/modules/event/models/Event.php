@@ -124,7 +124,26 @@ class Event extends CActiveRecord
   {
     return $this->findByPk(alphaID($id, true, 4));
   }
-  
+
+  /**
+   * Возвращает дату в красивом формате
+   * @param string $date строка с датой из базы данных
+   */
+  public function prettyDate($date)
+  {
+    return Yii::app()->dateFormatter->formatDateTime($date, 'medium', 'short');
+  }
+
+  function getPrettyStartDate()
+  {
+    return $this->prettyDate($this->start_date);
+  }
+
+  function getPrettyEndDate()
+  {
+    return $this->prettyDate($this->end_date);
+  }
+
   /**
    * @return string Html код части карты с метом проведения мероприятия
    */
@@ -132,8 +151,8 @@ class Event extends CActiveRecord
     $params = array(
       'l' => 'map',
       'll' => $this->latitude . ',' . $this->longitude,
-      'size' => '100,100',
-      'z' => '17', // масштаб
+      'size' => '200,200',
+      'z' => '15', // масштаб
       'pt' => $this->latitude . ',' . $this->longitude . ',flag', // метка
       'lang' => Yii::app()->sourceLanguage,
       //'key' => $this->module->params['yandexApiKey'],
@@ -168,7 +187,7 @@ class Event extends CActiveRecord
       'sprop' => $event->viewUrl,
       'sprop' => 'name:'.Yii::app()->name,
     );
-    return CHtml::link('gCalendar', 'http://www.google.com/calendar/event?'.http_build_query($params), array('target'=>'_blank', 'title'=>'Добавить в Google Calendar'));
+    return 'http://www.google.com/calendar/event?'.http_build_query($params);
   }
   
   /**
@@ -176,7 +195,7 @@ class Event extends CActiveRecord
    */
 	public function getViewUrl()
   {
-    return Yii::app()->createUrl('/event/' . $this->eventId);
+    return Yii::app()->createUrl('event/event/view', array($this->eventId));
   }
 
 	/**

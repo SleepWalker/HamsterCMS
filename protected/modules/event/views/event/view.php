@@ -7,7 +7,7 @@ $this->breadcrumbs=array(
 $cs = Yii::app()->clientScript;
 
 // Yandex Maps
-Yii::app()->clientScript->registerScriptFile('http://api-maps.yandex.ru/2.0-stable/?load=package.standard&lang=' . Yii::app()->sourceLanguage . '&key=' . $this->module->params['yandexApiKey'], CClientScript::POS_HEAD);
+Yii::app()->clientScript->registerScriptFile('http://api-maps.yandex.ru/2.0-stable/?load=package.standard&lang=' . Yii::app()->sourceLanguage, CClientScript::POS_HEAD);// . '&
 
 $socialScript = "
 (function(d, s, id) {
@@ -57,14 +57,25 @@ $cs->registerLinkTag('image_src', NULL, $imgSrc);*/
 $this->pageTitle = $model->name;
 ?>
 
-<article class="blogPost">
+<article class="eventFullView">
   <header>
-    <h1><?php echo $model->name . $model->img; ?></h1>
+    <h1><?php echo $model->name ?></h1>
   </header>
 
-	<section class="postContent">
-    <?php echo str_replace('{%CUT%}', '', $model->desc); ?>
-    <div id="mapContainer" style="width: 450px; height: 350px;">
+	<section>
+    <div id="mapContainer"></div>
+    <?php echo $model->desc ?>
+    <p><strong>Где</strong>: <?php echo CHtml::encode($model->where) ?></p>
+    <p><strong>Начало</strong>: <?php echo $model->prettyStartDate ?></p>
+    <?php if($model->end_date)
+    {
+      echo '<p><strong>Конец</strong>: ' . $model->prettyEndDate . '</p>';
+    }?>
+    <p><strong>Как добраться</strong>: <?php echo CHtml::encode($model->location) ?></p>
+    <p><strong>Добавить в календарь</strong>: 
+    <a href="<?php echo $model->gCalUrl ?>" class="icon icon_gcal" title="Добавить в Google Calendar">Добавить в Google Calendar</a>
+    <a href="<?php echo Yii::app()->createUrl('event/event/ical', array($model->eventId));  ?>" class="icon icon_ical" title="iCalendar (*.ics)">iCalendar (*.ics)</a>
+    </p>
 	</section>
   <footer>
     <div class="soc_buttons"> 
@@ -73,12 +84,9 @@ $this->pageTitle = $model->name;
       <div class="sbutton" style="padding-top:2px;"><g:plusone size="tall"></g:plusone></div> 
       <div class="sbutton" style="padding-top:7px;"><div id="vk_like"></div></div> 
     </div>
+    <section id="vkcomments" style="clear:both;"></section>
   </footer>
 </article>
-<section id="vkcomments" style="clear:both;"></section>
-
-<a href="/event/ical/<?php echo $model->eventId ?>">iCalendar</a>
-<?php echo $model->gCalUrl ?>
 
 <?php
 ob_start();

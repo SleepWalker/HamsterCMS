@@ -1,16 +1,18 @@
-<article class="blogPost postTeaser">
+<article class="block <?php echo $this->module->id ?>Partialview">
   <header>
-    <?php echo CHtml::link(CHtml::encode($data->name), $data->viewUrl) ?>
+    <p><?php echo CHtml::link(CHtml::encode($data->name), $data->viewUrl) ?></p>
   </header>
 
-	<section class="postContent">
-    <?php echo array_shift(explode('{%CUT%}', $data->desc)) . ' &hellip;'; ?>
+	<section>
+    <?php echo CHtml::link($data->img, $data->viewUrl); ?>
+    <p><strong>Где</strong>: <?php echo CHtml::encode($data->where) ?></p>
+    <p><strong>Начало</strong>: <?php echo $data->prettyStartDate ?></p>
+    <?php if($data->end_date)
+    {
+      echo '<p><strong>Конец</strong>: ' . $data->prettyEndDate . '</p>';
+    }?>
+    <p><strong>Как добраться</strong>: <?php echo CHtml::encode($data->location) ?></p>
 	</section>
   <footer>
-    <section class="tags" style="float:right;">
-      <?php
-        echo CHtml::link('Читать полностью...', $data->viewUrl);
-      ?>
-    </section>
   </footer>
 </article>
