@@ -41,14 +41,27 @@ class PhotoController extends Controller
 		);
 	}
 
+  /**
+   * beforeRender инициализируем меню альбомов перед тем как запускать экшен
+   * 
+   * @param mixed $action 
+   * @access protected
+   * @return boolean
+   */
+  protected function beforeAction($action) 
+  { 
+    $this->menu = Album::model()->albumsMenu;
+    return true; 
+  }
+
 	/**
 	 * Displays a particular model.
 	 * @param integer $id the ID of the model to be displayed
 	 */
 	public function actionAlbum($id)
 	{
-		$this->render('album_view',array(
-			'model'=>Album::model()->with('photo')->FindByPk($id),
+		$this->render('photo_index',array(
+			'model'=>Album::model()->with('photo')->findByPk($id),
 		));
 	}
   
@@ -59,7 +72,7 @@ class PhotoController extends Controller
 	public function actionView($id)
 	{
 		$this->render('photo_view',array(
-			'model'=>Photo::model()->with('album')->FindByPk($id),
+			'model'=>Photo::model()->with('album')->findByPk($id),
 		));
 	}
 
@@ -68,22 +81,8 @@ class PhotoController extends Controller
 	 */
 	public function actionIndex()
 	{
-		$dataProvider=new CActiveDataProvider('Album');
-		$this->render('album_index',array(
-			'dataProvider'=>$dataProvider,
-		));
-	}
-
-	/**
-	 * Returns the data model based on the primary key given in the GET variable.
-	 * If the data model is not found, an HTTP exception will be raised.
-	 * @param integer the ID of the model to be loaded
-	 */
-	public function loadModel($id)
-	{
-		$model=Album::model()->findByPk($id);
-		if($model===null)
-			throw new CHttpException(404,'The requested page does not exist.');
-		return $model;
+    $this->render('photo_index',array(
+      'photos'=>Photo::model()->findAll(),
+    ));
 	}
 }

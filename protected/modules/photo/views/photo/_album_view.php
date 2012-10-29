@@ -3,14 +3,11 @@
 /* @var $data Album */
 ?>
 
-<div class="album">
+<article class="block">
 
-  <h4><?php echo CHtml::link(CHtml::encode($data->name), $data->viewUrl); ?></h4>
-	
-  
   <?php if($data->photo) echo CHtml::link($data->photo->img('thumb'), $data->viewUrl); ?>
-	
-  
-	<p><?php echo strip_tags($data->desc); ?></p>
 
-</div>
+ <header>
+  <h4><?php echo CHtml::link(CHtml::encode($data->name), $data->viewUrl); ?></h4>
+  </header>
+</article>

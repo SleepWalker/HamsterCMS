@@ -3,14 +3,9 @@
 /* @var $data Album */
 ?>
 
-<div class="photo_preview">
-
-  <h4><?php echo CHtml::link(CHtml::encode($data->name), $data->viewUrl); ?></h4>
+<article class="block">
 	
   <?php echo CHtml::link($data->img('thumb'), $data->viewUrl); ?>
-	<div class="date"><?php echo $data->date; ?></div>
-  
-	<p><?php echo CHtml::encode($data->desc); ?></p>
-  
+  <header><h4><?php echo CHtml::link(CHtml::encode($data->name), $data->viewUrl); ?></h4></header>
 
-</div>
+</article>

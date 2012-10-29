@@ -3,7 +3,7 @@
 /* @var $dataProvider CActiveDataProvider */
 
 $this->breadcrumbs=array(
-	'Albums',
+	'Разделы галереи',
 );
 
 $this->menu=array(
@@ -12,11 +12,11 @@ $this->menu=array(
 );
 ?>
 
-<h1>Альбомы</h1>
+<h1>Разделы галереи</h1>
 
 <?php $this->widget('zii.widgets.CListView', array(
 	'dataProvider'=>$dataProvider,
 	'itemView'=>'_album_view',
+  'itemsCssClass' => 'gridC photoGrid',
+  'summaryText' => '',
 )); ?>
-
-<hr/>

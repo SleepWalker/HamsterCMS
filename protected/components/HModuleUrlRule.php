@@ -1,11 +1,13 @@
 <?php
 /**
- * HModuleUrlRule class file
- *
- * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @package    hamster.components.HModuleUrlRule
- * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
- * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
+ * HModuleUrlRule 
+ * 
+ * @uses CBaseUrlRule
+ * @package hamster.components.HModuleUrlRule
+ * @version $id$
+ * @copyright Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
+ * @author Sviatoslav Danylenko <mybox@udf.su> 
+ * @license PGPLv3 ({@link http://www.gnu.org/licenses/gpl-3.0.html})
  */
 class HModuleUrlRule extends CBaseUrlRule
 {
@@ -149,9 +151,12 @@ class HModuleUrlRule extends CBaseUrlRule
   
   /**
    * Проверяем последний параметр метода экшена на предмет наличия в нем регулярного выражения для парсинга оставшейся части url
-   * @param string $controllerClass controller class name
-   * @param string $actionId action id
-   * @param array $urlParts array with unparsed part of url
+   * 
+   * @param string $controllerClass 
+   * @param string $actionId 
+   * @param array $urlParts 
+   * @access public
+   * @return void
    */
   function parseActionParams($controllerClass, $actionId, $urlParts)
   {      

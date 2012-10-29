@@ -37,6 +37,13 @@ return
   		'application.components.*',
   		'ext.yii-mail.YiiMailMessage',
   	),
+    //TODO: maintance mode
+    /*'catchAllRequest'=>array(
+        'controllerId/actionId',
+            // можно передать параметры
+                'param1'=>value1,
+                    'param2'=>value2,
+                    ),*/
   	
   	// gzip сжатие
   	/*'onBeginRequest'=>create_function('$event', 'return ob_start("ob_gzhandler");'),

@@ -111,9 +111,28 @@ class Album extends CActiveRecord
 	  return $ddList;
 	}
   
-  function getViewUrl()
+  public function getViewUrl()
   {
     return Yii::app()->createUrl('photo/photo/album', array($this->primaryKey));
+  }
+
+  /**
+   * getAlbumsMenu возвращает массив меню альбомов для CMenu виджета.
+   * 
+   * @access public
+   * @return array Меню альбомов
+   */
+  public function getAlbumsMenu()
+  {
+    $albums = $this->findAll();
+    foreach($albums as $album)
+    {
+      $menu[] = array(
+        'label' => $album->name,
+        'url' => $album->viewUrl,
+      );
+    }
+    return $menu;
   }
 
 	/**

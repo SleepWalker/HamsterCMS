@@ -2,25 +2,22 @@
 /* @var $this PhotoController */
 /* @var $model Photo */
 
+$title = $model->name;
 $this->breadcrumbs=array(
-	'Photos'=>array('index'),
-	$model->name,
+	$this->module->params['moduleName']=>array('index'),
+	$title,
 );
 
-$this->pageTitle = $model->name;
-
-/*$this->menu=array(
-	array('label'=>'List Photo', 'url'=>array('index')),
-	array('label'=>'Create Photo', 'url'=>array('create')),
-	array('label'=>'Update Photo', 'url'=>array('update', 'id'=>$model->id)),
-	array('label'=>'Delete Photo', 'url'=>'#', 'linkOptions'=>array('submit'=>array('delete','id'=>$model->id),'confirm'=>'Are you sure you want to delete this item?')),
-	array('label'=>'Manage Photo', 'url'=>array('admin')),
-);*/
+$this->pageTitle = $title;
 ?>
 
-<h1><?php echo $model->name; ?></h1>
+
+<section class="left wideC">
+
+<h1><?php echo $title; ?></h1>
 
 <p><?php echo $model->img(); ?></p>
+<p style="float:right;"><?php echo $model->date ?></p>
 <p><?php echo CHtml::link($model->album->name, $model->album->viewUrl) ?></p>
-<p><?php echo $model->date ?></p>
 <p><?php echo $model->desc ?></p>
+</section>
