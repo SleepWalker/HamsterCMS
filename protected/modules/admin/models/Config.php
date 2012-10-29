@@ -102,14 +102,14 @@ class Config extends CFormModel
       
     // загружаем файл с инфой о модулях hamster и обьединяем их с тем, которые получили после парсинга adminConfig.php
     $hamsterModules = $this->hamsterModules;
-      
+    
     // добавляем поля из области admin
     $this->addConfigFields(array(
       'adminTitle' => array(
         'label' => 'Название модуля в админ панели',
         'default' => isset($this->_config['hamster']['admin']['title']) ? $this->_config['hamster']['admin']['title'] : $this->moduleId,
         'type' => 'text',
-        'linkTo' => &$this->_curModConfig['modulesInfo'][$this->moduleId]['title'],
+        'linkTo' => true,//&$this->_curModConfig['modulesInfo'][$this->moduleId]['title'],
       ),
     ));
     
@@ -176,7 +176,8 @@ class Config extends CFormModel
         
       $this->_attVals[$fieldId] = '';
       if(isset($fieldOptions['linkTo']))
-        $fieldOptions['linkTo'] = &$this->_attVals[$fieldId];
+        //$fieldOptions['linkTo'] = &$this->_attVals[$fieldId];
+        $this->_curModConfig['modulesInfo'][$this->moduleId]['title'] = &$this->_attVals[$fieldId];
       else
         $this->_curModConfig['modules'][$this->moduleId]['params'][$fieldId] = &$this->_attVals[$fieldId];
     }
