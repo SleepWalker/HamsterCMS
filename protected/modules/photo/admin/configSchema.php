@@ -5,6 +5,13 @@ return array(
     'global' => array(),
     'admin' => array(
       'title' => 'Фотоальбомы',
+      'bd' => array(
+        'version' => 1,
+        'tables' => array(
+          'photo',
+          'photo_album',
+        ),
+      ),
     ),
   ),
 );

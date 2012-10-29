@@ -26,6 +26,13 @@ return array(
     ),
     'admin' => array(
       'title' => 'Блог',
+      'bd' => array(
+        'version' => 1,
+        'tables' => array(
+          'blog',
+          'blog_tag',
+        ),
+      ),
     ),
   ),
 );

@@ -41,6 +41,18 @@ return array(
     ),
     'admin' => array(
       'title' => 'Управление магазином',
+      'bd' => array(
+        'version' => 1,
+        'tables' => array(
+          'shop',
+          'shop_brand',
+          'shop_categorie',
+          'shop_char',
+          'shop_char_shema',
+          'shop_rating',
+          'shop_supplier',
+        ),
+      ),
     ),
   ),
 );

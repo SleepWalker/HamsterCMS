@@ -22,6 +22,12 @@ return array(
     ),
     'admin' => array(
       'title' => 'Мероприятия',
+      'bd' => array(
+        'version' => 1,
+        'tables' => array(
+          'event',
+        ),
+      ),
     ),
   ),
 );

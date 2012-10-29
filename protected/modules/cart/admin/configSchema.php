@@ -8,6 +8,15 @@ return array(
   'hamster' => array(
     'admin' => array(
       'title' => 'Менеджер заказов',
+      'bd' => array(
+        'version' => 1,
+        'tables' => array(
+          'order',
+          'order_address',
+          'order_check',
+          'order_client',
+        ),
+      ),
     ),
   ),
 );
