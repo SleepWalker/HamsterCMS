@@ -484,7 +484,9 @@ class AdminController extends Controller
           if($config->CForm->submitted('submit') && $config->CForm->validate())
           {
             if(!$config->save(false))
-              throw new CHttpException(403,'При сохранении конфигурации возникли ошибки');
+              Yii::app()->user->setFlash('error','При сохранении конфигурации возникли ошибки');
+            else
+              Yii::app()->user->setFlash('success', 'Конфигурация модуля успешно обновлена.');
             $this->refresh();
           }
         }
@@ -545,6 +547,7 @@ class AdminController extends Controller
     // в добавок мы еще почистим assets
     $this->destroyDir(Yii::getPathOfAlias('webroot.assets'));
       
+    Yii::app()->user->setFlash('success', 'Список доступных модулей успешно обновлен. Добавлено модулей: ' . count($modulesInfo) . '<br />Папки assets успешно очищены.');
     $this->redirect('/admin/config');
   }
   
