@@ -26,7 +26,6 @@ class HModuleUrlRule extends CBaseUrlRule
     $routeParts = explode("/", $route);
     if(count($routeParts) < 3) return false; // мы работаем только с модулями
 
-    $urlExtra = array(); //в этом массиве будут хранится строки добавляемые к пути через слеш
     if($routeParts[0] == $routeParts[1]) // что-то на подобии admin/admin/action
     {
       unset($routeParts[0]); // удлаяем повторяющуюся часть из url
@@ -41,6 +40,8 @@ class HModuleUrlRule extends CBaseUrlRule
         unset($routeParts[1]); // удлаяем view часть из url
         $urlExtra[] = array_shift($params);
       }else{
+        if($routeParts[1] == 'index') // индекс нам в урл не нужен
+          unset($routeParts[1]);
         $methodParams = $this->getActionParamsByRoute($route);
         //TODO: добавить парсинг по регулярным выражениям
         if($methodParams)
@@ -50,7 +51,9 @@ class HModuleUrlRule extends CBaseUrlRule
           }
       }
       
-      $url = implode("/", $routeParts) . '/' . implode("/", $urlExtra);
+      $url = implode("/", $routeParts);
+      if(is_array($urlExtra)) 
+        $url .= '/' . implode("/", $urlExtra); //дополнительные параметры-частички url которые пишутся через слеш
 
       $url .= count($params) ? '?' . http_build_query($params) : '';
       return $url;
