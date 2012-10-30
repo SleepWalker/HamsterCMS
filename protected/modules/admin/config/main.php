@@ -60,7 +60,10 @@ return
         'queryCacheID'=>'cache', // подключение кеширования запросов
         //'initSQLs'=>array("set time_zone='+00:00';"),
       ),
-  		'user'=>array(
+      'menuMap'=>array(
+        'class'=>'HMenuMap', 
+      ),
+      'user'=>array(
   			// enable cookie-based authentication
   			'allowAutoLogin'=>true,
   		),
