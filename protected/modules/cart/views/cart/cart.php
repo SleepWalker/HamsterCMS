@@ -176,6 +176,53 @@ function number_format(number)
   number = number.toString().replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ').replace(".", ",");
   return number;
 }
+
+var d = document;
+var timer = false;
+/***********************
+* Отображает анимацию загрузки
+***********************/
+window.startLoad = function() 
+{
+  if (timer) return;
+  if (d.getElementById('loading_layer')) return;
+  // Блокируем все submit
+  $('[type="submit"]').prop('disabled', 'disabled');
+  
+  var loading_layer = d.createElement('div');
+  loading_layer.id = 'loading_layer';
+  loading_layer.className = 'ajax_loading';
+  
+  // Что бы не портить впичатление юзера от быстрого интерфейса 
+  // включаем задержку до появления загрузчика
+  timer = setTimeout(function(){
+    d.body.appendChild(loading_layer);
+  }, 1000);
+}
+
+/***********************
+* Прекращает анимацию загрузки
+***********************/
+window.stopLoad = function() {
+  if(timer)
+    clearTimeout(timer);
+  if ($('#loading_layer').parents('body')) // Значит элемент уже в дом
+    $('#loading_layer').remove();
+}
+
+/**
+ *  Обновляет контент блока с анимацией (используется в корзине)
+ */
+window.replaceContent = function (data)
+{
+  $('[type="submit"]').removeProp('disabled');
+  $('#catContent').fadeOut(500, function()
+  {
+    $('#catContent').replaceWith(data);
+    $('html, body').animate({scrollTop:160}, 'slow'); 
+    $('#catContent').fadeIn(500); 
+  });
+}
 EOD;
 
   Yii::app()->getClientScript()->registerScript('orderJs', $js);
