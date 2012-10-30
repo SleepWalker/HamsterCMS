@@ -64,6 +64,8 @@ class CartController extends Controller
 	    $this->redirect('/cart/order');
 	    Yii::app()->end();
 	  }
+    
+    $this->module->registerScriptFile('cart.js');
 	  
 	  if(count($cart) == 0) $this->redirect('/');
 	  $this->render('cart', array(
@@ -219,8 +221,10 @@ class CartController extends Controller
       $render = 'renderPartial';
       // Отключаем jquery (так как при ajax он уже подключен)
       Yii::app()->clientscript->scriptMap['jquery.js'] = Yii::app()->clientscript->scriptMap['jquery.min.js'] = false; 
-    }else
+    }else{
       $render = 'render';
+      $this->module->registerScriptFile('cart.js');
+    }
       
     $params['step'] = $this->stepNum;
     // маркер, который включит диалог "Есть ли у вас аккаунт?" на первом шагу по нажатию на кнопку "Далее"
