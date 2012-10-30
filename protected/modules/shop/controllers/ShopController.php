@@ -88,7 +88,7 @@ class ShopController extends Controller
 	 * Выводит список категорий или товары, пренадлежащие определенной категории.
 	 * @param integer $id the ID of the model to be displayed
 	 */
-	public function actionCategorie($alias, $_pattern = '<alias>')
+	public function actionCategorie($alias='')
 	{
 	  if($alias == '') // страница /shop/categorie не доступна для просмотра
 	    throw new CHttpException(404,'Запрашиваемая страница не найдена');
@@ -135,7 +135,7 @@ class ShopController extends Controller
 	 * Выводит список брендов или товары, пренадлежащие определенному бренду и категории товаров.
 	 * @param integer $id the ID of the model to be displayed
 	 */
-	public function actionBrand($alias, $_pattern = '<alias>')
+	public function actionBrand($alias='')
 	{
 	  if($alias == '')
 	    $this->renderAllBrands();
