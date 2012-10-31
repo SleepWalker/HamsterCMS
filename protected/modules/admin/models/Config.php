@@ -421,16 +421,20 @@ if(isset($_SERVER['REMOTE_ADDR']))
   {
     return $this->_moduleId;
   }
-  
+
+  // public getAdminConfig() {{{ 
   /**
-   * Сокращение для доступа к элементу массива $this->_config['hamster']['admin']['adminPageTitle']
-   * @return название модуля для админки
+   * Возвращает массив конфигурации с информацией для админ панели
+   * 
+   * @access public
+   * @return array
    */
-  public function getDefAdminTitle()
+  public function getAdminConfig()
   {
-    return $this->_config['hamster']['admin']['title'];
+    return $this->_config['hamster']['admin'];
   }
-  
+  // }}}
+    
   /**
    *  @return bool маркер, говорящий, новая ли это запись
    */

@@ -33,7 +33,7 @@ class AdminModule extends CWebModule
 		{
 		
 		  // this overwrites everything in the controller
-      $controller->layout = 'main';
+      $controller->layout = 'column2';
       $controller->adminAssetsUrl = $this->assetsUrl;
       
 			// this method is called before any module controller action is performed

@@ -41,9 +41,9 @@ class HMenuMap extends CApplicationComponent
   // карта маршрутов для ускорения поиска по меню
   protected $_routeMap = array();
   protected $_cachedRouteMap;
-  protected $_reCache = false;
 
-  const CACHE_ID = 'hamster.components.HMenuMap';
+  protected $_reCache = false;
+  protected $CACHE_ID;
 
   // public init() {{{ 
   /**
@@ -55,7 +55,11 @@ class HMenuMap extends CApplicationComponent
   public function init()
   {
     parent::init();
-    $this->_cachedRouteMap = Yii::app()->cache->get(self::CACHE_ID);
+    $module = Yii::app()->controller->module;
+    $this->CACHE_ID = ($module && $module->id == 'admin')
+      ?'hamster.components.HMenuMap.admin'
+      :'hamster.components.HMenuMap';
+    $this->_cachedRouteMap = Yii::app()->cache->get($this->CACHE_ID);
     $this->_reCache = $this->_cachedRouteMap == null;
   }
   // }}}
@@ -129,7 +133,7 @@ class HMenuMap extends CApplicationComponent
   {
     $this->_routeMap[array_shift($route)][] = array(
       'params' => $route,
-      'menu' => $menu,
+      'menu' => &$menu,
     );
   }
   // }}}
@@ -147,10 +151,10 @@ class HMenuMap extends CApplicationComponent
     if(is_array($suggestedRoutes))
       foreach($suggestedRoutes as $item)
       {
-        if($item['params'] == $_GET)
-        {
-          $this->renderInner($item['menu'], true);
-        }
+        //TODO: лучьше переделать контроллер page таким образом, что бы пути выглядили так: page/{pageId}
+        //FIX: Судя по всему, единственный случай, когда нам надо проверять страницы - контроллер страниц, потому добавим для него отдельное условие
+        if($this->route == 'page/index' && $item['params'] != $_GET) continue;
+        $this->renderInner($item['menu'], true);
       }
   }
   // }}}
@@ -164,7 +168,7 @@ class HMenuMap extends CApplicationComponent
    */
   public function getHasSuggestions()
   {
-    return is_array($this->_cachedRouteMap[$this->route]);
+    return array_key_exists($this->route, $this->_cachedRouteMap);
   }
   // }}}
   
@@ -185,6 +189,22 @@ class HMenuMap extends CApplicationComponent
   }
   // }}}
 
+  // public getMenu(menu) {{{ 
+  /**
+   * Возвращает масив с настройками меню 
+   * 
+   * @param array $menu 
+   * @access public
+   * @return array
+   */
+  public function getMenu($menuId)
+  {
+    //TODO: На данном этапе этот метод работает только в случае, если он вызывается после того, как карта меню была создана
+    //в будущем нужно бы сделать эту функцию рабочей в любом месте кода
+    return $this->_cachedRouteMap['__menu'][$menuId];
+  }
+  // }}}
+
   // public __destruct() {{{ 
   /**
    * Деструктор производит запись параметров меню в кэш, если это необходимо.
@@ -195,7 +215,10 @@ class HMenuMap extends CApplicationComponent
   public function __destruct()
   {
     if($this->_reCache)
-      Yii::app()->cache->set(self::CACHE_ID, $this->_routeMap, 3600);
+    {
+      $this->_routeMap['__menu'] = $this->_menuMap;
+      Yii::app()->cache->set($this->CACHE_ID, $this->_routeMap, 3600);
+    }
   }
   // }}}
 }

@@ -28,23 +28,26 @@
 </div-->
 
 <div id="menu1" class="ddmenu">
-<?php 
-echo CHtml::link('Бекап', Yii::app()->createUrl('admin/backup'));
-echo CHtml::link('Логи', Yii::app()->createUrl('admin/logs'));
-echo CHtml::link('Настройки Hamster', Yii::app()->createUrl('admin/config'));
-?>
+  <?php
+    Yii::app()->menuMap->render(array(
+      'Бекап' => array('admin/admin/backup'),
+      'Логи' => array('admin/admin/logs'),
+      'Настройки Hamster' => array('admin/admin/config'),
+    ), 'hamsterConfig');
+  ?>
 </div>
 
 <div id="menu4" class="ddmenu">
-<?php 
-$modulesInfo = $this->modulesInfo;
-$enabledModules = $this->enabledModules;
-echo CHtml::link('Управление страницами', Yii::app()->createUrl('admin/page'));
-if(count($modulesInfo))
-  foreach($modulesInfo as $moduleId=>$moduleConfig)
-    if(array_key_exists($moduleId, $enabledModules))
-      echo CHtml::link($moduleConfig['title'], Yii::app()->createUrl('admin/' . $moduleId));
-?>
+  <?php 
+    $modulesInfo = $this->modulesInfo;
+    $enabledModules = $this->enabledModules;
+    $menuArray['Управление страницами'] = array('admin/admin/page');
+    if(count($modulesInfo))
+      foreach($modulesInfo as $moduleId=>$moduleConfig)
+        if(array_key_exists($moduleId, $enabledModules))
+          $menuArray[$moduleConfig['title']] = array('admin/admin/' . $moduleId);
+    Yii::app()->menuMap->render($menuArray, 'hamsterModules');
+  ?>
 </div>
 
 <div id="menu5" class="ddmenu">
@@ -60,86 +63,7 @@ if(count($modulesInfo))
 </div>
 
 <div class="wrapper">
-<div class="block_wrapper">
-<?php 
-foreach($this->aside as $blockName => $block)
-{
-    ?>
-<div class="block">
-  <div class="block_top_light">
-    <div class="block_bottom">
-      <div class="block_bottom_light">
-        <h5><?php echo $blockName; ?></h5>
-        <div id="side_menu">
-          <?php
-          foreach ($block as $blockItemUrl => $blockItem)
-          {
-           echo CHtml::link($blockItem, $blockItemUrl);
-          }
-          ?>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-    <?php
-}
-?>
-
-<?php
-/*function designBlock($title, $content, $menu) {
-?>
-<div class="block">
-<div class="block_top_light">
-<div class="block_bottom">
-<div class="block_bottom_light">
-<h5><?php echo $title ?></h5>
-<?php
-if($menu) {
-?>
-<div id="side_menu">
-<?php
-}
-?>
-<?php echo $content ?>
-<?php
-if($menu) {
-?>
-</div>
-<?php
-}
-?>
-</div>
-</div>
-</div>
-</div>
-<?php
-}*/
-?>
-
-</div>
-<div class="content_wrapper">
-<div id="message_block"></div>
-<div class="tabs">
-<?php echo $this->tabs; ?>
-</div>
-
-<?php
-// Yii Flash
-$flashes = array('success', 'fail', 'info');
-foreach($flashes as $flash)
-  if(Yii::app()->user->hasFlash($flash))
-    echo '<div class="' . $flash . 'FlashBlock">' . Yii::app()->user->getFlash($flash) . '</div>';
-
-
-echo '<h1>';
-echo CHtml::encode($this->pageTitle);
-echo '</h1>';
-echo $content;
-?>
-
-</div>
-
+  <?php echo $content; ?>
 </div>
 <div id="footer">
 <div class="footer_line"></div>

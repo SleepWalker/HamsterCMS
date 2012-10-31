@@ -55,6 +55,7 @@ class AdminController extends Controller
   
 	public function actionIndex()
 	{
+    $this->layout = 'main';
 		$this->render('index');
 		/*$auth=Yii::app()->authManager;
  
@@ -515,6 +516,9 @@ class AdminController extends Controller
     
     // здесь мы начинаем все сначала, что бы удалялись те модули, которых больше нету в файловой системе
     $modulesInfo = array();
+
+    // старая, сохраненная инфа о модулях
+    $oldModulesInfo = $this->modulesInfo;
     
     foreach($dirs as $moduleName)
     {
@@ -524,9 +528,13 @@ class AdminController extends Controller
         $modulePath = Yii::getPathOfAlias('application.modules.' . $moduleName);
         if(is_dir($modulePath . '/admin'))
         {
-          $config = Config::load($moduleName);
-          if($modulesInfo[$moduleName]['title'] == '')
-            $modulesInfo[$moduleName]['title'] = $config->defAdminTitle;
+          $adminConfig = Config::load($moduleName)->adminConfig;
+          /*if($modulesInfo[$moduleName]['title'] == '')
+            $modulesInfo[$moduleName]['title'] = $adminConfig['title'];
+          else
+            unset($adminConfig['title']);*/
+
+          $modulesInfo[$moduleName] = CMap::mergeArray($adminConfig, $oldModulesInfo[$moduleName]); 
           
           if(file_exists($modulePath.'/admin/AdminAction.php'))
             $adminActions[$moduleName] = 'application.modules.' . $moduleName . '.admin.AdminAction';

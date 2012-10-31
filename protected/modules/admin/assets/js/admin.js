@@ -998,3 +998,15 @@ function getOffsetRect(elem) {
 
     return { top: Math.round(top), left: Math.round(left) }
 }
+
+
+$(function() {
+  $('.gridLayout').each(function() {
+    var maxHeight = 0;
+    sameHeightChildren = $('article', this);
+    sameHeightChildren.each(function() {
+      maxHeight = Math.max(maxHeight, $(this).height());
+    });
+    sameHeightChildren.css({ height: maxHeight + 'px' });    
+  });
+});

@@ -148,6 +148,21 @@ height: 40px;
   background:url('../images/header_bottom.png') center 0 no-repeat;
 }
 
+.gridLayout {
+  overflow: hidden;
+}
+
+.gridLayout article {
+  width: 47%;
+  margin:0.5%;
+  padding:1%;
+  float:left;
+  background:#121212;
+  border:1px #a9a9a9 solid;
+  border-radius:5px;
+}
+
+
 /*******************
  *
  * Правая колонка
