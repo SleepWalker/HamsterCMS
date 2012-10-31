@@ -279,16 +279,17 @@ class ShopController extends Controller
   
     $this->maxPriceVal = (int)$minMaxPrice->priceMax;
     $this->minPriceVal = (int)$minMaxPrice->priceMin;*/
-    
-    
-    
+
 	  if(isset($filterData['Shop']))
     {
 	    $criteria->addBetweenCondition('CAST( t.price AS DECIMAL )', $filterData['Shop']['priceMin'], $filterData['Shop']['priceMax'], 'AND');
 	  }
 		
 	  $dataProvider=new CActiveDataProvider(Shop::model()->published(), array(
-	    'criteria'=>$criteria,
+      'criteria'=>$criteria,
+      'sort'=>array(
+        'defaultOrder'=>'t.rating DESC',
+      ),
     ));
     
     

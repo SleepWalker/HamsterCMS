@@ -20,6 +20,22 @@ if($itemView != '_view')
   ));
 if($notCached)
 { 
+  if($itemView == '_view')
+  {
+    // фильтр товаров по цене и рейтингу
+    echo '<section class="shopSortSection">';
+    echo CHtml::beginForm('', 'GET');
+    echo CHtml::label('Показывать: ', 'Shop_sort');
+    echo CHtml::dropDownList('Shop_sort', $_GET['Shop_sort'], array(
+      'rating.desc' => 'Сперва популярные',
+      'price' => 'Сперва дешевые',
+      'price.desc' => 'Сперва дорогие',
+    ), array(
+      'onchange' => 'this.form.submit()' 
+    ));
+    echo CHtml::endForm();
+    echo '</section>';
+  }
   $this->widget('zii.widgets.CListView', array(
     'dataProvider'=>$dataProvider,
     'itemView'=>$itemView,
