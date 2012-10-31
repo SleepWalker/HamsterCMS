@@ -53,7 +53,6 @@ class Posts extends CWidget
   * Рендерит продукты
   ***********************/
   protected function renderPosts($dataProvider) {
-    echo '<section id="blogInformer">';
     $posts = $dataProvider->data;
     foreach($posts as $post)
     {
@@ -63,7 +62,6 @@ class Posts extends CWidget
         'data' => $post,
       ));
     }
-    echo '</section>';
   }
   
   protected function registerScriptFile($fileName,$position=CClientScript::POS_END)

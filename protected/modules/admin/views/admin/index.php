@@ -10,6 +10,7 @@ if(is_array($menu))
   foreach($menu as $label => $route)
   {
     $moduleId = array_pop(explode('/', $route[0]));
+    $route = Yii::app()->createUrl($route[0]);
 ?>
   <article>
     <h3><?php echo CHtml::link($label, $route); ?></h3>
@@ -30,6 +31,7 @@ if(is_array($menu))
   foreach($menu as $label => $route)
   {
     $moduleId = array_pop(explode('/', $route[0]));
+    $route = Yii::app()->createUrl($route[0]);
 ?>
   <article>
     <h3><?php echo CHtml::link($label, $route); ?></h3>
