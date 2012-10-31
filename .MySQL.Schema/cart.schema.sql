@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Хост: localhost
--- Время создания: Окт 27 2012 г., 15:52
+-- Время создания: Окт 31 2012 г., 21:17
 -- Версия сервера: 5.5.24
 -- Версия PHP: 5.3.10-1ubuntu3.4
 
@@ -29,7 +29,7 @@ SET time_zone = "+00:00";
 
 CREATE TABLE IF NOT EXISTS `order` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) unsigned NOT NULL,
+  `user_id` int(11) unsigned DEFAULT NULL,
   `address_id` int(10) unsigned NOT NULL,
   `operator_id` int(11) unsigned DEFAULT NULL,
   `status` tinyint(1) unsigned NOT NULL,
@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS `order` (
 
 CREATE TABLE IF NOT EXISTS `order_address` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) unsigned NOT NULL,
+  `user_id` int(11) unsigned DEFAULT NULL,
   `street` varchar(300) NOT NULL,
   `house` varchar(10) NOT NULL,
   `flat` varchar(10) NOT NULL,

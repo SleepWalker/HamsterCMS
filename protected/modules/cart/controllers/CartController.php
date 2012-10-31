@@ -172,8 +172,6 @@ class CartController extends Controller
 
     if ($this->stepNum == 4 && empty($this->order['summary']['action']))
     {
-      // отправляем письмо о успешном оформлении заказа
-      $this->sendOrderSummary();
       $this->actionClear(); // Чистим сессию, если оплата наличкой   
     }
     else // Сохраняем изменения в сессии 
@@ -594,6 +592,12 @@ class CartController extends Controller
       // откат транзакции, сообщаем юзеру об ошибке
       $transaction->rollBack();
       $valid = 0;
+    }
+
+    if($valid && empty($this->order['summary']['action']))
+    {
+      // отправляем письмо о успешном оформлении заказа
+      $this->sendOrderSummary();
     }
       
     return (object)array(
