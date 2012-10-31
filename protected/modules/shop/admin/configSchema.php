@@ -5,8 +5,14 @@ return array(
     'type' => 'text',
   ),
   'filterAlign'=> array(
-    'label' => 'Выравнивание подсказки в фильтре относительно характеристики (left|right). По умолчанию right',
+    'label' => 'Выравнивание подсказки в фильтре относительно характеристики (left|right)',
     'type' => 'text',
+    'default' => 'right',
+  ),
+  'prodPageSize'=> array(
+    'label' => 'Количество товаров на странице со списком товаров',
+    'type' => 'text',
+    'default' => 20,
   ),
   // global params schema and admin panel settings
   'hamster' => array(

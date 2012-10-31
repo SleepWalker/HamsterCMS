@@ -290,6 +290,9 @@ class ShopController extends Controller
       'sort'=>array(
         'defaultOrder'=>'t.rating DESC',
       ),
+      'pagination'=>array(
+        'pageSize'=>$this->module->params['prodPageSize'],
+      ),
     ));
     
     
