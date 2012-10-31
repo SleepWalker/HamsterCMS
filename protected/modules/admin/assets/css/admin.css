@@ -127,11 +127,11 @@ height: 40px;
 
 .wrapper {
   margin: 20px 15px;
+  padding-bottom:25px;
 }
 
 .content_wrapper {
   margin-right: 190px;
-  padding-bottom:25px;
 }
 
 #footer {
@@ -157,8 +157,8 @@ height: 40px;
   margin:0.5%;
   padding:1%;
   float:left;
-  background:#121212;
-  border:1px #a9a9a9 solid;
+  background:#222222;
+  border:1px #898989 solid;
   border-radius:5px;
 }
 

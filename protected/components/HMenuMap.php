@@ -77,7 +77,7 @@ class HMenuMap extends CApplicationComponent
   {
     if($menuId === false) $menuId = (int)count($this->_menuMap);
     $this->_menuMap[$menuId] = $menu;
-    return $menuId;
+    return array($menuId, $parentId);
   }
   // }}}
 
@@ -86,7 +86,7 @@ class HMenuMap extends CApplicationComponent
    * Рендерит меню
    * 
    * @param array $menu 
-   * @param mixed $menuId 
+   * @param mixed $menuId это может быть либо строка с ид для текущего меню, либо массив в котором могут содержаться элементы id и parent (если нужно привязать это меню к родителю). Оба параметра не являются обязательными
    * @access public
    * @return void
    */
@@ -113,7 +113,13 @@ class HMenuMap extends CApplicationComponent
       if(is_array($route))
       {
         if(!$cached) $this->mapRoute($route, $menu);
-        echo CHtml::link($label, Yii::app()->createUrl(array_shift($route), $route));
+        // FIXME: тут тоже особое условие для контроллера page
+        // Определяем активную страницу
+        if($this->route == $route[0] && ($this->route != 'page/index' || $_GET['path'] == $route['path']))
+          $htmlOptions = array('class' => 'active');
+        else
+          $htmlOptions = array();
+        echo CHtml::link($label, Yii::app()->createUrl(array_shift($route), $route), $htmlOptions);
       }else
         echo CHtml::link($label, $route);
     }
@@ -152,7 +158,7 @@ class HMenuMap extends CApplicationComponent
       foreach($suggestedRoutes as $item)
       {
         //TODO: лучьше переделать контроллер page таким образом, что бы пути выглядили так: page/{pageId}
-        //FIX: Судя по всему, единственный случай, когда нам надо проверять страницы - контроллер страниц, потому добавим для него отдельное условие
+        //FIXME: Судя по всему, единственный случай, когда нам надо проверять страницы - контроллер страниц, потому добавим для него отдельное условие
         if($this->route == 'page/index' && $item['params'] != $_GET) continue;
         $this->renderInner($item['menu'], true);
       }
@@ -214,7 +220,7 @@ class HMenuMap extends CApplicationComponent
    */
   public function __destruct()
   {
-    if($this->_reCache)
+    if($this->_reCache || $this->_menuMap == $this->_cachedRouteMap['__menu'])
     {
       $this->_routeMap['__menu'] = $this->_menuMap;
       Yii::app()->cache->set($this->CACHE_ID, $this->_routeMap, 3600);

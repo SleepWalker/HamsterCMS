@@ -45,9 +45,10 @@ class HModuleUrlRule extends CBaseUrlRule
         $methodParams = $this->getActionParamsByRoute($route);
         //TODO: добавить парсинг по регулярным выражениям
         if($methodParams)
-          foreach($methodParams as $i => $mparam)
+          foreach($methodParams as $mparam)
           {
-            $urlExtra[] = array_shift($params);
+            $urlExtra[] = $params[$mparam->getName()];
+            unset($params[$mparam->getName()]);
           }
       }
       
