@@ -168,7 +168,7 @@ class HMenuMap extends CApplicationComponent
    */
   public function getHasSuggestions()
   {
-    return array_key_exists($this->route, $this->_cachedRouteMap);
+    return is_array($this->_cachedRouteMap[$this->route]);
   }
   // }}}
   
