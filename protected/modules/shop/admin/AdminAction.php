@@ -221,8 +221,18 @@ class AdminAction extends HAdminAction
 				    Yii::import('application.vendors.wideImage.WideImage');
 				    $wideImage = WideImage::load($img->tempName);
             $white = $wideImage->allocateColor(255, 255, 255);
+            $wideImage->resize(600, 500)->resizeCanvas(600, 500, 'center', 'center', $white);
+
+            // watermark image
+            $watermarkPath = array(Yii::app()->theme->viewPath, 'shop', 'watermark.png');
+            $watermarkPath = implode(DIRECTORY_SEPARATOR, $watermarkPath);
+            if(file_exists($watermarkPath))
+            {
+              $watermark = WideImage::load($watermarkPath);
+              $wideImage = $wideImage->merge($watermark, 'right - 30', 'bottom - 30');
+            }
             
-				    $wideImage->resize(600, 500)->resizeCanvas(600, 500, 'center', 'center', $white)->saveToFile($file, 75);
+            $wideImage->saveToFile($file, 75);
 				    
 				    $model->photo[] = $fileName; // Сохраняем инфу о файле в бд
 				  }
@@ -255,7 +265,7 @@ class AdminAction extends HAdminAction
   			    }
   			    
   		      // Зачищаем старые характеристики (только в случае редактирования)
-  		      if ($this->crudid)
+  		      if ($this->crudid && count($_POST['Char']))
               Char::model()->deleteAllByAttributes(array(
                   'prod_id' => $model->id,
                 ),
