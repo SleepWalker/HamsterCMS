@@ -223,7 +223,7 @@ class HMenuMap extends CApplicationComponent
     if($this->_reCache || $this->_menuMap == $this->_cachedRouteMap['__menu'])
     {
       $this->_routeMap['__menu'] = $this->_menuMap;
-      Yii::app()->cache->set($this->CACHE_ID, $this->_routeMap, 3600);
+      Yii::app()->cache->set($this->CACHE_ID, $this->_routeMap); //Кэшируем на всегда, так как в случае изменения меню кэш и так будет обновлятся
     }
   }
   // }}}

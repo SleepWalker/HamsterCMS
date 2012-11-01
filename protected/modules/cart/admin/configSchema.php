@@ -6,6 +6,12 @@ return array(
   ),
   // global params schema and admin panel settings
   'hamster' => array(
+    'global' => array(
+      'emailName' => array(
+        'label' => 'Имя, которым будут подписываться письма от сайта',
+        'type' => 'text',
+      ),
+    ),
     'admin' => array(
       'title' => 'Менеджер заказов',
       'description' => 'Модуль для обзора и управления заказами поступишвими в модуль магазина. Так же модуль позволяет вручную создать заказ за клиента, если он, к примеру, осуществляет его по телефону.',

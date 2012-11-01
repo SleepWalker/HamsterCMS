@@ -667,7 +667,7 @@ class CartController extends Controller
     $message->addTo($user['email']);
     $message->setBcc($bccEmails);
     $message->subject = 'Информация о заказе №' . $this->order['summary']['orderNo'];
-    $message->from = array(Yii::app()->params['noReplyEmail'] => 'Shop.PWN-Zone.com');
+    $message->from = array(Yii::app()->params['noReplyEmail'] => Yii::app()->params['emailName']);
     Yii::app()->mail->send($message);
 	}
   

@@ -209,7 +209,7 @@ class User extends CActiveRecord
      
     $message->addTo($this->email);
     $message->subject = $subject;
-    $message->from = array(Yii::app()->params['noReplyEmail'] => 'Shop.PWN-Zone.com');
+    $message->from = array(Yii::app()->params['noReplyEmail'] => Yii::app()->params['emailName']);
     Yii::app()->mail->send($message);
 	}
   
