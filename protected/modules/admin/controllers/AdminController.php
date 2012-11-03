@@ -534,7 +534,9 @@ class AdminController extends Controller
           else
             unset($adminConfig['title']);*/
 
-          $modulesInfo[$moduleName] = CMap::mergeArray($adminConfig, $oldModulesInfo[$moduleName]); 
+          $modulesInfo[$moduleName] = $adminConfig;
+          if(is_array($oldModulesInfo[$moduleName]))
+            $modulesInfo[$moduleName] = CMap::mergeArray($modulesInfo[$moduleName], $oldModulesInfo[$moduleName]); 
           
           if(file_exists($modulePath.'/admin/AdminAction.php'))
             $adminActions[$moduleName] = 'application.modules.' . $moduleName . '.admin.AdminAction';
