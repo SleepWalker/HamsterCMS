@@ -209,7 +209,7 @@ class User extends CActiveRecord
      
     $message->addTo($this->email);
     $message->subject = $subject;
-    $message->from = array(Yii::app()->params['noReplyEmail'] => Yii::app()->params['emailName']);
+    $message->from = array(Yii::app()->params['noReplyEmail'] => Yii::app()->params['shortName']);
     Yii::app()->mail->send($message);
 	}
   
@@ -218,7 +218,7 @@ class User extends CActiveRecord
 	**/
 	public function sendMailConfirm()
 	{
-	  $this->mail('confirmMail', 'Активация аккаунта на shop.pwn-zone.com');
+	  $this->mail('confirmMail', 'Активация аккаунта на ' . Yii::app()->params['shortName']);
 	}
 	
 	/**
@@ -226,7 +226,7 @@ class User extends CActiveRecord
 	**/
 	public function sendChpassMail()
 	{
-	  $this->mail('changePassword', 'Смена пароля на shop.pwn-zone.com');
+	  $this->mail('changePassword', 'Смена пароля на ' . Yii::app()->params['shortName']);
 	}
 	
 	/**

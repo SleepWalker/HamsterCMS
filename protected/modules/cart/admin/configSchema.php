@@ -71,8 +71,8 @@ return array(
   // global params schema and admin panel settings
   'hamster' => array(
     'global' => array(
-      'emailName' => array(
-        'label' => 'Имя, которым будут подписываться письма от сайта',
+      'shortName' => array(
+        'label' => 'Короткое имя сайта, которым будут подписываться, к примеру, письма от сайта',
         'type' => 'text',
       ),
     ),
