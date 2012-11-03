@@ -44,6 +44,7 @@ class Config extends CFormModel
 	}
 
 	/**
+   * NOTE: Этот массив, в принципе, не обязательно использовать, так как CForm может брать значения label прямо из массива с настройками
 	 * @return array customized attribute labels (name=>label)
 	 */
 	public function attributeLabels()
@@ -84,7 +85,7 @@ class Config extends CFormModel
     // Настройки на уровне модуля
     foreach($this->_config as $name => $params)
     {
-      $this->att2CFormConfig($name, $params);
+      //$this->att2CFormConfig($name, $params);
       $this->hamsterConfigSchema($name, $params);
     }
     
@@ -92,7 +93,7 @@ class Config extends CFormModel
     if(is_array($this->_config['hamster']['global']))
       foreach($this->_config['hamster']['global'] as $name => $params)
       {
-        $this->att2CFormConfig($name, $params);
+        //$this->att2CFormConfig($name, $params);
         $this->hamsterConfigSchema($name, $params, true);
       }
       
@@ -134,7 +135,7 @@ class Config extends CFormModel
           ),
         ));
     }
-    
+
     $this->_hamsterModules = CMap::mergeArray($this->_curModConfig, $hamsterModules);
   }
   
@@ -164,15 +165,6 @@ class Config extends CFormModel
     foreach($options as $fieldId => $fieldOptions)
     {
       $this->att2CFormConfig($fieldId, $fieldOptions);
-      /*$this->_attributes[] = $fieldId;
-      $this->_attLabels[$fieldId] = $fieldOptions['label'];
-      if(!empty($fieldOptions['default']))
-      {
-        $this->_attValsDef[$fieldId] = $fieldOptions['default'];
-        $this->_attLabels[$fieldId] .= ' (По умолчанию: ' . $fieldOptions['default'] . ')';
-      }
-      $this->_CFormConfig[$fieldId] = array('type' => 'text');
-      */
         
       $this->_attVals[$fieldId] = '';
       if(isset($fieldOptions['linkTo']))
@@ -191,53 +183,103 @@ class Config extends CFormModel
    * @param bool $return если - true, то функция вернет обработанные данные, вместо того, что бы добавлять их в {@link _CFormConfig}
    */
   protected function att2CFormConfig($name, $params, $return = false)
-  {    
+  {  
+    // добавляем аттрибут в модель, что бы можно было получить доступ к текущему полю конфига
+    if(!$return) $this->setModelAttribute($name, $params);
+
     // configuration for different field types
     switch($params['type'])
     {
       case 'email':
         $this->_rules['email'][] = $name;
-        $params['type'] = 'text';
       break;
       case 'fieldset':
+        // имя для элемента формы (мы генерируем имена таким образом, что бы они соответствовали структуре массива конфига)
+        $curAttName = $return ? $return . '[' . $name . ']' : $name;
         foreach($params['elements'] as $subName => $subParams)
-          $elements[$subName] = $this->att2CFormConfig($subName, $subParams, true);
+        {
+          $subAttName = $subParams['type'] != 'fieldset' ? $curAttName . '[' . $subName . ']' : $subName;
+          $elements[$subAttName] = $this->att2CFormConfig($subAttName, $subParams, $curAttName);
+        }
         
-        $this->_CFormConfig[$name] = array(
+        $CFormArr = array(
           'type' => 'form',
           'title' => $params['title'],
           'elements' => $elements,
           'model' => $this,
         );
-        return;
+
+        if(!$return) 
+          $this->_CFormConfig[$name] = $CFormArr;
+  
+        return $CFormArr;
       break;
       case 'number':
-        $params['type'] = 'text';
       break;
       case '':
         return;
       break;
     }
-    
-    $this->_attributes[] = $name;
-    
-    if(!empty($params['label']))
-      $this->_attLabels[$name] = $params['label'];
-    
-    if(!empty($params['default'])) {
-      $this->_attValsDef[$name] = $params['default'];
-      $this->_attLabels[$name] .= ' (По умолчанию: ' . $params['default'] . ')';
+
+    if(isset($params['default']))
+    {
+      if(isset($params['label']))
+        $params['label'] .= ' (По умолчанию: ' . $params['default'] . ')';
+      unset($params['default']);
     }
-    
-    $CFormArr = array(
-      'type' => $params['type'],
-    );
+
+    // на данном этапе в массиве $params должны оставаться только параметры для CForm
+    $CFormArr = $params;
         
     if($return)
       return $CFormArr;
     else
       $this->_CFormConfig[$name] = $CFormArr;
   }
+
+  // public setModelAttribute(stringname,arrayparams) {{{ 
+  /**
+   * Добавляет в модель новый аттрибут
+   * 
+   * @param string $name 
+   * @param array $params 
+   * @access public
+   * @return void
+   */
+  public function setModelAttribute($name, $params = false)
+  {
+    $this->_attributes[] = $name;
+    
+    if(!empty($params['label']))
+    {
+      $this->_attLabels[$name] = $params['label'];
+    }
+    
+    // обработка вложенных формы (type='fieldset')
+    // здесь нам нужно рекурсивно собрать все значения по умолчанию
+    if($params['type'] == 'fieldset')
+    {
+      $parseDefaults = function($params) use(&$parseDefaults) {
+        if(is_array($params['elements']))
+        {
+          foreach($params['elements'] as $subName => $subParams)
+          {
+            if($subParams['type'] == 'fieldset')
+              $subParams['default'] = $parseDefaults($subParams);
+            $params['default'][$subName] = $subParams['default'];
+          }
+          return $params['default'];
+        }
+      };
+
+      $params['default'] = $parseDefaults($params);
+    }
+
+    if(!empty($params['default'])) {
+      $this->_attValsDef[$name] = $params['default'];
+    }
+  }
+  // }}}
   
   /**
    * Инициализирует массив с значениями по умолчанию и с текущими значениями аттрибутов, а также масив, который потом будет сейвится в конфиг
@@ -247,21 +289,14 @@ class Config extends CFormModel
    * @param bool $linkTo определяет к какому полю в конфиге будет привязываться аттрибут. Можно передать global, что бы привязать к глобальным параметрам или переменную
    */
   protected function hamsterConfigSchema($name, $params, $linkTo = false)
-  {
+  {  
     if($params['type'] == '') return;
-    // fieldset должен в конфиге отображаться как вложенные массивы
-    if($params['type'] == 'fieldset')
-    {
-      foreach($params['elements'] as $subName => $subParams)
-      {
-        $this->_attVals[$subName] = '';
-        $attVal[$subName] = &$this->_attVals[$subName];
-      }
-      // в итоге получится, что в конфиг добавится [$name] и к нему ссылка на массив $attVal (а не ссылка на ссылку на $this->_attVals, как в случае, когда $params['type'] != 'fieldset')
-    }else{
-      $this->_attVals[$name] = '';
-      $attVal = &$this->_attVals[$name];
-    }
+    // Добавляем поле в конфиг CForm
+    $this->att2CFormConfig($name, $params);
+
+    $this->_attVals[$name] = '';
+    $attVal = &$this->_attVals[$name];
+
     if($linkTo == 'global') // вяжем к глобальным параметрам Yii
     { 
       $this->_curModConfig['params'][$name] = &$attVal;
@@ -271,6 +306,21 @@ class Config extends CFormModel
       $this->_curModConfig['modules'][$this->moduleId]['params'][$name] = &$attVal;
     }
   }
+
+  // public isAttributeSafe(attribute) {{{ 
+  /**
+   * Переопределяем стандартную функцию, что бы она расспознавала аттрибуты-массивы 
+   * 
+   * @param mixed $attribute 
+   * @access public
+   * @return void
+   */
+  public function isAttributeSafe($attribute){
+    if(($pos = strpos($attribute, '[')) !== false)
+      $attribute = substr($attribute, 0, $pos);
+    return parent::isAttributeSafe($attribute);
+  }
+  // }}}
   
   /**
    * Переопределяем магический метод __get Yii, что бы можно было обращаться к свойствам, указанным в {@link _config}
@@ -281,6 +331,11 @@ class Config extends CFormModel
   {
     if(in_array($name, $this->_attributes))
     {
+      $att = $this->_attVals[$name];
+      if(($pos = strpos($name, '[')) !== false)
+      {
+        $name = substr($name, 0, $pos);
+      }
       if($this->_attVals[$name] != '')
         return $this->_attVals[$name];
       if(isset($this->_attValsDef[$name]))
