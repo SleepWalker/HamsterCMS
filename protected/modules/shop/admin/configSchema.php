@@ -11,7 +11,7 @@ return array(
   ),
   'prodPageSize'=> array(
     'label' => 'Количество товаров на странице со списком товаров',
-    'type' => 'text',
+    'type' => 'number',
     'default' => 20,
   ),
   // global params schema and admin panel settings

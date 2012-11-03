@@ -3,7 +3,7 @@
  * Класс для инициализации компонента Emoney
  *
  * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @package    cart.components.Emoney
+ * @package    hamster.modules.cart.components.Emoney
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
@@ -22,22 +22,16 @@ class Emoney
     
     // Создаем класс для обслуживания электронной валюты и заполняем его параметрами
     $moneyInstance = new $moneyClass;
-    
-    // Задаем кошелек для операций
-    //T!: нужно его переместить в другое место и в будующем брать через БД
-    $purse = array(
-      'WM' => 'U514759930779',
-      'Privat24' => 'UAH',
-    );
-    $moneyInstance->purse = $purse[$moneyClass];
-    
-    // Задаем секретный ключ
-    $secretKey = array(
-      'WM' => 'wlagaba4erezgaby',
-      'Privat24' => 'Rc14ou1b5s1qByRpFDgn2q9tfUNyHMxY',
-    );
-    $moneyInstance->secretKey = $secretKey[$moneyClass];
-    
+
+    $cartEmoneyParams = Yii::app()->modules['cart']['params']['emoney'];
+    if(isset($cartEmoneyParams) && $cartEmoneyParams[$moneyClass]['active'] == true)
+    {
+      // Задаем кошелек для операций
+      $moneyInstance->purse = $cartEmoneyParams[$moneyClass]['purse'];
+      // Задаем секретный ключ
+      $moneyInstance->secretKey = $cartEmoneyParams[$moneyClass]['secretKey'];
+    }
+
     return $moneyInstance;
   }
   

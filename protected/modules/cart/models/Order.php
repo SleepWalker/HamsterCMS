@@ -26,7 +26,9 @@
  */
 class Order extends CActiveRecord
 {
-  public $orderCurrency = array(
+  // Варианты оплаты заказа
+  // @see getOrderCurrency()
+  protected $_orderCurrency = array(
     1 => 'Оплата наличными',
     //2 => 'WMR',
     //3 => 'WMZ',
@@ -37,12 +39,14 @@ class Order extends CActiveRecord
     8 => 'Безналичный расчет',
   );
   
-  public $orderType = array(
+  // Типы заказа
+  // @see getOrderType()
+  protected $_orderType = array(
     1 => 'Доставка курьером по Киеву',
     2 => 'Самовывоз',
     3 => 'Доставка службой "Нова пошта" по Украине',
   );
-  
+
   
   const NOT_COMPLETE = 1;
   const COMPLETE = 2;
@@ -168,6 +172,42 @@ class Order extends CActiveRecord
       'comment' => 'Комментарий оператора',
 		);
 	}
+
+  public function getOrderCurrency()
+  {
+    $currencyParams = Yii::app()->modules['cart']['params']['emoney'];
+    foreach($currencyParams['other'] as $currencyId)
+    {
+      $enabledCurrencies[$currencyId] = $this->_orderCurrency[$currencyId];
+    }
+    unset($currencyParams['other']);
+
+    foreach($currencyParams as $emoneyId => $emoney)
+    {
+      if($emoney['active'] == true)
+        switch($emoneyId)
+        {
+        case 'WM':
+          $enabledCurrencies[4] = $this->_orderCurrency[4];
+          break;
+        case 'Privat24':
+          $enabledCurrencies[5] = $this->_orderCurrency[5];
+          break;
+        }
+    }
+
+    return $enabledCurrencies;
+  }
+
+
+  public function getOrderType()
+  {
+    $typeParams = Yii::app()->modules['cart']['params']['deliveryTypes'];
+    foreach($typeParams as $typeId)
+      $enabledTypes[$typeId] = $this->_orderType[$typeId];
+
+    return $enabledTypes;
+  }
 
 	/**
 	 * Retrieves a list of models based on the current search/filter conditions.
