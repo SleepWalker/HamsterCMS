@@ -215,6 +215,8 @@ class Config extends CFormModel
         return $CFormArr;
       break;
       case 'number':
+        // TODO: разобраться как можно фильтровать float
+        $params['type'] = 'text';
       break;
       case '':
         return;
