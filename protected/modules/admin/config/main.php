@@ -57,6 +57,8 @@ return
   	'components'=>array(
       'db'=>array(
         'enableParamLogging'=>true, // логирует SQL вместе с привязанными параметрами
+        'charset' => 'utf8',
+        'emulatePrepare' => true,
         'queryCacheID'=>'cache', // подключение кеширования запросов
         //'initSQLs'=>array("set time_zone='+00:00';"),
       ),

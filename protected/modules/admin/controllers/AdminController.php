@@ -478,31 +478,42 @@ class AdminController extends Controller
     if($_GET['m'])
     {
       $config = Config::load($_GET['m']);
-      if($config)
+    }else{
+      $config = new Config(array(), 'admin');
+      $config->addConfigFields(array(
+        'name' => array(
+          'type' => 'text',
+          'label' => 'Название сайта',
+          'default' => 'Another Hamster Site',
+          'linkTo' => '$config["name"]',
+        ),
+      ));
+    }
+
+    if($config)
+    {
+      if(Yii::app()->request->isPostRequest)
       {
-        if(Yii::app()->request->isPostRequest)
+        if($config->CForm->submitted('submit') && $config->CForm->validate())
         {
-          if($config->CForm->submitted('submit') && $config->CForm->validate())
-          {
-            if(!$config->save(false))
-              Yii::app()->user->setFlash('error','При сохранении конфигурации возникли ошибки');
-            else
-              Yii::app()->user->setFlash('success', 'Конфигурация модуля успешно обновлена.');
-            $this->refresh();
-          }
-        }
-        $this->pageTitle = $config->adminTitle;
-        if($config->CForm)
-        {
-          echo $this->render('CFormUpdate', array(
-            'form' => $config->CForm,
-          ));
-        }else{
-          $this->renderText('У этого модуля нету настроек для редактирования');
+          if(!$config->save(false))
+            Yii::app()->user->setFlash('error','При сохранении конфигурации возникли ошибки');
+          else
+            Yii::app()->user->setFlash('success', 'Конфигурация модуля успешно обновлена.');
+          $this->refresh();
         }
       }
-    }else{
-      $this->renderText('tmp');
+      if(isset($_GET['m']))
+        $this->pageTitle = $newPageTitle = $config->adminConfig['title'];
+
+      if($config->CForm)
+      {
+        echo $this->render('CFormUpdate', array(
+          'form' => $config->CForm,
+        ));
+      }else{
+        $this->renderText('У этого модуля нету настроек для редактирования');
+      }
     }
   }
   
@@ -546,12 +557,21 @@ class AdminController extends Controller
     
     $hamsterModules = $this->hamsterModules;
     $hamsterModules['modulesInfo'] = $modulesInfo;
-    
+
+    //FIXME:
+    if(is_array($hamsterModules['modules']))
+    {
+      $hamsterModules['config']['modules'] = $hamsterModules['modules'];
+      $hamsterModules['config']['params'] = $hamsterModules['params'];
+      unset($hamsterModules['modules']);
+      unset($hamsterModules['params']);
+    }
+    //^----- Временный код для обновления структуры конфигов
     $hamsterModules = "<?php\n\nreturn " . var_export($hamsterModules, true) . ";";
     
     file_put_contents(Yii::getPathOfAlias('application.config') . '/hamsterModules.php', $hamsterModules);
     
-    // Обновим статус модуля в конфиге (T!: честно говоря грубый способ... но пока так)
+    // Обновим статус модуля в конфиге (FIXME: честно говоря грубый способ... но пока так)
     Config::load($moduleName)->save(false);
     
     // в добавок мы еще почистим assets
