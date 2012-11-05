@@ -32,18 +32,6 @@ return array(
           ),
         ),
       ),
-      'adminEmail'=> array(
-        'label' => 'Емейл администратора',
-        'type' => 'email',
-      ),
-      'noReplyEmail'=> array(
-        'label' => 'Емейл робота (Например: noreply@mysite.com)',
-        'type' => 'email',
-      ),
-      'vkApiId'=> array(
-        'label' => 'Идентификатор API vkontakte (ApiId)',
-        'type' => 'number',
-      ),
     ),
     'admin' => array(
       'title' => 'Управление магазином',

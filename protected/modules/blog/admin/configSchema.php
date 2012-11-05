@@ -19,9 +19,10 @@ return array(
         'label' => 'Описание сайта в RSS',
         'type' => 'text',
       ),
-      'vkApiId'=> array(
-        'label' => 'Идентификатор API vkontakte (ApiId)',
-        'type' => 'number',
+      'copyright'=> array(
+        'label' => 'Строка copyright (используется в RSS)',
+        'type' => 'text',
+        'hint' => '2012 © hamstercms.com',
       ),
     ),
     'admin' => array(

@@ -293,7 +293,9 @@ class Config extends CFormModel
    */
   protected function hamsterConfigSchema($name, $params, $linkTo = false)
   {  
-    if($params['type'] == '') return;
+    if($name == 'hamster') return false;
+    if($params['type'] == '') throw new CException("У параметра $name не указан обязательный параметр type");
+
     // Добавляем поле в конфиг CForm
     $this->att2CFormConfig($name, $params);
 

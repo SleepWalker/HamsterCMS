@@ -434,30 +434,6 @@ class AdminController extends Controller
  
     header('Content-type: application/json');
     echo CJSON::encode($jsonArray);
-    
-    /*$images = array();
-    
-    $dir = Yii::getPathOfAlias('webroot') . '/uploads/imageuploads/';
-    
-    $handler = opendir($dir);
- 
-    while ($file = readdir($handler))
-    {
-      if ($file != "." && $file != "..")
-        $images[] = $file;
-    }
-    closedir($handler);
- 
-    $jsonArray=array();
- 
-    foreach($images as $image)
-      $jsonArray[]=array(
-        'thumb'=>Yii::app()->baseUrl.'/uploads/imageuploads/'.$image,
-        'image'=>Yii::app()->baseUrl.'/uploads/imageuploads/'.$image
-      );
- 
-    header('Content-type: application/json');
-    echo CJSON::encode($jsonArray);*/
   }
   
   /**
@@ -486,6 +462,55 @@ class AdminController extends Controller
           'label' => 'Название сайта',
           'default' => 'Another Hamster Site',
           'linkTo' => '$config["name"]',
+        ),
+        'params' => array(
+          'title' => 'Настройки глобальных параметров Hamster',
+          'type' => 'fieldset',
+          'elements' => array(
+            'shortName' => array(
+              'label' => 'Короткое имя сайта, которым будут подписываться, к примеру, письма от сайта',
+              'type' => 'text',
+            ),
+            'vkApiId'=> array(
+              'label' => 'Идентификатор API vkontakte (ApiId)',
+              'type' => 'number',
+            ),
+            'adminEmail'=> array(
+              'label' => 'Емейл администратора',
+              'type' => 'email',
+            ),
+            'noReplyEmail'=> array(
+              'label' => 'Емейл робота (Например: noreply@mysite.com)',
+              'type' => 'email',
+            ),
+          ),          
+          'linkTo' => '$config["params"]',
+        ),
+        'components' => array(
+          'title' => 'Настройки компонентов Hamster',
+          'type' => 'fieldset',
+          'elements' => array(
+            'db' => array(
+              'title' => 'Настройки базы данных',
+              'type' => 'fieldset',
+              'elements' => array(
+                'connectionString' => array(
+                  'label' => 'Строка соединения с БД',
+                  'type' => 'text',
+                  'hint' => 'mysql:host=<b>ХОСТ_БД</b>;dbname=<b>ИМЯ_БД</b>',
+                ),
+                'username' => array(
+                  'label' => 'Имя пользователя',
+                  'type' => 'text',
+                ),
+                'password' => array(
+                  'label' => 'Пароль',
+                  'type' => 'password',
+                ),
+              ),
+            ),
+          ),
+          'linkTo' => '$config["components"]',
         ),
       ));
     }
@@ -546,8 +571,9 @@ class AdminController extends Controller
             unset($adminConfig['title']);*/
 
           $modulesInfo[$moduleName] = $adminConfig;
-          if(is_array($oldModulesInfo[$moduleName]))
-            $modulesInfo[$moduleName] = CMap::mergeArray($modulesInfo[$moduleName], $oldModulesInfo[$moduleName]); 
+          // восстанавливаем старое имя (на случай, если его менял юзер)
+          if($oldModulesInfo[$moduleName]['title'] != '')
+            $modulesInfo[$moduleName]['title'] = $oldModulesInfo[$moduleName]['title'];
           
           if(file_exists($modulePath.'/admin/AdminAction.php'))
             $adminActions[$moduleName] = 'application.modules.' . $moduleName . '.admin.AdminAction';
@@ -565,6 +591,14 @@ class AdminController extends Controller
       $hamsterModules['config']['params'] = $hamsterModules['params'];
       unset($hamsterModules['modules']);
       unset($hamsterModules['params']);
+    }
+    foreach($hamsterModules['modulesInfo'] as &$miMod)
+    {
+      if(is_array($miMod['bd']))
+      {
+        $miMod['db'] = $miMod['bd'];
+        unset($miMod['bd']);
+      }
     }
     //^----- Временный код для обновления структуры конфигов
     $hamsterModules = "<?php\n\nreturn " . var_export($hamsterModules, true) . ";";
