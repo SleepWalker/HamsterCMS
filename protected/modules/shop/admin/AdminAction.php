@@ -162,18 +162,22 @@ class AdminAction extends HAdminAction
       // проверяем обязательность характеристик
       if($_POST['Shop']['status'] != STATUS_DRAFT) // для статуса черновик не проводим валидацию
       {
-        $charShemas = CharShema::model()->findAllByAttributes(array('char_id'=>array_keys($_POST['Char'])));
-        foreach($charShemas as $charShema)
-          $charShemaById[$charShema->char_id] = $charShema;
-          
-        foreach($_POST['Char'] as $charId => $charData)
+        if(isset($_POST['Char']))
         {
-          if(!$charShemaById[$charId]->isRequired) continue; // не обязатльные категории пропускаем
-          $mChar = new Char('validate');
-          $mChar->attributes = $charData;
-          $mChar->char_id = $charId;
-          $mChar->type = $charShemaById[$charId]->type;
-          $modelsToValidate[] = $mChar;
+          $charShemas = CharShema::model()->findAllByAttributes(array('char_id'=>array_keys($_POST['Char'])));
+          
+          foreach($charShemas as $charShema)
+            $charShemaById[$charShema->char_id] = $charShema;
+          
+          foreach($_POST['Char'] as $charId => $charData)
+          {
+            if(!$charShemaById[$charId]->isRequired) continue; // не обязатльные категории пропускаем
+            $mChar = new Char('validate');
+            $mChar->attributes = $charData;
+            $mChar->char_id = $charId;
+            $mChar->type = $charShemaById[$charId]->type;
+            $modelsToValidate[] = $mChar;
+          }
         }
       }
       echo CActiveForm::validate($modelsToValidate);
