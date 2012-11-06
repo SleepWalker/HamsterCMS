@@ -247,11 +247,11 @@ class AdminAction extends HAdminAction
       $transaction = Yii::app()->db->beginTransaction();
       try 
       {
-        $address->user_id = new CDbExpression('NULL');//$client->primaryKey;
+        $address->user_id = new CDbExpression('NULL');
         if($address->save(false))
         {
           $order->operator_id = Yii::app()->user->id;
-          $order->user_id = new CDbExpression('NULL');//$client->primaryKey;
+          $order->user_id = new CDbExpression('NULL');
           $order->address_id = $address->primaryKey;
           if($order->save(false))
           {
@@ -260,6 +260,7 @@ class AdminAction extends HAdminAction
             $client->save(false);
             //$OrderCheck = array('prod_id'=>'quantity');
             $prods = Shop::model()->findAllByPk(array_keys($OrderCheck));
+            $valid = 1;
             foreach($prods as $prod)
             {
               $check = new OrderCheck;
@@ -267,16 +268,19 @@ class AdminAction extends HAdminAction
               $check->prod_id = $prod->primaryKey;
               $check->quantity = $OrderCheck[$prod->primaryKey];
               $check->price = $prod->price * $check->quantity;
-              $check->save();
+              $valid = $valid && $check->save();
             }
+
+            if(!$valid)
+              throw new Exception('Не удалось сохранить чек');
+
+            $transaction->commit();
             
             // все успешно
             Yii::app()->user->setFlash('success', "Заказ оформлен успешно");
             $this->refresh();
           }
         }
-        
-        $transaction->commit();
       }
       catch (Exception $e)
       {
@@ -372,7 +376,7 @@ class AdminAction extends HAdminAction
 				.append( "<a>" + item.label + "</a>" )
 				.appendTo( ul );
 		};';
-    Yii::app()->getClientScript()->registerScript(__CLASS__.'#shoProdAutoComplete', $js);
+    Yii::app()->getClientScript()->registerScript(__CLASS__.'#shopProdAutoComplete', $js);
     
     $check->prod_id = '';
     
