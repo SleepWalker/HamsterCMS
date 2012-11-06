@@ -74,7 +74,7 @@ $this->pageTitle = $model->name;
     <p><strong>Как добраться</strong>: <?php echo CHtml::encode($model->location) ?></p>
     <p><strong>Добавить в календарь</strong>: 
     <a href="<?php echo $model->gCalUrl ?>" class="icon icon_gcal" title="Добавить в Google Calendar">Добавить в Google Calendar</a>
-    <a href="<?php echo Yii::app()->createUrl('event/event/ical', array($model->eventId));  ?>" class="icon icon_ical" title="iCalendar (*.ics)">iCalendar (*.ics)</a>
+    <a href="<?php echo Yii::app()->createUrl('event/event/ical', array('id' => $model->eventId));  ?>" class="icon icon_ical" title="iCalendar (*.ics)">iCalendar (*.ics)</a>
     </p>
 	</section>
   <footer>

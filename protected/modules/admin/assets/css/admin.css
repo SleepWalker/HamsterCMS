@@ -499,6 +499,10 @@ span.required {
   color:#f00;
 }
 
+.form .row {
+  margin:10px 0;
+}
+
 div.form div.error label:first-child,
 div.form label.error,
 div.form span.error
