@@ -49,7 +49,6 @@ $this->widget('zii.widgets.grid.CGridView', array(
       array(
         'name' => '4',
         'header' => 'Сообщение',
-        'filter' => false,
         'value' => '"<pre style=\"height:100px;overflow-y:auto;\">".CHtml::encode(wordwrap($data[4]))."</pre>"',
         'type' => 'raw',
       ),
