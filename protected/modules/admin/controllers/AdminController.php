@@ -99,6 +99,15 @@ class AdminController extends Controller
 	
 	public function actionLogs()
 	{
+    // Create filter model and set properties
+    // http://www.yiiframework.com/wiki/232/using-filters-with-cgridview-and-carraydataprovider/
+    $filtersForm=new FiltersForm;
+    if (isset($_GET['FiltersForm']))
+    {
+      unset($_GET['FiltersForm'][0]);
+      $filtersForm->filters=$_GET['FiltersForm'];
+    }
+         
 	  //http://www.yiiframework.com/wiki/232/using-filters-with-cgridview-and-carraydataprovider/
 	  $logString = file_get_contents('protected/runtime/application.log');
 	  // добавляем разделитель, по которому будем делить строку
@@ -107,7 +116,12 @@ class AdminController extends Controller
     $logString .= '--Separator--';
     preg_match_all('/(\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}) \[([^\]]+)\] \[([^\]]+)\] (.*?)--Separator--/s', $logString, $matches, PREG_SET_ORDER);
     $matches = array_reverse($matches);
-	  $dataProvider=new CArrayDataProvider($matches, array(
+    $filteredData=$filtersForm->filter($matches);
+    foreach($matches as $row)
+      $categories[$row[3]] = $row[3];
+    asort($categories);
+
+	  $dataProvider=new CArrayDataProvider($filteredData, array(
         'id'=>'log',
         'pagination'=>array(
             'pageSize'=>20,
@@ -116,6 +130,8 @@ class AdminController extends Controller
 
 	  $this->render('log', array(
 	    'dataProvider' => $dataProvider,
+      'filtersForm' => $filtersForm,
+      'categories' => $categories,
 	  ));
 	}
 	
