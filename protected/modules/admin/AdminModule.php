@@ -28,6 +28,9 @@ class AdminModule extends CWebModule
     //
     // переопределяем страницу входа
     Yii::app()->user->loginUrl = Yii::app()->createUrl('admin/login/index');
+
+    // устанавливаем экшен для отобраения ошибок
+    Yii::app()->errorHandler->errorAction = 'admin/admin/error';
 	}
 
 	public function beforeControllerAction($controller, $action)
