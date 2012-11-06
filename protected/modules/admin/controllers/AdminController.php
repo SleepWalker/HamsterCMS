@@ -43,7 +43,7 @@ class AdminController extends Controller
               'roles'=>array('admin'),
           ),
           array('allow',
-            'actions'=>array('shop', 'index', 'cart', 'blog'),
+            'actions'=>array('shop', 'error', 'index', 'cart', 'blog'),
             'roles'=>array('staff'),
           ),
           array('deny',  // deny all users
@@ -699,4 +699,21 @@ class AdminController extends Controller
   {
     return is_array($this->hamsterModules['enabledModules']) ? $this->hamsterModules['enabledModules'] : array();
   }
+
+	/**
+	 * This is the action to handle external exceptions.
+	 */
+	public function actionError()
+	{
+	    if($error=Yii::app()->errorHandler->error)
+	    {
+	    	if($_POST['ajax'] || $_POST['ajaxSubmit'] || $_POST['ajaxaction'] || $_POST['ajaxIframe'])
+	    		echo CJSON::encode(array(
+	      		'action'=>404, 
+	      		'content'=>$error['message']
+	    		));
+	    	else
+	        	$this->render('error', $error);
+	    }
+	}
 }

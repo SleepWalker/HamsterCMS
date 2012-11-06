@@ -25,9 +25,12 @@ class AdminModule extends CWebModule
 		$this->assetsUrl = Yii::app()->getAssetManager()->publish(dirname(__FILE__).DIRECTORY_SEPARATOR.'assets',false,-1,YII_DEBUG);//Yii::getPathOfAlias('application.modules.admin.assets'));
     //$this->registerScriptFile('admin.js');
     //$this->registerCssFile('admin.css');
-    //
+
     // переопределяем страницу входа
     Yii::app()->user->loginUrl = Yii::app()->createUrl('admin/login/index');
+
+    // устанавливаем экшен для отобраения ошибок
+    Yii::app()->errorHandler->errorAction = 'admin/admin/error';
 	}
 
 	public function beforeControllerAction($controller, $action)
