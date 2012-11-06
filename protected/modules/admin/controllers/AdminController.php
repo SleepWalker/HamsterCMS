@@ -704,16 +704,16 @@ class AdminController extends Controller
 	 * This is the action to handle external exceptions.
 	 */
 	public function actionError()
-	{
-	    if($error=Yii::app()->errorHandler->error)
-	    {
-	    	if($_POST['ajax'] || $_POST['ajaxSubmit'] || $_POST['ajaxaction'] || $_POST['ajaxIframe'])
-	    		echo CJSON::encode(array(
-	      		'action'=>404, 
-	      		'content'=>$error['message']
-	    		));
-	    	else
-	        	$this->render('error', $error);
-	    }
+  {
+    if($error=Yii::app()->errorHandler->error)
+    {
+      if($_POST['ajax'] || $_POST['ajaxSubmit'] || $_POST['ajaxaction'] || $_POST['ajaxIframe'])
+        echo CJSON::encode(array(
+          'action'=>404, 
+          'content'=>$error['message']
+        ));
+      else
+        $this->render('error', $error);
+    }
 	}
 }
