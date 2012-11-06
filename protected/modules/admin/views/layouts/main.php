@@ -4,6 +4,7 @@
 <head>
 <meta name="robots" content="noindex,nofollow">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="icon" type="image/gif" href="<?php echo $this->adminAssetsUrl; ?>/favicon.gif" />
 <link type="text/css" rel="StyleSheet" href="<?php echo $this->adminAssetsUrl; ?>/css/admin.css" />
 <title><?php echo CHtml::encode($this->pageTitle); ?></title>
 

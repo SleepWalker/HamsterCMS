@@ -1,5 +1,5 @@
 <article class="block informer event">
-  <header>Близжайшее мероприятие <?php echo CHtml::link(CHtml::encode($data->name), $data->viewUrl) ?></header>
+  <header>Ближайшее мероприятие <?php echo CHtml::link(CHtml::encode($data->name), $data->viewUrl) ?></header>
     
     <p><?php echo strip_tags($data->desc); ?></p>
   <footer>
