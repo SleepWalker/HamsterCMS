@@ -30,37 +30,36 @@ class HModuleUrlRule extends CBaseUrlRule
     {
       unset($routeParts[0]); // удлаяем повторяющуюся часть из url
       $routeParts = array_values($routeParts);
-
-      // узнаем, изменен ли у модуля не стандартный url
-      if(Yii::app()->modules[$routeParts[0]]['params']['moduleUrl']) 
-        $routeParts[0] = Yii::app()->modules[$routeParts[0]]['params']['moduleUrl'];
-
-      if($routeParts[1] == 'view') // если это действие actionview - убираем его из url
-      {
-        unset($routeParts[1]); // удлаяем view часть из url
-        $urlExtra[] = array_shift($params);
-      }else{
-        if($routeParts[1] == 'index') // индекс нам в урл не нужен
-          unset($routeParts[1]);
-        $methodParams = $this->getActionParamsByRoute($route);
-        //TODO: добавить парсинг по регулярным выражениям
-        if($methodParams)
-          foreach($methodParams as $mparam)
-          {
-            $urlExtra[] = $params[$mparam->getName()];
-            unset($params[$mparam->getName()]);
-          }
-      }
-      
-      $url = implode("/", $routeParts);
-      if(is_array($urlExtra)) 
-        $url .= '/' . implode("/", $urlExtra); //дополнительные параметры-частички url которые пишутся через слеш
-
-      $url .= count($params) ? '?' . http_build_query($params) : '';
-      return $url;
     }
-    
-    return false;  // не применяем данное правило
+
+    // узнаем, изменен ли у модуля не стандартный url
+    if(Yii::app()->modules[$routeParts[0]]['params']['moduleUrl']) 
+      $routeParts[0] = Yii::app()->modules[$routeParts[0]]['params']['moduleUrl'];
+
+    if($routeParts[1] == 'view') // если это действие actionview - убираем его из url
+    {
+      unset($routeParts[1]); // удлаяем view часть из url
+      // Присоединяем к урл ид модели
+      $urlExtra[] = array_shift($params);
+    }else{
+      if(end($routeParts) == 'index') // индекс нам в урл не нужен
+        array_pop($routeParts);
+      $methodParams = $this->getActionParamsByRoute($route);
+      //TODO: добавить парсинг по регулярным выражениям
+      if($methodParams)
+        foreach($methodParams as $mparam)
+        {
+          $urlExtra[] = $params[$mparam->getName()];
+          unset($params[$mparam->getName()]);
+        }
+    }
+
+    $url = implode("/", $routeParts);
+    if(is_array($urlExtra)) 
+      $url .= '/' . implode("/", $urlExtra); //дополнительные параметры-частички url которые пишутся через слеш
+
+    $url .= count($params) ? '?' . http_build_query($params) : '';
+    return $url;
   }
 
   /**
@@ -97,7 +96,7 @@ class HModuleUrlRule extends CBaseUrlRule
         $moduleId = $getModuleByUrl[$url[0]];
         
         $route[] = $moduleId; // модуль
-        if(!isset($url[1])) // index действия
+        if(!isset($url[1])) // index действия для случаев, когда у контроллера и модуля одинаковый id (admin/admin/index)
           return $moduleId . '/' . $moduleId . '/index';
           
 
@@ -117,6 +116,11 @@ class HModuleUrlRule extends CBaseUrlRule
           $actionParts = array_slice($url, 1);
         }
         $route[] = $controllerId;
+
+        // индекс дейтвия moduleId/controllerId/index
+        if(count($actionParts) == 0)
+          return implode('/', $route);
+
         $controllerClass = ucfirst($controllerId).'Controller';
           
         //работаем с {ModuleId}Controller
