@@ -7,18 +7,8 @@
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
-class AdminController extends Controller
+class AdminController extends HAdminController
 { 
-  // массив с информацией о модулях
-  protected $_hamsterModules = array();
-  
-  public $actionId;
-  public $actionPath;
-  public $curModuleUrl; // путь к index текущего модуля, к примеру /admin/shop
-  public $tabs;
-  public $aside = array();
-  public $adminAssetsUrl;
-  
   /**
 	 * @return массив действий контроллера
 	 */
@@ -686,34 +676,6 @@ class AdminController extends Controller
       
       $this->redirect('/admin/config' . $redirectParams);
     }
-  }
-  
-  /**
-   * Загружает настройки модулей Hamster
-   * @return array массив с настройками
-   */
-  public function getHamsterModules()
-  {
-    $file = Yii::getPathOfAlias('application.config') . '/hamsterModules.php';
-    if(!$this->_hamsterModules && file_exists($file))
-      $this->_hamsterModules = require($file);
-    return $this->_hamsterModules;
-  }
-  
-  /**
-   * @return array массив с информацией о модулях
-   */
-  public function getModulesInfo()
-  {
-    return  is_array($this->hamsterModules['modulesInfo']) ? $this->hamsterModules['modulesInfo'] : array();
-  }
-  
-  /**
-   * @return array массив с информацией об активных модулях
-   */
-  public function getEnabledModules()
-  {
-    return is_array($this->hamsterModules['enabledModules']) ? $this->hamsterModules['enabledModules'] : array();
   }
 
 	/**
