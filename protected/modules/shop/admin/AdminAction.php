@@ -772,7 +772,7 @@ class AdminAction extends HAdminAction
 				$model->cat_logo = $fileName;
 			}
 
-			if($model->save()) { 
+			if(($valid = $model->save()) == true) { 
 			  // Удаляем старое изображение
 			  if($oldImage != '' && file_exists($uploadPath.$oldImage) && ($fileName != '' || $model->cat_logo == '')) unlink($uploadPath.$oldImage);
 			  
@@ -800,6 +800,10 @@ class AdminAction extends HAdminAction
 	                     'model'=>$model,
                      ), true),
       );
+
+      //обновляем страницу
+      if($valid)
+        $data['content'] .= '<script> location.reload() </script>';
       
       echo json_encode($data, JSON_HEX_TAG);
       Yii::app()->end();
@@ -821,12 +825,12 @@ class AdminAction extends HAdminAction
 	public function actionCategorieDelete()
 	{
 	  $uploadPath = $_SERVER['DOCUMENT_ROOT'].Categorie::$uploadsUrl;
-		if(Yii::app()->request->isPostRequest && Yii::app()->user->checkAccess('admin'))
+		if(Yii::app()->user->checkAccess('admin'))
 		{
 			// we only allow deletion via POST request
 			$model = Categorie::model()->findByPk($this->crudid);
 			// Удаляем изображение
-		  if(file_exists($uploadPath.$model->cat_logo)) unlink($uploadPath.$model->cat_logo);
+		  if(!empty($model->cat_logo) && file_exists($uploadPath.$model->cat_logo)) unlink($uploadPath.$model->cat_logo);
 			$model->delete();
 	  }
 		else

@@ -11,6 +11,23 @@
  */
 class UpdateController extends HAdminController 
 { 
+
+  /**
+   * @vararray $dirMap хранит карту с директориями цмс и их хешами
+   * array(
+   *   'fileList' => array(
+   *     'path1',
+   *     'path2',
+   *     'path/to/directory/too',
+   *   ),
+   *   'hashList' => array(
+   *     'path/to/file/1.php' => hash,
+   *     'path/to/file/2.php' => hash,
+   *   ),
+   * )
+   */
+  protected $_dirMap;
+
   public function filters()
   {
     return array(
@@ -32,12 +49,19 @@ class UpdateController extends HAdminController
   
 	public function actionIndex()
   {
+    $this->pageTitle = Yii::app()->name . ' - Обновление';
     $enModsIds = array_keys($this->enabledModules);
+    $aliases = array(
+      'application.components',
+      'application.controllers',
+      'application.extensions',
+      'application.models',
+      'application.vendors',
+      'application.widgets',
+    );
     $enModsIds[] = 'admin';
     foreach($enModsIds as $enModId)
       $aliases[] = 'application.modules.' . $enModId;
-
-    $aliases[] = 'application.components';
 
     $ans = $this->updatesHashList;
 
@@ -45,7 +69,7 @@ class UpdateController extends HAdminController
     $updateList = array(); // файлы к обновлению
     foreach($aliases as $alias)
     {
-      $curDataStatus[$alias] = $arr = $this->hashDir(Yii::getPathOfAlias($alias));
+      $arr = $this->hashDir($alias);
       if(!is_array($ans[$alias])) continue; // нету такого алиаса
       $deleteList = array_merge($deleteList, array_diff($arr['pathList'], $ans[$alias]['pathList']));
       $updateList = array_merge($updateList,
@@ -54,6 +78,18 @@ class UpdateController extends HAdminController
          $arr['hashList'] 
        ));
     }
+
+    ob_start();
+?>
+  <b style="color:red">К удалению:</b><br>
+  <?php echo implode('<br>', $deleteList); ?>
+  <p><b style="color:green">К обновлению:</b> <br>
+  <?php echo implode('<br>', array_keys($updateList)); ?>
+<?php
+    echo '<br><br>' . CHtml::beginForm() . 
+    CHtml::submitButton('Запустить обновление', array('name'=>'update')) .
+    CHtml::endForm();
+    $logMessage = ob_get_clean(); 
 
     if(isset($_POST['update']))
     {
@@ -67,7 +103,18 @@ class UpdateController extends HAdminController
       // удаляем старые файлы
       if(count($deleteList))
         foreach($deleteList as $file)
-          $status = $status && unlink($rootDir . $file);
+        {
+          $fileToDelete = $rootDir . $file;
+          if(is_dir($fileToDelete))
+            $this->destroyDir($fileToDelete);
+          elseif(file_exists($fileToDelete))
+            $status = $status && unlink($fileToDelete);
+        }
+      // сохраняем новую карту директорий
+      Yii::app()->cache->set('dirMap', $ans);
+
+      // Пишем в лог
+      Yii::log($logMessage, 'info', 'hamster.update');
 
       if($status == TRUE)
         Yii::app()->user->setFlash('success', 'Успешное обновление');
@@ -77,26 +124,20 @@ class UpdateController extends HAdminController
       $this->refresh();
     }
 
-    ob_start();
-?>
-  <b style="color:red">К удалению:</b><br>
-  <?php echo implode('<br>', $deleteList); ?>
-  <p><b style="color:green">К обновлению:</b> <br>
-  <?php echo implode('<br>', array_keys($updateList)); ?>
-<?php
-    echo '<p>' . CHtml::beginForm() . 
-    CHtml::submitButton('Запустить обновление', array('name'=>'update')) .
-    CHtml::endForm();
-
-    $this->renderText(ob_get_clean());
+    $this->renderText($logMessage);
   }
 
-  protected function hashDir($dir) {
+  protected function hashDir($alias) {
+    // возвращаем значение из карты (в случае если она уже закеширована)
+    if(is_array($this->dirMap[$alias])) return $this->dirMap[$alias];
+
+    $dir = Yii::getPathOfAlias($alias);
     $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir),
       RecursiveIteratorIterator::CHILD_FIRST);
     $root = Yii::getPathOfAlias('application');
     foreach ($iterator as $file) {
-      if(substr($file->getBasename(), 0, 1) == '.' && $file->getBasename() != '.htaccess') continue; // пропускаем скрыте файлы (линукс)
+      //if(substr($file->getBasename(), 0, 1) == '.' && $file->getBasename() != '.htaccess') continue; // пропускаем скрыте файлы (линукс)
+      if($file->getBasename() == '.' || $file->getBasename() == '..') continue; 
         $path = str_replace($root, '', (string)$file);
         $pathList[] = $path;
       if ($file->isFile()) {
@@ -161,26 +202,35 @@ class UpdateController extends HAdminController
     }
   }
 
+  public function getDirMap()
+  {
+    if(!isset($this->_dirMap))
+      $this->_dirMap = Yii::app()->cache->get('dirMap');
+    return $this->_dirMap;
+  }
+
   /**
-   * Makes directory and returns BOOL(TRUE) if exists OR made.
-   *
-   * @param  $path Path name
-   * @return bool
+   * Полностью удаляет содержимое $dir
+   * @params string $dir путь к директории
    */
-  protected function rmkdir($path, $mode = 0755) {
-    $path = rtrim(preg_replace(array("/\\\\/", "/\/{2,}/"), "/", $path), "/");
-    $e = explode("/", ltrim($path, "/"));
-    if(substr($path, 0, 1) == "/") {
-      $e[0] = "/".$e[0];
-    }
-    $c = count($e);
-    $cp = $e[0];
-    for($i = 1; $i < $c; $i++) {
-      if(!is_dir($cp) && !@mkdir($cp, $mode)) {
-        return false;
+  function destroyDir($dir) 
+  {
+    if(!preg_match('%/$%', $dir)) $dir .= '/';
+    $mydir = opendir($dir);
+
+    while(false !== ($file = readdir($mydir))) {
+      if($file != "." && $file != "..") {
+        //chmod($dir.$file, 0777);
+        if(is_dir($dir.$file)) {
+          chdir('.');
+          $this->destroyDir($dir.$file.'/');
+          rmdir($dir.$file) or DIE("couldn't delete $dir$file<br />");
+        }
+        else
+          unlink($dir.$file) or DIE("couldn't delete $dir$file<br />");
       }
-      $cp .= "/".$e[$i];
     }
-    return @mkdir($path, $mode);
+
+    rmdir($dir);
   }
 }
