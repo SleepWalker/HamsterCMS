@@ -26,6 +26,9 @@ class AdminModule extends CWebModule
     //$this->registerScriptFile('admin.js');
     //$this->registerCssFile('admin.css');
 
+    // меняем имя сайта
+    Yii::app()->name = 'HamsterCMS';
+
     // переопределяем страницу входа
     Yii::app()->user->loginUrl = Yii::app()->createUrl('admin/login/index');
 

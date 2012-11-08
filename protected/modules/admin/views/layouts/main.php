@@ -34,7 +34,7 @@
       'Бекап' => array('admin/admin/backup'),
       'Логи' => array('admin/admin/logs'),
       'Настройки Hamster' => array('admin/admin/config'),
-    ), 'hamsterConfig');
+      'Обновление Hamster' => array('admin/admin/update'),), 'hamsterConfig');
   ?>
 </div>
 

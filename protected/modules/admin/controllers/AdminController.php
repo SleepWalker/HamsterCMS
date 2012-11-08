@@ -455,7 +455,7 @@ class AdminController extends HAdminController
       $onoffLabel = array('switchOff', 'switchOn');
       $modulesMenu['/admin/config?m='.$moduleId] = '<b onclick="location.href=\'/admin/switchmodule?m='.$moduleId.'\'; return false;" class="' . $onoffLabel[$isEnabled] . '"></b> ' . $moduleInfo['title'];
     }
-    $this->aside['Доступные модули<a href="/admin/modulediscover" class="icon_refresh"></a>'] = $modulesMenu;
+    $this->aside['Доступные модули<a href="/admin/modulediscover" class="icon_refresh"></a><a href="/admin/clearcache" class="icon_delete"></a>'] = $modulesMenu;
 
     if($_GET['m'])
     {
@@ -546,6 +546,19 @@ class AdminController extends HAdminController
         $this->renderText('У этого модуля нету настроек для редактирования');
       }
     }
+  }
+
+  /**
+   * actionClearCache очищает кэш всех приложений 
+   * 
+   * @access public
+   * @return void
+   */
+  public function actionClearCache()
+  {
+    Yii::app()->cache->flush();
+    Yii::app()->user->setFlash('success', 'Кэш был успешно очищен.');
+    $this->redirect('/admin/config');
   }
   
   /**
