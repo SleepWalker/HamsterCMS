@@ -5,7 +5,7 @@
  * transliterate the value of input tag, that stays earlier in HTML tree
  *
  * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @package    shop.ShopController
+ * @package    hamster.widgets.translit.TranslitWidget 
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
@@ -28,6 +28,11 @@
 	  * Модель, которой принадлежит поле
 	  */
 	  public $model;
+
+    /**
+     *  Режим транслитерации url адреса (слеэши не будут удаляться из текста) 
+     */
+    public $urlMode = false;
 	  
     public function init()
     {
@@ -37,7 +42,7 @@
       $sourceFieldId = get_class($this->model) . '_' . $this->attribute;
       
       $js = '$(document).ready(function(){
-            $("#' . $sourceFieldId . '").translit();
+            $("#' . $sourceFieldId . '").translit({urlMode:' . ($this->urlMode * 1) . '});
       });';
       
       Yii::app()->getClientScript()->registerScript(__CLASS__.'#TranslitWidget' . $sourceFieldId, $js);

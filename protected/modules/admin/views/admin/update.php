@@ -1,4 +1,12 @@
 <?php 
+/**
+ * Обеспечивает автоматическую генирацию html форм для админки
+ *
+ * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
+ * @package    hamster.modules.admin.views.admin.update
+ * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
+ * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
+ */
 $form = array(
   'buttons'=>array(
     'submit'=>array(
@@ -51,11 +59,12 @@ function parseCFormElements(&$form, $model, $controller)
     
     $fieldParams['type'] = $fieldType;
     
-    if ($fieldType == 'translit')
+    if ($fieldType == 'translit' || $fieldType == 'translitUrl')
     {
       $controller->widget('application.widgets.translit.TranslitWidget', array(
         'model'=>$model,
         'attribute'=>$fieldName,
+        'urlMode' => $fieldType == 'translitUrl',
       ));
       $fieldParams['type'] = 'text';
     }

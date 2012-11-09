@@ -98,7 +98,7 @@ class Page extends CActiveRecord
 	{
 		return array(
 			'title' => 'text',
-			'full_path' => 'translit',
+			'full_path' => 'translitUrl',
 			'content' => 'textarea',
 		);
 	}
