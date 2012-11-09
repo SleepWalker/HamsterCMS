@@ -364,43 +364,6 @@ class AdminController extends HAdminController
   }
     
   /**
-	 * Конвертируем переменную $_GET['path'] в массив
-	 * Запоминаем колличество итемов на странице для пагинатора
-	 */
-  /*protected function beforeAction(CAction $action) 
-  {
-    
-    $_GET['path'] = $path;
-    
-    if (isset($_GET['pageSize'])) 
-    {
-        Yii::app()->user->setState('pageSize',(int)$_GET['pageSize']);
-        unset($_GET['pageSize']);
-    }
-    
-    return true;
-  }*/
-  
-  /*public function createUrl($route,$params=array(),$ampersand='&')
-  {
-          
-          //THIS HACK IS MADE BY paulusmikkola@hotmail.com. Yii seems to have module conflict with CGridview and UrlManager
-          $newParams = array();
-          foreach($params as $key => $p)
-          {
-                  //insert your own controller + /admin instead of "person/admin" and "invoice/admin"
-                 // if(substr($key, 0, 12) != "person/admin" && substr($key, 0, 13) != "invoice/admin")
-                  //{
-                          $newParams[$key] = $p;
-                  //}               
-          }
-          $params = $newParams;
-          //END OF HACK
-          //print_r($params);
-          return Yii::app()->createUrl($route,$params,$ampersand);
-  }*/
-  
-  /**
    *  Метод для загрузки изображений через redactorJS
    *
    *  @source http://redactorjs.com/docs/images/
@@ -411,15 +374,12 @@ class AdminController extends HAdminController
     
     $image=new Image;
     
-    $image->uImage=CUploadedFile::getInstanceByName('file');
-    
     if($image->save())
     {
       echo $image->getHtml();
       Yii::app()->end();
     }
- 
-    throw new CHttpException(403,'The server is crying in pain as you try to upload bad stuff');
+    print_r($image->errors);
   }
   
   /**
@@ -433,11 +393,11 @@ class AdminController extends HAdminController
  
     foreach($images as $image)
       $jsonArray[]=array(
-        'thumb' => $image->thumb,
-        'image' => $image->normal,
-        'full' => $image->full,
+        'thumb' => $image->src('thumb'),
+        'image' => $image->src('normal'),
+        'full' => $image->src('full'),
       );
- 
+
     header('Content-type: application/json');
     echo CJSON::encode($jsonArray);
   }
