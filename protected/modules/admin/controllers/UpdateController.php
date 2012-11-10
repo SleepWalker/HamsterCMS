@@ -46,10 +46,19 @@ class UpdateController extends HAdminController
       ),
     );
   }
+
+  /**
+	 * @return меню для табов
+	 */
+  public function tabs() {
+    return array(
+      ''  => 'Обновление ФС',
+      'db'  => 'Обновление БД',
+    );
+  }
   
 	public function actionIndex()
   {
-    $this->pageTitle = Yii::app()->name . ' - Обновление';
     $enModsIds = array_keys($this->enabledModules);
     $aliases = array(
       'application.components',
@@ -81,15 +90,11 @@ class UpdateController extends HAdminController
 
     ob_start();
 ?>
-  <p><b style="color:red">Внимание!</b> функция автообновления расчитана на использование разработчиками. Нажимая на кнопку "Запустить обновление" вы берете всю ответственность за возможные последствия на себя</p>
-  <b style="color:red">К удалению:</b><br>
-  <?php echo implode('<br>', $deleteList); ?>
-  <p><b style="color:green">К обновлению:</b> <br>
-  <?php echo implode('<br>', array_keys($updateList)); ?>
+  К удалению:
+  <?php echo implode("\n", $deleteList); ?>
+  К обновлению:
+  <?php echo implode("\n", array_keys($updateList)); ?>
 <?php
-    echo '<br><br>' . CHtml::beginForm() . 
-    CHtml::submitButton('Запустить обновление', array('name'=>'update')) .
-    CHtml::endForm();
     $logMessage = ob_get_clean(); 
 
     if(isset($_POST['update']))
@@ -120,14 +125,104 @@ class UpdateController extends HAdminController
       if($status == TRUE)
         Yii::app()->user->setFlash('success', 'Успешное обновление');
       else
-        Yii::app()->user->setFlash('error', 'Во время обновления произошли ошибки');
+        Yii::app()->user->setFlash('fail', 'Во время обновления произошли ошибки');
 
       $this->refresh();
     }
 
-    $this->renderText($logMessage);
+    $this->render('index', array(
+      'deleteList' => $deleteList,
+      'updateList' => $updateList,
+    ));
   }
 
+  /**
+   * Экшен отвечающий за обновление баз данных модулей  
+   * 
+   * @access public
+   * @return void
+   */
+  public function actionDb()
+  {
+    $updateList = array(); // модули к обновлению
+    foreach($this->enabledModules as $moduleId => $devnull)
+    {
+      $config = Config::load($moduleId); // конфиг, в котором лежит актуальная версия бд
+      if(!$config) continue;
+
+      $config = $config->adminConfig;
+      $newV = $config['db']['version'];
+
+      $oldV = $this->modulesInfo[$moduleId]['db']['version'];
+      if(isset($newV) && $newV != $oldV)
+        $updateList[$this->modulesInfo[$moduleId]['title']] = array(
+          'moduleId' => $moduleId, 
+          'newV' => $newV,
+          'oldV' => $oldV,
+        );
+    }
+
+    ob_start();
+?>
+  К обновлению:
+  <?php echo implode("\n", array_keys($updateList)); ?>
+<?php
+    $logMessage = ob_get_clean(); 
+
+    if(isset($_POST['update']))
+    {
+      $status = true;
+      foreach($updateList as $updateInfo)
+      {
+        $status = $status && $this->runDBUpdate($updateInfo);
+      }
+
+      // Пишем в лог
+      Yii::log($logMessage, 'info', 'hamster.update.db');
+
+      if($status === TRUE)
+        Yii::app()->user->setFlash('success', 'Успешное обновление');
+      else
+        Yii::app()->user->setFlash('fail', 'Во время обновления произошли ошибки');
+
+      $this->refresh();
+    }
+
+    $this->render('index', array(
+      'updateList' => array_keys($updateList),
+    ));
+  }
+
+  /**
+   * Запускает обновление базы данных для конкретного модуля
+   * 
+   * @param array $updateInfo массив в котором находятся три элемента - moduleId, oldV, newV
+   * @access protected
+   * @return boolean true если обновление прошло успешно
+   */
+  protected function runDBUpdate($updateInfo)
+  {
+    Yii::import('application.modules.' . $updateInfo['moduleId'] . '.admin.updateDb', true);
+    $updater = new updateDb;
+    $updater->init();
+    if($updater->update($updateInfo['oldV'], $updateInfo['newV']))
+    {
+      $config = Config::load($updateInfo['moduleId']); // конфиг, в котором лежит актуальная версия бд
+      $config->dbVersion = $updateInfo['newV'];
+      $config->save();
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Возвращает массив в котором находится структура директорий цмс в формате,
+   * удобном для проверки актуальности файлов 
+   * 
+   * @param mixed $alias alias директории, для которой будет строиться массив
+   * @access protected
+   * @return array массив с путями и их хэшами
+   */
   protected function hashDir($alias) {
     // возвращаем значение из карты (в случае если она уже закеширована)
     if(is_array($this->dirMap[$alias])) return $this->dirMap[$alias];
@@ -151,6 +246,13 @@ class UpdateController extends HAdminController
     );
   }
 
+  /**
+   * Инициализирует запрос к серверу обновлений и возвращает 
+   * массив со структурой директорий эталона. 
+   * 
+   * @access protected
+   * @return array массив для сравнения с массивом полученным от {@link hashDir}
+   */
   protected function getUpdatesHashList()
   {
     $curl = curl_init();
@@ -169,7 +271,14 @@ class UpdateController extends HAdminController
     return unserialize($ans);
   }
 
-  protected function getUpdates($fileList)
+  /**
+   * Производит запрос файлов обновлений к серверу обновлений  
+   * 
+   * @param array $fileList массив с путями файлов, которые нужно обновить
+   * @access protected
+   * @return boolean возвращает true, если в случае успешного обновления файлов CMS 
+   */
+  protected function getUpdates(array $fileList)
   {
     $curl = curl_init();
     $saveTo = Yii::getPathOfAlias('application.runtime') . DIRECTORY_SEPARATOR . 'update.zip';
@@ -203,6 +312,13 @@ class UpdateController extends HAdminController
     }
   }
 
+  /**
+   * Возвращает закэшированный массив с картой директорий полученных
+   * от {@link hashDir}, если он есть. Иначе вернется пустой массив
+   * 
+   * @access public
+   * @return array массив с картой директорий полученных от {@link hashDir}
+   */
   public function getDirMap()
   {
     if(!isset($this->_dirMap))
@@ -212,9 +328,12 @@ class UpdateController extends HAdminController
 
   /**
    * Полностью удаляет содержимое $dir
+   *
+   * @access protected
    * @params string $dir путь к директории
+   * @return void
    */
-  function destroyDir($dir) 
+  protected function destroyDir($dir) 
   {
     if(!preg_match('%/$%', $dir)) $dir .= '/';
     $mydir = opendir($dir);

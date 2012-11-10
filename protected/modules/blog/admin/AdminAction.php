@@ -33,25 +33,7 @@ class AdminAction extends HAdminAction
         'name' => 'Добавить материал',
         'display' => 'index',
       ),
-      /*'categorie'  => 'Управление категориями',
-      'brand' => 'Управление брендами',
-      'brand/update'  => array(
-        'name' => 'Редактирование бренда',
-        'display' => 'whenActive',
-      ),
-      'brand/create'  => array(
-        'name' => 'Добавить бренд',
-        'display' => 'brand',
-      ),
-      'suppliers'  => 'Поставщики',
-      'suppliers/update'  => array(
-        'name' => 'Редактирование поставщика',
-        'display' => 'whenActive',
-      ),
-      'suppliers/create'  => array(
-        'name' => 'Добавить поставщика',
-        'display' => 'suppliers',
-      ),*/
+      'categorie'  => 'Управление категориями',
     );
   }
   
@@ -268,8 +250,135 @@ class AdminAction extends HAdminAction
 			throw new CHttpException(400,'Не правильный запрос. Пожалуйста не повторяйте этот запрос еще раз.');
 	} 
 
+  public function actionCategorie()
+  {
+	  $models = Categorie::model()->findAll(array(
+	    'order'=>'sindex ASC'
+	  ));
+	  $this->render('dragndrop',array(
+			'models'=>$models,
+			'attSindex'=>'sindex',
+			'attParent'=>'parent',
+			'attId'=>'id',
+			'attributes'=>array(
+			  'name',
+			),
+		));
+  }
+	
+	/**
+	 * Создает или редактирует категорию
+	 */
+	public function actionCategorieUpdate()
+	{
+	  if (!empty($this->crudid) && $this->crud == 'update')
+      $model=Categorie::model()->findByPk($this->crudid);
+    else
+      $model = new Categorie;
+    
+    // AJAX валидация
+		if(isset($_POST['ajax']))
+		{
+			echo CActiveForm::validate($model);
+			Yii::app()->end();
+		}
+
+		if(isset($_POST['Categorie']))
+		{
+			$model->attributes=$_POST['Categorie'];
+/*			
+			if ($this->crud == 'create')
+			{
+			  if (!empty($this->crudid)) // Если задан id, значит это форма добавления подкатегории
+			    $model->parent = $this->crudid;
+			}
+ */
+			if(empty($model->parent)) $model->parent = 0; // Если родитель пустой, значит это категория верхнего уровня
+			
+			$valid = $model->save();
+		}
+		
+		if($_POST['ajaxSubmit'])
+    {
+      $data = array(
+        'action' => 'renewForm',
+        'content' => $this->renderPartial('update',array(
+          'model'=>$model,
+        ), true),
+      );
+
+      //обновляем страницу
+      if($valid)
+        $data['content'] .= '<script> location.reload() </script>';
+      
+      echo json_encode($data, JSON_HEX_TAG);
+      Yii::app()->end();
+    }
+    
+		if(!$_POST['ajaxSubmit'])
+      $this->renderPartial('update',array(
+			  'model'=>$model,
+		  ), false, true);
+	}
+	public function actionCategorieCreate()
+	{
+	  $this->actionCategorieUpdate();
+	}
+	
+	/**
+	 * Удаление категории
+	 */
+	public function actionCategorieDelete()
+	{
+		if(Yii::app()->user->checkAccess('admin'))
+		{
+			// we only allow deletion via POST request
+			$model = Categorie::model()->findByPk($this->crudid)->delete();
+	  }
+		else
+			throw new CHttpException(400,'Не правильный запрос. Пожалуйста не повторяйте этот запрос еще раз.');
+	}  	
+	
+	/**
+	 * Меняет родителя категории
+	 */
+	public function actionCategorieSetparent()
+	{
+	}
+	
+	/**
+	 * Меняет порядок отображения категорий
+	 */
+	public function actionCategorieSetsindex()
+	{
+	  if($_GET['ajax'])
+	  {
+	    // данные для сортировки
+      $sindexOld = $_GET['sindexold'];  // старый индекс перемещенного элемента
+      $sindexNew = $_GET['sindexnew'];  // новый индекс перемеещенного элемента
+      $id = $_GET['id'];
+      
+      $delta = $sindexOld - $sindexNew;      
+      $delta = ($delta < 0)?'-1':'+1';
+      $smin = min($sindexOld, $sindexNew);
+      $smax = max($sindexOld, $sindexNew);// throw new CHttpException(400,$smin.' '.$smax);exit();   
+      
+      if($delta < 0 && $smin == 0) $smin = 1; // предотвращаем ухождение sindex в минуса
+
+      Yii::app()->db->createCommand()
+        ->update(Categorie::model()->tableName(), array(
+          'sindex'=>new CDbExpression('sindex'.$delta)
+        ), 'sindex>=:smin AND sindex<=:smax', array(':smin'=>$smin, ':smax'=>$smax));
+
+      Yii::app()->db->createCommand()
+        ->update(Categorie::model()->tableName(), array(
+          'sindex'=>$sindexNew
+        ), 'id=:id', array(':id'=>$id));
+	  }
+	}
+
   /**
-   *  @return array JSON массив для jQuery UI AutoComplete
+   *  @return array JSON массив с тегами для jQuery UI AutoComplete
    */
   public function actionActags()
   {

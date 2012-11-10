@@ -10,6 +10,7 @@
  */
 class Config extends CFormModel
 {
+  //TODO: loadCForm()
   // в этот массив парсятся все настройки для текущего модуля (из configSchema)
   // далее в него добавляются остальные настройки из application.config.hamsterModules
   protected $_curModConfig;
@@ -505,7 +506,6 @@ if(isset($_SERVER['REMOTE_ADDR']))
     return $this->_moduleId;
   }
 
-  // public getAdminConfig() {{{ 
   /**
    * Возвращает массив конфигурации с информацией для админ панели
    * 
@@ -516,7 +516,13 @@ if(isset($_SERVER['REMOTE_ADDR']))
   {
     return $this->_config['hamster']['admin'];
   }
-  // }}}
+
+  public function setDbVersion($v)
+  {
+    //FIXME это временное решение, для того, что бы можно было изменить версию базы данных
+    $this->hamsterModules;
+    $this->_hamsterModules['modulesInfo'][$this->moduleId]['db']['version'] = $v;
+  }
     
   /**
    *  @return bool маркер, говорящий, новая ли это запись

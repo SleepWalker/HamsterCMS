@@ -28,8 +28,8 @@ return array(
     'admin' => array(
       'title' => 'Блог',
       'description' => 'Информационный контент модуль, который идеально подходит для таких рещений как: Блог, Новости и т.д.',
-      'bd' => array(
-        'version' => 1,
+      'db' => array(
+        'version' => 1.1,
         'tables' => array(
           'blog',
           'blog_tag',
