@@ -47,7 +47,7 @@ $cs->registerMetaTag($model->title, NULL, NULL, array('property' => 'og:title'))
 $cs->registerMetaTag('product', NULL, NULL, array('property' => 'og:type'));
 //$cs->registerMetaTag('Ссылка на материал', NULL, NULL, array('property' => 'og:url'));
 $cs->registerMetaTag(Yii::app()->name, NULL, NULL, array('property' => 'og:site_name'));
-$imgSrc = Yii::app()->createAbsoluteUrl(Post::imgSrc($model->image));
+$imgSrc = Yii::app()->createAbsoluteUrl($model->src('thumb'));
 $cs->registerMetaTag($imgSrc, NULL, NULL, array('property' => 'og:image'));
 $cs->registerLinkTag('image_src', NULL, $imgSrc);
 

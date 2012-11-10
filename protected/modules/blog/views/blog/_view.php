@@ -1,7 +1,7 @@
 <article class="blogPost postTeaser">
   <header>
     <?php echo CHtml::link(CHtml::encode($data->title), $data->viewUrl) ?>
-    <?php echo CHtml::link($data->img(), $data->viewUrl) ?>
+    <?php echo CHtml::link($data->img('thumb'), $data->viewUrl) ?>
   </header>
 
 	<section class="postContent">
