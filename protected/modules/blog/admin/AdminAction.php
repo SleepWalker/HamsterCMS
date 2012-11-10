@@ -44,10 +44,6 @@ class AdminAction extends HAdminAction
 	 */
   public function actionUpdate() 
   {
-    $uploadPath = $_SERVER['DOCUMENT_ROOT'].Post::uploadsUrl;
-	  if(!is_dir($uploadPath)) // создаем директорию для картинок
-	    mkdir($uploadPath, 0777);
-	  
     if ($this->crudid)
       $model=Post::model()->findByPk($this->crudid);
     else
@@ -64,45 +60,11 @@ class AdminAction extends HAdminAction
 		{
 
 			$model->attributes=$_POST['Post'];
-      
-			$oldImage = $model->image; // сохраняем старую картинку, которую, возможно, надо будет удалить в случае успешной валидации формы	
-      
-      if ($_POST['Post']['uImage'] == 'delete') $model->image = ''; // Удаляем инфу о файле из БД, так как файл помечен на удаление, а нового в замен нету.
-			$model->uImage=CUploadedFile::getInstance($model,'uImage');		
-			if ($model->uImage)
-			{
-				$sourcePath = pathinfo($model->uImage->getName());
-				$fileName = $model->alias.'_'.uniqid().'.jpg';
-				$model->image = $fileName;
-			}
 
-      if ($model->validate()) 
-      {//throw new CHttpException(404,'Ошибка валидации');
-      
-        // Проверяем не удалили ли старое изображение
-			  if($oldImage != '' && file_exists($uploadPath.$oldImage) && ($fileName != '' || $model->image == '')) unlink($uploadPath.$oldImage);
-			
-			  //Если поле загрузки файла не было пустым, то          
-				if ($model->uImage) {				  				
-					$file = $uploadPath.$fileName; //Переменной $file присвоить путь, куда сохранится картинка без изменений
-					
-					// Ресайзим загруженное изображение
-					Yii::import('application.vendors.wideImage.WideImage');
-					$wideImage = WideImage::load($model->uImage->tempName);
-          $white = $wideImage->allocateColor(255, 255, 255);
-          
-          $wideImage->resize(100, 90)
-          ->resizeCanvas(100, 90, 'center', 'center', $white)
-          ->saveToFile($file, 75);	    
-			  }
-			
-			  if($model->save())
-			  {
-          $saved = true;
-			  }
-			}
-			//else
-			//  throw new CHttpException(404,'Ошибка при сохранении');
+      if($model->save())
+      {
+        $saved = true;
+      }
 		}
 		
 		if($_POST['ajaxIframe'] || $_POST['ajaxSubmit'])
@@ -165,11 +127,16 @@ class AdminAction extends HAdminAction
 			'columns'=>array(
 			  array(            
             'name'=>'image',
-            'value'=>'$data->img(45)',
+            'value'=>'$data->img("thumb")',
             'type'=>'raw',
             'filter'=>'',
         ),
         'title',
+        array(            
+            'name'=>'cat_id',
+            'value' => '$data->cat->name',
+            'filter'=> Categorie::model()->catsList,
+        ),
         array(            
             'name'=>'status',
             'type'=>'raw',

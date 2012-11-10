@@ -6,6 +6,7 @@
  * The followings are the available columns in table 'blog':
  * @property string $id
  * @property string $user_id
+ * @property string $cat_id
  * @property string $image
  * @property string $alias
  * @property string $title
@@ -17,6 +18,7 @@
  *
  * The followings are the available model relations:
  * @property AuthUser $user
+ * @property Categorie $cat
  *
  * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
  * @package    shop.ShopController
@@ -25,11 +27,7 @@
  */
 class Post extends CActiveRecord
 {
-  // поле загрузки изображения
-  public $uImage;
   private $_oldTags;
-  
-  const uploadsUrl = '/uploads/blog/';
   
   const STATUS_DRAFT=1;
   const STATUS_PUBLISHED=2;
@@ -77,25 +75,44 @@ class Post extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('alias, title, content, status', 'required'),
+			array('alias, title, content, status, cat_id', 'required'),
 			array('status', 'in', 'range'=>array(1,2,3)),
+			array('cat_id, user_id', 'numerical'),
 			array('user_id', 'length', 'max'=>10),
 			array('image', 'length', 'max'=>128),
 			array('alias, title', 'length', 'max'=>200),
 			array('tags', 'match', 'pattern'=>'/^[\w\s,]+$/u',
         'message'=>'В тегах можно использовать только буквы.'),
       array('tags', 'normalizeTags'),
-      array('uImage', 'file',
-        'types'=>'jpg, gif, png',
-        'maxSize'=>1024 * 1024 * 5, // 5 MB
-        'allowEmpty'=>'true',
-        'tooLarge'=>'Файл весит больше 5 MB. Пожалуйста, загрузите файл меньшего размера.',
-        'safe' => true,
-			),
+      array('alias', 'unique'),
 
-      array('title, status, user_search, date_add_from, date_add_to, date_edit_from, date_edit_to', 'safe', 'on'=>'search'),
+      array('title, status, user_search, date_add_from, date_add_to, date_edit_from, date_edit_to, cat_id', 'safe', 'on'=>'search'),
 		);
 	}
+
+  public function behaviors()
+  {
+    return array(
+      'HIU'=>array(
+        'class'=>'admin.components.HIUBehavior',
+        'fileAtt' => 'image',
+        'dirName' => 'blog',
+        'sizes'=>array(
+          'normal' => array(
+            'width'=>625,
+          ),
+          'full' => array(
+            'width'=>1024,
+          ),
+          'thumb' => array(
+            'width' => 150,
+            'height' => 150,
+            'crop' => true,
+          ),
+        ),
+      ),
+    );
+  }
   
   public function normalizeTags($attribute,$params)
   {
@@ -123,6 +140,7 @@ class Post extends CActiveRecord
 		// class name for the relations automatically generated below.
 		return array(
 			'user' => array(self::BELONGS_TO, 'User', 'user_id'),
+			'cat' => array(self::BELONGS_TO, 'Categorie', 'cat_id'),
 		);
 	}
   
@@ -178,6 +196,7 @@ class Post extends CActiveRecord
 			'alias' => 'Адрес материала',
 			'title' => 'Название материала',
 			'content' => 'Сообщение',
+			'cat_id' => 'Категория',
 			'tags' => 'Теги',
 			'status' => 'Статус',
 			'edit_date' => 'Дата редактирования',
@@ -198,6 +217,11 @@ class Post extends CActiveRecord
       'status' => array(
 			  'dropdownlist',
 			  'items' => $this->statusNames,
+			),
+			'cat_id' => array(
+			  'dropdownlist',
+			  'items' => Categorie::model()->catsList,
+			  'empty' => '--Выберите категорию--',
 			),
       'tags' => 'tags',
       'uImage' => 'file',
@@ -223,7 +247,7 @@ class Post extends CActiveRecord
       self::STATUS_ARCHIVED => 'Архив',
     );
   }
-  
+
   /**
    * Возвращает url страницы материала
    */
@@ -231,56 +255,6 @@ class Post extends CActiveRecord
   {
     return Yii::app()->createUrl('/' . Yii::app()->modules['blog']['params']['moduleUrl'] . '/' . $this->alias);
   }
-  
-  /**
-   * Возвращает uri загрузки файлов
-   */
-  public function getUploadsUrl()
-  {
-    return self::uploadsUrl;
-  }
-  
-  /**
-	*  Возвращает полную ссылку к картинке и если надо, создает ее превьюшку
-	**/
-	public static function imgSrc($name = false, $thumb = false)
-	{
-	  $uploadPath = $_SERVER['DOCUMENT_ROOT'].Post::uploadsUrl;
-	  if($thumb)
-	  {
-	    $src = Post::uploadsUrl . $thumb . '/' .$name;
-	    if(!is_file($uploadPath . $thumb . DIRECTORY_SEPARATOR . $name)) // Создаем превьюшку
-	    {
-	      if(!is_file($uploadPath . $name)) return; // Не существует даже оргинала картинки / прерываем
-	      
-	      if(!is_dir($uploadPath . $thumb)) // создаем директорию для картинок
-	        mkdir($uploadPath . $thumb, 0777);
-	  
-	      Yii::import('application.vendors.wideImage.WideImage'); // Библиотека управления изображениями
-	  	
-	      $sourcePath = pathinfo($name);
-	      $wideImage = WideImage::load($uploadPath .  $name);
-	      $white = $wideImage->allocateColor(255, 255, 255);
-	      
-	      // тут не учтены не квадратные разрешения
-	      $wideImage->resize($thumb, $thumb)->resizeCanvas($thumb, $thumb, 'center', 'center', $white)->saveToFile($uploadPath . $thumb . DIRECTORY_SEPARATOR . $sourcePath['filename'].'.jpg', 75);
-	    }
-	  }
-	  else
-	    $src = Post::uploadsUrl .  $name;
-	  return $src;
-	}
-  
-  /**
-	*  Возвращает код img картинки по ее индексу
-  *  @param integer $thumbWidth ширина картинки
-	**/
-	public function img($thumbWidth = false)
-	{
-    if (empty($this->image)) return '';
-    if (!$thumbWidth) $thumbWidth = 100;
-	  return CHtml::image(Post::imgSrc($this->image, $thumbWidth), $this->title, array('width' => ($thumbWidth ? $thumbWidth : '')));
-	}
   
   /**
    *  @return array теги материала в виде массива
@@ -310,12 +284,14 @@ class Post extends CActiveRecord
 		$criteria->compare('title',$this->title,true);
 		$criteria->compare('tags',$this->tags,true);
 		$criteria->compare('status',$this->status);
+		$criteria->compare('cat_id',$this->cat_id);
     
     // Критерии для фильтрации по related таблицам
 		$criteria->compare( 'user.first_name', $this->user_search, true );
     
     $criteria->with=array(
       'user'=>array('select'=>'user.first_name'),
+      'cat'=>array('select'=>'cat.name'),
     );
 
 		return new CActiveDataProvider($this, array(
