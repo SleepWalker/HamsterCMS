@@ -224,47 +224,6 @@ class AdminController extends HAdminController
       'dataProvider'=>$dataProvider,
     ));
 	}
-	
-	/**
-	 * Генерирует код для tabs на основе карты действий
-	 */
-  public function getTabs() 
-  {
-    $tabMap = $this->action->tabs();
-
-    foreach($tabMap as $path => $name) 
-    {
-      $url = '/' . $this->module->id . '/' . $this->action->id . '/' . $path;
-      if($path == '') $path = 'index';
-      
-      if (is_array($name))
-      {
-        $hide = 0;
-        
-        switch($name['display']) 
-        { // Определяем показывать ли этот таб
-          case 'whenActive':
-            if ($this->actionId != $path) $hide = 1;
-          break;
-          case 'index':
-            if(!($this->actionId == 'index' || $this->actionId == 'create' || $this->actionId == 'update'))
-              $hide = 1;
-          break;
-          default:
-            if (strpos($this->actionId, $name['display']) === false)  $hide = 1;
-          break;
-        }
-        if ($hide) continue;
-        $name = $name['name'];
-      }
-
-      
-      if ($this->actionId == $path) $this->pageTitle = $name;
-      
-      $tabs .= '<a href="' . $url . '">' . $name . '</a>';
-    }
-    return $tabs;
-  }
   
   /**
 	 * Выбирает какое действие администрирования запустить
@@ -334,10 +293,7 @@ class AdminController extends HAdminController
       return call_user_func( array($this->action, 'action' . $actionId) );
     }*/
     
-    $this->tabs = $this->getTabs();
     return call_user_func( array($this->action, 'action' . $actionId) );
-    
-    return true;
   }
   
   /**
@@ -550,6 +506,10 @@ class AdminController extends HAdminController
             unset($adminConfig['title']);*/
 
           $modulesInfo[$moduleName] = $adminConfig;
+          // восстанавливаем версию БД (нам та версия, котора сейчас реально установленна)
+          if($oldModulesInfo[$moduleName]['db']['version'] != '')
+            $modulesInfo[$moduleName]['db']['version'] = $oldModulesInfo[$moduleName]['db']['version'];
+
           // восстанавливаем старое имя (на случай, если его менял юзер)
           if($oldModulesInfo[$moduleName]['title'] != '')
             $modulesInfo[$moduleName]['title'] = $oldModulesInfo[$moduleName]['title'];

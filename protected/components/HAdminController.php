@@ -19,9 +19,7 @@ class HAdminController extends CController
 	 */
   public $aside = array();
 	/**
-	 * @var array the breadcrumbs of the current page. The value of this property will
-	 * be assigned to {@link CBreadcrumbs::links}. Please refer to {@link CBreadcrumbs::links}
-	 * for more details on how to specify this property.
+	 * @var array массив с табами для текущего действия
 	 */
   public $tabs;
 
@@ -32,6 +30,80 @@ class HAdminController extends CController
   public $actionPath;
   public $curModuleUrl; // путь к index текущего модуля, к примеру /admin/shop
   public $adminAssetsUrl;
+
+  /**
+   * Возвращает массив конфигурации табов (карта действий) 
+   * 
+   * @access public
+   * @return array
+   */
+  public function tabs()
+  {
+    return array();
+  }
+	
+	/**
+	 * Генерирует код для tabs на основе карты действий
+	 */
+  public function getTabs() 
+  {
+    if($this->action instanceof CInlineAction)
+      $tabMap = $this->tabs();
+    else
+      $tabMap = $this->action->tabs(); // для экшенов администрации модулей
+
+    foreach($tabMap as $path => $name) 
+    {
+      if($this->action instanceof CInlineAction)
+        $url = '/' . $this->module->id . '/' . $this->id . '/' . $path;
+      else
+        $url = '/' . $this->module->id . '/' . $this->action->id . '/' . $path;
+
+      if($path == '') $path = 'index';
+
+      if (is_array($name))
+      {
+        $hide = 0;
+
+        switch($name['display']) 
+        { // Определяем показывать ли этот таб
+        case 'whenActive':
+          if ($this->actionId != $path) $hide = 1;
+          break;
+        case 'index':
+          if(!($this->actionId == 'index' || $this->actionId == 'create' || $this->actionId == 'update'))
+            $hide = 1;
+          break;
+        default:
+          if (strpos($this->actionId, $name['display']) === false)  $hide = 1;
+          break;
+        }
+        if ($hide) continue;
+        $name = $name['name'];
+      }
+
+
+      if ($this->actionId == $path) $this->pageTitle = $name;
+
+      $tabs .= '<a href="' . $url . '">' . $name . '</a>';
+    }
+    return $tabs;
+  }
+
+
+  /**
+   * Инициализирует табы  
+   * 
+   * @param string $view the view to be rendered 
+   * @access protected
+   * @return boolean whether the view should be rendered
+   */
+  protected function beforeRender($view) 
+  {
+    $this->tabs = $this->getTabs();
+    
+    return true;
+  }
   
   /**
    * Загружает настройки модулей Hamster
