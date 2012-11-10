@@ -52,7 +52,7 @@ class Image extends CActiveRecord
   {
     return array(
       'HIU'=>array(
-        'class'=>'admin.components.HIUBehavior',
+        'class'=>'HIUBehavior',
         'fileAtt' => 'name',
         'dirName' => 'imageuploads',
         'fileFieldName' => 'file',

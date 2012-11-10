@@ -94,7 +94,7 @@ class Post extends CActiveRecord
   {
     return array(
       'HIU'=>array(
-        'class'=>'admin.components.HIUBehavior',
+        'class'=>'HIUBehavior',
         'fileAtt' => 'image',
         'dirName' => 'blog',
         'sizes'=>array(
