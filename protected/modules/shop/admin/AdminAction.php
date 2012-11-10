@@ -786,8 +786,6 @@ class AdminAction extends HAdminAction
 					WideImage::load($model->uImage->tempName)->resize(100, 100)->resizeCanvas(100, 100, 'center', 'center')->saveToFile($file, 9);
         }
       }
-      else 
-			  throw new CHttpException(404,'Ошибка при сохранении');
 		}
 		
 		$model->uImage = $model->cat_logo;

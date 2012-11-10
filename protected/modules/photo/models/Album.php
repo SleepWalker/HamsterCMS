@@ -113,7 +113,7 @@ class Album extends CActiveRecord
   
   public function getViewUrl()
   {
-    return Yii::app()->createUrl('photo/photo/album', array($this->primaryKey));
+    return Yii::app()->createUrl('photo/photo/album', array('id' => $this->primaryKey));
   }
 
   /**

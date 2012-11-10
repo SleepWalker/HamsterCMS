@@ -17,8 +17,6 @@
  */
 class Photo extends CActiveRecord
 {
-  public static $uploadsUrl = '/uploads/photo/';
-  
   private static $album = array();
   public static function all($album_id){
     if(!isset(self::$album[$id])){
@@ -28,29 +26,6 @@ class Photo extends CActiveRecord
     }
     return self::$album[$id];
   }
-  
-  public $uImage; // поле для загрузки фото
-  
-  public $quality = array(
-    'png' => 7,
-    'jpg' => 75,
-    'gif' => 256,
-  );
-  
-  public $sizes = array(
-    'normal' => array(
-      'width'=>625,
-    ),
-    'full' => array(
-      'width'=>1024,
-      'prefix' => 'full/',
-    ),
-    'thumb' => array(
-      'width' => 150,
-      'height' => 150,
-      'prefix' => 'thumb/',
-    ),
-  );
   
 	/**
 	 * Returns the static model of the specified AR class.
@@ -83,14 +58,6 @@ class Photo extends CActiveRecord
 			array('name, photo', 'length', 'max'=>64),
 			array('album_id', 'length', 'max'=>10),
       array('desc', 'safe'),
-      array('uImage', 'file',
-        'types'=>'jpg, gif, png',
-        'maxSize'=>1024 * 1024 * 5, // 5 MB
-        'allowEmpty'=>'true',
-        'maxFiles' => 1,
-        'tooLarge'=>'Файл весит больше 5 MB. Пожалуйста, загрузите файл меньшего размера.',
-        'safe' => true,
-			),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('id, name, album_id, date', 'safe', 'on'=>'search'),
@@ -112,6 +79,38 @@ class Photo extends CActiveRecord
 			'album' => array(self::BELONGS_TO, 'Album', 'album_id'),
 		);
 	}
+
+  public function behaviors()
+  {
+    return array(
+      'HIU'=>array(
+        'class'=>'admin.components.HIUBehavior',
+        'fileAtt' => 'photo',
+        'dirName' => 'photo',
+        'forceExt' => 'jpg',
+        'sizes'=>array(
+          'normal' => array(
+            'width'=>625,
+          ),
+          'full' => array(
+            'width'=>1024,
+          ),
+          'thumb' => array(
+            'width' => 150,
+            'height' => 150,
+            'crop' => true,
+          ),
+        ),
+      ),
+    );
+  }
+
+  public function defaultScope()
+  {
+    return array(
+      'order'=>'date DESC',
+    );
+  }
 
 	/**
 	 * @return array customized attribute labels (name=>label)
@@ -148,21 +147,6 @@ class Photo extends CActiveRecord
 	}
   
   /**
-	 * Сохраняем загруженное изображение и заполняем модель оставшимися данными
-	 */
-	protected function beforeSave()
-	{
-	  if(parent::beforeSave())
-    {
-      Yii::import('admin.models.Image', true);
-      Image::processUpload($this, 'photo', 'jpg');
-      return true;
-    }
-    else
-      return false;
-	}
-  
-  /**
 	 * Устанавливаем заглавную картинку в аьбоме
 	 */
 	protected function afterSave()
@@ -175,55 +159,9 @@ class Photo extends CActiveRecord
     }
 	}
   
-  /**
-	 * Удаляем картинки, загруженные в альбом
-	 */
-	protected function afterDelete()
-	{
-	  parent::afterDelete();
-    foreach($this->sizes as $sizeName => $size)
-    {
-      $file = $this->uploadPath.$size['prefix'].$this->photo;
-      if(file_exists($file))
-        unset($file); // удаляем картинку
-    }
-	}
-  
-  /**
-   *  @return путь к папке для загрузки файлов
-   */
-  public function getUploadPath()
-  {
-    $dir = Yii::getPathOfAlias('webroot') . self::$uploadsUrl;
-    foreach($this->sizes as $sizeName => $size)
-      if(!is_dir($dir.$size['prefix']))
-        mkdir($dir.$size['prefix']); // создаем директорию для картинок
-    return $dir;
-  }
-  // FIXME это создавалось чисто для вьюхи update... надо бы, что бы во всех местах использовался статический вариант этой переменной
-  public function getUploadsUrl()
-  {
-    return self::$uploadsUrl;
-  }
-  
-  public function img($code = 'normal')
-  {
-    if($this->photo)
-      return CHtml::image($this->imgSrc($code), $this->name, array('width'=>$this->sizes[$code]['width']));
-  }
-  
-  /**
-   * Возвращает ссылку на изображение
-   * @param string $code размер изображения
-   */
-  public function imgSrc($code = 'normal')
-  {
-    return self::$uploadsUrl.$this->sizes[$code]['prefix'].$this->photo;
-  }
-  
   public function getViewUrl()
   {
-    return Yii::app()->createUrl('photo/photo/view', array($this->primaryKey));
+    return Yii::app()->createUrl('photo/photo/view', array('id' => $this->primaryKey));
   }
   
 	/**

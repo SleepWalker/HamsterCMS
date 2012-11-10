@@ -110,7 +110,7 @@ class Shop extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('page_title, page_alias, description, price, cat_id, brand_id, product_name, status, supplier_id, prId', 'required'),
-			array('price, cat_id, brand_id, waranty, priceMin, priceMax', 'numerical'),
+			array('price, user_id, cat_id, brand_id, waranty, priceMin, priceMax', 'numerical'),
 			array('review, video, model_code', 'length', 'max'=>128),
       array('page_title, page_alias, product_name', 'length', 'max'=>256),
 			//!T: review, video = url нужно добавить это правило

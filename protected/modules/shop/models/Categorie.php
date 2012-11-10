@@ -81,20 +81,6 @@ class Categorie extends CActiveRecord
 			'charShema' => array(self::BELONGS_TO, 'CharShema', 'cat_id'),
 		);
 	}
-	
-	/**
-	 * чудо функция, котрая дает возможность влиять на условия выборки модели
-	 * model()->scropeName[->scope2Name,...]->find...();
-	 */
-	/*public function scopes()
-  {
-    return array(
-      'hasChilds'=>array(
-        'limit'=>'1',
-        'select'=>'cat_parent',
-      ),
-    );
-  }*/
 
 	/**
 	 * @return array customized attribute labels (name=>label)
@@ -139,7 +125,7 @@ class Categorie extends CActiveRecord
 	}
   
   /**
-	 * Присваеваем самый большой и уикальный sindex новой записи
+	 * Присваеваем самый большой и уникальный sindex новой записи
 	 */
 	public function beforeSave() 
 	{
@@ -166,7 +152,7 @@ class Categorie extends CActiveRecord
    */
 	public function getViewUrl()
   {
-    return Yii::app()->createUrl('/shop/categorie/' . $this->cat_alias);
+    return Yii::app()->createUrl('shop/shop/categorie', array('alias'=>$this->cat_alias));
   }
   
   /**

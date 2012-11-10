@@ -67,8 +67,6 @@ class AdminAction extends HAdminAction
 		{
 			$model->attributes=$_POST['Photo'];
       
-			$model->uImage=CUploadedFile::getInstance($model,'uImage');	
-      
 			if($model->save()) 
 			{ 		
         $saved = true;
