@@ -61,7 +61,7 @@ class BlogController extends Controller
 		if(isset($_GET['tag']))
 			$criteria->addSearchCondition('tags',$_GET['tag']);
 
-		return new CActiveDataProvider(Post::model()->latest()->published(), array(
+		return new CActiveDataProvider(Post::model()->latest()->published()->with('cat', 'user'), array(
 			/*'pagination'=>array(
 				'pageSize'=>Yii::app()->params['postsPerPage'],
 			),*/
@@ -109,7 +109,7 @@ class BlogController extends Controller
 	 */
 	public function loadModel($id)
 	{
-		$model=Post::model()->findByAttributes(array('alias'=>$id));
+		$model=Post::model()->with('cat', 'user')->findByAttributes(array('alias'=>$id));
 		if($model===null)
 			throw new CHttpException(404,'The requested page does not exist.');
 		return $model;
