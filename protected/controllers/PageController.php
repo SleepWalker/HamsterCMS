@@ -47,16 +47,15 @@ class PageController extends Controller
 	/**
 	 * Показует страницу
 	 */
-	public function actionIndex($partial = false)
+	public function actionIndex($path = '')
 	{
-	  $render = $partial ? 'renderPartial' : 'render';
-		$model=$this->loadModel(array('full_path'=>'/' . $_GET['path']));
+		$model=$this->loadModel(array('full_path'=>'/' . $path));
 		// если $partial = true мы возвращаем строку вьюхи, вместо прямого вывода в браузер
-    return $this->$render('index',array(
+    $this->render('index',array(
         'model'=>$model,
     ), $partial);
 	}
-	
+
 	/**
 	 * Возвращает содержимое страницы для ajax запросов
 	 * Этот метод вызывается классом ApiController
@@ -64,7 +63,11 @@ class PageController extends Controller
 	public function api($path)
 	{
 		$_GET['path'] = implode('/', $path);
-    return $this->actionIndex(true);
+		$model=$this->loadModel(array('full_path'=>'/' . $_GET['path']));
+		// если $partial = true мы возвращаем строку вьюхи, вместо прямого вывода в браузер
+    return $this->renderPartial('index',array(
+        'model'=>$model,
+    ), $partial);
 	}
 
 	/**
@@ -83,17 +86,4 @@ class PageController extends Controller
     }
     return $this->_model;
   }
-	
-	/**
-	 * Performs the AJAX validation.
-	 * @param CModel the model to be validated
-	 */
-	protected function performAjaxValidation($model)
-	{
-		if(isset($_POST['ajax']) && $_POST['ajax']==='page-form')
-		{
-			echo CActiveForm::validate($model);
-			Yii::app()->end();
-		}
-	}
 }

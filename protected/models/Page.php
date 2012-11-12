@@ -53,16 +53,15 @@ class Page extends CActiveRecord
 		);
 	}
 
-	/**
-	 * @return array relational rules.
-	 */
-	public function relations()
-	{
-		// NOTE: you may need to adjust the relation name and the related
-		// class name for the relations automatically generated below.
-		return array(
-		);
-	}
+  public function behaviors()
+  {
+    return array(
+      'i18n'=>array(
+        'class'=>'Hi18nBehavior',
+        'i18nAtts'=>'title, content',
+      ),
+    );
+  }
 
 	/**
 	 * @return array customized attribute labels (name=>label)
@@ -97,6 +96,7 @@ class Page extends CActiveRecord
 	public function getFieldTypes()
 	{
 		return array(
+      'i18nlang' => $this->i18n->langField,
 			'title' => 'text',
 			'full_path' => 'translitUrl',
 			'content' => 'textarea',

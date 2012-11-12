@@ -445,7 +445,8 @@ form {
 }
 
 form .buttons {
-  margin: 10px 0;
+  padding: 10px 0;
+  clear:both;
 }
 
 input, textarea {

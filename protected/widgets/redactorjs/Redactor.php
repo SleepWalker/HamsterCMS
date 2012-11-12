@@ -71,13 +71,13 @@ EOP;
 		$cs->registerScript('Yii.'.get_class($this).'#'.$id, $js, CClientScript::POS_READY);
 	
 		// Do we have a model
-		/*if($this->hasModel()) {
+		if($this->hasModel()) {
             $html = CHtml::activeTextArea($this->model, $this->attribute, $this->htmlOptions);
         } else {
             $html = CHtml::textArea($name, $this->value, $this->htmlOptions);
         }
 
-		echo $html;*/
+		echo $html;
     }
 }
 ?>

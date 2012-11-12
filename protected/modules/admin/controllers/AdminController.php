@@ -405,6 +405,21 @@ class AdminController extends HAdminController
               'label' => 'Емейл робота (Например: noreply@mysite.com)',
               'type' => 'email',
             ),
+            'i18n'=>array(
+              'title' => 'Интернационализация',
+              'type' => 'fieldset',
+              'elements' => array(
+                'enabled' => array(
+                  'label' => 'Активировано',
+                  'type' => 'checkbox',
+                ),
+                'languages' => array(
+                  'label' => 'Языки',
+                  'type' => 'checkboxlist',
+                  'items' => Hi18nBehavior::getLanguages(),
+                ),
+              ),
+            ),
           ),          
           'linkTo' => '$config["params"]',
         ),

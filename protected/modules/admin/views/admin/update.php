@@ -197,7 +197,7 @@ function parseCFormElements(&$form, $model, $controller)
     if ($fieldType == 'textarea') // запускаем виз. редактор
       $controller->widget('application.widgets.redactorjs.Redactor', array(
         'editorOptions' => array(
-          'fixed' => true,
+          //'fixed' => true,
           'focus' => false,
           'removeClasses' => false,
           'imageUpload' => '/admin/imageupload',
@@ -205,7 +205,7 @@ function parseCFormElements(&$form, $model, $controller)
         ),
         'model' => $model,
         'attribute' => $fieldName,
-      ));
+      ), true);
       
       
     $form['elements'][] = '<p>';

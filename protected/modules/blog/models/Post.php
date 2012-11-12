@@ -111,6 +111,11 @@ class Post extends CActiveRecord
           ),
         ),
       ),
+      'i18n'=>array(
+        'class'=>'Hi18nBehavior',
+        'i18nAtts'=>'title, content',
+        'moduleId'=>'blog',
+      ),
     );
   }
   
@@ -212,6 +217,7 @@ class Post extends CActiveRecord
 	public function getFieldTypes()
 	{
 		return array(
+      'i18nlang' => $this->i18n->langField,
 			'title' => 'text',
       'alias' => 'translit',
       'status' => array(
@@ -253,7 +259,7 @@ class Post extends CActiveRecord
    */
 	public function getViewUrl()
   {
-    return Yii::app()->createUrl('/' . Yii::app()->modules['blog']['params']['moduleUrl'] . '/' . $this->alias);
+    return Yii::app()->createUrl('blog/blog/view', array('id' =>$this->alias));
   }
   
   /**

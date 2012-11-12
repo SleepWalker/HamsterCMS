@@ -36,7 +36,8 @@ else
   $updateButton = array(  
     'update'=>array(
       //'label'=>'...',     // text label of the button
-      'url'=>'Yii::app()->createUrl("' . $this->actionPath . 'update/" . $data->primaryKey)',       // a PHP expression for generating the URL of the button
+      //'url'=>'Yii::app()->createUrl("' . $this->actionPath . 'update/" . $data->primaryKey)',       // a PHP expression for generating the URL of the button
+      'url'=>'"'. $this->actionPath . 'update/" . $data->primaryKey',       // a PHP expression for generating the URL of the button
       'imageUrl'=> $this->adminAssetsUrl . '/images/icon_edit.png',  // image URL of the button. If not set or false, a text link is used
       //'options'=>array(), // HTML options for the button tag
       //'click'=>'...',     // a JS function to be invoked when the button is clicked
@@ -48,13 +49,14 @@ else
     'delete'=>array(
       'imageUrl'=> $this->adminAssetsUrl . '/images/icon_delete.png',
       'url'=>'Yii::app()->createUrl("' . $this->actionPath . 'delete/" . $data->primaryKey)',
+      'url'=>'"' . $this->actionPath . 'delete/" . $data->primaryKey',
     )
   );
   
   $printButton = array(
     'print'=>array(
       'imageUrl'=> $this->adminAssetsUrl . '/images/icon_print.png',
-      'url'=>'Yii::app()->createUrl("' . $this->actionPath . 'print/" . $data->primaryKey)',
+      'url'=>'"' . $this->actionPath . 'print/" . $data->primaryKey',
     )
   );
   
@@ -71,7 +73,7 @@ else
   
   $moreButton = array(
     'more'=>array(
-      'url'=>'Yii::app()->createUrl("' . $this->actionPath . 'more/" . $data->primaryKey)',
+      'url'=>'"' . $this->actionPath . 'more/" . $data->primaryKey',
       'imageUrl'=> $this->adminAssetsUrl . '/images/icon_table.png',
     )
   );

@@ -37,6 +37,7 @@ return
   		'application.components.*',
   		'ext.yii-mail.YiiMailMessage',
   	),
+    'onBeginRequest' => array(Hi18nBehavior, 'onBeginRequest'),
     //TODO: maintance mode
     /*'catchAllRequest'=>array(
         'controllerId/actionId',
@@ -139,21 +140,6 @@ return
           'admin/<module:\w+>'=>'admin/admin/<module>', // правило для админки action (оно же название модуля)
   				'admin/<module:\w+>/<action:\w*\/?\w*>/<crudid:\d+>'=>'admin/admin/<module>', // правило для админки crud и subaction
           'admin/<module:\w+>/<action:([^\/]+\/?)+>'=>'admin/admin/<module>', // для всего кроме crud
-  				
-  				
-  				//T!: в новом менеджере урл нужно, что бы была проверка для урл shop/asd по двум пунктам: shop/Controller и shop/shop/action
-          //'shop/<action:(rating|categorie|brand|dbrenew|search|compare)>/<alias:[^\/]+>'=>'shop/shop/<action>', // категории, бренды
-  				//'shop/<action:(rating|categorie|brand|dbrenew|search|compare)>/?<alias:[^\/]+>?/?<relId:[^\/]+>?'=>'shop/shop/<action>',
-  				//'shop/<id:[^\/]*>'=>'shop/shop/view', // страница с товаром
-  				
-
-          
-  				//'cart/<action:\w+>/?<id:\d+>?'=>'cart/cart/<action>',
-          
-          /*'<module:\w+>/<action:rss>'=>'<module>/default/<action>', // action модуля
-          '<module:\w+>/<id:[^\/]*>'=>'<module>/default/view', // страница с материалом модуля
-          '<module:\w+>/<action:[^\/]*>/<id:[^\/]*>'=>'<module>/default/<action>', // страница с материалом модуля
-          */
   			),
   			'showScriptName' => false,
   		),
