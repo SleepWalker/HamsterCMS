@@ -24,7 +24,7 @@ if(isset($_SERVER['REMOTE_ADDR']))
 return
 	array(
   	'language' => 'ru',
-  	'sourceLanguage'=>'ru_ru',
+  	'sourceLanguage'=>'ru',
     'charset'=>'UTF-8',
     'theme' => 'default',
     

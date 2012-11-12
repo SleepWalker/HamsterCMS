@@ -66,7 +66,7 @@ class Hi18nBehavior extends CActiveRecordBehavior
     //$fbLocaleId .= '_' . $fbLocaleId;
 
     //TODO: возможность задать fallback localeID
-    if(empty($localeId) || $fbLocaleId == Yii::app()->language || !in_array($fbLocaleId, Yii::app()->params['i18n']['languages']))
+    if(empty($localeId) || $fbLocaleId == Yii::app()->sourceLanguage || !in_array($fbLocaleId, Yii::app()->params['i18n']['languages']))
     {
       // отключаем интернационализацию, если язык пользователя совпадает с языком приложения или приложение не знает такого языка
       $this->_localizable = false;
@@ -272,7 +272,7 @@ class Hi18nBehavior extends CActiveRecordBehavior
         $_SERVER['REQUEST_URI'] = str_replace($language . '/', '', $_SERVER['REQUEST_URI']);
       }else{
         // если в uri нету инфы о языке, ставим дефолтный язык в куки
-        $language = Yii::app()->language;
+        $language = Yii::app()->sourceLanguage;
       }
 
       $ref = Yii::app()->request->urlReferrer;
@@ -282,9 +282,12 @@ class Hi18nBehavior extends CActiveRecordBehavior
         $lang = isset(Yii::app()->request->cookies['myLang']) ? Yii::app()->request->cookies['myLang']->value : '';
         if(empty($lang))
           $lang = Yii::app()->request->preferredLanguage;
+
         if(in_array($lang, Yii::app()->params['i18n']['languages']) && $lang != $language)
           Yii::app()->request->redirect('/' . $lang . Yii::app()->request->requestUri, true);
       }
+
+      Yii::app()->language = $language;
 
       Yii::app()->request->cookies['myLang'] = new CHttpCookie('myLang', $language, array('expire'=>time() + (20 * 365 * 24 * 60 * 60)));
     }

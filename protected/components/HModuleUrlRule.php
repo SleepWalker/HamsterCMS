@@ -70,7 +70,7 @@ class HModuleUrlRule extends CBaseUrlRule
     if(Yii::app()->params['i18n']['enabled'] == true)
     {
       $language = isset(Yii::app()->request->cookies['myLang']) ? Yii::app()->request->cookies['myLang']->value : '';
-      if($language != Yii::app()->language)
+      if($language != Yii::app()->sourceLanguage)
         $url =  $language . '/' . $url;
     }
 

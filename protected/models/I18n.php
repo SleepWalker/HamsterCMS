@@ -102,7 +102,7 @@ class I18n extends CActiveRecord
    */
   public static function createUrl($language)
   {
-    $language = $language == Yii::app()->language ? '' : '/' . $language;
+    $language = $language == Yii::app()->sourceLanguage ? '' : '/' . $language;
     
     return $language . Yii::app()->request->requestUri;
   }
