@@ -248,7 +248,10 @@ class HIUBehavior extends CActiveRecordBehavior
    */
   public function img($size = 'normal', $alt = '', array $htmlOptions = array())
   {
-    return CHtml::image($this->src($size), $alt, $htmlOptions);
+    if(($src = $this->src($size)) !== false)
+      return CHtml::image($this->src($size), $alt, $htmlOptions);
+    else
+      return '';
   }
 
   /**
@@ -263,6 +266,7 @@ class HIUBehavior extends CActiveRecordBehavior
   {
     if(is_array($this->sizes[$size]))
     {
+      if(empty($this->filename)) return '';
       $relFilePath = $this->sizes[$size]['prefix'].$this->filename;
       if($size == 'full' && !file_exists($this->uploadPath.$relFilePath))
         return $this->src('normal');
