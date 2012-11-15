@@ -173,12 +173,13 @@ class Tag extends CActiveRecord
   
   public function tagViewUrl($tag = false)
   {
-    return '/blog?tag=' . $tag;
+    return Yii::app()->createUrl('blog/blog/index', array('tag' => $tag));
   }
   
   public function tagRssViewUrl($tag = false)
   {
-    return '/blog/rss?tag=' . $tag;
+    if($tag) $params = array('tag' => $tag);
+    return Yii::app()->createUrl('blog/blog/rss', $params);
   }
 
 	/**

@@ -18,19 +18,19 @@ class BlogController extends Controller
 	/**
 	 * @return array action filters
 	 */
-	public function filters()
+/*	public function filters()
 	{
 		return array(
 			'accessControl', // perform access control for CRUD operations
 		);
-	}
+  }*/
 
 	/**
 	 * Specifies the access control rules.
 	 * This method is used by the 'accessControl' filter.
 	 * @return array access control rules
 	 */
-	public function accessRules()
+/*public function accessRules()
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
@@ -41,7 +41,20 @@ class BlogController extends Controller
 				'users'=>array('*'),
 			),
 		);
-	}
+  }*/
+
+  /**
+   * beforeRender инициализируем меню альбомов перед тем как запускать экшен
+   * 
+   * @param mixed $action 
+   * @access protected
+   * @return boolean
+   */
+  protected function beforeAction($action) 
+  { 
+    $this->menu = Categorie::model()->catsMenu;
+    return true; 
+  }
 
 	/**
 	 * Displays a particular model.
@@ -61,6 +74,9 @@ class BlogController extends Controller
 		if(isset($_GET['tag']))
 			$criteria->addSearchCondition('tags',$_GET['tag']);
 
+		if(isset($_GET['alias']))
+			$criteria->addSearchCondition('cat.alias',$_GET['alias'], true);
+
 		return new CActiveDataProvider(Post::model()->latest()->published()->with('cat', 'user'), array(
 			/*'pagination'=>array(
 				'pageSize'=>Yii::app()->params['postsPerPage'],
@@ -74,6 +90,13 @@ class BlogController extends Controller
    * А так же фильтрует модели по тегам из $_GET['tag']
 	 */ 
   public function actionIndex()
+	{
+		$this->render('index',array(
+			'dataProvider'=>$this->indexDataProvider,
+		));
+	}
+  
+  public function actionCategorie($alias)
 	{
 		$this->render('index',array(
 			'dataProvider'=>$this->indexDataProvider,

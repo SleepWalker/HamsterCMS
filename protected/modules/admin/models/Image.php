@@ -8,7 +8,7 @@
  * @property string $source
  *
  * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @package    shop.ShopController
+ * @package    hamster.modules.admin.models.Image
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
@@ -109,7 +109,7 @@ class Image extends CActiveRecord
    */
   public function getHtml()
   {
-    return CHtml::link($this->img('normal'), $this->src('full'), array('rel'=>'prettyPhoto'));
+    return CHtml::link($this->img('normal'), $this->src('full'));
   }
   
   /**

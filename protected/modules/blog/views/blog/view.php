@@ -61,7 +61,11 @@ $this->pageTitle = $model->title;
   </header>
 
 	<section class="postContent">
-    <?php echo str_replace('{%CUT%}', '', $model->content); ?>
+    <?php 
+$this->beginWidget('application.widgets.lightbox.HLightBox');
+echo str_replace('{%CUT%}', '', $model->content); 
+$this->endWidget('application.widgets.lightbox.HLightBox');
+?>
 	</section>
   <footer>
     <div class="soc_buttons"> 

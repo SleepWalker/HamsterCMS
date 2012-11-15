@@ -89,7 +89,7 @@ else
 <h1><?php echo $model->product_name; ?></h1>
 <div class="productLeft">
 <?php
-$this->beginWidget('application.widgets.prettyPhoto.PrettyPhoto', array(
+$this->beginWidget('application.widgets.lightbox.HLightBox', array(
   'id'=>'prod_photo',
 ));
 
@@ -102,7 +102,7 @@ $this->beginWidget('application.widgets.prettyPhoto.PrettyPhoto', array(
     $width = 45;
   }
  
-$this->endWidget('application.widgets.prettyPhoto.PrettyPhoto');
+$this->endWidget('application.widgets.lightbox.HLightBox');
 ?>
 <div class="soc_buttons"> 
   <div class="sbutton"><a href="https://twitter.com/share" class="twitter-share-button" data-count="vertical" data-via="">Tweet</a></div> 
@@ -308,7 +308,7 @@ echo 'Б/Н и электронные деньги: <b>' . number_format(round($
   
   <section id="photo">
   <?php
-  $this->beginWidget('application.widgets.prettyPhoto.PrettyPhoto', array(
+  $this->beginWidget('application.widgets.lightbox.HLightBox', array(
     'id'=>'prod_photo_tab',
   ));
 
@@ -319,7 +319,7 @@ echo 'Б/Н и электронные деньги: <b>' . number_format(round($
       );
     }
    
-  $this->endWidget('application.widgets.prettyPhoto.PrettyPhoto');
+  $this->endWidget('application.widgets.lightbox.HLightBox');
   ?>
   </section>
   <!--section id="delivery">

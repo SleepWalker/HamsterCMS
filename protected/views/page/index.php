@@ -7,6 +7,12 @@ $this->pageTitle = $model->title;
 ?>
 
 <div class="view">
-	<p><?php echo $model->content ?></p>
+<?php
+$this->beginWidget('application.widgets.lightbox.HLightBox');
+
+echo $model->content; 
+
+$this->endWidget('application.widgets.lightbox.HLightBox');
+?>
 </div>
 

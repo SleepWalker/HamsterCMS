@@ -144,6 +144,25 @@ class Categorie extends CActiveRecord
 	  return $newList;
 	}
 
+  /**
+   * getCatsMenu возвращает массив меню категорий для CMenu виджета.
+   * 
+   * @access public
+   * @return array Меню категорий
+   */
+  public function getCatsMenu()
+  {
+    $models = $this->findAll();
+    foreach($models as $model)
+    {
+      $menu[] = array(
+        'label' => $model->name,
+        'url' => $model->viewUrl,
+      );
+    }
+    return $menu;
+  }
+
 	/**
 	 * Retrieves a list of models based on the current search/filter conditions.
 	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
