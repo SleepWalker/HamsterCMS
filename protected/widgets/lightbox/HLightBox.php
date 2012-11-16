@@ -16,11 +16,11 @@
  *
  * Пример использования виджета
  * <pre>
- * $this->beginWidget('application.widgets.lightbox.LightBox', array
+ * $this->beginWidget('application.widgets.lightbox.HLightBox', array(
  *   // есть смысл использовать только в том случае, 
  *   // если вам на одной странице нужно несколько галерей
  *   // id используется в rel="lightbox[$id]"
- *   id'=>'myId', 
+ *   'id'=>'myId', 
  *   // jQuery селектор контейнера, в котором нужно использовать lightbox
  *   'container'=>'#container',
  *   // или даже так
@@ -35,7 +35,7 @@
  * // так же виджет сам позаботится об атрибутах rel
  * echo $content; 
  *
- * $this->endWidget('application.widgets.lightbox.LightBox');
+ * $this->endWidget('application.widgets.lightbox.HLightBox');
  * </pre>
  */
 class HLightBox extends CWidget {
@@ -74,7 +74,8 @@ class HLightBox extends CWidget {
     $id=$this->getId();
 
     $content = ob_get_clean();
-    $content = preg_replace('/(<a)([^>]+>[^<]*<img)/ui', '$1 rel="lightbox[' . $id . ']"$2', $content);
+    // Добавляет rel="lightbox[$id]" ко всем ссылкам, в фттрибуте href которых есть расширение изображения
+    $content = preg_replace('/(<a)([^>]+href=[\"\'][^\"\']+\.(jpg|png|jpeg|gif)[\"\'][^>]+>[^<]*<img)/ui', '$1 rel="lightbox[' . $id . ']"$2', $content);
     echo $content;
     
     // строчечка js, которая подключит lightbox ко всем изображениям в пределах контейнера
@@ -86,7 +87,7 @@ class HLightBox extends CWidget {
       $this->container .= ' a';
       Yii::app()->clientScript->registerScript(__CLASS__ . '_'.$id,"
         $('".$this->container."').each(
-          if(/\.(jpg)|(jpeg)|(png)|(gif)$/.test(this.href)
+          if(/.*\.(jpg|jpeg|png|gif)$/.test(this.href)
             $(this).attr('rel','lightbox[".$id."]');
         );
       ",CClientScript::POS_END);
