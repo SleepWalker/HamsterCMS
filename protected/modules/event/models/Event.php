@@ -148,6 +148,13 @@ class Event extends CActiveRecord
    * @return string Html код части карты с метом проведения мероприятия
    */
   public function getImg() {
+    return CHtml::image($this->src, $this->name);
+  }
+
+  /**
+   * @return string ссылку на изображение куска карты яндекса
+   */
+  public function getSrc() {
     $params = array(
       'l' => 'map',
       'll' => $this->latitude . ',' . $this->longitude,
@@ -157,7 +164,7 @@ class Event extends CActiveRecord
       'lang' => Yii::app()->sourceLanguage,
       //'key' => $this->module->params['yandexApiKey'],
     );
-    return CHtml::image('http://static-maps.yandex.ru/1.x/?'.http_build_query($params), $this->name);
+    return 'http://static-maps.yandex.ru/1.x/?'.http_build_query($params);
   }
   
   /**
