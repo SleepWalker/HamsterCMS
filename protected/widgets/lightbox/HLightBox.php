@@ -75,7 +75,7 @@ class HLightBox extends CWidget {
 
     $content = ob_get_clean();
     // Добавляет rel="lightbox[$id]" ко всем ссылкам, в фттрибуте href которых есть расширение изображения
-    $content = preg_replace('/(<a)([^>]+href=[\"\'][^\"\']+\.(jpg|png|jpeg|gif)[\"\'][^>]+>[^<]*<img)/ui', '$1 rel="lightbox[' . $id . ']"$2', $content);
+    $content = preg_replace('/(<a)([^>]+href=[\"\'][^\"\']+\.(jpg|png|jpeg|gif)[\"\'][^>]*>[^<]*<img)/ui', '$1 rel="lightbox[' . $id . ']"$2', $content);
     echo $content;
     
     // строчечка js, которая подключит lightbox ко всем изображениям в пределах контейнера

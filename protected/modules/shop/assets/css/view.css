@@ -99,13 +99,3 @@ div.desc {
 .compareAjaxMessage a:hover {
   text-decoration: none;
 }
-
-
-.soc_buttons { 
-  height:62px; 
-  display:inline-block; 
-} 
-.soc_buttons .sbutton { 
-  float:left; 
-  margin:0 2px; 
-}
