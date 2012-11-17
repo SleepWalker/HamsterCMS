@@ -37,7 +37,7 @@ return
   		'application.components.*',
   		'ext.yii-mail.YiiMailMessage',
   	),
-    'onBeginRequest' => array(Hi18nBehavior, 'onBeginRequest'),
+    'onBeginRequest' => array(HBeginRequest, 'onBeginRequest'),
     //TODO: maintance mode
     /*'catchAllRequest'=>array(
         'controllerId/actionId',
@@ -121,6 +121,7 @@ return
       'session' => array(
         'class' => 'system.web.CDbHttpSession',
         'connectionID' => 'db',
+        'sessionID' => 'hssid',
       ),
       'cache'=>array(
         'class'=>'system.caching.CFileCache',
