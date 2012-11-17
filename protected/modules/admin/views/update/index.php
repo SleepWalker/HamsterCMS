@@ -14,7 +14,9 @@ if($this->action->id == 'index') { ?>
   <b style="color:red">К удалению:</b><br>
   <?php echo implode('<br>', $deleteList); ?>
   <p><b style="color:green">К обновлению:</b> <br>
-  <?php echo implode('<br>', array_keys($updateList)); 
+  <?php echo implode('<br>', array_keys($updateList)); ?>
+  <p><b style="color:purple">Игнорируются:</b> <br>
+  <?php echo implode('<br>', $ignoreList); 
 
 $this->pageTitle = Yii::app()->name . ' - Обновление';
 }

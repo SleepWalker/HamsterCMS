@@ -76,17 +76,35 @@ class UpdateController extends HAdminController
 
     $deleteList = array(); // файлы к удалению
     $updateList = array(); // файлы к обновлению
+    $ignoreList = array(); // файлы, который будут игнорироваться
+    
+    // массив с файлами, которые будут игнорироваться (не должны автоматически обновлятся)
+    $tmpIgnoreList = require(Yii::getPathOfAlias('application.config') . '/updateIgnoreList.php');
+    foreach($tmpIgnoreList as $alias => $files)
+    {
+      $pref = str_replace(Yii::getPathOfAlias('application'), '', Yii::getPathOfAlias('application.'.$alias));
+      foreach($files as $file)
+      {
+        $ignoreList[] = $pref . '/' . $file;
+      }
+    }
+    unset($tmpIgnoreList);
+
     foreach($aliases as $alias)
     {
-      $arr = $this->hashDir($alias);
+      $arr = $this->hashDir($alias, $ignoreList);
       if(!is_array($ans[$alias])) continue; // нету такого алиаса
-      $deleteList = array_merge($deleteList, array_diff($arr['pathList'], $ans[$alias]['pathList']));
+      $deleteList = array_merge($deleteList, array_diff($arr['pathList'], $ans[$alias]['pathList'], $ignoreList));
       $updateList = array_merge($updateList,
        array_diff(
          $ans[$alias]['hashList'],
          $arr['hashList'] 
        ));
     }
+    
+    // удаляем из $updateList файлы, которые присутствуют в $ignoreList
+    foreach($ignoreList as $file)
+      unset($updateList[$file]);
 
     ob_start();
 ?>
@@ -94,6 +112,8 @@ class UpdateController extends HAdminController
   <?php echo implode("\n", $deleteList); ?>
   К обновлению:
   <?php echo implode("\n", array_keys($updateList)); ?>
+  Игнорируются:
+  <?php echo implode("\n", $ignoreList); ?>
 <?php
     $logMessage = ob_get_clean(); 
 
@@ -133,6 +153,7 @@ class UpdateController extends HAdminController
     $this->render('index', array(
       'deleteList' => $deleteList,
       'updateList' => $updateList,
+      'ignoreList' => $ignoreList,
     ));
   }
 
@@ -220,10 +241,12 @@ class UpdateController extends HAdminController
    * удобном для проверки актуальности файлов 
    * 
    * @param mixed $alias alias директории, для которой будет строиться массив
+   * @param array $ignoreList массив с путями к файлам, которые надо игнорировать при обновлении
    * @access protected
    * @return array массив с путями и их хэшами
    */
-  protected function hashDir($alias) {
+  protected function hashDir($alias) 
+  {
     // возвращаем значение из карты (в случае если она уже закеширована)
     if(is_array($this->dirMap[$alias])) return $this->dirMap[$alias];
 
@@ -233,9 +256,13 @@ class UpdateController extends HAdminController
     $root = Yii::getPathOfAlias('application');
     foreach ($iterator as $file) {
       //if(substr($file->getBasename(), 0, 1) == '.' && $file->getBasename() != '.htaccess') continue; // пропускаем скрыте файлы (линукс)
-      if($file->getBasename() == '.' || $file->getBasename() == '..') continue; 
-        $path = str_replace($root, '', (string)$file);
-        $pathList[] = $path;
+      $path = str_replace($root, '', (string)$file);
+      
+      // Игнорим .. и .
+      if($file->getBasename() == '.' || $file->getBasename() == '..')
+        continue; 
+      
+      $pathList[] = $path;
       if ($file->isFile()) {
         $hashList[$path] = md5_file((string)$file); 
       }
