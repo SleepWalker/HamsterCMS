@@ -9,7 +9,7 @@
   
   Изменения ((C) Sviatoslav):
   Добавленна возможность указать дополнительный параметр full в ответе на imageGetJson.
-  В этом параметре должна находиться ссылка на полное изображения. В редактор эта ссылка вставится вместе с rel="prettyPhoto".
+  В этом параметре должна находиться ссылка на полное изображения.
 	
 	Usage: $('#content').redactor();	
 */
@@ -1596,7 +1596,7 @@ var RTOOLBAR = {};
 		},
 		imageSetThumb: function(e)
 		{
-			this._imageSet('<a href="' + $(e.target).attr('alt') + '" rel="prettyPhoto"><img alt="" src="' + $(e.target).attr('rel') + '" /></a>');
+			this._imageSet('<a href="' + $(e.target).attr('alt') + '"><img alt="" src="' + $(e.target).attr('rel') + '" /></a>');
 		},
 		imageUploadCallbackLink: function()
 		{

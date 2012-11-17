@@ -76,7 +76,7 @@ class HIUBehavior extends CActiveRecordBehavior
     $validators = $owner->getValidatorList();
 
     $params = array(
-      'types'=>'jpg, gif, png',
+      'types'=>'jpg, jpeg, gif, png',
       'maxSize'=>1024 * 1024 * 5, // 5 MB
       'maxFiles' => 1,
       'allowEmpty' => true, // TODO разобраться с этим параметром и сделать, что бы все работало без него (если он отключен валидация жалуется...)
@@ -248,8 +248,8 @@ class HIUBehavior extends CActiveRecordBehavior
    */
   public function img($size = 'normal', $alt = '', array $htmlOptions = array())
   {
-    if(($src = $this->src($size)) !== false)
-      return CHtml::image($this->src($size), $alt, $htmlOptions);
+    if(($src = $this->src($size)) != '')
+      return CHtml::image($src, $alt, $htmlOptions);
     else
       return '';
   }
@@ -264,9 +264,8 @@ class HIUBehavior extends CActiveRecordBehavior
    */
   public function src($size = 'normal')
   {
-    if(is_array($this->sizes[$size]))
+    if(is_array($this->sizes[$size]) && !empty($this->filename))
     {
-      if(empty($this->filename)) return '';
       $relFilePath = $this->sizes[$size]['prefix'].$this->filename;
       if($size == 'full' && !file_exists($this->uploadPath.$relFilePath))
         return $this->src('normal');

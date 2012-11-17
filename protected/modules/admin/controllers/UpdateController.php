@@ -79,13 +79,17 @@ class UpdateController extends HAdminController
     $ignoreList = array(); // файлы, который будут игнорироваться
     
     // массив с файлами, которые будут игнорироваться (не должны автоматически обновлятся)
-    $tmpIgnoreList = require(Yii::getPathOfAlias('application.config') . '/updateIgnoreList.php');
-    foreach($tmpIgnoreList as $alias => $files)
+    $tmpIgnoreList = Yii::getPathOfAlias('application.config') . '/updateIgnoreList.php';
+    if(is_file($tmpIgnoreList))
     {
-      $pref = str_replace(Yii::getPathOfAlias('application'), '', Yii::getPathOfAlias('application.'.$alias));
-      foreach($files as $file)
+      $tmpIgnoreList = require($tmpIgnoreList);
+      foreach($tmpIgnoreList as $alias => $files)
       {
-        $ignoreList[] = $pref . '/' . $file;
+        $pref = str_replace(Yii::getPathOfAlias('application'), '', Yii::getPathOfAlias('application.'.$alias));
+        foreach($files as $file)
+        {
+          $ignoreList[] = $pref . '/' . $file;
+        }
       }
     }
     unset($tmpIgnoreList);
