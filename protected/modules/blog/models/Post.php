@@ -160,7 +160,7 @@ class Post extends CActiveRecord
       if($this->isNewRecord)
       {
         $this->add_date=$this->edit_date=new CDbExpression('NOW()');
-        $this->user_id=Yii::app()->user->id;
+        $this->user_id=Yii::app()->user->primaryKey;
       }
       else
         $this->edit_date=new CDbExpression('NOW()');
@@ -293,10 +293,10 @@ class Post extends CActiveRecord
 		$criteria->compare('cat_id',$this->cat_id);
     
     // Критерии для фильтрации по related таблицам
-		$criteria->compare( 'user.first_name', $this->user_search, true );
+		$criteria->compare( 'user.' . User::first_name, $this->user_search, true );
     
     $criteria->with=array(
-      'user'=>array('select'=>'user.first_name'),
+      'user'=>array('select'=>'user.' . User::first_name),
       'cat'=>array('select'=>'cat.name'),
     );
 
@@ -305,8 +305,8 @@ class Post extends CActiveRecord
       'sort'=>array(
         'attributes'=>array(
           'user_search'=>array(
-            'asc'=>'user.first_name',
-            'desc'=>'user.first_name DESC',
+            'asc'=>'user.' . User::first_name,
+            'desc'=>'user.' . User::first_name . ' DESC',
           ),
           '*',
         ),

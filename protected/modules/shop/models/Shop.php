@@ -155,7 +155,7 @@ class Shop extends CActiveRecord
 			'comments' => array(self::HAS_MANY, 'Comment', 'prod_id'),
 			'charShema' => array(self::BELONGS_TO, 'CharShema', 'cat_id'),
 			'char' => array(self::HAS_MANY, 'Char', array('prod_id'=>'id')),
-			'user' => array(self::BELONGS_TO, 'User', array('user_id'=>'id')),
+			'user' => array(self::BELONGS_TO, 'User', 'user_id'),
 			'supplier' => array(self::BELONGS_TO, 'Supplier', array('supplier_id'=>'id')),
 			'rVoteCount' => array(self::STAT, 'Rating', 'prod_id'), //T!: убрать строку
 		);
@@ -436,7 +436,7 @@ class Shop extends CActiveRecord
       if($this->isNewRecord)
       {
         $this->add_date=$this->edit_date=new CDbExpression('NOW()');
-        $this->user_id=Yii::app()->user->id;
+        $this->user_id=Yii::app()->user->primaryKey;
       }
       else
         $this->edit_date=new CDbExpression('NOW()');
@@ -556,7 +556,7 @@ class Shop extends CActiveRecord
 		$criteria->compare('t.status',$this->status);
 		
 		// Критерии для фильтрации по related таблицам
-		$criteria->compare( 'user.first_name', $this->user_search, true );
+		$criteria->compare( 'user.' . User::first_name, $this->user_search, true );
 		$criteria->compare( 'brand.brand_name', $this->brand_search, true );
 		$criteria->compare( 'cat.cat_name', $this->cat_search, true );
 		$criteria->compare( 'supplier.id', $this->supplier_search, true );
@@ -564,7 +564,7 @@ class Shop extends CActiveRecord
 		$criteria->with=array(
       'cat'=>array('select'=>'cat.cat_name'),
       'brand'=>array('select'=>'brand.brand_name'),
-      'user'=>array('select'=>'user.first_name'),
+      'user'=>array('select'=>'user.' . User::first_name),
       'supplier',
     );
 
@@ -573,8 +573,8 @@ class Shop extends CActiveRecord
 			'sort'=>array(
         'attributes'=>array(
           'user_search'=>array(
-            'asc'=>'user.first_name',
-            'desc'=>'user.first_name DESC',
+            'asc'=>'user.' . User::first_name,
+            'desc'=>'user.' . User::first_name . ' DESC',
           ),
           'cat_search'=>array(
             'asc'=>'cat.cat_name',

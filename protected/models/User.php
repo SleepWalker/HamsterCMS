@@ -24,6 +24,11 @@
 class User extends CActiveRecord
 {
   public $password1, $password2;
+
+  // константы с алиасами колонок, используемых в выборках других модулей
+  // (для случаев, когда проводится интеграция с другими бд)
+  // оригинальное_имя = 'имя_в_новой_таблице'
+  const first_name = 'first_name';
    
 	/**
 	 * Returns the static model of the specified AR class.
