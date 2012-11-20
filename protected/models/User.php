@@ -106,6 +106,20 @@ class User extends CActiveRecord
       return false;
   }
 
+  /**
+   * Если у нас новая запись, 
+   * то мы после insert сразу обновляем ее содержимое,
+   * что бы получить актуальные даты для хэша 
+   * 
+   * @access public
+   * @return void
+   */
+  public function afterSave()
+  {
+    if($this->isNewRecord)
+      $this->refresh();
+  }
+
 	/**
 	 * @return array relational rules.
 	 */
@@ -136,7 +150,7 @@ class User extends CActiveRecord
 			'password1' => 'Пароль',
 			'password2' => 'Пароль еще раз',
 		);
-	}
+  }
 	
 	/**
 	*  Аутентификация через модель LoginForm

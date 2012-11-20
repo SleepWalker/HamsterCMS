@@ -160,7 +160,7 @@ class Post extends CActiveRecord
       if($this->isNewRecord)
       {
         $this->add_date=$this->edit_date=new CDbExpression('NOW()');
-        $this->user_id=Yii::app()->user->primaryKey;
+        $this->user_id=Yii::app()->user->id;
       }
       else
         $this->edit_date=new CDbExpression('NOW()');
