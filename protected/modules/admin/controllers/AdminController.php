@@ -33,7 +33,7 @@ class AdminController extends HAdminController
               'roles'=>array('admin'),
           ),
           array('allow',
-            'actions'=>array('shop', 'error', 'index', 'cart', 'blog'),
+            'actions'=>array('shop', 'error', 'index', 'cart', 'blog', 'page'),
             'roles'=>array('staff'),
           ),
           array('deny',  // deny all users
@@ -538,23 +538,6 @@ class AdminController extends HAdminController
     $hamsterModules = $this->hamsterModules;
     $hamsterModules['modulesInfo'] = $modulesInfo;
 
-    //FIXME:
-    if(is_array($hamsterModules['modules']))
-    {
-      $hamsterModules['config']['modules'] = $hamsterModules['modules'];
-      $hamsterModules['config']['params'] = $hamsterModules['params'];
-      unset($hamsterModules['modules']);
-      unset($hamsterModules['params']);
-    }
-    foreach($hamsterModules['modulesInfo'] as &$miMod)
-    {
-      if(is_array($miMod['bd']))
-      {
-        $miMod['db'] = $miMod['bd'];
-        unset($miMod['bd']);
-      }
-    }
-    //^----- Временный код для обновления структуры конфигов
     $hamsterModules = "<?php\n\nreturn " . var_export($hamsterModules, true) . ";";
     
     file_put_contents(Yii::getPathOfAlias('application.config') . '/hamsterModules.php', $hamsterModules);
@@ -606,10 +589,16 @@ class AdminController extends HAdminController
       $moduleAdminPath = Yii::getPathOfAlias('application.modules.' . $moduleName . '.admin');
       if(array_key_exists($moduleName, $enabledModules))
       {
+        // выключаем модуль
         unset($enabledModules[$moduleName]);
       }else{
+        // включаем модуль
         if(file_exists($moduleAdminPath.'/AdminAction.php'))
           $enabledModules[$moduleName] = 'application.modules.' . $moduleName . '.admin.AdminAction';
+
+        // проверем базу данных
+        $this->testDb($moduleName);
+        
         $redirectParams = '?m=' . $moduleName;
       }
       
@@ -619,10 +608,51 @@ class AdminController extends HAdminController
       $configStr = "<?php\n\nreturn " . var_export($hamsterModules, true) . ";";
       file_put_contents(Yii::getPathOfAlias('application.config') . '/hamsterModules.php', $configStr);
       
-      // Обновим статус модуля в конфиге (T!: честно говоря грубый способ... но пока так)
+      // Обновим статус модуля в конфиге (FIXME: честно говоря грубый способ... но пока так)
       Config::load($moduleName)->save(false);
       
       $this->redirect('/admin/config' . $redirectParams);
+    }
+  }
+
+  /**
+   * Метод, восстанавливающий таблицы из дампа в случае,
+   * если на этапе активации модуля их не окажется 
+   * 
+   * @param mixed $moduleId id модуля, которому принадлежит модель
+   * @access public
+   * @return void
+   */
+  protected function testDb($moduleId)
+  {
+    $tables = Config::load($moduleId)->adminConfig['db']['tables'];
+    // проверяем, есть ли все таблицы у модуля
+    try{
+      $db = Yii::app()->db;
+      foreach($tables as $tableName)
+      {
+        // запускаем sql комманды
+        $db->createCommand('SHOW CREATE TABLE `' . $tableName . '`')->execute();
+      }
+    }catch(CDbException $e) {
+      // одной из таблиц нету - запускаем sql создания таблицы
+      if($moduleId)
+      {
+        $path = Yii::getPathOfAlias('application.modules.' . $moduleId . '.admin') . '/schema.mysql.sql';
+      }elseif($moduleId == 'admin'){
+        $path = Yii::getPathOfAlias('application.modules.' . $moduleId . '.admin') . '/' . strtolower($className) . '.schema.mysql.sql';
+      }else{
+        $path = Yii::getPathOfAlias('application.models._schema') . '/' . strtolower($className) . '.schema.mysql.sql';
+      }
+
+      if(is_file($path))
+      {
+        // создаем таблицу в БД
+        $sql = file_get_contents($path);
+        $db->createCommand($sql)->execute();
+        // Пишем в лог
+        Yii::log('Создание таблиц для модуля ' . $moduleId, 'info', 'hamster.moduleSwitcher');
+      }
     }
   }
 
