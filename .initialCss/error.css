@@ -1,0 +1,14 @@
+/**
+ * Стили для ошибок при заполнении форм.
+ */
+
+.errorMessage,
+span.required {
+  color:#cb2b3a;
+}
+
+.errorSummary {
+ background:rgba(203, 43, 58, 0.3);
+ padding:10px;
+ border:1px #cb2b3a solid;
+}
