@@ -204,14 +204,10 @@ class AdminAction extends HAdminAction
 	 */
 	public function actionDelete()
 	{
-		$uploadPath = $_SERVER['DOCUMENT_ROOT'].Post::uploadsUrl;
 		if(Yii::app()->request->isPostRequest)
 		{
 			// we only allow deletion via POST request
-			$model = Post::model()->findByPk($this->crudid);
-			// Удаляем изображение
-		  if(file_exists($uploadPath.$model->image)) unlink($uploadPath.$model->image);
-			$model->delete();
+			$model = Post::model()->findByPk($this->crudid)->delete();
 	  }
 		else
 			throw new CHttpException(400,'Не правильный запрос. Пожалуйста не повторяйте этот запрос еще раз.');

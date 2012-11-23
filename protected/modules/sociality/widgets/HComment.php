@@ -22,6 +22,13 @@ class HComment extends CWidget
 	* @property string url ассетов
 	*/
 	public $assetsUrl;
+
+  /**
+   * @property CActiveRecord $model модель, к которой будут крепиться комменты
+   *           лучше выбирать главную модель модуля (если их > 1)
+   */
+  public $model;
+
 	/**
 	* @property string имя js файла lightbox
 	*/
@@ -34,6 +41,8 @@ class HComment extends CWidget
 			);
 
 		$this->registerClientScript();
+
+    Yii::import('application.modules.sociality.models.*');
 		parent::init();
 	}
 
@@ -41,13 +50,35 @@ class HComment extends CWidget
   {
     $cs = Yii::app()->clientScript;
     $cs->registerMetaTag(Yii::app()->params['vkApiId'], NULL, NULL, array('property' => 'vk:app_id'));
-?>
-<section id="vkcomments" style="clear:both;"></section>
-<?php
+
+    if($this->model)
+    {
+      $modelId = $this->owner->module ? $this->owner->module->id . '.': '';
+      $modelId .= get_class($this->model);
+      $modelPk = $this->model->primaryKey;
+      $data  = array(
+        'Comment' => array(
+          'model_id' => strtolower($modelId),
+          'model_pk' => $modelPk,
+        ),
+      );
+    }
+    echo '<div id="HCommentsPlaceholder"></div>';
+    $js = "
+      $.ajax('/sociality', {
+        type: 'POST',
+        data: " . CJavaScript::encode($data)  . ",
+        success: function(data) {
+          $('#HCommentsPlaceholder').replaceWith(data);
+        },
+      });  
+    ";
+    $cs->registerScript(__CLASS__, $js, CClientScript::POS_END);
   }
 
 	protected function registerClientScript(){
 		$cs = Yii::app()->clientScript;
 		$cs->registerScriptFile($this->assetsUrl.'/js/'.$this->scriptFile, CClientScript::POS_END);
+		$cs->registerScriptFile($this->assetsUrl.'/js/jquery.autosize-min.js', CClientScript::POS_END);
 	}
 }

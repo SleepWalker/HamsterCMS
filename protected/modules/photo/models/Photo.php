@@ -61,9 +61,6 @@ class Photo extends CActiveRecord
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('id, name, album_id, date', 'safe', 'on'=>'search'),
-      array('date','default',
-              'value'=>new CDbExpression('NOW()'),
-              'setOnEmpty'=>false,'on'=>'insert'),
 		);
 	}
 
@@ -145,6 +142,24 @@ class Photo extends CActiveRecord
 			'desc' => 'textarea',
 		);
 	}
+
+  /**
+	 *  Обновляем даты
+	 */
+	protected function beforeSave()
+  {
+    if(parent::beforeSave())
+    {
+      if($this->isNewRecord)
+      {
+        $this->date = new CDbExpression('NOW()');
+      }
+
+      return true;
+    }
+    else
+      return false;
+  }
   
   /**
 	 * Устанавливаем заглавную картинку в аьбоме

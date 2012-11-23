@@ -1,0 +1,48 @@
+/**
+ * Стили для формы комментариев и блоков с комментами
+ *
+ * Для полной работы виджета необходимы стили:
+ * social.internalComments.css
+ * social.tabs.css
+ * pager.css
+ */
+    
+/* Виджет комментариев */
+.HCommentInternal textarea {
+  height: 56px;
+  padding: 3px 0px;
+  resize: vertical;
+  font-size: 11px;
+  width:100%;
+}
+
+.HCommentInternal input {
+  margin: 10px 0;
+}
+
+.HCommentInternal .buttons span {
+  font-size:10px;
+  color:#888;
+  margin-left:10px;
+}
+
+.HCommentInternal .buttons input {
+  border:1px #424242 solid;
+  background: #87A338;
+  padding: 4px 14px;
+  cursor:pointer;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+}
+
+.HCommentInternal .buttons input:hover {
+  background: #9bbc41;
+}
+
+.HCommentInternal .block {
+  border:1px rgb(215,215,215) solid;
+  padding:1%;
+  margin: 8px 0;
+  background:#fff;
+}

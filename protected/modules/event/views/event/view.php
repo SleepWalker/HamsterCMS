@@ -34,13 +34,15 @@ $this->pageTitle = $model->name;
 	</section>
   <footer>
 <?php
-$this->widget('application.widgets.social.HLike', array(
+$this->widget('application.modules.sociality.widgets.HLike', array(
   'imgSrc' => $model->src,
   'description' => $model->desc,
   'title' => $model->name,
 ));
 
-$this->widget('application.widgets.social.HComment');
+$this->widget('application.modules.sociality.widgets.HComment', array(
+  'model' => $model,
+));
 ?>
   </footer>
 </article>

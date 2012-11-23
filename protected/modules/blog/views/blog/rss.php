@@ -8,7 +8,7 @@ foreach($posts as $post)
   <link><?php echo Yii::app()->createAbsoluteUrl($post->viewUrl); ?></link>
   <description>
   <![CDATA[
-  <?php echo CHtml::image(Yii::app()->createAbsoluteUrl(Post::imgSrc($post->image)), $post->title) . str_replace('{%CUT%}', '', $post->content); ?>
+  <?php echo CHtml::image(Yii::app()->request->hostInfo.$post->src(), $post->title) . str_replace('{%CUT%}', '', $post->content); ?>
   ]]>
   </description>
   <pubDate><?php echo gmdate('r', strtotime($post->add_date)) ?></pubDate>

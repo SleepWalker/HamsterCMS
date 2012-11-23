@@ -1,0 +1,44 @@
+/**
+ * Табы, переключающие формы комментариев
+ *
+ * Для полной работы виджета необходимы стили:
+ * social.internalComments.css
+ * social.tabs.css
+ * pager.css
+ */
+
+/* Табы комментариев */
+.HTabsContainer {
+  clear:both;
+}
+
+.HTabsContainer menu {
+  margin:0;
+  padding:10px;
+}
+
+.HTabsContainer menu a {
+  padding: 10px;
+  text-decoration:none;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+}
+
+.HTabsContainer menu a.active {
+  color: #121212;
+  background: #cce195 ;
+}
+
+.HTabsContainer > section {
+  padding: 10px;
+  display:none;
+}
+
+.HTabsContainer section:first-of-type {
+  display:block;
+}
+
+.HTabsContainer time {
+  float:right;
+}

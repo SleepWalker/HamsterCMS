@@ -87,7 +87,7 @@ class HLike extends CWidget
 
     $cs->registerMetaTag(Yii::app()->params['vkApiId'], NULL, NULL, array('property' => 'vk:app_id'));
 ?>
-    <section class="hlike"> 
+  <section class="hlike"<?php echo $this->vertical ? '' : ' style="height:65px"';?>> 
       <a href="https://twitter.com/share" class="twitter-share-button" data-count="vertical" data-via="">Tweet</a> <?php if($this->vertical) echo '<br />'; ?>
       <fb:like send="false" style="vertical-align: top;margin-top:1px;" layout="box_count" show_faces="true"></fb:like><?php if($this->vertical) echo '<br />'; ?>
       <g:plusone size="tall"></g:plusone> 

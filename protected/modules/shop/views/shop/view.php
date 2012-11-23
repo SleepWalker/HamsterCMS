@@ -52,7 +52,7 @@ $this->beginWidget('application.widgets.lightbox.HLightBox', array(
  
 $this->endWidget('application.widgets.lightbox.HLightBox');
 
-$this->widget('application.widgets.social.HLike', array(
+$this->widget('application.modules.sociality.widgets.HLike', array(
   'imgSrc' => Shop::imgSrc($model->photo[0], 120),
   'description' => $model->description,
   'title' => $model->product_name,
@@ -167,7 +167,7 @@ echo 'Б/Н и электронные деньги: <b>' . number_format(round($
       echo '<a href="#characteristics">Полные характеристики</a>';
     ?>
     <a href="#photo">Фото</a>
-    <a href="#vkcomments">Отзывы</a>
+    <a href="#comments">Отзывы</a>
     <a href="/page/payment_and_delivery#delivery">Доставка</a>
     <!--a href="#characteristics">Обзоры</a-->
   </menu>
@@ -248,7 +248,7 @@ echo 'Б/Н и электронные деньги: <b>' . number_format(round($
         </tbody>
       </table>
     
-    </section>
+    </section> <!-- #characteristics -->
     <?php
     }
   ?>
@@ -272,30 +272,34 @@ echo 'Б/Н и электронные деньги: <b>' . number_format(round($
   <!--section id="delivery">
     <h2>Доставка и отставка</h2>
   </section-->
-<?php
-$this->widget('application.widgets.social.HComment');
-?>
+  <section id="comments">
+    <?php
+    $this->widget('application.modules.sociality.widgets.HComment', array(
+      'model' => $model,
+    ));
+    ?>
+  </section><!-- #comments -->
 </section> <!-- / .tabs -->
 </article>
 
 <?php
 $js = <<<EOF
-$( $('.tabs menu a')[0] ).addClass('active');
-$( $('section.tabs section')[0] ).show();
-$('.tabs menu a').on('click', function() {
+$('section.tabs > menu a').eq(0).addClass('active');
+$('section.tabs > section').eq(0).show();
+$('.tabs > menu a').on('click', function() {
   $(this).siblings().removeClass('active');
   $(this).addClass('active');
-  $('.tabs section').hide();
+  $('.tabs > section').hide();
 
 
   // Определяем, что мы покажем
   var id = this.hash;
   if(this.pathname != location.pathname) // Ajax Подгрузка
   {
-    //T!: возможность полного кэширования вкладки (тоесть без отправки запроса на серв)
+    // TODO: возможность полного кэширования вкладки (тоесть без отправки запроса на серв)
     // Сохраняем изначальное содержимое контейнера
     if(!$(id).data('initial')) $(id).data('initial', $(id).html());
-    // сразу вставляем эту инфу в элемент (таким образом при повторном открытии таба его окнтент будет рсетится на "дефолтный") 
+    // сразу вставляем эту инфу в элемент (таким образом при повторном открытии таба его контент будет ресетится на "дефолтный") 
     $(id).html($(id).data('initial'));
     $.ajax({
       url: '/api' + this.pathname,

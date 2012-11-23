@@ -17,7 +17,7 @@ setTimeout(function() {
       var js, fjs = d.getElementsByTagName(s)[0]; 
       if (d.getElementById(id)) {return;} 
       js = d.createElement(s); js.id = id; 
-      js.src = '//connect.facebook.net/en_US/all.js#xfbml=1' 
+      js.src = '//connect.facebook.net/en_US/all.js#xfbml=1';
       fjs.parentNode.insertBefore(js, fjs); 
     }(document, 'script', 'facebook-jssdk'));
 
@@ -37,12 +37,14 @@ setTimeout(function() {
     var vkTransport = document.createElement('div');
     vkTransport.id = 'vk_api_transport';
     document.body.appendChild(vkTransport);
-
+    
+    var oldVkInit = window.vkAsyncInit;
     window.vkAsyncInit = function() {
+      if(oldVkInit) oldVkInit();
       if(document.getElementById('vklike'))
         VK.Widgets.Like('vklike', {type: 'vertical', height: 24}); 
-      if(document.getElementById('vkcomments'))
-        VK.Widgets.Comments('vkcomments', {limit: 10, attach: '*'});
+        
+      window.VK = VK; // на всякий случай
     };
 
       var el = document.createElement('script');
@@ -52,4 +54,28 @@ setTimeout(function() {
       document.getElementById('vk_api_transport').appendChild(el);
       window.hSocialInit = true;
   }
-}, 700);
+}, 200);
+
+$(function() {
+  $('body').on('click', '.HTabs > a', function () {
+    $tabsLinks = $(this).parent().children();
+    $tabsContent = $(this).parents('.HTabsContainer').children('section');
+    $tabsLinks.removeClass('active');
+    $(this).addClass('active');
+
+    if($(this).data('index') === undefined)
+    {
+      $tabsLinks.each(function(index) {
+        $(this).data('index', index); 
+      });      
+    }
+
+    var index = $(this).data('index');
+    if($tabsContent.eq(index).is(':visible')) return false;
+    //$('html, body').animate({scrollTop:$(this).offset().top}, 'slow'); 
+    $tabsContent.hide('normal');
+    $tabsContent.eq(index).show('normal');
+
+    return false;
+  });
+});

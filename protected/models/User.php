@@ -57,6 +57,7 @@ class User extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('first_name, email', 'required'),
+			array('first_name, last_name', 'match', 'pattern'=>'/^[a-zA-Zа-яА-Я0-9_\- ]+$/u', 'message'=>'Поле содержит не допустимые знаки.'),
 			array('password1, password2', 'required', 'on'=>'register'),
 			array('password2', 'compare', 'compareAttribute'=>'password1', 'strict'=>true, 'on'=>'register'),
 			array('password1, password2',  'length', 'min'=>7),

@@ -22,7 +22,7 @@ $this->endWidget('application.widgets.lightbox.HLightBox');
 	</section>
   <footer>
 <?php
-$this->widget('application.widgets.social.HLike', array(
+$this->widget('application.modules.sociality.widgets.HLike', array(
   'imgSrc' => $model->src('thumb'),
   'description' => array_shift(explode('{%CUT%}', $model->content)),
   'title' => $model->title,
@@ -39,5 +39,7 @@ $this->widget('application.widgets.social.HLike', array(
   </footer>
 </article>
 <?php
-$this->widget('application.widgets.social.HComment');
+$this->widget('application.modules.sociality.widgets.HComment', array(
+  'model' => $model,
+));
 ?>

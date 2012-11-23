@@ -160,14 +160,15 @@ class Hi18nBehavior extends CActiveRecordBehavior
   {
     $model = $event->sender;
     // создаем модели в тех полях, которые оказались пустыми
-    foreach($this->i18nAtts as $attribute)
-    {
-      $translation = $model->{'tr_' . $attribute};
-      if( ! ($translation instanceof I18n))
+    if($this->_localizable)
+      foreach($this->i18nAtts as $attribute)
       {
-        $model->{'tr_' . $attribute} = new I18n;
+        $translation = $model->{'tr_' . $attribute};
+        if( ! ($translation instanceof I18n))
+        {
+          $model->{'tr_' . $attribute} = new I18n;
+        }
       }
-    }
 
     if(isset($_POST['i18n']))
     {
@@ -178,7 +179,7 @@ class Hi18nBehavior extends CActiveRecordBehavior
 
     if($this->_localizable && !isset($_POST[get_class($model)]['i18nlang']))
     { 
-     $model = $event->sender;
+      $model = $event->sender;
       foreach($this->i18nAtts as $attribute)
       {
         $translation = $model->{'tr_' . $attribute}->translation;
