@@ -231,7 +231,7 @@ class HIUBehavior extends CActiveRecordBehavior
     foreach($this->sizes as $size)
     {
       $file = $this->uploadPath.$size['prefix'].$fileName;
-      if(file_exists($file))
+      if(file_exists($file) && !is_dir($file))
         unlink($file); // удаляем картинку
     }
     $this->owner->{$this->fileAtt} = ''; // удаляем из модели
