@@ -98,7 +98,6 @@ class AdminController extends HAdminController
       $filtersForm->filters=$_GET['FiltersForm'];
     }
          
-	  //http://www.yiiframework.com/wiki/232/using-filters-with-cgridview-and-carraydataprovider/
 	  $logString = file_get_contents('protected/runtime/application.log');
 	  // добавляем разделитель, по которому будем делить строку
 	  $logString = preg_replace('/^(\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2})/m', '--Separator--$0', $logString);
@@ -235,12 +234,14 @@ class AdminController extends HAdminController
     $path = implode('/', array(
       $_GET['module'],
       $_GET['action'],
+      $_GET['crudid'],
     ));
-    $path = preg_replace("/^\//", "", $path); // убираем "/" в начале строки
-    $path = preg_replace("/\/$/", "", $path); // убираем "/" в конце строки
-    $path = preg_replace("/\/\//", "/", $path); // убираем "//"
+    $path = trim($path, '/');
+    $path = str_replace("//", "/", $path);
     
-    if(Yii::app()->request->isPostRequest && isset($_POST['ajaxAction'])) $_GET['ajaxAction'] = $_POST['ajaxAction']; 
+    // вызыв экшена через гет параметр в аякс запросе (используется в dragndrop)
+    if(Yii::app()->request->isPostRequest && isset($_POST['ajaxAction'])) 
+      $_GET['ajaxAction'] = $_POST['ajaxAction']; 
     
     if(isset($_GET['ajaxAction'])) 
       $path .= '/'.$_GET['ajaxAction'];
@@ -252,9 +253,10 @@ class AdminController extends HAdminController
     }
     else
       $actionId = 'Index';
-    
+
     while( !method_exists($this->action, 'action' . $actionId) )
     {
+      // экшен админ контроллера, а не администрирования модуля, прерываем функцию
       if(method_exists($this, 'action' . $actionId)) return true;
       if(count($actionParts) == 0) // варианты действий закончились - возвращаем ошибку
         throw new CHttpException(404,'Запрашиваемая страница не существует.');
@@ -279,7 +281,6 @@ class AdminController extends HAdminController
     $this->actionId = ($actionId == 'Index')?'index':implode('/', array_map('strtolower', $actionParts) );
     $this->curModuleUrl = '/' . $this->module->id . '/' . $this->action->id . '/';
     $this->actionPath = $this->curModuleUrl . ( ($this->actionId == 'index')?'':$this->actionId . '/'); // admin/{имя модуля, что администрируется}/{имя действия администрирования}
-
     
     
     /*if($_GET['module'] == 'photo')
@@ -292,7 +293,6 @@ class AdminController extends HAdminController
       $this->tabs = $this->getTabs();
       return call_user_func( array($this->action, 'action' . $actionId) );
     }*/
-    
     return call_user_func( array($this->action, 'action' . $actionId) );
   }
   
@@ -302,7 +302,7 @@ class AdminController extends HAdminController
   public function getCrudid()
   {
     if (empty($_GET['crudid'])) return null;
-    return (int)$_GET['crudid'];
+    return $_GET['crudid'];
   }
   
   /**
@@ -626,6 +626,7 @@ class AdminController extends HAdminController
   protected function testDb($moduleId)
   {
     $tables = Config::load($moduleId)->adminConfig['db']['tables'];
+    if(!isset($tables)) return;
     // проверяем, есть ли все таблицы у модуля
     try{
       $db = Yii::app()->db;

@@ -18,10 +18,6 @@ class HAdminController extends CController
 	 * @var array context menu items. This property will be assigned to {@link CMenu::items}.
 	 */
   public $aside = array();
-	/**
-	 * @var array массив с табами для текущего действия
-	 */
-  public $tabs;
 
   // массив с информацией о модулях
   protected $_hamsterModules = array();
@@ -44,6 +40,8 @@ class HAdminController extends CController
 	
 	/**
 	 * Генерирует код для tabs на основе карты действий
+   *
+   * @return array массив для инициализации меню табов
 	 */
   public function getTabs() 
   {
@@ -51,6 +49,8 @@ class HAdminController extends CController
       $tabMap = $this->tabs();
     else
       $tabMap = $this->action->tabs(); // для экшенов администрации модулей
+
+    $tabs = '';
 
     foreach($tabMap as $path => $name) 
     {
@@ -88,21 +88,6 @@ class HAdminController extends CController
       $tabs .= '<a href="' . $url . '">' . $name . '</a>';
     }
     return $tabs;
-  }
-
-
-  /**
-   * Инициализирует табы  
-   * 
-   * @param string $view the view to be rendered 
-   * @access protected
-   * @return boolean whether the view should be rendered
-   */
-  protected function beforeRender($view) 
-  {
-    $this->tabs = $this->getTabs();
-    
-    return true;
   }
   
   /**
