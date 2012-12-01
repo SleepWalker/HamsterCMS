@@ -17,6 +17,8 @@ class ApiController extends Controller
 	 */
 	public function actionIndex()
 	{
+      // Отключаем jquery (так как при ajax он уже подключен)
+      Yii::app()->clientscript->scriptMap['jquery.js'] = Yii::app()->clientscript->scriptMap['jquery.min.js'] = false; 
     if(!isset($_GET['path'])) $this->redirect('/');
     $path = explode('/', $_GET['path']);
     $controllerId = array_shift($path);
@@ -25,11 +27,10 @@ class ApiController extends Controller
     if (@class_exists($controller))
     {
       $controller = new $controller($controllerId);
-      $this->renderText(
-        CJSON::encode( array(
+      header('Content-Type: application/json');
+      echo CJSON::encode( array(
           'content' => $controller->api($path),
-        ))
-      );
+        ));
     }else
       throw new CHttpException(404,'Запрашиваемая страница не существует.');
 	}

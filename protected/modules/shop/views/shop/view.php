@@ -269,9 +269,9 @@ echo 'Б/Н и электронные деньги: <b>' . number_format(round($
   $this->endWidget('application.widgets.lightbox.HLightBox');
   ?>
   </section>
-  <!--section id="delivery">
+  <section id="delivery">
     <h2>Доставка и отставка</h2>
-  </section-->
+  </section>
   <section id="comments">
     <?php
     $this->widget('application.modules.sociality.widgets.HComment', array(

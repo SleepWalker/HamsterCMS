@@ -338,7 +338,7 @@ class AdminAction extends HAdminAction
 	      }
 	    });
 	    
-	    var prodId = ' . $prodId . ';
+	    var prodId = "' . $prodId . '";
 	    
 	    var renewRelatedRows = function(charIds, show, isSelect)
 	    {
@@ -379,7 +379,7 @@ class AdminAction extends HAdminAction
 	    {
 	      jQuery.ajax("' . $this->actionPath . 'chtbl", {
 	        type: "POST",
-	        data: {catId:catId, prodId:' . $prodId . '},
+	        data: {catId:catId, prodId: prodId},
 	        success: function (answer)
 	        {
 	          $("#char_update").html(answer);
