@@ -2,6 +2,7 @@
  * Стили для ошибок при заполнении форм.
  */
 
+/* Ошибки форм */
 .errorMessage,
 span.required {
   color:#cb2b3a;
