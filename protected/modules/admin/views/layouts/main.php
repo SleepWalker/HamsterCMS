@@ -6,7 +6,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <link rel="icon" type="image/gif" href="<?php echo $this->adminAssetsUrl; ?>/favicon.gif" />
 <link type="text/css" rel="StyleSheet" href="<?php echo $this->adminAssetsUrl; ?>/css/admin.css" />
-<title><?php echo CHtml::encode($this->pageTitle); ?></title>
+<title><?php echo strip_tags($this->pageTitle); ?></title>
 
 </head>
 <body>
@@ -45,14 +45,24 @@
     $menuArray['Управление страницами'] = array('admin/admin/page');
     if(count($modulesInfo))
       foreach($modulesInfo as $moduleId=>$moduleConfig)
-        if(array_key_exists($moduleId, $enabledModules))
-          $menuArray[$moduleConfig['title']] = array('admin/admin/' . $moduleId);
-    Yii::app()->menuMap->render($menuArray, 'hamsterModules');
+      {
+        if(!array_key_exists($moduleId, $enabledModules)) 
+          continue; // модуль выключен 
+
+        // Определяем в какое меню пойдет модуль в зависимости 
+        // от того, есть ли у него контент (контент-модуль)
+        $menuVarName = $moduleConfig['internal'] ? 'extraMenuArray' : 'menuArray';
+        ${$menuVarName}[$moduleConfig['title']] = array('admin/admin/' . $moduleId);
+      }
+    Yii::app()->menuMap->render($menuArray, 'hamsterContentModules');
   ?>
 </div>
 
 <div id="menu5" class="ddmenu">
-<?php //$content->printExtMenu(); ?>
+<?php
+    if(is_array($extraMenuArray))
+      Yii::app()->menuMap->render($extraMenuArray, 'hamsterInternalModules');
+?>
 </div>
 
 <div id="menu6" class="ddmenu">

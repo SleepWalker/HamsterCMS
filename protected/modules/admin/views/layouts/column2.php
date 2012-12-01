@@ -96,7 +96,7 @@ foreach($flashes as $flash)
 
 
 echo '<h1>';
-echo CHtml::encode($this->pageTitle);
+echo $this->pageTitle;
 echo '</h1>';
 echo $content; ?>
 </div><!-- .content_wrapper -->

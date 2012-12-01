@@ -446,7 +446,7 @@ form {
 
 form .buttons {
   padding: 10px 0;
-  clear:both;
+  clear:left;
 }
 
 input, textarea {
@@ -585,12 +585,14 @@ label {
   padding-right:5px;
 }
 
-.form label {
+.form label + textarea, 
+.form input[type=hidden] + span, /*списки чекбоксов и радио*/
+.form label + input {
   display:block;
-  position: relative;
 }
 
-.form input + label {
+.form label + input[type=checkbox],
+.form label + input[type=radio] {
   display:inline;
 }
 

@@ -6,7 +6,7 @@
  *  string $preTable - строка, которая будет печататься перед таблицей
  *  bool $disableButtons - отключает все кнопки
  *  array $buttons - массив, в котором находятся настройки кнопок (см. CGridView 'buttons')
- *  так же в этой вьюхе есть несколько стандартных кнопок: update, delete, create, more, view
+ *  так же в этой вьюхе есть несколько стандартных кнопок: update, delete, create, more, view, ok
  *  настройки этих кнопок можно переопределять, передавая массив с ихним именем, к примеру:
  *  ...
  *  'buttons' => array(
@@ -18,7 +18,7 @@
  *  
  *
  * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @package    shop.ShopController
+ * @package    hamster.modules.admin.views.admin.table
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
@@ -75,6 +75,13 @@ else
     'more'=>array(
       'url'=>'"' . $this->actionPath . 'more/" . $data->primaryKey',
       'imageUrl'=> $this->adminAssetsUrl . '/images/icon_table.png',
+    )
+  );
+
+  $okButton = array(
+    'ok'=>array(
+      'url'=>'"' . $this->actionPath . 'confirm/" . $data->primaryKey',
+      'imageUrl'=> $this->adminAssetsUrl . '/images/icon_ok.png',
     )
   );
   

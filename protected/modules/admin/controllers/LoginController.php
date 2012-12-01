@@ -41,7 +41,7 @@ class LoginController extends HAdminController
       Yii::log($message, 'info', 'hamster.login');
 
       if($valid)
-        $this->redirect(Yii::app()->createUrl('admin/admin/index'));
+        $this->redirect(Yii::app()->user->returnUrl);
 		}
     
     $this->render('index',array('model'=>$model));
