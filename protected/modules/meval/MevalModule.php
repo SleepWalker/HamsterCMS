@@ -1,9 +1,9 @@
 <?php
 /**
- * Eval module main file
+ * Meval module main file
  *
  * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @package    hamster.modules.eval.EvalModule
+ * @package    hamster.modules.eval.MevalModule
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
@@ -12,14 +12,7 @@ class Meval extends CWebModule
   public $adminPageTitle;
 	public function init()
 	{
-		// this method is called when the module is being created
-		// you may place code here to customize the module or the application
 
-		// import the module-level models and components
-		$this->setImport(array(
-			'meval.models.*',
-			'meval.components.*',
-		));
 	}
 
 	public function beforeControllerAction($controller, $action)

@@ -1,9 +1,9 @@
 <?php
 /**
- * Admin action class for blog module
+ * Admin action class for meval module
  *
  * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @package    Hamster.modules.blog.admin.AdminAction
+ * @package    Hamster.modules.meval.admin.AdminAction
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
@@ -11,6 +11,12 @@
 class AdminAction extends HAdminAction
 {
   public $scriptAlias; // alias к папке с скриптами
+
+  /**
+   * @property string $runtimeDir путь к папке с файлами скриптов
+   */
+  public $runtimeDir;
+
   public function run()
   {    
     // import the module-level models and components
@@ -20,6 +26,9 @@ class AdminAction extends HAdminAction
 		));
     
     $this->scriptAlias = Yii::app()->modules['meval']['params']['scriptsAlias'];
+    $this->runtimeDir = Yii::getPathOfAlias($this->scriptAlias . '.runtime');
+    if(!is_dir($this->runtimeDir))
+      mkdir($this->runtimeDir);
   }
   
   /**
@@ -35,89 +44,24 @@ class AdminAction extends HAdminAction
     );
   }
   
-  
-
   /**
-	 * Создает или редактирует модель
-	 */
-  public function actionUpdate() 
-  {	  
-    if ($this->crudid)
-      $model=Event::model()->findByPk($this->crudid);
-    else
-      $model = new Event;
-    
-    // AJAX валидация
-		if(isset($_POST['ajax']))
-		{
-      echo CActiveForm::validate($model);
-			Yii::app()->end();
-		}
-
-		if(isset($_POST['Event']))
-		{
-
-			$model->attributes=$_POST['Event'];
-      
-			if ($model->save()) 
-      {      
-        $saved = true;
-			}
-			//else
-			//  throw new CHttpException(404,'Ошибка при сохранении');
-		}
-		
-		if($_POST['ajaxIframe'] || $_POST['ajaxSubmit'])
-    {
-      // если модель сохранена и это было действие добавления, переадресовываем на страницу редактирования этого же материала
-      if($saved && $this->crud == 'create')
-        $data = array(
-          'action' => 'redirect',
-          'content' => $this->curModuleUrl . 'update/'.$model->id,
-        );
-      else
-        $data = array(
-          'action' => 'renewForm',
-          'content' => $this->renderPartial('update',array(
-                         'model'=>$model,
-                       ), true, true),
-        );
-      
-      echo json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
-      Yii::app()->end();
-    }
-		
-		if(!$_POST['ajaxSubmit'])
-      $this->render('update',array(
-			  'model'=>$model,
-		  ));
-  }
-  
-  /**
-	 * Перенаправляет обработку запроса на действие Update
-	 */
-  public function actionCreate() 
-  {
-    $this->actionUpdate();
-  }
-  
-  /**
-   *  Выводит таблицу всех товаров
+   *  Выводит таблицу с загруженными в папку {@link $scriptAlias} скриптами
    */
   public function actionIndex() 
   {
 		// список файлов в директории
 	  $fileListOfDirectory = array();
     $pathTofileListDirectory = Yii::getPathOfAlias($this->scriptAlias);
-    foreach( new DirectoryIterator($pathTofileListDirectory) as $file) {
+    if(is_dir($pathTofileListDirectory))
+      foreach( new DirectoryIterator($pathTofileListDirectory) as $file) {
         if( $file->isFile() === TRUE) {
-            array_push($fileListOfDirectory, array(
-              'name' => $file->getBasename(),
-              //'size' => $file->getSize(),
-              //'time' => $file->getMTime()
-            ));
+          array_push($fileListOfDirectory, array(
+            'name' => $file->getBasename(),
+            //'size' => $file->getSize(),
+            //'time' => $file->getMTime()
+          ));
         }
-    }
+      }
     
     $dataProvider=new CArrayDataProvider($fileListOfDirectory, array(
       'pagination'=>array(
@@ -153,7 +97,14 @@ class AdminAction extends HAdminAction
   public function actionRun()
   {
     // Защита от мастира
-    error_reporting(E_ALL ^ E_DEPRECATED);
+    error_reporting(E_ALL ^ E_DEPRECATED ^ E_NOTICE);
+    $this->runtimeDir .= '/'.$this->crud;
+    if(!is_dir($this->runtimeDir))
+      mkdir($this->runtimeDir);
+
+    Yii::import($this->scriptAlias.'.inc.'.$this->crud.'.*');
+    Yii::import($this->scriptAlias.'.inc.'.$this->crud.'.models.*');
+
     ob_start();
     require(Yii::getPathOfAlias($this->scriptAlias) . '/' . $this->crud . '.php');
     $this->renderText(ob_get_clean());
