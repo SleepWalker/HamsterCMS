@@ -29,6 +29,17 @@ class HComment extends CWidget
    */
   public $model;
 
+  /**
+   * @property string $modelId идентификатор модели или любой другой идентификатор,
+   * который будет использоваться, что бы отфильтровать нужные комментарии
+   */
+  public $modelId;
+  /**
+   * @property string $modelPk идентификатор в бд или любой другой идентификатор,
+   * который будет использоваться, что бы отфильтровать нужные комментарии
+   */
+  public $modelPk;
+
 	/**
 	* @property string имя js файла lightbox
 	*/
@@ -53,16 +64,16 @@ class HComment extends CWidget
 
     if($this->model)
     {
-      $modelId = $this->owner->module ? $this->owner->module->id . '.': '';
-      $modelId .= get_class($this->model);
-      $modelPk = $this->model->primaryKey;
-      $data  = array(
-        'Comment' => array(
-          'model_id' => strtolower($modelId),
-          'model_pk' => $modelPk,
-        ),
-      );
+      $this->modelId = $this->owner->module ? $this->owner->module->id . '.': '';
+      $this->modelId .= get_class($this->model);
+      $this->modelPk = $this->model->primaryKey;
     }
+    $data  = array(
+      'Comment' => array(
+        'model_id' => strtolower($this->modelId),
+        'model_pk' => $this->modelPk,
+      ),
+    );
     echo '<div id="HCommentsPlaceholder"></div>';
     $js = "
       $.ajax('/sociality', {
