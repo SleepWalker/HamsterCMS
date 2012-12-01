@@ -206,6 +206,7 @@ lightbox = new Lightbox options
         // уменьшаться таким образом, что бы они помещались на экране
         $window = $(window);
         var height = preloader.height ? preloader.height * .9 : preloader.height;
+        var width = preloader.width;
         if(preloader.height > $window.height())
         {
           height = $window.height() * .9;
