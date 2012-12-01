@@ -85,9 +85,9 @@ class SiteController extends Controller
 	 * Displays the login page
 	 */
 	public function actionLogin()
-	{	    
+	{	   
 	  if(!Yii::app()->user->isGuest)
-  	  $this->redirectToHome();
+  	  $this->redirect();
   	  
   	$renderType = ($_GET['ajax'])?'renderPartial':'render';
   	if ($_GET['ajax'])
@@ -104,14 +104,17 @@ class SiteController extends Controller
 			$model->attributes=$_POST['LoginForm'];
 			// validate user input and redirect to the previous page if valid
 			if($model->validate() && $model->login())
-			 if(!$_GET['ajax'])
-				$this->redirectToHome();
+        if(!$_GET['ajax'])
+          $this->redirect();
 			 else
 			 {
 			   echo 'ok';
 			   Yii::app()->end();
 			 }
-		}
+    }else
+      // страница, на которую вернется пользователь.
+      Yii::app()->user->returnUrl = Yii::app()->getRequest()->urlReferrer;
+    
 		// display the login form
 		$this->{$renderType}('login',array('model'=>$model), false, !empty($_GET['ajax']));
 	}
@@ -122,27 +125,44 @@ class SiteController extends Controller
 	public function actionLogout()
 	{
 		Yii::app()->user->logout();
-		$this->redirectToHome();
+		$this->redirect();
 	}
 	
 	/**
 	*  Регистрация пользователя
 	**/
 	public function actionRegister()
-	{
+  {
+    Yii::import('application.modules.user.models.*');
+
 	  $this->pageTitle = 'Регистрация';
 	  
 	  if(!Yii::app()->user->isGuest)
-  	  $this->redirectToHome('/');
+  	  $this->redirect('/');
   	  
-	  $model = new User('register');
-	  if($_POST['User'])
+    $model = new User('register');
+    
+    // AJAX валидация
+		if(isset($_POST['ajax']))
+		{
+      $model->attributes = $_POST['User'];
+      echo CActiveForm::validate($model);
+			Yii::app()->end();
+		}
+
+    if(isset($_POST['User']))
 	  {
 	    $model->attributes = $_POST['User'];
 	    
 	    if ($model->save())
 	    {
 	     $model->sendMailConfirm(); // Отправляем письмо с ссылкой подтверждения Email
+
+       if(isset($_POST['User']['role']))
+         // включена возможность выбирать роли при регистрации
+         // перенаправим обработку этого выбора на модель AuthItem
+         $authItem = AuthItem::model()->addToTransfer($model, $_POST['User']['role']);
+
 	     $this->renderText('
   	     <h1>Успешная регистрация</h1>
   	     <p>Ваш аккаунт был успешно зарегистрирован. Вскоре на ваш почтовый ящик придет письмо с ссылкой для активации аккаунта.</p>
@@ -153,7 +173,7 @@ class SiteController extends Controller
 	  }
 	  
 	  $this->render('register', array(
-      'model' => $model,	  
+      'model' => $model,	
 	  ));
 	}
 	
@@ -250,18 +270,20 @@ class SiteController extends Controller
 	/**
 	*  Редирект
 	**/
-	public function redirectToHome($referer = false)
-	{
-	  if (!$referer)
-	  {
-    	$referer = $_SERVER['HTTP_REFERER'];
-    	if($_POST['backUrl'])
-    	  $referer = $_POST['backUrl'];
-    	if(empty($referer))
-    	   $referer = '/';
+	public function redirect($referrer = false)
+  {
+    if (!$referrer)
+    {
+      $referrer =  '/' . str_replace(Yii::app()->createAbsoluteUrl('/'), '', Yii::app()->getRequest()->urlReferrer);
+      $requestUri = Yii::app()->request->requestUri;
+      if($referrer == $requestUri && Yii::app()->getRequest()->urlReferrer)
+        $referrer = Yii::app()->user->returnUrl;
+      elseif(Yii::app()->getRequest()->urlReferrer)
+        $referrer = Yii::app()->request->urlReferrer;
+      else
+        $referrer = '/';
     }
-    //T!: сделать норм переадресацию
-    $referer = '/';
-    parent::redirect($referer);  
+
+    parent::redirect($referrer);  
 	}
 }
