@@ -47,14 +47,20 @@ class PageController extends Controller
 	/**
 	 * Показует страницу
 	 */
-	public function actionIndex($path = '')
-	{
-		$model=$this->loadModel(array('full_path'=>'/' . $path));
-		// если $partial = true мы возвращаем строку вьюхи, вместо прямого вывода в браузер
-    $this->render('index',array(
-        'model'=>$model,
-    ), $partial);
-	}
+  public function actionIndex($path = '')
+  {
+    if($this->getViewFile('static/'.$path)!==false)
+    {
+      $view = 'static/'.$path;
+    }else{
+      $model=$this->loadModel(array('full_path'=>'/' . $path));
+      $view = 'index';
+    }
+
+    $this->render($view,array(
+      'model'=>$model,
+    ));
+  }
 
 	/**
 	 * Возвращает содержимое страницы для ajax запросов
@@ -67,7 +73,7 @@ class PageController extends Controller
 		// если $partial = true мы возвращаем строку вьюхи, вместо прямого вывода в браузер
     return $this->renderPartial('index',array(
         'model'=>$model,
-    ), $partial);
+    ), true, true);
 	}
 
 	/**
