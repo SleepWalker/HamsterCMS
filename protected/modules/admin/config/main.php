@@ -121,7 +121,6 @@ return
       'session' => array(
         'class' => 'system.web.CDbHttpSession',
         'connectionID' => 'db',
-        'sessionID' => 'hssid',
       ),
       'cache'=>array(
         'class'=>'system.caching.CFileCache',
@@ -138,15 +137,22 @@ return
 
   				'<controller:page|api>/<path:.*>'=>'<controller>/index',
   				
-          'admin/<module:\w+>'=>'admin/admin/<module>', // правило для админки action (оно же название модуля)
-  				'admin/<module:\w+>/<action:\w*\/?\w*>/<crudid:\d+>'=>'admin/admin/<module>', // правило для админки crud и subaction
-          'admin/<module:\w+>/<action:([^\/]+\/?)+>'=>'admin/admin/<module>', // для всего кроме crud
+          // правило для админки action (оно же название модуля)
+          'admin/<module:\w+>'=>'admin/admin/<module>',
+          // правило для админки crud и subaction только create|update|delete,
+          // но с возможностью использования буквенного crudid)
+          'admin/<module:\w+>/<action:\w*\/?(update|delete)>/<crudid:[^\/]+>' => 'admin/admin/<module>',
+          // правило для админки crud и subaction
+          'admin/<module:\w+>/<action:\w*\/?\w*>/<crudid:\d+>'=>'admin/admin/<module>',
+          // для всего кроме crud
+          'admin/<module:\w+>/<action:([^\/]+\/?)+>'=>'admin/admin/<module>',
   			),
   			'showScriptName' => false,
   		),
   		'authManager'=>array(
         'class'=>'CDbAuthManager',
         'connectionID'=>'db',
+        'defaultRoles' => array('guest', 'user'),
       ),
   		
   		'errorHandler'=>array(
