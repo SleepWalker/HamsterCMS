@@ -22,8 +22,12 @@ class HModuleUrlRule extends CBaseUrlRule
    * @return mixed the constructed URL. False if this rule does not apply.
    */
   public function createUrl($manager,$route,$params,$ampersand)
-  {
+  {    
     $routeParts = explode("/", $route);
+    
+    //exception for standard yii module 'Gii'
+    if($routeParts[0] == 'gii') return false;
+    
     if(count($routeParts) > 3) return; // если это случилось, значит где-то ошибка FIXME (в будущем можно будет логировать и убрать этот баг для оптимизации системы)
     if(count($routeParts) == 3)
     { 
