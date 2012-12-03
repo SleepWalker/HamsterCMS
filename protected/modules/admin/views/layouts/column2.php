@@ -89,7 +89,7 @@ if($menu) {
 
 <?php
 // Yii Flash
-$flashes = array('success', 'fail', 'info');
+$flashes = array('success', 'fail', 'info', 'error');
 foreach($flashes as $flash)
   if(Yii::app()->user->hasFlash($flash))
     echo '<div class="' . $flash . 'FlashBlock">' . Yii::app()->user->getFlash($flash) . '</div>';

@@ -279,7 +279,7 @@ height: 40px;
  *
  ******************/
 
-.infoFlashBlock, .failFlashBlock, .successFlashBlock {
+.infoFlashBlock, .failFlashBlock, .successFlashBlock, .errorFlashBlock {
   padding: 10px;
   margin: 10px;
   border-radius: 3px;
@@ -287,7 +287,7 @@ height: 40px;
   /*position:fixed;*/
 }
 
-.infoFlashBlock img, .failFlashBlock img, .successFlashBlock img {
+.infoFlashBlock img, .failFlashBlock img, .errorFlashBlock img, .successFlashBlock img {
   cursor:pointer;
   float:right;
 }
@@ -302,13 +302,15 @@ height: 40px;
   color: #fff94d;
 }
 
-.failFlashBlock {
+.failFlashBlock,
+.errorFlashBlock {
   background: #5b1f1f;
   color: #942f2f;
   border: 1px #7b1919 solid;
 }
 
-.failFlashBlock a {
+.failFlashBlock a,
+.errorFlashBlock a {
   color: #ff3a3a;
 }
 

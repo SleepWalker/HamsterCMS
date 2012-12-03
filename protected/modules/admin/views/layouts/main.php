@@ -80,6 +80,9 @@
 <div class="footer_line"></div>
 </div>
 
-<script type="text/javascript" src="<?php echo $this->adminAssetsUrl; ?>/js/admin.js"></script> 
 </body>
 </html>
+<?php
+Yii::app()->clientScript->registerCoreScript('jquery');
+Yii::app()->clientScript->registerScriptFile($this->adminAssetsUrl."/js/admin.js",CClientScript::POS_END);
+?>

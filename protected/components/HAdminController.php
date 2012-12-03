@@ -83,7 +83,7 @@ class HAdminController extends CController
       }
 
 
-      if ($this->actionId == $path) $this->pageTitle = $name;
+      if ($this->actionId == $path || ($this->action->id == $path && is_a($this->action, 'CInlineAction'))) $this->pageTitle = $name;
 
       $tabs .= '<a href="' . $url . '">' . $name . '</a>';
     }

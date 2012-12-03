@@ -54,6 +54,7 @@ class UpdateController extends HAdminController
     return array(
       ''  => 'Обновление ФС',
       'db'  => 'Обновление БД',
+      'download' => 'Загрузка модулей',
     );
   }
   
@@ -76,7 +77,7 @@ class UpdateController extends HAdminController
 
     $deleteList = array(); // файлы к удалению
     $updateList = array(); // файлы к обновлению
-    $ignoreList = array(); // файлы, который будут игнорироваться
+    $ignoreList = array(); // файлы, которыe будут игнорироваться
     
     // массив с файлами, которые будут игнорироваться (не должны автоматически обновлятся)
     $tmpIgnoreList = Yii::getPathOfAlias('application.config') . '/updateIgnoreList.php';
@@ -219,6 +220,50 @@ class UpdateController extends HAdminController
   }
 
   /**
+   * Позволяет загружать модули, которых еще нету в цмс с сервера обновлений hamster
+   * 
+   * @access public
+   * @return void
+   */
+  public function actionDownload()
+  {
+    if(isset($_POST['moduleList']))
+    {
+      $this->getModules($_POST['moduleList'], $_POST['password']);
+      Yii::app()->user->setFlash('success', 'Успешная загрузка новых модулей');
+
+      $this->refresh();
+    }
+    ob_start();
+    echo '<div class="form">' . CHtml::beginForm() .
+      '<div class="row" id="moduleList"></div><div class="row">' .
+    CHtml::passwordField('password', '', array('placeholder' => 'Введите пароль')) .
+      '</div><div class="row">' .
+    CHtml::submitButton('Загрузить') .
+      '</div>' .
+      CHtml::endForm() . '</div>';
+?>
+    <script>
+    $.ajax('http://www.update.hamstercms.com?action=getModuleList',{
+        dataType: 'jsonp',
+          success: function(data) {
+            var $container = $('#moduleList');
+          for(var value in data)
+            $container.append($('<div class="row"></div>')
+            .append(
+              $('<input type="checkbox" name="moduleList[]">')
+              .prop('id', value)
+            .val(value)
+          )
+            .append($('<label for="' + value + '">' + data[value] + '</label>')));
+        },
+    });
+    </script>
+<?php
+    $this->renderText(ob_get_clean());
+  }
+
+  /**
    * Запускает обновление базы данных для конкретного модуля
    * 
    * @param array $updateInfo массив в котором находятся три элемента - moduleId, oldV, newV
@@ -260,6 +305,8 @@ class UpdateController extends HAdminController
     $root = Yii::getPathOfAlias('application');
     foreach ($iterator as $file) {
       //if(substr($file->getBasename(), 0, 1) == '.' && $file->getBasename() != '.htaccess') continue; // пропускаем скрыте файлы (линукс)
+      // пропускаем папки runtime, так как в них будет хранится инфа, которая зависит от конкретного сайта
+      if($file->getBasename() == 'runtime') continue;
       $path = str_replace($root, '', (string)$file);
       
       // Игнорим .. и .
@@ -292,14 +339,67 @@ class UpdateController extends HAdminController
       CURLOPT_RETURNTRANSFER => true,
       CURLOPT_URL => 'http://www.update.hamstercms.com/',
       CURLOPT_USERAGENT => 'Hamster Updater',
+      CURLOPT_POST => true,
+      CURLOPT_POSTFIELDS => array(
+        'action' => 'getFileList',
+      ),
     ));
 
     if(!($ans = curl_exec($curl)))
-      throw new CHttpException(403,'Error: "' . curl_error($curl) . '" - Code: ' . curl_errno($curl));
+    {
+      Yii::app()->user->setFlash('error', 'Сервер обновлений не доступен');
+      $this->refresh();
+    }
 
     curl_close($curl);
 
     return unserialize($ans);
+  }
+
+  /**
+   * Производит запрос на загрузку модулей к серверу обновлений
+   * 
+   * @param array $moduleList
+   * @access protected
+   * @return boolean возвращает true, если в случае успешного обновления файлов CMS 
+   */
+  protected function getModules(array $moduleList, $password)
+  {
+    $curl = curl_init();
+    $saveTo = Yii::getPathOfAlias('application.runtime') . DIRECTORY_SEPARATOR . 'update.zip';
+    $extractTo = Yii::getPathOfAlias('application');
+    
+    curl_setopt_array($curl, array(
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_URL => 'http://www.update.hamstercms.com/',
+      CURLOPT_USERAGENT => 'Hamster Updater',
+      CURLOPT_POST => true,
+      CURLOPT_POSTFIELDS => array(
+        'action' => 'getModules',
+        'moduleList' => serialize($moduleList),
+        'password' => $password,
+      ),
+    ));
+
+    if(!($data = curl_exec($curl)))
+    {
+      Yii::app()->user->setFlash('error', 'Не правильный пароль или сервер обновлений недоступен');
+      $this->refresh();
+    }
+
+    curl_close($curl);
+
+    file_put_contents($saveTo, $data);
+
+    $zip = new ZipArchive;
+    if ($zip->open($saveTo) === TRUE) {
+      if($zip->extractTo($extractTo) === FALSE) return false;
+      $zip->close();
+      unlink($saveTo);
+      return true;
+    } else {
+      return false;
+    }
   }
 
   /**
@@ -321,12 +421,16 @@ class UpdateController extends HAdminController
       CURLOPT_USERAGENT => 'Hamster Updater',
       CURLOPT_POST => true,
       CURLOPT_POSTFIELDS => array(
+        'action' => 'getUpdates',
         'fileList' => serialize($fileList),
-      )
+      ),
     ));
 
     if(!($data = curl_exec($curl)))
-      throw new CHttpException(403,'Error: "' . curl_error($curl) . '" - Code: ' . curl_errno($curl));
+    {
+      Yii::app()->user->setFlash('error', 'Во время загрузки обновлений произошла ошибка');
+      $this->refresh();
+    }
 
     curl_close($curl);
 
