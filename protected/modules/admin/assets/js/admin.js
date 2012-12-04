@@ -68,7 +68,7 @@ hookEvent(window, 'scroll', headerCollapse);
 
 function headerCollapse() {
   var header = d.getElementById('header');
-  if (d.documentElement.scrollTop > 110 || d.body.scrollTop > 110) {
+  if (d.documentElement.scrollTop > 60 || d.body.scrollTop > 60) {
     header.className = 'header_small';
     }else{
     header.className = 'header_big';

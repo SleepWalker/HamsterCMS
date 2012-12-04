@@ -10,12 +10,7 @@ class Redactor extends CInputWidget {
 	 * Editor language
 	 * Supports: de, en, fr, lv, pl, pt_br, ru, ua
 	 */
-	public $lang = 'ru';
-	/**
-	 * Editor toolbar
-	 * Supports: default, mini
-	 */
-	public $toolbar = 'default';
+	public $lang = 'en';
 	/**
 	 * Html options that will be assigned to the text area
 	 */
@@ -29,14 +24,7 @@ class Redactor extends CInputWidget {
 	 * Used to publish full js file instead of min version
 	 */
 	public $debugMode = false;
-	/**
-	 * Editor width
-	 */
-	public $width = '100%';
-	/**
-	 * Editor height
-	 */
-	public $height = '400px';
+  
 	/**
 	 * Display editor
 	 */
@@ -51,18 +39,21 @@ class Redactor extends CInputWidget {
 
 		// Publish required assets
 		$cs = Yii::app()->getClientScript();
+    
+        
+    // добавляем плагины
+    // TODO: дать возможность юзеру добавлять плагины через настройки виджета + добавлять скрипты циклом
+    $cs->registerScriptFile($assets.'/plugins/fullscreen.js');
 		
-		$jsFile = $this->debugMode ? 'redactor.js' : 'redactor.min.js';
+    if($this->lang != 'en')
+      $cs->registerScriptFile($assets.'/langs/' . $this->lang . '.js');
+		$jsFile = YII_DEBUG ? 'redactor.js' : 'redactor.min.js';
 		$cs->registerScriptFile($assets.'/' . $jsFile);
 		$cs->registerCssFile($assets.'/css/redactor.css');
 
-        $this->htmlOptions['id'] = $id;
+    $this->htmlOptions['id'] = $id;
 
-        if (!array_key_exists('style', $this->htmlOptions)) {
-            $this->htmlOptions['style'] = "width:{$this->width};height:{$this->height};";
-        }
-
-		$options = CJSON::encode(array_merge($this->editorOptions, array('lang' => $this->lang, 'toolbar' => $this->toolbar)));
+		$options = CJSON::encode(array_merge($this->editorOptions, array('lang' => $this->lang, 'plugins' => array('fullscreen'), )));
 
 		        $js =<<<EOP
 		$('#{$id}').redactor({$options});

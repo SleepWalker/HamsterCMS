@@ -351,6 +351,8 @@ class AdminController extends HAdminController
       $jsonArray[]=array(
         'thumb' => $image->src('thumb'),
         'image' => $image->src('normal'),
+        //'folder' => 'test',
+        //'title' => 'test1',
         'full' => $image->src('full'),
       );
 

@@ -197,12 +197,14 @@ function parseCFormElements(&$form, $model, $controller)
     if ($fieldType == 'textarea') // запускаем виз. редактор
       $controller->widget('application.widgets.redactorjs.Redactor', array(
         'editorOptions' => array(
-          //'fixed' => true,
+          'fixed' => true,
+          'fixedTop' => '39',
+          'wym' => true,
           'focus' => false,
-          'removeClasses' => false,
           'imageUpload' => '/admin/imageupload',
           'imageGetJson' => '/admin/uploadedimages',
         ),
+        'lang' => Yii::app()->language,
         'model' => $model,
         'attribute' => $fieldName,
       ), true);
