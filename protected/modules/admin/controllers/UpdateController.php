@@ -244,7 +244,7 @@ class UpdateController extends HAdminController
       CHtml::endForm() . '</div>';
 ?>
     <script>
-    $.ajax('http://www.update.hamstercms.com?action=getModuleList',{
+    $.ajax('http://<?php if(YII_DEBUG) echo 'www.'; ?>update.hamstercms.com?action=getModuleList',{
         dataType: 'jsonp',
           success: function(data) {
             var $container = $('#moduleList');

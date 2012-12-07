@@ -17,7 +17,7 @@ $this->pageTitle = 'HumsterCMS - Вход';
     <?php echo $form->error($model,'user_email'); ?>
     </div>
     <div class="row">
-		<?php echo $form->passwordField($model,'user_password'); ?>
+		<?php echo $form->passwordField($model,'user_password', array('value' => '')); ?>
     <?php echo $form->error($model,'user_password'); ?>
     </div>
       <p><input type="submit" value="Войти" /></p>
