@@ -169,6 +169,7 @@ class SiteController extends Controller
   	     <p>Вернуться на <a href="/">главную страницу</a> или воспользоваться формой входа:</p>
   	     <p><a href="/site/login">Войти на сайт</a></p>
 	     ');
+       Yii::app()->end();
 	    }
 	  }
 	  
@@ -219,14 +220,19 @@ class SiteController extends Controller
   	    $model->attributes = $_POST['User'];
   	    
   	    if($model->save())
+        {
   	      $this->renderText('
     	     <h1>Смена пароля прошла успешно</h1>
     	     <p>Для продолжения работы с сайтом вернитесь на <a href="/">главную страницу</a>.</p>
     	     <p>Или можете воспользоваться формой входа:</p>
     	     <p><a href="/site/login">Войти на сайт</a></p>
-  	     ');
+           ');
+          Yii::app()->end();
+        }
   	  }
 	  }
+
+    $model = new User;
 	  
 	  if($_GET['h'])
 	  { // Проверяем хеши и выводим форму для смены пароля
@@ -234,10 +240,8 @@ class SiteController extends Controller
 	     $model = User::model()->findByEmail($_GET['email']);
   	  if($model && $model->is_active && $_GET['h'] == $model->chpassHash)
   	  {
-  	    $model->scenario = 'register';
-  	    $this->render('chpass', array(
-    	    'model'=>$model,
-    	  ));
+        $model->scenario = 'register';
+        // далее выполнится рендер в конце файла
   	  }else{
   	   throw new CHttpException(404,'Ошибка восстановления пароля');
   	  }
@@ -254,17 +258,22 @@ class SiteController extends Controller
     	     <p>На указанный вами Email было отправленно письмо с ссылкой для восстановления пароля.</p>
     	     <p>Для продолжения работы с сайтом вы можете вернуться на <a href="/">главную страницу</a>.</p>
 	     ');
+        Yii::app()->end();
 	    }
 	    else
+      {
 	      $this->renderText('
     	     <h1>Ошибка</h1>
     	     <p>Такого Email не существует. Вы можете попробовать <a href="' . Yii::app()->createUrl('site/chpass') . '">еще раз</a></p>
     	     <p>Для продолжения работы с сайтом вы можете вернуться на <a href="/">главную страницу</a>.</p>
-	     ');
+           ');
+        Yii::app()->end();
+      }
 	  }
-	  $this->render('chpass', array(
-	    'model'=>new User,
-	  ));
+    
+    $this->render('chpass', array(
+      'model'=>$model,
+    ));
 	}
 	
 	/**
