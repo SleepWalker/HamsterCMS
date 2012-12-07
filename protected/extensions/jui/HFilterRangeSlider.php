@@ -67,7 +67,7 @@ Yii::import('zii.widgets.jui.CJuiInputWidget');
  * @package zii.widgets.jui
  * @since 1.1
  */
-class FilterRangeSlider extends CJuiInputWidget
+class HFilterRangeSlider extends CJuiInputWidget
 {
 	/**
 	 * @var string the name of the container element that contains the slider. Defaults to 'div'.

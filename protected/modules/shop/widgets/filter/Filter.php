@@ -68,7 +68,7 @@ class Filter extends CWidget
 	    // Переопределяем атрибуты модели данными из гет запроса
 	    $model->attributes = $_GET['Shop'];
 	    $model->cat_id = $curCat;
-	    $this->widget('shop.widgets.filter.FilterRangeSlider', array(
+	    $this->widget('ext.jui.HFilterRangeSlider', array(
           'model'=>$model,
           'attribute'=>'priceMin',
           'maxAttribute'=>'priceMax',
@@ -113,7 +113,7 @@ class Filter extends CWidget
   	    $charModel->min = $_GET['CNF'][$model->char_id][0];
   	    $charModel->max = $_GET['CNF'][$model->char_id][1];
         $charModel->char_id = $model->char_id;
-	       $this->widget('shop.widgets.filter.FilterRangeSlider', array(
+	       $this->widget('ext.jui.HFilterRangeSlider', array(
             'model'=> $charModel,
             'attribute'=>'min',
             'maxAttribute'=>'max',
