@@ -478,15 +478,15 @@ class AdminAction extends HAdminAction
     if(Yii::app()->user->hasState('shop.index.filter'))
     {
       $_GET = array_merge(Yii::app()->user->getState('shop.index.filter', array()), $_GET);
-      $this->pageActions = '<a href="' . Yii::app()->createUrl('admin/admin/shop') . '/clearfs?redirect=' . $this->actionPath . '">Сбросить фильтры</a>';
     }
+    $this->pageActions = '<a href="' . Yii::app()->createUrl('admin/admin/shop') . '/clearfs?redirect=' . $this->actionPath . '">Сбросить фильтры</a>';
     Yii::app()->user->setState('shop.index.filter', $_GET);
 
     if(isset($_GET['Shop']))
       $model->attributes=$_GET['Shop'];
 
 		$this->render('table',array(
-			'dataProvider'=> $model->latest()->search(),
+			'dataProvider'=> $model->search(),
 			'options' => array(
 			 'filter'=>$model,
 			),
@@ -509,11 +509,11 @@ class AdminAction extends HAdminAction
         ),
         array(            
             'name'=>'price',
-            'type'=>'raw',
+            /*'type'=>'raw',
             'value' => 'CHtml::activeTextField($data, "price", array("size"=>7, "style"=>"width:auto"), array("ajax" => array(
                 "type" => "POST",
                 "url" => "asdf",
-            )))',
+              )))',*/
             'filter'=>'',
         ),
         array(            

@@ -560,7 +560,17 @@ class Shop extends CActiveRecord
 		$criteria->compare( 'brand.brand_name', $this->brand_search, true );
 		$criteria->compare( 'cat.cat_name', $this->cat_search, true );
 		$criteria->compare( 'supplier.id', $this->supplier_search, true );
-		
+
+    // сортировка по наличию фоток
+    if(strpos($_GET['Shop_sort'], 'photo') === 0)
+    {
+      $has_photo_sql = "(SELECT LOCATE('\"photo\";a:0:{}', `shop_extra`) FROM `" . $this->tableName() . "` WHERE `id`=t.`id`)";
+      $criteria->select = array(
+        '*',
+        $has_photo_sql . " as has_photo",
+      );
+    }
+
 		$criteria->with=array(
       'cat'=>array('select'=>'cat.cat_name'),
       'brand'=>array('select'=>'brand.brand_name'),
@@ -571,7 +581,12 @@ class Shop extends CActiveRecord
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
 			'sort'=>array(
+        'defaultOrder' => 'add_date DESC',
         'attributes'=>array(
+          'photo' => array(
+            'asc'=>'has_photo',
+            'desc'=>'has_photo DESC',
+          ),
           'user_search'=>array(
             'asc'=>'user.' . User::first_name,
             'desc'=>'user.' . User::first_name . ' DESC',
