@@ -84,7 +84,7 @@ if(!empty(Yii::app()->params['vkApiId']))
 {
 //FIXME: временное исправление для случаев, когда на сайте отключен вк
 ?>
-<section id="vkcomments"></section>
+<section><div id="vkcomments"></div></section>
 <?php
 }
 ?>
@@ -98,7 +98,7 @@ if(!empty(Yii::app()->params['vkApiId']))
 {
 ?>
   $("menu.HTabs a:first-child").addClass('active');
-  var vInit = function() {VK.Widgets.Comments('vkcomments', {limit: 10, attach: '*'});};
+  var vInit = function() {if(window.VK) window.VK.Widgets.Comments('vkcomments', {limit: 10, attach: '*'});};
   if(window.hSocialInit === true) // скрипт вк подгрузился и можно вызывать инициализацию напрямую
     vInit();
   else // скрипт вк не подгрузился, добавляем функцию инициализации в очередь
