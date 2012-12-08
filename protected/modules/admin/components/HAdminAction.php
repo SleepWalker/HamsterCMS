@@ -25,6 +25,16 @@ class HAdminAction extends CAction
       return $this->controller->$name;
     }
   }
+
+  public function __set($name, $value)
+  {
+    try
+    {
+      return parent::__set($name, $value);
+    }catch(Exception $e){
+      return $this->controller->$name = $value;
+    }
+  }
   
   public function __isset($name) 
   {

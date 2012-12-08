@@ -106,7 +106,8 @@ class Price extends CActiveRecord
       if(is_array($price['columns']['cat']))
       {
         foreach(array_keys($price['columns']['cat']) as $attId)
-          $labels[$attId.'_id']  = empty($config['attributeLabels'][$attId]) ? 'Категория' : $config['attributeLabels'][$attId];
+          $labels[$attId.'_id']  = $labels[$attId.'Name']  = isset($config['attributeLabels'][$attId]) 
+          ? $config['attributeLabels'][$attId] : 'Категория';
       }
     }
 

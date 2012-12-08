@@ -452,17 +452,39 @@ class AdminAction extends HAdminAction
 	  ';
 	  Yii::app()->getClientScript()->registerScript('dependentDropDown', $catUpdInitJs);
   }
+
+  /**
+   * Очищает State фильтра (тоесть сбрасывает все сохраненные фильтры) и обновляет страницу
+   * 
+   * @access public
+   * @return void
+   */
+  public function actionClearfs()
+  {
+    Yii::app()->user->setState('shop.index.filter', null);
+    $this->redirect($_GET['redirect']);
+  }
   
   /**
    *  Выводит таблицу всех товаров
    */
   public function actionIndex() 
   {
+    // TODO: $this->filterWithState('Shop');
     $model=new Shop('search');
     $model->unsetAttributes();
+
+    // запоминалочка настроек фильтра
+    if(Yii::app()->user->hasState('shop.index.filter'))
+    {
+      $_GET = array_merge(Yii::app()->user->getState('shop.index.filter', array()), $_GET);
+      $this->pageActions = '<a href="' . Yii::app()->createUrl('admin/admin/shop') . '/clearfs?redirect=' . $this->actionPath . '">Сбросить фильтры</a>';
+    }
+    Yii::app()->user->setState('shop.index.filter', $_GET);
+
     if(isset($_GET['Shop']))
       $model->attributes=$_GET['Shop'];
-	  
+
 		$this->render('table',array(
 			'dataProvider'=> $model->latest()->search(),
 			'options' => array(

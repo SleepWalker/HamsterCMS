@@ -22,12 +22,6 @@
 <a href="/admin/tmpls" class="menu_top"><img src="<?php echo $this->adminAssetsUrl; ?>/images/menu_design.png" alt="Дизайн" /></a>
 </div>
 
-<!--div id="ajax_status_wrapper">
-<div class="ajax_status">
-<img src="<?php echo $this->adminAssetsUrl; ?>/images/ajax.gif" />
-</div>
-</div-->
-
 <div id="menu1" class="ddmenu">
   <?php
     Yii::app()->menuMap->render(array(

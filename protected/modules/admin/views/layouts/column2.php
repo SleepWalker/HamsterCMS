@@ -97,6 +97,8 @@ foreach($flashes as $flash)
 
 echo '<h1>';
 echo $this->pageTitle;
+if($this->pageActions)
+  echo '<div id="pageActions">' . $this->pageActions . '</div>';
 echo '</h1>';
 echo $content; ?>
 </div><!-- .content_wrapper -->

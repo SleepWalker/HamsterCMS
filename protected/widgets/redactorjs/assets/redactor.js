@@ -2479,7 +2479,7 @@ var RLANG = {
 							{
 								$('.redactorfolder').hide();
 								$('.redactorfolder' + $(e.target).val()).show();
-							}
+							};
 						
 							var select = $('<select id="redactor_image_box_select">');
 							$.each(folders, function(k,v)

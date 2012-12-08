@@ -199,6 +199,7 @@ function parseCFormElements(&$form, $model, $controller)
         'editorOptions' => array(
           'fixed' => true,
           'fixedTop' => '39',
+          'minHeight' => '300',
           'wym' => true,
           'focus' => false,
           'imageUpload' => '/admin/imageupload',

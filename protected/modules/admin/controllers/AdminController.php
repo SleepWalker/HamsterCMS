@@ -547,36 +547,11 @@ class AdminController extends HAdminController
     // Обновим статус модуля в конфиге (FIXME: честно говоря грубый способ... но пока так)
     Config::load($moduleName)->save(false);
     
-    // в добавок мы еще почистим assets
-    $this->destroyDir(Yii::getPathOfAlias('webroot.assets'));
+    // чистим assets
+    $this->clearAssets();
       
     Yii::app()->user->setFlash('success', 'Список доступных модулей успешно обновлен. Добавлено модулей: ' . count($modulesInfo) . '<br />Папки assets успешно очищены.');
     $this->redirect('/admin/config');
-  }
-  
-  /**
-   * Полностью удаляет содержимое $dir
-   * @params string $dir путь к директории
-   */
-  function destroyDir($dir) 
-  {
-    if(!preg_match('%/$%', $dir)) $dir .= '/';
-    $mydir = opendir($dir);
-    
-    while(false !== ($file = readdir($mydir))) {
-      if($file != "." && $file != "..") {
-        //chmod($dir.$file, 0777);
-        if(is_dir($dir.$file)) {
-          chdir('.');
-          $this->destroyDir($dir.$file.'/');
-          rmdir($dir.$file) or DIE("couldn't delete $dir$file<br />");
-        }
-        else
-          unlink($dir.$file) or DIE("couldn't delete $dir$file<br />");
-      }
-    }
-
-    closedir($mydir);
   }
   
   /**

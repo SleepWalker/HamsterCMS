@@ -1185,3 +1185,17 @@ ul.filseList canvas {
   background: red;
   box-shadow: 0 0 5px 2px red;
 }
+
+/* Redactor JS */
+body .redactor_editor
+{
+  color:#000;
+}
+
+
+/* page actions */
+#pageActions {
+  font-size: 13px; /* Временно, пока это еще только текст */
+  display:inline-block;
+  margin-left: 15px;
+}

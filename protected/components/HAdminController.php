@@ -6,25 +6,30 @@
 class HAdminController extends CController
 {
 	/**
-	 * @var string the default layout for the controller view. Defaults to '//layouts/column1',
+	 * @property string the default layout for the controller view. Defaults to '//layouts/column1',
 	 * meaning using a single column layout. See 'protected/views/layouts/column1.php'.
 	 */
 	public $layout='/layouts/column2';
   /**
-	 * @var array context menu items. This property will be assigned to {@link CMenu::items}.
+	 * @property array context menu items. This property will be assigned to {@link CMenu::items}.
 	 */
 	public $menu=array();
 	/**
-	 * @var array context menu items. This property will be assigned to {@link CMenu::items}.
+	 * @property array context menu items. This property will be assigned to {@link CMenu::items}.
 	 */
   public $aside = array();
+
+  /**
+   * @property array $pageActions массив с дополнительными действиями, которые появятся возле тега h1
+   */
+  public $pageActions;
 
   // массив с информацией о модулях
   protected $_hamsterModules = array();
   
   public $actionId;
-  public $actionPath;
-  public $curModuleUrl; // путь к index текущего модуля, к примеру /admin/shop
+  public $actionPath;     // путь к текущему действию (равен абсолютному пути из адреной строки браузера)
+  public $curModuleUrl;   // путь к index текущего модуля, к примеру /admin/shop
   public $adminAssetsUrl;
 
   /**
@@ -116,5 +121,41 @@ class HAdminController extends CController
   public function getEnabledModules()
   {
     return is_array($this->hamsterModules['enabledModules']) ? $this->hamsterModules['enabledModules'] : array();
+  }
+
+  /**
+   * Очищает папки assets
+   * 
+   * @access protected
+   * @return void
+   */
+  protected function clearAssets()
+  {
+    $this->destroyDir(Yii::getPathOfAlias('webroot.assets'));
+  }
+  
+  /**
+   * Полностью удаляет содержимое $dir
+   * @params string $dir путь к директории
+   */
+  protected function destroyDir($dir) 
+  {
+    if(!preg_match('%/$%', $dir)) $dir .= '/';
+    $mydir = opendir($dir);
+    
+    while(false !== ($file = readdir($mydir))) {
+      if($file != "." && $file != "..") {
+        //chmod($dir.$file, 0777);
+        if(is_dir($dir.$file)) {
+          chdir('.');
+          $this->destroyDir($dir.$file.'/');
+          rmdir($dir.$file) or DIE("couldn't delete $dir$file<br />");
+        }
+        else
+          unlink($dir.$file) or DIE("couldn't delete $dir$file<br />");
+      }
+    }
+
+    closedir($mydir);
   }
 }

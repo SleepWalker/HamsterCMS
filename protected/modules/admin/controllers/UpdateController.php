@@ -137,10 +137,14 @@ class UpdateController extends HAdminController
         {
           $fileToDelete = $rootDir . $file;
           if(is_dir($fileToDelete))
-            $this->destroyDir($fileToDelete);
+            $this->destroyDir($fileToDelete, true);
           elseif(file_exists($fileToDelete))
             $status = $status && unlink($fileToDelete);
         }
+
+      // чистим assets
+      $this->clearAssets();
+
       // сохраняем новую карту директорий
       Yii::app()->cache->set('dirMap', $ans);
 
@@ -466,26 +470,14 @@ class UpdateController extends HAdminController
    *
    * @access protected
    * @params string $dir путь к директории
+   * @params boolean $removeParent если true, то так же будет удалена директория $dir
    * @return void
    */
-  protected function destroyDir($dir) 
+  protected function destroyDir($dir, $removeParent = false) 
   {
-    if(!preg_match('%/$%', $dir)) $dir .= '/';
-    $mydir = opendir($dir);
+    parent::destroyDir($dir);
 
-    while(false !== ($file = readdir($mydir))) {
-      if($file != "." && $file != "..") {
-        //chmod($dir.$file, 0777);
-        if(is_dir($dir.$file)) {
-          chdir('.');
-          $this->destroyDir($dir.$file.'/');
-          rmdir($dir.$file) or DIE("couldn't delete $dir$file<br />");
-        }
-        else
-          unlink($dir.$file) or DIE("couldn't delete $dir$file<br />");
-      }
-    }
-
-    rmdir($dir);
+    if($removeParent)
+      rmdir($dir);
   }
 }

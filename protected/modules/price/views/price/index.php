@@ -16,7 +16,9 @@ $form = $this->beginWidget('CActiveForm', array(
 )); 
 
 echo '<p class="row" style="margin-top: 0;padding-top: 0;">' . $form->labelEx($prod, 'name') . $form->textField($prod, 'name') . '</p>';
-echo '<p class="row">' . $form->labelEx($prod, 'file_id') . $form->dropDownList($prod, 'file_id', $priceChoises) . '</p>';
+// FIXME: убрано до лучших времен. нужно либо сделать настроку отображения фильтрации 
+// по файлам в админке, либо отказаться от этого функционала
+// echo '<p class="row">' . $form->labelEx($prod, 'file_id') . $form->dropDownList($prod, 'file_id', $priceChoises) . '</p>';
 foreach($cats as $columnId => $cat) 
   echo '<p class="row">' . $form->labelEx($prod, $columnId) . $form->dropDownList($prod, $columnId, $cat) . '</p>';
 
