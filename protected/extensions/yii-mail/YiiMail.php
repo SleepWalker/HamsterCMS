@@ -205,9 +205,14 @@ class YiiMail extends CApplicationComponent
 		if ($this->transport===null) {
 			switch ($this->transportType) {
 				case 'php':
-					$this->transport = Swift_MailTransport::newInstance();
-					if ($this->transportOptions !== null)
-						$this->transport->setExtraParams($this->transportOptions);
+          $this->transport = Swift_MailTransport::newInstance();
+
+          // дополнительные оции полностью отключены (даже те, что у swiftMailer по умолчанию)
+          if ($this->transportOptions === false)
+            $this->transportOptions = '';
+
+          if (isset($this->transportOptions))
+            $this->transport->setExtraParams($this->transportOptions);
 					break;
 				case 'smtp':
 					$this->transport = Swift_SmtpTransport::newInstance();
