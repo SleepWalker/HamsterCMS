@@ -373,7 +373,7 @@ class AdminController extends HAdminController
       $onoffLabel = array('switchOff', 'switchOn');
       $modulesMenu['/admin/config?m='.$moduleId] = '<b onclick="location.href=\'/admin/switchmodule?m='.$moduleId.'\'; return false;" class="' . $onoffLabel[$isEnabled] . '"></b> ' . $moduleInfo['title'];
     }
-    $this->aside['Доступные модули<a href="/admin/modulediscover" class="icon_refresh"></a><a href="/admin/clearcache" class="icon_delete"></a>'] = $modulesMenu;
+    $this->aside['Доступные модули<a href="/admin/modulediscover" class="icon_refresh"></a><a href="/admin/clearTmp" class="icon_delete"></a>'] = $modulesMenu;
 
     if($_GET['m'])
     {
@@ -482,15 +482,15 @@ class AdminController extends HAdminController
   }
 
   /**
-   * actionClearCache очищает кэш всех приложений 
+   * actionClearTmp очищает кэш всех приложений и папку assets
    * 
    * @access public
    * @return void
    */
-  public function actionClearCache()
+  public function actionClearTmp()
   {
-    Yii::app()->cache->flush();
-    Yii::app()->user->setFlash('success', 'Кэш был успешно очищен.');
+    $this->clearTmp();
+    Yii::app()->user->setFlash('success', 'Кэш и assets были успешно очищены.');
     $this->redirect('/admin/config');
   }
   
@@ -546,11 +546,8 @@ class AdminController extends HAdminController
     
     // Обновим статус модуля в конфиге (FIXME: честно говоря грубый способ... но пока так)
     Config::load($moduleName)->save(false);
-    
-    // чистим assets
-    $this->clearAssets();
       
-    Yii::app()->user->setFlash('success', 'Список доступных модулей успешно обновлен. Добавлено модулей: ' . count($modulesInfo) . '<br />Папки assets успешно очищены.');
+    Yii::app()->user->setFlash('success', 'Список доступных модулей успешно обновлен. Добавлено модулей: ' . count($modulesInfo));
     $this->redirect('/admin/config');
   }
   

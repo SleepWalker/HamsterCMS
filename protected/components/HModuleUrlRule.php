@@ -66,7 +66,7 @@ class HModuleUrlRule extends CBaseUrlRule
     }
 
     $url = implode("/", $routeParts);
-    if(is_array($urlExtra)) 
+    if(count($urlExtra)) 
       $url .= '/' . implode("/", $urlExtra); //дополнительные параметры-частички url которые пишутся через слеш
 
     $url .= count($params) ? '?' . http_build_query($params) : '';

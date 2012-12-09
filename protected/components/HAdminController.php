@@ -124,14 +124,15 @@ class HAdminController extends CController
   }
 
   /**
-   * Очищает папки assets
+   * Очищает папки assets и кэш
    * 
    * @access protected
    * @return void
    */
-  protected function clearAssets()
+  protected function clearTmp()
   {
     $this->destroyDir(Yii::getPathOfAlias('webroot.assets'));
+    Yii::app()->cache->flush();
   }
   
   /**

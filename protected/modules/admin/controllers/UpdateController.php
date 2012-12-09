@@ -142,8 +142,8 @@ class UpdateController extends HAdminController
             $status = $status && unlink($fileToDelete);
         }
 
-      // чистим assets
-      $this->clearAssets();
+      // чистим assets и кэш
+      $this->clearTmp();
 
       // сохраняем новую карту директорий
       Yii::app()->cache->set('dirMap', $ans);
