@@ -70,7 +70,7 @@ div.desc {
 }
 
 .shortView { 
-  max-height: 150px;
+  max-height: 185px;
   overflow: hidden;
   position: relative;
 }

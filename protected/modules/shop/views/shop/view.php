@@ -17,7 +17,7 @@
 );
 
 // кэш товара будет обновлятся только после редактирования товара
-if($this->beginCache($model->page_alias, array(
+if(YII_DEBUG || $this->beginCache($model->page_alias, array(
   'dependency'=>array(
     'class'=>'system.caching.dependencies.CDbCacheDependency',
     'sql'=>'SELECT MAX(edit_date) FROM shop',
@@ -58,43 +58,14 @@ $this->widget('application.modules.sociality.widgets.HLike', array(
   'title' => $model->product_name,
 ));
 ?>
-<p style="clear:both;">
+<p>
 <?php 
-$this->widget('CStarRating',array(
-  'name'=>'rating',
-  'callback'=>'
-      function(){
-        url = "/shop/rating";
-        jQuery.get(url, {id: "'.$model->id.'", val: $(this).val()}, function(data) {
-          var tip = $("#rating_success");
-          tip.html(data.answer);           
-          if(data.status == "success") 
-            tip[0].data = parseInt(tip[0].data)+1;  
-
-          var totalVotes = tip[0].data;
-          window.pauseTips = setTimeout(function() {tip.html(totalVotes);window.pauseTips=false},3000);
-        }, "json");}',
-  'focus'=>'function(value, link){
-    if (window.pauseTips) return;
-    var tip = $("#rating_success");
-    tip[0].data = tip[0].data || tip.html();
-    tip.html(link.title || "value: "+value);
-  }',
-  'blur'=>'function(value, link){
-    if (window.pauseTips) return;
-    var tip = $("#rating_success");
-    tip.html(tip[0].data || "");
-  }',
-  'minRating' => '1',
-	'maxRating' => '5',
-	'ratingStepSize' => '1',
-	'value' => $model->ratingVal, // mark 1...5
-	'allowEmpty'=>false,
-	'titles'=>array(1=>'Ужасно', 'Плохо', 'Нормально', 'Хорошо', 'Отлично'),
+$this->widget('application.widgets.EStarRating',array(
+  'model' => $model,
+  'attribute' => 'ratingVal', // mark 1...5
+  'callbackUrl' => Yii::app()->createUrl('shop/shop/rating'),
 	'readOnly'=>Yii::app()->user->isGuest,
-	'cssFile'=>false,
 ));?>
-<span id="rating_success" style="text-indent:5px; vertical-align: 3px;">(<?php echo $model->votesCount ?>)</span>
 </p>
 
 </div>
@@ -110,7 +81,7 @@ echo $model->statusName;
 </section>
 <div class="additionalActions">
   <?php
-  if($model->status == Shop::STATUS_PUBLISHED)
+  if($model->status == Shop::STATUS_AVAIBLE)
     echo '<a href="/cart/add/'. $model->id . '" id="buyButton"><input type="button" value="Купить / В корзину" /></a>';
   else
     echo '<a href="" onclick="return false" style="opacity:0.5"><input type="button" value="Купить / В корзину" /></a>';
@@ -130,17 +101,25 @@ echo 'Б/Н и электронные деньги: <b>' . number_format(round($
 <?php if (preg_match ('/.*\w.*/', $model->description)) { ?>
 <div class="desc">
   <h2>Описание <?php echo $model->product_name ?></h2>
-    <div id="descriptionSnippet" class="shortView">
+    <div id="descriptionSnippet">
       <?php echo $model->description; ?>
     </div>
-    <?php echo CHtml::link('Смотреть полностью', '#', array('id'=>"showDetails"));
+    <?php 
     Yii::app()->getClientScript()
-    ->registerScript('showDetails','
-      jQuery("#showDetails").bind("click", function() {
-        $(this).css({display:"none"});
-        $("#descriptionSnippet").removeClass("shortView");
-        return false;
-      });', CClientScript::POS_END);
+      ->registerScript('showDetails','
+      var $snippet = $("#descriptionSnippet");
+      if($snippet.height() + 20 < $snippet[0].scrollHeight)
+      {
+        $snippet.addClass("shortView");
+        $("<a href=\"\">Смотреть полностью</a>")
+        .bind("click", function() {
+          $(this).remove();
+          $snippet.removeClass("shortView");
+          return false;
+        })
+        .prop("id", "showDetails")
+        .insertAfter($snippet);
+      }', CClientScript::POS_END);
     ?>
   </div>
 <?php } ?>
@@ -356,4 +335,6 @@ $this->widget('application.widgets.juiajaxdialog.AjaxDialogWidget', array(
   ),
 ));
 
-$this->endCache();}
+if(!YII_DEBUG) // в дебаге не кешируем
+  $this->endCache();
+}

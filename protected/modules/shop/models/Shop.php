@@ -68,16 +68,17 @@ class Shop extends CActiveRecord
   public static $uploadsUrl = '/uploads/shop/';
   //public $char; //характеристики текущего товара
   
-  const STATUS_DRAFT=1;
-  const STATUS_PUBLISHED=2;
+  const STATUS_AVAIBLE=1;
+  const STATUS_PUBLISHED=1; // на всякий случай, может где-то пропустил
+  const STATUS_PREORDER=2;
   const STATUS_UNAVAIBLE=3;
-  const STATUS_PREORDER=4;
-  const STATUS_OUT_OF_PRODUCTION=5;
+  const STATUS_OUT_OF_PRODUCTION=4;
+  const STATUS_DRAFT=5;
   
   
   protected $_statusNames = array(
     self::STATUS_DRAFT => '<span style="color:#с9с9с9;">Черновик</span>',
-    self::STATUS_PUBLISHED => '<span style="color:#76B348;">Есть в наличии</span>',
+    self::STATUS_AVAIBLE => '<span style="color:#76B348;">Есть в наличии</span>',
     self::STATUS_UNAVAIBLE => '<span style="color:#FE5050;">Нет в наличии</span>',
     self::STATUS_PREORDER => '<span style="color:#19b6b8;">Под заказ</span>',
     self::STATUS_OUT_OF_PRODUCTION => '<span style="color:#с9с9с9;">Снят с производства</span>',
@@ -316,7 +317,7 @@ class Shop extends CActiveRecord
   public static function getStatusNames() {
     return array(
       self::STATUS_DRAFT => 'Черновик',
-      self::STATUS_PUBLISHED => 'Есть в наличии',
+      self::STATUS_AVAIBLE => 'Есть в наличии',
       self::STATUS_UNAVAIBLE => 'Нет в наличии',
       self::STATUS_PREORDER => 'Под заказ',
       self::STATUS_OUT_OF_PRODUCTION => 'Снят с производства',
@@ -326,18 +327,12 @@ class Shop extends CActiveRecord
   /**
    *  Выводит виджет с рейтингом
    */
-  public function ratingWidget($controller)
+  public function ratingWidget()
   {
-    $controller->widget('application.widgets.EStarRating',array(
-      'name'=>'shop_product_rating'.uniqid(),
-      'minRating' => '1',
-    	'maxRating' => '5',
-    	'ratingStepSize' => '1',
+    Yii::app()->controller->widget('application.widgets.EStarRating',array(
+      'name'=>'shop_product_rating',
     	'value' => $this->ratingVal, // mark 1...5
-    	'allowEmpty'=>false,
-    	'titles'=>array(1=>'Ужасно', 'Плохо', 'Нормально', 'Хорошо', 'Отлично'),
     	'readOnly'=>true,
-    	'cssFile'=>false,
     ));
     echo '<span style="vertical-align: 3px;">(' . $this->votesCount . ')</span>';
   }
@@ -578,10 +573,9 @@ class Shop extends CActiveRecord
       'supplier',
     );
 
-		return new CActiveDataProvider($this, array(
+		return new CActiveDataProvider($this->lastEdited(), array(
 			'criteria'=>$criteria,
 			'sort'=>array(
-        'defaultOrder' => 'add_date DESC',
         'attributes'=>array(
           'photo' => array(
             'asc'=>'has_photo',

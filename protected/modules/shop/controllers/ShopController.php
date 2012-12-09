@@ -285,10 +285,20 @@ class ShopController extends Controller
 	    $criteria->addBetweenCondition('CAST( t.price AS DECIMAL )', $filterData['Shop']['priceMin'], $filterData['Shop']['priceMax'], 'AND');
 	  }
 		
-	  $dataProvider=new CActiveDataProvider(Shop::model()->published(), array(
+	  $dataProvider=new CActiveDataProvider(Shop::model(), array(
       'criteria'=>$criteria,
       'sort'=>array(
-        'defaultOrder'=>'t.rating DESC',
+        'defaultOrder'=>'t.`status` ASC, t.`rating` DESC, t.`add_date` DESC',
+        'attributes' => array(
+          'price' => array(
+            'asc' => 't.`status` ASC, t.`price` ASC, t.`rating` DESC, t.`add_date` DESC',
+            'desc' => 't.`status` ASC, t.`price` DESC, t.`rating` DESC, t.`add_date` DESC',
+          ),
+          'rating' => array(
+            'asc' => 't.`status` ASC, t.`rating` ASC, t.`add_date` DESC',
+            'desc' => 't.`status` ASC, t.`rating` DESC, t.`add_date` DESC',
+          ),
+        ),
       ),
       'pagination'=>array(
         'pageSize'=>$this->module->params['prodPageSize'],
@@ -426,17 +436,22 @@ class ShopController extends Controller
    * @param int $id product id
    * @param int $val raing val
 	 */
-	public function actionRating($id, $val)
+	public function actionRating()
   { 
+    $id = $_GET['id'];
+    $val = $_GET['val'];
     if ( Yii::app()->request->isAjaxRequest )
     {
-      $ratingModel = new Rating;
-      $ratingModel->attributes = array(
-			  'prod_id' => $id,
-			  'user_id' => Yii::app()->user->id,
-			  'value' => $val,
-      );
       try {
+        if(empty($id) || empty($val))
+          throw new CDbException('Нету всех необходимых параметров');
+
+        $ratingModel = new Rating;
+        $ratingModel->attributes = array(
+          'prod_id' => $id,
+          'user_id' => Yii::app()->user->id,
+          'value' => $val,
+        );
         $ratingModel->save();
       }
       catch(CDbException $e) {

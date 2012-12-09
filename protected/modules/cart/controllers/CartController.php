@@ -83,7 +83,7 @@ class CartController extends Controller
     if(!$model)
       throw new CHttpException(404,'Ошибка добавления в корзину');   
       
-    if($model->status != Shop::STATUS_PUBLISHED)
+    if($model->status != Shop::STATUS_AVAIBLE)
     {
       echo 'Товар <b>' . $model->product_name . '</b> нельзя положить в корзину, так как его нету в наличии.';
       echo '<br />Свяжитесь с нашими операторами для уточнения наличия!';
