@@ -27,11 +27,7 @@ class HLike extends CWidget
 	/**
 	* @property string url ассетов
 	*/
-	public $assetsUrl;
-	/**
-	* @property string имя js файла lightbox
-	*/
-	protected $scriptFile='social.min.js';
+	protected $_assetsUrl;
   /**
    * @property string $imageSrc путь к картинке материала
    */
@@ -50,8 +46,8 @@ class HLike extends CWidget
   public $vertical = false;
 
 	public function init() {
-		if (empty($this->assetsUrl))
-			$this->assetsUrl = Yii::app()->getAssetManager()->publish(
+		if (empty($this->_assetsUrl))
+			$this->_assetsUrl = Yii::app()->getAssetManager()->publish(
 				dirname(__FILE__). DIRECTORY_SEPARATOR.'assets'
 			);
 
@@ -98,6 +94,7 @@ class HLike extends CWidget
 
 	protected function registerClientScript(){
 		$cs = Yii::app()->clientScript;
-		$cs->registerScriptFile($this->assetsUrl.'/js/'.$this->scriptFile, CClientScript::POS_END);
+    $scriptFile = YII_DEBUG ? 'social.js' : 'social.min.js';
+		$cs->registerScriptFile($this->_assetsUrl.'/js/'.$scriptFile, CClientScript::POS_END);
 	}
 }

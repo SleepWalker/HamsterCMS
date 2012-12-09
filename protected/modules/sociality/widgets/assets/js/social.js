@@ -7,6 +7,14 @@ Licensed under the GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
 - attribution requires leaving author name, author link, and the license info intact
 */
 
+$.fn.hcomments = function(type)
+{
+  if(!$(this).data('initialized'))
+  {
+    $(this).data('initialized', true);
+    VK.Widgets.Comments('vkcomments', {limit: 10, attach: '*'});
+  }
+};
 setTimeout(function() {
   if(!window.hSocialInit)
   {
@@ -38,9 +46,7 @@ setTimeout(function() {
     vkTransport.id = 'vk_api_transport';
     document.body.appendChild(vkTransport);
     
-    var oldVkInit = window.vkAsyncInit;
     window.vkAsyncInit = function() {
-      if(oldVkInit) oldVkInit();
       if(document.getElementById('vklike'))
         VK.Widgets.Like('vklike', {type: 'vertical', height: 24}); 
         

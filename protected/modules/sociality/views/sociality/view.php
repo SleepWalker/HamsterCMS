@@ -11,7 +11,7 @@ if(!empty(Yii::app()->params['vkApiId']))
 {
 //FIXME: временное исправление для случаев, когда на сайте отключен вк
 ?>
-<a href="">Вконтакте</a>
+<a href="" onmouseenter="$('#vkcomments').hcomments('vk')">Вконтакте</a>
 <?php
 }
 ?>
@@ -92,21 +92,6 @@ if(!empty(Yii::app()->params['vkApiId']))
 
 <script>
 $(function() {
-<?php
-//FIXME: временное исправление для случаев, когда на сайте отключен вк
-if(!empty(Yii::app()->params['vkApiId']))
-{
-?>
-  $("menu.HTabs a:first-child").addClass('active');
-  var vInit = function() {if(window.VK) window.VK.Widgets.Comments('vkcomments', {limit: 10, attach: '*'});};
-  if(window.hSocialInit === true) // скрипт вк подгрузился и можно вызывать инициализацию напрямую
-    vInit();
-  else // скрипт вк не подгрузился, добавляем функцию инициализации в очередь
-    window.vkAsyncInit = vInit;
-<?php
-}
-?>
-
   $("textarea", "#HCommentForm").keydown(function(event) {
     if (event.keyCode == 13 && event.ctrlKey)
       $("#submitComment").click();

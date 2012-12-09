@@ -21,7 +21,7 @@ class HComment extends CWidget
 	/**
 	* @property string url ассетов
 	*/
-	public $assetsUrl;
+	protected $_assetsUrl;
 
   /**
    * @property CActiveRecord $model модель, к которой будут крепиться комменты
@@ -40,14 +40,9 @@ class HComment extends CWidget
    */
   public $modelPk;
 
-	/**
-	* @property string имя js файла lightbox
-	*/
-	protected $scriptFile='social.min.js';
-
 	public function init() {
-		if (empty($this->assetsUrl))
-			$this->assetsUrl = Yii::app()->getAssetManager()->publish(
+		if (empty($this->_assetsUrl))
+			$this->_assetsUrl = Yii::app()->getAssetManager()->publish(
 				dirname(__FILE__). DIRECTORY_SEPARATOR.'assets'
 			);
 
@@ -87,9 +82,11 @@ class HComment extends CWidget
     $cs->registerScript(__CLASS__, $js, CClientScript::POS_END);
   }
 
-	protected function registerClientScript(){
+  protected function registerClientScript()
+  {
 		$cs = Yii::app()->clientScript;
-		$cs->registerScriptFile($this->assetsUrl.'/js/'.$this->scriptFile, CClientScript::POS_END);
-		$cs->registerScriptFile($this->assetsUrl.'/js/jquery.autosize-min.js', CClientScript::POS_END);
+    $scriptFile = YII_DEBUG ? 'social.js' : 'social.min.js';
+		$cs->registerScriptFile($this->_assetsUrl.'/js/'.$scriptFile, CClientScript::POS_END);
+		$cs->registerScriptFile($this->_assetsUrl.'/js/jquery.autosize-min.js', CClientScript::POS_END);
 	}
 }
