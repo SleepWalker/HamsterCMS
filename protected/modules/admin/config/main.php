@@ -68,12 +68,17 @@ return
       ),
       'user'=>array(
   			// enable cookie-based authentication
+        'class' => 'application.modules.user.components.HWebUser',
   			'allowAutoLogin'=>true,
   		),
   		'mail' => array(
    			'class' => 'ext.yii-mail.YiiMail',
    			'transportType' => 'php',
    			'viewPath' => 'application.views.mail',
+        // убрираем ошибки при отправке писем на некоторых хостах (отвечает за формат 4 параметра функции mail)
+        // (по умолчанию это '-f%s', тоесть на выходе имеем '-fmailFrom@site.com')
+        // на некоторых хостах пхп не может на прямую передавать параметры серверу
+        'transportOptions' => false,
    			'logging' => true,
    			'dryRun' => false // when true the mail will not be sended
    		),

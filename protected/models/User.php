@@ -25,6 +25,16 @@ class User extends CActiveRecord
 {
   public $password1, $password2;
 
+  /**
+   * @property string $role роль выбранная юзером при регистрации
+   */
+  public $role;
+
+  /**
+   * @property array $rolesList писок ролей для выбора в форме с помощью radiolist
+   */
+  protected $_rolesList;
+
   // константы с алиасами колонок, используемых в выборках других модулей
   // (для случаев, когда проводится интеграция с другими бд)
   // оригинальное_имя = 'имя_в_новой_таблице'
@@ -150,6 +160,7 @@ class User extends CActiveRecord
 			'date_joined' => 'Date Joined',
 			'password1' => 'Пароль',
 			'password2' => 'Пароль еще раз',
+      'role' => 'Выбирите вашу группу',
 		);
   }
 	
@@ -216,22 +227,85 @@ class User extends CActiveRecord
 	}
   
   /**
-	*  Отправляет письмо пользователю
-	**/
+	 *  Отправляет письмо пользователю
+	 */
 	public function mail($view, $subject)
-	{
-	  $message = new YiiMailMessage;
-    $message->view = $view;
-     
-    //userModel is passed to the view
-    $message->setBody(array('user'=>$this), 'text/html');
-     
-     
-    $message->addTo($this->email);
-    $message->subject = $subject;
-    $message->from = array(Yii::app()->params['noReplyEmail'] => Yii::app()->params['shortName']);
-    Yii::app()->mail->send($message);
+  {
+    if(is_string($view)) 
+      $view = array($view);
+
+    $view['user'] = $this;
+
+    $to = $this->email;
+
+    self::mailInternal($view, $subject, $to);
 	}
+
+  /**
+   * Внутренний метод для отправки емейлов.  
+   * 
+   * @param array $view массив вида 
+   *        array(
+   *          0=>'название вьюхи', 
+   *          ['param1' => 'параметр, который передастся вьхе',
+   *          'param2' => '...',
+   *           ...]
+   *        )
+   * @param sting $subject тема письма
+   * @param mixed $from от кого письмо. либо строка с емейлом, 
+   * либо массив array('email' => 'Имя отпарвляющего'). 
+   * По умолчанию - noReplyEmail => shortName из настроек hamster.
+   * @param mixed $to строка или массив емейлов получателей. По умолчанию - adminEmail из настроек hamster.
+   * @static
+   * @access protected
+   * @return void
+   */
+  static protected function mailInternal(array $view, $subject, $to = false, $from = false)
+  {
+    $message = new YiiMailMessage;
+
+    list($view, $params) = array(array_shift($view), $view);
+
+    if(($pos = strrpos($view, '.')) && Yii::getPathOfAlias($view))
+    { 
+      // передан правильный алиас, значит нам надо
+      // использовать не стандартный путь к вьюхам
+      Yii::app()->mail->viewPath = substr($view, 0, $pos);
+      $view = substr($view, $pos + 1);
+    }
+
+    if(!$from)
+      $from = array(Yii::app()->params['noReplyEmail'] => Yii::app()->params['shortName']);
+
+    if(!$to)
+      $to = Yii::app()->params['adminEmail'];
+
+    if(is_string($to)) 
+      $to = array($to);
+
+    $message->view = $view;
+    //userModel is passed to the view
+    $message->setBody($params, 'text/html');
+    foreach($to as $email)
+      $message->addTo($email);
+    $message->from = $from;
+    $message->subject = $subject;
+    Yii::app()->mail->send($message);
+  }
+
+  /**
+   * Отправляет письмо админу
+   * 
+   * @see {@link User::mailInternal()}
+   * @static
+   * @access public
+   * @return void
+   */
+  public static function mailAdmin(array $view, $subject, $to = false, $from = false)
+  {
+    self::mailInternal($view, $subject, $to, $from);
+  }
+
   
   /**
 	*  Отправляет письмо для подтверждения Email адреса
@@ -363,7 +437,11 @@ class User extends CActiveRecord
 	 */
 	public function getFieldTypes()
 	{
-		return array(
+    return array(
+      'role' => array(
+        'radiolist',
+        'items' => $this->rolesList,
+      ),
 		  'first_name' => 'text',
 		  'last_name' => 'text',
 			'email' => 'text',
@@ -371,6 +449,54 @@ class User extends CActiveRecord
 			'password2' => 'password',
 		);
 	}
+
+  /**
+   * В том случае если сценарий register, 
+   * добавляет аттрибут role в безопастные, 
+   * что бы он отображался в форме
+   * 
+   * @access public
+   * @return void
+   */
+  public function afterConstruct()
+  {
+    parent::afterConstruct();
+    if($this->scenario == 'register')
+    {
+      if(count($this->rolesList))
+      {
+        // если есть роли для выбора, добавляем их в наш массивчик
+        $validators = $this->getValidatorList();
+
+        $validator = CValidator::createValidator('safe', $this, 'role');
+        $validators->add($validator);
+      }      
+    }
+  }
+
+  /**
+   * Создает список ролей для radiolist (если такие имеются)  
+   * 
+   * @access public
+   * @return void
+   */
+  public function getRolesList()
+  {
+    if(!isset($this->_rolesList))
+    {
+      $rolesList = array();
+      // список групп, которые можно выбирать при регистрации
+      $roles = Yii::app()->authManager->getAuthItems(AuthItem::TYPE_ROLE);
+      foreach($roles as $id => $role)
+      {
+        if($role->data['showOnRegister'])
+          $rolesList[$id] = $id;
+      }
+
+      $this->_rolesList = $rolesList;
+    }
+    return $this->_rolesList;
+  }
 
 	/**
 	 * Retrieves a list of models based on the current search/filter conditions.

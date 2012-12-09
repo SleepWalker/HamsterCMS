@@ -15,8 +15,8 @@
 <div id="menu">
 <a href="/" class="menu_top"><img src="<?php echo $this->adminAssetsUrl; ?>/images/menu_main.png" class="menu_top" alt="Главная" /></a>
 <a href="#" class="menu_top"><img src="<?php echo $this->adminAssetsUrl; ?>/images/menu_config.png" alt="Настройки" /></a>
-<a href="<?php echo Yii::app()->createUrl('/site/logout'); ?>" class="menu_top"><img src="<?php echo $this->adminAssetsUrl; ?>/images/menu_logout.png" alt="Выход из админ панели" /></a>
-<a href="<?php echo Yii::app()->createUrl('admin'); ?>/"><img src="<?php echo $this->adminAssetsUrl; ?>/images/humsterLogo.png" id="logo" alt="Hamster CMS" /></a>
+<a href="<?php //echo Yii::app()->user->logoutUrl; ?>" class="menu_top"><img src="<?php echo $this->adminAssetsUrl; ?>/images/menu_logout.png" alt="Выход из админ панели" /></a>
+<a href="<?php echo Yii::app()->createUrl('admin/admin/index'); ?>"><img src="<?php echo $this->adminAssetsUrl; ?>/images/humsterLogo.png" id="logo" alt="Hamster CMS" /></a>
 <a href="#" class="menu_top"><img src="<?php echo $this->adminAssetsUrl; ?>/images/menu_modules.png" alt="Модули" /></a>
 <a href="#" class="menu_top"><img src="<?php echo $this->adminAssetsUrl; ?>/images/menu_extensions.png" alt="Расширения" /></a>
 <a href="/admin/tmpls" class="menu_top"><img src="<?php echo $this->adminAssetsUrl; ?>/images/menu_design.png" alt="Дизайн" /></a>
