@@ -279,17 +279,17 @@ height: 40px;
  *
  ******************/
 
-.infoFlashBlock, .failFlashBlock, .successFlashBlock, .errorFlashBlock {
+.infoFlashBlock, 
+.failFlashBlock, 
+.successFlashBlock, 
+.errorFlashBlock,
+.contextMenu,
+.tagControll {
   padding: 10px;
   margin: 10px;
   border-radius: 3px;
   -moz-border-radius: 3px;
   /*position:fixed;*/
-}
-
-.infoFlashBlock img, .failFlashBlock img, .errorFlashBlock img, .successFlashBlock img {
-  cursor:pointer;
-  float:right;
 }
 
 .infoFlashBlock {
@@ -322,6 +322,38 @@ height: 40px;
 
 .successFlashBlock a {
   color: #afff48;
+}
+
+.tagControll, 
+.contextMenu {
+  padding: 0 5px;
+  vertical-align: top;
+  display: inline-block;
+  margin: 5px;
+  background: #333333;
+  color: #666666;
+  border: 1px #898989 solid;
+}
+
+/* Контекстное меню */
+.contextMenu {
+  padding:0;
+  position:absolute;
+}
+
+.contextMenu a {
+  display:block;
+  padding:5px;
+  border-bottom:#444 1px solid;
+  cursor: pointer;
+}
+
+.contextMenu a:last-child {
+  border:none;
+}
+
+.contextMenu a:hover {
+  background:#555;
 }
 
 /*******************
@@ -918,6 +950,7 @@ ul.filseList canvas {
 .ddmenu a:hover {
   color:#aa0000;
 }
+
 /*******************
 *
 * Стили страницы входа
@@ -951,6 +984,8 @@ ul.filseList canvas {
   margin-top:2px;
   margin-left:5px;
   display:inline-block;
+  line-height:13px;
+  vertical-align: middle;
 }
 
 #dnd .icon_delete, #dnd .icon_edit, #dnd .icon_refresh, #dnd .icon_add, #dnd .icon_table, #dnd .icon_view, #dnd .icon_print {
@@ -1011,6 +1046,11 @@ ul.filseList canvas {
 
 .icon_sort_desc {
   background:url('../images/sort_desc.png') no-repeat;
+}
+
+.icon_label {
+  width:auto;
+  padding-left: 20px;
 }
 
 .add_button {

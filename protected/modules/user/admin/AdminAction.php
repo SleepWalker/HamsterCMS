@@ -52,9 +52,119 @@ class AdminAction extends HAdminAction
    */
   public function actionIndex() 
   {
-    $this->renderText('test');
+    $model = new User('search');
+
+    Yii::app()->clientScript->registerScript('groupEdit', '
+      var roles = ' . CJavaScript::encode(AuthItem::getAuthItemsList()) . ';
+    var $dd;
+    $("body").on("click", ".roleRevoke", function() {
+          $.ajax("' . Yii::app()->createUrl('admin/admin/user') . '/revoke", {
+            type: "post",
+            data: {
+              role: $(this).parent().text(),
+              userId: $(this).parents("tr").find("td").eq(0).html(),
+  },
+  context: $(this),
+  success: function(data){
+    $(this).parent().hide("normal");
+  }
+  });
+  return false;
+  });
+    $("body").on("click", ".roleAssign", function() {
+    // создаем выпадающее меню
+    if(!$dd)
+    {
+      $dd = $("<div>").prop("id", "roleChooser").addClass("contextMenu")
+        .on("click", "a", function() {
+          var target = $(this).parent().data("target");
+          $.ajax("' . Yii::app()->createUrl('admin/admin/user') . '/assign", {
+            type: "post",
+            data: {
+              role: $(this).text(),
+              userId: target.parents("tr").find("td").eq(0).html(),
+  },
+  success: function(data){
+    var $elem = $(data).hide();
+    target.parent().before($elem);
+    $elem.show("normal");
+  }
+  });
+          $dd.hide("fast");
+      return false;
+  });
+      $.each(roles, function(roleId, role) {
+        $dd.append(
+          $("<a>").text(role)
+        );
+  });
+  $("body").append($dd.hide());
+  }
+  $dd.css({
+    top: $(this).offset().top + $(this).height(),
+    left: $(this).offset().left,
+  })
+  .data("target", $(this))
+  .show("fast");
+    return false;
+  });
+      ');
+
+    $this->render('table', array(
+      'dataProvider' => $model->with('roles')->search(),
+      'columns' => array(
+        'id',
+        'fullName',
+        array(
+          'name' => 'emailWithStatus',
+          'type' => 'raw',
+        ),
+        array(
+          'name' => 'roles',
+          'value' => '$data->getRolesControll()',
+          'type' => 'raw',
+        ),
+        array(
+          'name' => 'last_login',
+          'type' => 'datetime',
+        ),
+        array(
+          'name' => 'date_joined',
+          'type' => 'datetime',
+        ),
+      ),
+    ));
   }
 
+  /**
+   * Присваивает роль пользователю (страница со списком пользователей)
+   * 
+   * @access public
+   * @return void
+   */
+  public function actionAssign()
+  {
+    AuthItem::model()->am->assign($_POST['role'], $_POST['userId']);
+    echo '<div class="tagControll">' . $_POST['role'] . '<a href="" class="icon_delete"></a></div>';
+  }
+
+  /**
+   * Снимает роль с пользователя (страница со списком пользователей)
+   * 
+   * @access public
+   * @return void
+   */
+  public function actionRevoke()
+  {
+    AuthItem::model()->am->revoke($_POST['role'], $_POST['userId']);
+  }
+
+  /**
+   * Страница со списком ролей.
+   * 
+   * @access public
+   * @return void
+   */
   public function actionRoles()
   {
     $model=new AuthItem('search');

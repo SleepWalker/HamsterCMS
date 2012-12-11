@@ -123,6 +123,29 @@ class AuthItem extends CActiveRecord
     return $this;
   }
 
+  /**
+   * Список ролей (для использования, к примеру в DropDownList)
+   *
+   * @static
+   * @access public
+   * @return array список ролей (для использования, к примеру в DropDownList)
+   */
+  public static function getAuthItemsList()
+  {
+    $models = self::model()->findAll();
+    foreach($models as $model)
+    {
+      $return[$model->primaryKey] = $model->primaryKey;
+    }
+    return $return;
+  }
+
+  /**
+   * Возвращает массив с дополнительными настройками роли
+   * 
+   * @access protected
+   * @return array
+   */
   protected function getData()
   {
     if($this->type == AuthItem::TYPE_ROLE && $this->showOnRegister)

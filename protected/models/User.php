@@ -141,6 +141,7 @@ class User extends CActiveRecord
 		return array(
 			'shopRatings' => array(self::HAS_MANY, 'ShopRating', 'user_id'),
 			'address' => array(self::HAS_MANY, 'OrderAddress', 'user_id'),
+			'roles' => array(self::HAS_MANY, 'AuthAssignment', array('userid' => 'id')),
 		);
 	}
 
@@ -153,11 +154,13 @@ class User extends CActiveRecord
 			'id' => 'ID',
 			'first_name' => 'Имя',
 			'last_name' => 'Фамилия',
+      'fullName' => 'Имя и фамилия',
 			'email' => 'Email', // (Например: user@mysite.com)
+			'emailWithStatus' => 'Email', 
 			'password' => 'Password',
 			'is_active' => 'Is Active',
-			'last_login' => 'Last Login',
-			'date_joined' => 'Date Joined',
+			'last_login' => 'Последний вход',
+			'date_joined' => 'Дата регистрации',
 			'password1' => 'Пароль',
 			'password2' => 'Пароль еще раз',
       'role' => 'Выбирите вашу группу',
@@ -496,6 +499,40 @@ class User extends CActiveRecord
       $this->_rolesList = $rolesList;
     }
     return $this->_rolesList;
+  }
+
+  /**
+   * @access public
+   * @return string полное имя и фималилию пользвателя
+   */
+  public function getFullName()
+  {
+    return $this->first_name . ' ' . $this->last_name;
+  }
+
+  /**
+   * @access public
+   * @return string возвращает html строку с стилем в зависимости от подвтержденности емейла пользователя
+   */
+  public function getEmailWithStatus()
+  {
+    return '<span class="status_' . ( $this->is_active ? "3" : "1") . '">' . CHtml::encode($this->email) . '</span>';
+  }
+
+  /**
+   * Меню управления ролями (для использования только в админ экшене)
+   *
+   * @access public
+   * @return string роли текущего юзера
+   */
+  public function getRolesControll()
+  {
+    foreach($this->roles as $role)
+    {
+      $roles .= '<div class="tagControll">' . $role->itemname . '<a href="" class="icon_delete roleRevoke"></a></div>';
+    }
+    $roles .= '<div><a href="" class="icon_add icon_label roleAssign" data-id="' . $this->primaryKey . '">Добавить роль</a></div>';
+    return $roles;
   }
 
 	/**

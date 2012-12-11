@@ -96,7 +96,7 @@ for (var i = 0; i < breadcrumps.length; i++) {
  ******************/
 var tabContainer = getElementsByClass('tabs', d.body, 'div');
 for (var i = 0; i < tabContainer.length; i++) {
-  a = tabContainer[i].getElementsByTagName('a');
+  var a = tabContainer[i].getElementsByTagName('a');
   openTab(a[0]);
   for (var j = 0; j < a.length; j++) {
     //Проверяем адресную строку, что бы подкрасить вкладку, соответствующую странице
@@ -123,7 +123,9 @@ function resetTabs(tabContainer) {
   }
 }
 
-function openTab(a) {
+function openTab(a) 
+{
+  if(!a) return;
   resetTabs(a.parentNode);
   if (a.hash != '')
     if (d.getElementById(a.hash.slice(1)))
