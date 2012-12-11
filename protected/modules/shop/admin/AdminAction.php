@@ -538,8 +538,7 @@ class AdminAction extends HAdminAction
         // http://www.yiiframework.com/forum/index.php/topic/20941-filter-date-range-on-cgridview-toolbar/
         array(            
             'name'=>'add_date',
-            'value' => 'str_replace(" ", "<br />", Yii::app()->dateFormatter->formatDateTime($data->add_date))',
-            'type' => 'raw',
+            'type' => 'datetime',
             'filter' => $this->widget('zii.widgets.jui.CJuiDatePicker', array(
               'model'=> $model, 
               'attribute'=>'date_add_from', 
@@ -570,8 +569,7 @@ class AdminAction extends HAdminAction
         ),
         array(            
             'name'=>'edit_date',
-            'value' => 'str_replace(" ", "<br />", Yii::app()->dateFormatter->formatDateTime($data->edit_date))',
-            'type' => 'raw',
+            'type' => 'datetime',
             'filter' => $this->widget('zii.widgets.jui.CJuiDatePicker', array(
               'model'=> $model, 
               'attribute'=>'date_edit_from', 

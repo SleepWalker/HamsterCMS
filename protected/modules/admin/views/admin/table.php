@@ -114,14 +114,26 @@ else
     $buttCol['template'] .= '{' . $button . '}';
   }
   
-  $buttCol['htmlOptions'] = array(
-    'width' => 16*count($buttons),
-  );
   $buttCol['buttons'] = $buttArr;
 }
 
 // Назначаем размер страницы провайдера
 $dataProvider->pagination->pageSize = Yii::app()->params['defaultPageSize'];
+
+// обрабатываем не стандартные типы колонок (или улучшаем стандартные)
+foreach($columns as &$column)
+{
+  if(!is_array($column))
+    continue;
+
+  switch($column['type'])
+  {
+  case 'datetime':
+    $column['type'] = 'raw';
+    $column['value'] ='str_replace(" ", "<br />", Yii::app()->dateFormatter->formatDateTime($data->' . $column['name'] . '))';
+    break;
+  }
+}
 
 
 $defOpts = array(

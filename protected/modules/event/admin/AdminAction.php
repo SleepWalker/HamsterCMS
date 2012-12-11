@@ -109,12 +109,18 @@ class AdminAction extends HAdminAction
   {
 		$this->render('table', array(
 			'dataProvider'=> new CActiveDataProvider(Event),
-			'columns'=>array(
-			  'eventId',
+      'columns'=>array(
+        'eventId',
         'name',
         'where',
-        'start_date',
-        'end_date',
+        array(
+          'name' => 'start_date',
+          'type' => 'datetime',
+        ),
+        array(
+          'name' => 'end_date',
+          'type' => 'datetime',
+        ),
       ),
 		));
   }
