@@ -48,10 +48,6 @@ class HLightBox extends CWidget {
 	* @property string имя css файла
 	*/
 	public $cssFile='lightbox.css';
-	/**
-	* @property string имя js файла lightbox
-	*/
-	public $scriptFile='lightbox.min.js';
   /**
    * @property string jquery селектор контейнера, в котором нужно подключить lightbox к изображениям
    */
@@ -97,7 +93,8 @@ class HLightBox extends CWidget {
 	protected function registerClientScript(){
 		$cs = Yii::app()->clientScript;
 		$cs->registerCoreScript('jquery');
-		$cs->registerScriptFile($this->assetsUrl.'/js/'.$this->scriptFile, CClientScript::POS_END);
+    $scriptFile= YII_DEBUG ? 'lightbox.js' : 'lightbox.min.js';
+		$cs->registerScriptFile($this->assetsUrl.'/js/'.$scriptFile, CClientScript::POS_END);
 		$cs->registerCssFile($this->assetsUrl.'/css/'.$this->cssFile);
 	}
 }

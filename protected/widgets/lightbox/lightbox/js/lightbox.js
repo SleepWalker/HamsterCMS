@@ -205,7 +205,7 @@ lightbox = new Lightbox options
         // FIX: изображения больше, чем разрешение экрана должны
         // уменьшаться таким образом, что бы они помещались на экране
         $window = $(window);
-        var height = preloader.height ? preloader.height * .9 : preloader.height;
+        var height = preloader.height;
         var width = preloader.width;
         if(preloader.height > $window.height())
         {
