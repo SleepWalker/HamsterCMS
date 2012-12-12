@@ -160,7 +160,10 @@ class AdminAction extends HAdminAction
           'name'=>'operator_id',
           'value'=>'$data->operator->first_name',
         ),
-        'date', 
+        array(
+          'name' => 'date', 
+          'type' => 'datetime',
+        ),
         array(
 			    'name'=>'status',
 			    'value'=>'

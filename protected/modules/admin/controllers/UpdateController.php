@@ -276,17 +276,9 @@ class UpdateController extends HAdminController
    */
   protected function runDBUpdate($updateInfo)
   {
-    Yii::import('application.modules.' . $updateInfo['moduleId'] . '.admin.updateDb', true);
-    $updater = new updateDb;
-    $updater->init();
-    if($updater->update($updateInfo['oldV'], $updateInfo['newV']))
-    {
-      $config = Config::load($updateInfo['moduleId']); // конфиг, в котором лежит актуальная версия бд
-      $config->dbVersion = $updateInfo['newV'];
-      $config->save();
-      return true;
-    }
-    return false;
+    return 
+      HUpdateDb::instance($updateInfo['moduleId'])
+      ->update($updateInfo['oldV'], $updateInfo['newV']);
   }
 
   /**
