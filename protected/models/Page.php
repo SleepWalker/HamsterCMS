@@ -43,8 +43,6 @@ class Page extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('full_path, title, content', 'required'),
-			array('full_path', 'match', 'pattern'=>'/^\/.*/',
-            'message'=>'Адрес страницы должен начинаться с слеша "/".'),
       array('full_path', 'unique'),
 			array('full_path, title', 'length', 'max'=>128),
 			// The following rule is used by search().
@@ -83,11 +81,11 @@ class Page extends CActiveRecord
 	{
 	  if(parent::beforeSave())
     {
-      $this->full_path = Translit::url($this->full_path, true);
+      $this->full_path = '/' . trim(Translit::url($this->full_path, true), '/');
       return true;
     }
-    else
-      return false;
+
+    return false;
 	}
 	
 	/**

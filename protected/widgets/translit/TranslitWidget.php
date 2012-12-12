@@ -12,7 +12,7 @@
 	class TranslitWidget extends CWidget
 	{
 	  
-	  public $scriptUrl;
+	  protected $scriptUrl;
 	  
 	  /**
 	  * Id поля, значение которого будет служить источником информации(для кнопки обновить)
@@ -37,7 +37,7 @@
     public function init()
     {
       $this->scriptUrl = Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('application.widgets.translit.assets'));
-      $this->registerScriptFile('translit.jquery.min.js');
+      $this->registerScriptFile((YII_DEBUG ? 'translit.jquery.js' : 'translit.jquery.min.js'));
       
       $sourceFieldId = get_class($this->model) . '_' . $this->attribute;
       

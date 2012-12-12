@@ -21,17 +21,15 @@
           $(this).prop('value', strTranslit(value));
         });
         
-        if(!settings.urlMode)  // транслитерация, используя значение value поля, стоящего выше в DOM
-        {
-          var link = $('<a href="" class="icon_refresh"></a>');
-          link.on('click', function()
-            {
-              var value = $(transliteratedField.parents('div')[0]).prevAll('div').children('input[type="text"]').prop('value');
-              transliteratedField.prop('value', strTranslit(value));
-              return false;
-            });
-          link.insertAfter(this);
-        }
+        // транслитерация, используя значение value поля, стоящего выше в DOM
+        var link = $('<a href="" class="icon_refresh"></a>');
+        link.on('click', function()
+          {
+            var value = $(transliteratedField.parents('div')[0]).prevAll('div').children('input[type="text"]').prop('value');
+            transliteratedField.prop('value', strTranslit(value));
+            return false;
+          });
+        link.insertAfter(this);
     };
     
     function strTranslit(str)

@@ -26,8 +26,10 @@ SET time_zone = "+00:00";
 --
 
 INSERT INTO `AuthItem` (`name`, `type`, `description`, `bizrule`, `data`) VALUES
-('admin', 2, 'Super User', NULL, 'N;'),
-('staff', 2, 'Managers of Shop', NULL, 'N;');
+('admin', 2, 'Администратор сайта', NULL, 'N;'),
+('user', 2, 'Зарегистрированные пользователи', 'return !Yii::app()->user->isGuest;', 'N;'),
+('guest', 2, 'Гости', 'return Yii::app()->user->isGuest;', 'N;'),
+('staff', 2, 'Контент менеджеры', NULL, 'N;');
 SET FOREIGN_KEY_CHECKS=1;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
