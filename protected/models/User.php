@@ -164,6 +164,7 @@ class User extends CActiveRecord
 			'password1' => 'Пароль',
 			'password2' => 'Пароль еще раз',
       'role' => 'Выбирите вашу группу',
+      'roles' => 'Роли (группы)',
 		);
   }
 	
@@ -507,7 +508,10 @@ class User extends CActiveRecord
    */
   public function getFullName()
   {
-    return $this->first_name . ' ' . $this->last_name;
+    $fullName = $this->first_name;
+    if(!empty($this->last_name))
+      $fullName .= ' ' . $this->last_name;
+    return $fullName;
   }
 
   /**

@@ -11,7 +11,7 @@ $form = array(
   'buttons'=>array(
     'submit'=>array(
       'type'=>'submit',
-      'label'=>$model->isNewRecord ? 'Добавить' : 'Сохранить',
+      'label'=> is_subclass_of($model, 'CFormModel') ? 'Отправить' : $model->isNewRecord ? 'Добавить' : 'Сохранить',
       'attributes' => array(
         'class' => 'submit',
         'id' => 'submit',
@@ -54,7 +54,7 @@ function parseCFormElements(&$form, $model, $controller)
     {
       $fieldParams = $fieldType; // настройки поля, к примеру items для dropdownlist
       unset($fieldParams[0]);
-      $fieldType = $fieldType[0];
+      $fieldType = isset($fieldType['type']) ? $fieldType['type'] : $fieldType[0];
     }
     
     $fieldParams['type'] = $fieldType;

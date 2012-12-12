@@ -43,7 +43,7 @@ class Redactor extends CInputWidget {
         
     // добавляем плагины
     // TODO: дать возможность юзеру добавлять плагины через настройки виджета + добавлять скрипты циклом
-    $cs->registerScriptFile($assets.'/plugins/fullscreen.js');
+    //$cs->registerScriptFile($assets.'/plugins/fullscreen.js');
 		
     if($this->lang != 'en')
       $cs->registerScriptFile($assets.'/langs/' . $this->lang . '.js');
@@ -53,7 +53,7 @@ class Redactor extends CInputWidget {
 
     $this->htmlOptions['id'] = $id;
 
-		$options = CJSON::encode(array_merge($this->editorOptions, array('lang' => $this->lang, 'plugins' => array('fullscreen'), )));
+    $options = CJSON::encode(array_merge($this->editorOptions, array('lang' => $this->lang/*, 'plugins' => array('fullscreen')*/, )));
 
 		        $js =<<<EOP
 		$('#{$id}').redactor({$options});

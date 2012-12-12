@@ -339,6 +339,7 @@ height: 40px;
 .contextMenu {
   padding:0;
   position:absolute;
+  opacity:0.97;
 }
 
 .contextMenu a {

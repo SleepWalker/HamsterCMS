@@ -124,15 +124,34 @@ class AuthItem extends CActiveRecord
   }
 
   /**
-   * Список ролей (для использования, к примеру в DropDownList)
+   * Список элементов авторизации (для использования, к примеру в DropDownList)
    *
    * @static
    * @access public
-   * @return array список ролей (для использования, к примеру в DropDownList)
+   * @return array для использования, к примеру в DropDownList
    */
   public static function getAuthItemsList()
   {
     $models = self::model()->findAll();
+    $return = array();
+    foreach($models as $model)
+    {
+      $return[$model->primaryKey] = $model->primaryKey;
+    }
+    return $return;
+  }
+
+  /**
+   * Список ролей (для использования, к примеру в DropDownList)
+   *
+   * @static
+   * @access public
+   * @return array для использования, к примеру в DropDownList
+   */
+  public static function getRolesList()
+  {
+    $models = self::model()->findAllByAttributes(array('type' => AuthItem::TYPE_ROLE));
+    $return = array();
     foreach($models as $model)
     {
       $return[$model->primaryKey] = $model->primaryKey;

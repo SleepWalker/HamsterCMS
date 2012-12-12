@@ -34,6 +34,7 @@ class AdminAction extends HAdminAction
     $transferCount = ($transferCount = AuthAssignment::model()->transferCount) ? ' (<b style="text-decoration: blink;color:orange;">' . $transferCount . '</b>)' : '';
     return array(
       ''  => 'Пользователи',
+      'batchmailing' => 'Рассылки',
       'roles' => 'Роли (группы)',
       'roles/update'  => array(
         'name' => 'Редактирование роли',
@@ -99,13 +100,25 @@ class AdminAction extends HAdminAction
         );
   });
   $("body").append($dd.hide());
+
+  // прячим меню по клику в любой точке Body
+  $("body").click(function() {
+    $dd.hide("fast");
+  });
   }
+
+  // если меню видимое, сначала скроем его, а потом уже переместим
+  if($dd.is(":visible"))
+    $dd.hide();
+
   $dd.css({
     top: $(this).offset().top + $(this).height(),
     left: $(this).offset().left,
   })
   .data("target", $(this))
   .show("fast");
+
+
     return false;
   });
       ');
@@ -241,26 +254,61 @@ class AdminAction extends HAdminAction
     $this->am->removeAuthItem($this->crudid);
   }
 
-/*
-  public function actionTransfer()
+  public function actionBatchmailing()
   {
-    $model=new AuthAssignment('search');
-    $activeProvider=$model->search();
-	  $activeProvider->criteria->compare('t.itemname', 'transfer');
+    $model = new MailingForm;
 
-		$this->render('table',array(
-			'dataProvider'=> $activeProvider,
-			'columns'=>array(
-        'itemname',
-        'userid',
-        'bizrule',
-        'data',
-        )
-      )
-    );
+    // AJAX валидация
+		if(isset($_POST['ajax']))
+		{
+      $model->attributes = $_POST['MailingForm'];
+      echo CActiveForm::validate($model);
+			Yii::app()->end();
+		}
+
+    if(isset($_POST['MailingForm']))
+    {
+      $model->attributes = $_POST['MailingForm'];
+
+      if($model->validate())
+      {
+        $userList = AuthAssignment::model()->findAllByRole($model->roles);
+        foreach($userList as &$item)
+          $item = $item->user;
+
+        $message = new YiiMailMessage;
+        $message->from = array($model->from => Yii::app()->params['shortName']);;
+        $message->subject = $model->subject;
+        $message->setBody($model->message, 'text/html');
+        $status = Yii::app()->mail->batchSend($message, $userList);
+
+        ob_start();
+        print_r($status->failed);
+        $failed = ob_get_clean();
+        Yii::app()->user->setFlash('info', "Отправленно {$status->sent} писем. Не доставленно: $failed");
+
+        $data = array(
+          'action' => 'renewForm',
+          'content' => '<script> location.reload() </script>',
+        );
+      }
+      else 
+        $data = array(
+          'action' => 'renewForm',
+          'content' => $this->renderPartial('update',array(
+            'model'=>$model,
+          ), true, true),
+        );
+
+      echo json_encode($data, JSON_HEX_TAG);
+        Yii::app()->end();
+    }
+
+    $this->render('update', array(
+      'model' => $model,
+    ));
   }
- 
- */
+
   public function actionTransfer()
   {
     $model=new AuthAssignment('search');
@@ -281,7 +329,7 @@ class AdminAction extends HAdminAction
         'name',
         'email',
         array(
-          'name' => 'Выбранная группа',
+          'name' => 'Выбраная группа',
           'value' => '$data->data["chosenRole"]',
         ),
         )

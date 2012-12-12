@@ -18,11 +18,8 @@ class EWidgetFactory extends CWidgetFactory
 {
   public function createWidget($owner,$className,$properties=array())
   {
-    $commonProperties='CJuiWidget';
-    
-
     $widgetName=Yii::import($className);
-    if (isset($this->widgets[$commonProperties]) && is_subclass_of($widgetName, $commonProperties))
+    if (isset($this->widgets['CJuiWidget']) && is_subclass_of($widgetName, 'CJuiWidget'))
     {
       // Merge widget class specific factory config and the $properties parameter
       // into $properties.

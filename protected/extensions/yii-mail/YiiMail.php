@@ -148,18 +148,49 @@ class YiiMail extends CApplicationComponent
 	* 
 	* The return value is the number of recipients who were accepted for 
 	* delivery.
+  *
+  * doc: http://swiftmailer.org/docs/sending.html
 	* 
 	* @param YiiMailMessage $message
+  * @param array $models массив моделей User, которым надо отправить письма
 	* @param array &$failedRecipients, optional
-	* @param Swift_Mailer_RecipientIterator $it, optional
-	* @return int
+	* @return object с количеством удачных отправок писем и с массивом с пользователями, не получившими письма
 	* @see send()
 	*/
-	public function batchSend(YiiMailMessage $message, &$failedRecipients = null, Swift_Mailer_RecipientIterator $it = null) {
-		if ($this->logging===true) self::log($message);
-		if ($this->dryRun===true) return count($message->to);
-		else return $this->getMailer()->batchSend($message->message, $failedRecipients, $it);
-	}
+  public function batchSend(YiiMailMessage $message, array $models) 
+  {
+    $failedRecipients = array();
+    $numSent = 0;
+
+    foreach ($models as $model)
+    {
+      if ($this->dryRun===true)
+      {
+        $numSent++;
+        continue;
+      }
+      $message->setTo(array($model->email => $model->fullName));
+
+      $numSent += $this->getMailer()->send($message->message, $failedRecipients);
+    }
+
+    if ($this->logging===true) 
+    {
+      $logMessage = "Массовая отправка писем: \n\n Доставлено: $numSent\n Не доставленно:\n";
+      ob_start();
+      print_r($failedRecipients);
+      $logMessage .= ob_get_clean();
+      $logMessage .= "\n\nПример письма:\n".
+        implode('', $message->headers->getAll())."\n".
+        $message->body
+        ;
+
+      // Удаляем из сообщения HTML это не нужная для нас информация!
+      Yii::log(strip_tags($logMessage), CLogger::LEVEL_INFO, 'ext.yii-mail.YiiMail'); 
+    }
+
+    return (object)array('sent'=>$numSent, 'failed' => $failedRecipients);
+  }
 	
 	/**
 	* Sends a message in an extremly simple but less extensive way.

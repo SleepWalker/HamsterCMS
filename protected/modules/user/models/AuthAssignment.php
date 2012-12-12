@@ -76,6 +76,11 @@ class AuthAssignment extends CActiveRecord
 		);
   }
 
+  public function findAllByRole($roles)
+  {
+    return self::model()->with('user')->findAllByAttributes(array('itemname' => $roles));
+  }
+
   public function afterFind()
   {
     $this->data = unserialize($this->data);

@@ -80,7 +80,7 @@ class AdminAction extends HAdminAction
 	 */
   public function actionUpdateDdd()
   {
-    if(Yii::app()->request->isPostRequest || 1)
+    if(Yii::app()->request->isPostRequest)
     {
       $tree = Categorie::model()->getDDTree($_POST['catId']);
       
