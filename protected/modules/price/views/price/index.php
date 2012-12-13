@@ -3,12 +3,14 @@ $this->pageTitle = 'Прайсы';
 $this->breadcrumbs = array($this->pageTitle);
 
 echo '<h1>' . $this->pageTitle . '</h1>';
-ob_start();
-echo '<div class="form partsFrom">';
-echo '<h2>Фильтр</h2>';
+$this->beginAside('', array(
+  'title' => 'Фильтр',
+  'position' => 'top',
+));
+echo '<div class="form" id="priceFilter>';
 $action = preg_replace('/\?[^\?]*$/','',$_SERVER["REQUEST_URI"]);
 $form = $this->beginWidget('CActiveForm', array(
-  'id'=>'partsForm',
+  'id'=>'priceFilterForm',
   'method'=>'get',
   'action'=>$action,
   'enableAjaxValidation'=>false,
@@ -38,9 +40,7 @@ echo '<p class="row" align="center"><br /><br />' . CHtml::submitButton('Пои�
 $this->endWidget();
 
 echo '</div>';
-
-$this->menu = ob_get_clean();
-
+$this->endAside();
 ?>
 <style>
 </style>

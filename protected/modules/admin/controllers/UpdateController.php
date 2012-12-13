@@ -50,10 +50,14 @@ class UpdateController extends HAdminController
   /**
 	 * @return меню для табов
 	 */
-  public function tabs() {
+  public function tabs() 
+  {
+    $updateList = $this->dbUpdateList; // модули к обновлению
+    $updateCount = $updateList ? ' (<b style="text-decoration: blink;color:orange;">' . count($updateList) . '</b>)' : '';
+
     return array(
       ''  => 'Обновление ФС',
-      'db'  => 'Обновление БД',
+      'db'  => 'Обновление БД'.$updateCount,
       'download' => 'Загрузка модулей',
     );
   }
@@ -174,23 +178,7 @@ class UpdateController extends HAdminController
    */
   public function actionDb()
   {
-    $updateList = array(); // модули к обновлению
-    foreach($this->enabledModules as $moduleId => $devnull)
-    {
-      $config = Config::load($moduleId); // конфиг, в котором лежит актуальная версия бд
-      if(!$config) continue;
-
-      $config = $config->adminConfig;
-      $newV = $config['db']['version'];
-
-      $oldV = $this->modulesInfo[$moduleId]['db']['version'];
-      if(isset($newV) && $newV != $oldV)
-        $updateList[$this->modulesInfo[$moduleId]['title']] = array(
-          'moduleId' => $moduleId, 
-          'newV' => $newV,
-          'oldV' => $oldV,
-        );
-    }
+    $updateList = $this->dbUpdateList; // модули к обновлению
 
     ob_start();
 ?>
@@ -221,6 +209,35 @@ class UpdateController extends HAdminController
     $this->render('index', array(
       'updateList' => array_keys($updateList),
     ));
+  }
+
+  /**
+   * Список модулей, которым необходимо обновление БД  
+   * 
+   * @access protected
+   * @return array
+   */
+  protected function getDbUpdateList()
+  {
+    $updateList = array(); // модули к обновлению
+    foreach($this->enabledModules as $moduleId => $devnull)
+    {
+      $config = Config::load($moduleId); // конфиг, в котором лежит актуальная версия бд
+      if(!$config) continue;
+
+      $config = $config->adminConfig;
+      $newV = $config['db']['version'];
+
+      $oldV = $this->modulesInfo[$moduleId]['db']['version'];
+      if(isset($newV) && $newV != $oldV)
+        $updateList[$this->modulesInfo[$moduleId]['title']] = array(
+          'moduleId' => $moduleId, 
+          'newV' => $newV,
+          'oldV' => $oldV,
+        );
+    }
+
+    return $updateList;
   }
 
   /**

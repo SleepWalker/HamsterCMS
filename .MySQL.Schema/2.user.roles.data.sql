@@ -29,6 +29,7 @@ INSERT INTO `AuthItem` (`name`, `type`, `description`, `bizrule`, `data`) VALUES
 ('admin', 2, 'Администратор сайта', NULL, 'N;'),
 ('user', 2, 'Зарегистрированные пользователи', 'return !Yii::app()->user->isGuest;', 'N;'),
 ('guest', 2, 'Гости', 'return Yii::app()->user->isGuest;', 'N;'),
+('transfer', 2, 'Пользователи, которые ожидают переноса в группу, выбранную ими при регистрации', NULL, 'N;'),
 ('staff', 2, 'Контент менеджеры', NULL, 'N;');
 SET FOREIGN_KEY_CHECKS=1;
 

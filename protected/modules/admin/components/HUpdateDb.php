@@ -52,7 +52,7 @@ abstract class HUpdateDb
         throw new CException("Отсутствует метод для обновления на версию {$ver}");
       else
         // добавляем функции, которые будут вызываться в методе {@link HUpdateDB::update()}
-        $this->updateMethods[$ver] = $curMethod; 
+        $this->updateMethods[(string)$ver] = $curMethod; 
     $this->init();
   }
   

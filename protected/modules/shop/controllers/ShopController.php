@@ -178,7 +178,11 @@ class ShopController extends Controller
 	
 	/**
 	 * Выводит все продукты бренда
-	 */
+   * 
+   * @param string $name определяет что именно нужно рендерить ('cat' или 'brand')
+   * @access protected
+   * @return void
+   */
 	protected function renderProdByCriteria($name)
 	{
 	  $criteria=new CDbCriteria;
@@ -330,7 +334,14 @@ class ShopController extends Controller
 			  );
 			break;
 			case 'cat':
-			  $breadcrumbs = $data[0]->cat->parentBreadcrumbs;
+        $breadcrumbs = $data[0]->cat->parentBreadcrumbs;
+        // Виджет фильтра
+        $this->beginAside('', array(
+          'id' => 'shopFilter',
+          'title' => 'Фильтр',
+        ));
+        $this->widget('shop.widgets.filter.Filter');
+        $this->endAside();
 			break;
     }
     

@@ -507,12 +507,20 @@ class AdminController extends HAdminController
 
     // старая, сохраненная инфа о модулях
     $oldModulesInfo = $this->modulesInfo;
+    $enabledModules = $this->enabledModules;
+    $hamsterModules = $this->hamsterModules;
+    
+    // добавляем к массиву директорий те модули, которые уже есть в modulesInfo.php
+    // это обеспечит нам удаление модулей из конфига, если была удалена их папка, а в конфиге инфа осталась
+    $dirs = array_merge($dirs, array_keys($oldModulesInfo), array_keys($enabledModules));
+    $dirs = array_unique($dirs);
     
     foreach($dirs as $moduleName)
     {
       if(in_array($moduleName, array('.', '..'))) continue;
       if(is_dir($path.'/'.$moduleName))
       {
+        $moduleNameForConfig = $moduleName; // FIXME: временно, для обновления конфига
         $modulePath = Yii::getPathOfAlias('application.modules.' . $moduleName);
         if(is_dir($modulePath . '/admin'))
         {
@@ -534,11 +542,14 @@ class AdminController extends HAdminController
           if(file_exists($modulePath.'/admin/AdminAction.php'))
             $adminActions[$moduleName] = 'application.modules.' . $moduleName . '.admin.AdminAction';
         }
+      }else{
+        // оудаляем информацию о модуле, если его нету в фс
+        unset($enabledModules[$moduleName], $hamsterModules['config']['modules'][$moduleName]); 
       }
     }
     
-    $hamsterModules = $this->hamsterModules;
     $hamsterModules['modulesInfo'] = $modulesInfo;
+    $hamsterModules['enabledModules'] = $enabledModules;
 
     $hamsterModules = "<?php\n\nreturn " . var_export($hamsterModules, true) . ";";
     
@@ -583,7 +594,7 @@ class AdminController extends HAdminController
       file_put_contents(Yii::getPathOfAlias('application.config') . '/hamsterModules.php', $configStr);
       
       // Обновим статус модуля в конфиге (FIXME: честно говоря грубый способ... но пока так)
-      Config::load($moduleName)->save(false);
+      Config::load($moduleNameForConfig)->save(false);
       
       $this->redirect('/admin/config' . $redirectParams);
     }

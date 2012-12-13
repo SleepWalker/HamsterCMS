@@ -29,7 +29,7 @@
             transliteratedField.prop('value', strTranslit(value));
             return false;
           });
-        link.insertAfter(this);
+        link.insertBefore($(this).css({'display':'block'}));
     };
     
     function strTranslit(str)
