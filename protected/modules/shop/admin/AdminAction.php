@@ -11,11 +11,8 @@ class AdminAction extends HAdminAction
 {
   public function run()
   {    
-    // import the module-level models and components
-		$this->module->setImport(array(
-			'shop.models.*',
-			'shop.components.*',
-		));
+    $assetsUrl = Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('application.modules.shop.assets').DIRECTORY_SEPARATOR,false,-1,YII_DEBUG);
+    Yii::app()->getClientScript()->registerCssFile($assetsUrl.'/css/admin.shop.css');
   }
   
   /**
@@ -635,7 +632,7 @@ class AdminAction extends HAdminAction
 	{
 	  $uploadPath = $_SERVER['DOCUMENT_ROOT'].Brand::$uploadsUrl;
 	  if(!is_dir($uploadPath)) // создаем директорию для картинок
-	    mkdir($uploadPath, 0777);
+	    mkdir($uploadPath, 0777, true);
 	    
 	  if (!empty($this->crudid))
       $model=Brand::model()->findByPk($this->crudid);
@@ -755,7 +752,7 @@ class AdminAction extends HAdminAction
 	{
 	  $uploadPath = $_SERVER['DOCUMENT_ROOT'].Categorie::$uploadsUrl;
 	  if(!is_dir($uploadPath)) // создаем директорию для картинок
-	    mkdir($uploadPath, 0777);
+	    mkdir($uploadPath, 0777, true);
 	    
 	  if (!empty($this->crudid) && $this->crud == 'update')
       $model=Categorie::model()->findByPk($this->crudid);

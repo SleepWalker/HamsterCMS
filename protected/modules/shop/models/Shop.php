@@ -77,11 +77,11 @@ class Shop extends CActiveRecord
   
   
   protected $_statusNames = array(
-    self::STATUS_DRAFT => '<span style="color:#с9с9с9;">Черновик</span>',
-    self::STATUS_AVAIBLE => '<span style="color:#76B348;">Есть в наличии</span>',
-    self::STATUS_UNAVAIBLE => '<span style="color:#FE5050;">Нет в наличии</span>',
-    self::STATUS_PREORDER => '<span style="color:#19b6b8;">Под заказ</span>',
-    self::STATUS_OUT_OF_PRODUCTION => '<span style="color:#с9с9с9;">Снят с производства</span>',
+    self::STATUS_DRAFT => '<span class="status_draft">Черновик</span>',
+    self::STATUS_AVAIBLE => '<span class="status_avaible">Есть в наличии</span>',
+    self::STATUS_UNAVAIBLE => '<span class="status_unavaible">Нет в наличии</span>',
+    self::STATUS_PREORDER => '<span class="status_preorder" style="color:#19b6b8;">Под заказ</span>',
+    self::STATUS_OUT_OF_PRODUCTION => '<span class="status_outOfProduction">Снят с производства</span>',
   );
   
 	/**
