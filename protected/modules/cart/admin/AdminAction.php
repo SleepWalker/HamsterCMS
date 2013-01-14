@@ -462,6 +462,10 @@ class AdminAction extends HAdminAction
 			    'header'=>'Цена / Сумма грн.',
 			    'value' => 'number_format($data->price, 2, ",", " ") . " / " . number_format($data->price*$data->quantity, 2, ",", " ")',
 			  ),
+        array(
+          'name' => 'meta',
+          'type' => 'raw',
+        ),
 			),
 		), false, true);
 	}  
@@ -486,13 +490,28 @@ class AdminAction extends HAdminAction
     $order = Order::model()->findByPk($id);
     
     $mpdf = Yii::app()->ePdf->mpdf();
-    $mpdf->logo = file_get_contents(Yii::getPathOfAlias('cart.views.cart.check') . '/PWNZ_grayscale.png');
-    $mpdf->WriteHTML($this->renderPartial('cart.views.cart.check.check', array('order' => $order), true));
-    
+    // ищим файлы с лого (либо тема, либо в вьюхах модуля)
+    $viewPathSuffix = '/cart/cart/check/';
+    // устанвливаем путь на нужные нам вьюшки
+    Yii::app()->setViewPath(Yii::getPathOfAlias('application.modules.cart.views'));
+    $this->module->id='cart';
+    if(!(
+      ($theme=Yii::app()->getTheme())!==null 
+      && is_file($logoPath=$theme->viewPath . $viewPathSuffix . 'logo.png')!==false
+      && is_file($logoGrayscalePath=$theme->viewPath . $viewPathSuffix . 'logo_grayscale.png')!==false)
+      )
+    {
+      $logoPath = Yii::getPathOfAlias('cart.views.cart.check') . '/logo_grayscale.png';
+      $logoGrayscalePath = Yii::getPathOfAlias('cart.views.cart.check') . '/logo.png';
+    }
+
+    $mpdf->logo = file_get_contents($logoGrayscalePath);
+    $mpdf->WriteHTML($this->renderPartial('//cart/check/check', array('order' => $order), true));
+
     $mpdf->AddPage();
-    $mpdf->logo = file_get_contents(Yii::getPathOfAlias('cart.views.cart.check') . '/PWNZ.png');
-    $mpdf->WriteHTML($this->renderPartial('cart.views.cart.check.waranty', array('order' => $order), true));
-    
+    $mpdf->logo = file_get_contents($logoPath);
+    $mpdf->WriteHTML($this->renderPartial('//cart/check/waranty', array('order' => $order), true));
+
     $mpdf->Output('confirm_' . $order->id . '.pdf', EYiiPdf::OUTPUT_TO_BROWSER);
   }
 }

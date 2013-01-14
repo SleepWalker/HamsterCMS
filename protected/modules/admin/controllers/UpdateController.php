@@ -313,22 +313,28 @@ class UpdateController extends HAdminController
     if(is_array($this->dirMap[$alias])) return $this->dirMap[$alias];
 
     $dir = Yii::getPathOfAlias($alias);
-    $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir),
-      RecursiveIteratorIterator::CHILD_FIRST);
-    $root = Yii::getPathOfAlias('application');
-    foreach ($iterator as $file) {
-      //if(substr($file->getBasename(), 0, 1) == '.' && $file->getBasename() != '.htaccess') continue; // пропускаем скрыте файлы (линукс)
-      // пропускаем папки runtime, так как в них будет хранится инфа, которая зависит от конкретного сайта
-      if($file->getBasename() == 'runtime') continue;
-      $path = str_replace($root, '', (string)$file);
-      
-      // Игнорим .. и .
-      if($file->getBasename() == '.' || $file->getBasename() == '..')
-        continue; 
-      
-      $pathList[] = $path;
-      if ($file->isFile()) {
-        $hashList[$path] = md5_file((string)$file); 
+    
+    $pathList = $hashList = array();
+
+    if(is_dir($dir))
+    {
+      $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir),
+        RecursiveIteratorIterator::CHILD_FIRST);
+      $root = Yii::getPathOfAlias('application');
+      foreach ($iterator as $file) {
+        //if(substr($file->getBasename(), 0, 1) == '.' && $file->getBasename() != '.htaccess') continue; // пропускаем скрыте файлы (линукс)
+        // пропускаем папки runtime, так как в них будет хранится инфа, которая зависит от конкретного сайта
+        if($file->getBasename() == 'runtime') continue;
+        $path = str_replace($root, '', (string)$file);
+
+        // Игнорим .. и .
+        if($file->getBasename() == '.' || $file->getBasename() == '..')
+          continue; 
+
+        $pathList[] = $path;
+        if ($file->isFile()) {
+          $hashList[$path] = md5_file((string)$file); 
+        }
       }
     }
     return array(

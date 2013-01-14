@@ -117,7 +117,7 @@ class Categorie extends CActiveRecord
 	{
 	  if(parent::beforeValidate())
     {
-      $this->cat_alias = Translit::url($this->cat_alias);
+      $this->cat_alias = Translit::url((empty($this->cat_alias) ? $this->cat_name : $this->cat_alias));
       return true;
     }
     else

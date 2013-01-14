@@ -122,11 +122,11 @@ $(function() {
   window.replaceContent = function (data)
   {
     $('[type="submit"]').removeProp('disabled');
-    $('#catContent').fadeOut(500, function()
+    $('#cartContent').fadeOut(500, function()
     {
-      $('#catContent').replaceWith(data);
-      $('html, body').animate({scrollTop:160}, 'slow'); 
-      $('#catContent').fadeIn(500); 
+      $('#cartContent').replaceWith(data);
+      $('html, body').animate({scrollTop:$('#cartContent').offset().top}, 'slow'); 
+      $('#cartContent').fadeIn(500); 
     });
   }
 });

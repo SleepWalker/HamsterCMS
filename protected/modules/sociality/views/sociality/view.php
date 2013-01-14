@@ -4,14 +4,14 @@
 if(isset($modelId))
 {
 ?>
-<a href=""><?php echo Yii::app()->params->shortName; ?></a>
+<a href="" class="active"><?php echo Yii::app()->params->shortName; ?></a>
 <?php
 }
+//FIXME: временное исправление для случаев, когда на сайте отключен вк
 if(!empty(Yii::app()->params['vkApiId']))
 {
-//FIXME: временное исправление для случаев, когда на сайте отключен вк
 ?>
-<a href="" onmouseenter="$('#vkcomments').hcomments('vk')">Вконтакте</a>
+<a href="" onmouseover="$('#vkcomments').hcomments('vk')">Вконтакте</a>
 <?php
 }
 ?>

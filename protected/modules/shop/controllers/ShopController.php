@@ -199,99 +199,20 @@ class ShopController extends Controller
 
     // фильтруем по характеристикам
     if(isset($filterData['CF']) || isset($filterData['CNF']))
-    {
-      // В этой части скрипта мы сначала напишем подзапрос, который достанет нам id товаров, которые подходят под заданные характеристики
-      // выборка делается следующим образом:
-      // - сначала мы выбираем все строки, которые содержат нужные нам характеристики, используя OR
-      // - потом мы делаем count и groupd by prod_id, что бы получить по строке на товар и колонку, в которой написано сколько характеристик совпало
-      // - далее в основном запросе сравниваем count с размером массива $filterData['CF'], если они равны, значит совпали все характеристики
-      $model = Char::model();
-      $charCriteria = new CDbCriteria;
-      
-      if (isset($filterData['CF']))
-      {
-        // для типов множественного выбора (checkbox в админке). здесь нам нужно использовать Like
-        // более того, нам надо, что бы эти условия сравнивались между собой через AND, потому мы добавляем их в $criteria первыми
-        if (is_array($filterData['CF']['m']))
-        {
-          foreach($filterData['CF']['m'] as $likeId => $likeArr)
-          {
-            $ids[] = $likeId;
-            foreach($likeArr as $likeValue)
-            {
-              $charCriteria->compare('CONCAT(char.char_value, ";")', $likeValue . ';', true , 'AND');
-            }
-          }
-        }
-        
-        // для типов радио и выпадающее меню
-        foreach($filterData['CF'] as $id => $value)
-        {
-          if($id == 'm') continue; // пропускаем элемент с характеристиками с множественным выбором
-          $charCriteria->compare('char.char_value', $value, false , 'OR');
-          $ids[] = $id;
-    		}
-  		}
-
-  		// для типа число
-  		if (isset($filterData['CNF']))
-        foreach($filterData['CNF'] as $id => $value)
-        {
-          // проверяем граничные значения
-          // если значения фильтра совпадают с граничными значениями - не фильтруем по текущей характеристике
-          $charMinMax = Char::setId($id);
-          //T!: Char::setId($id)->minValue использовать, когда данные будут кешироваться          
-          if ($value[0] == $charMinMax->minValue && $value[1] == $charMinMax->maxValue) continue;
-          $charCriteria->addBetweenCondition('CAST( char.char_value AS DECIMAL )', $value[0], $value[1], 'OR');
-          $ids[] = $id;
-    		}
-    		
-  		$charCriteria->compare('char.char_id', $ids);
-  		$charCriteria->select = 'prod_id, count(prod_id) AS charCount';
-  		$charCriteria->group = 'prod_id';
-
-      $subQuery=$model->getCommandBuilder()->createFindCommand($model->getTableSchema(),$charCriteria, 'char')->getText();
-      
-      // заменяем стандартные параметры :ycp на :yiicp, что бы в общем запросе не было конфликтов
-      $subQuery = preg_replace('/:ycp(\d+)/', ':yiicp$1', $subQuery);
-      // тоже самое для массива с параметрами и их значениями
-      if(count($ids))
-      {
-        array_walk($charCriteria->params, function(&$val, $key) use(&$params) {
-          $newKey = preg_replace('/:ycp(\d+)/', ':yiicp$1', $key);
-          $params[$newKey] = $val;
-        });
-        $criteria->params = array_merge($criteria->params, $params);
-        
-        $criteria->join = 'LEFT OUTER JOIN (' . $subQuery . ') `char` ON (t.id = char.prod_id)';
-      
-        $criteria->addCondition('char.charCount='.count($ids));
-      }
-    }
+      $this->getCharSubQuery($filterData, $criteria);
     
     // фильтруем по бренду
     if(isset($filterData['BF']))
-    {
       $criteria->compare('brand_id', $filterData['BF']);
-    }
     
-    // копируем $criteria и создаем запрос на определения диапазонов цен для фильтра
-    // это необходимо сделать до того, как применится фильтр по диапазону цены
-    /*$minMaxPrice = clone $criteria;
-    $minMaxPrice->select='max(t.price) as priceMax, min(t.price) as priceMin';
-    $minMaxPrice=Shop::model()->published()->find($minMaxPrice);
-  
-    $this->maxPriceVal = (int)$minMaxPrice->priceMax;
-    $this->minPriceVal = (int)$minMaxPrice->priceMin;*/
-
+    // фильтруем по диапазону цены
 	  if(isset($filterData['Shop']))
-    {
 	    $criteria->addBetweenCondition('CAST( t.price AS DECIMAL )', $filterData['Shop']['priceMin'], $filterData['Shop']['priceMax'], 'AND');
-	  }
 		
 	  $dataProvider=new CActiveDataProvider(Shop::model(), array(
       'criteria'=>$criteria,
-      'sort'=>array(
+      'sort'=>array( 
+        // определяем сортировку, что бы сверху были товары, которые есть в наличии, а так же самые популярные из них
         'defaultOrder'=>'t.`status` ASC, t.`rating` DESC, t.`add_date` DESC',
         'attributes' => array(
           'price' => array(
@@ -336,7 +257,7 @@ class ShopController extends Controller
 			case 'cat':
         $breadcrumbs = $data[0]->cat->parentBreadcrumbs;
         // Виджет фильтра
-        $this->beginAside('', array(
+        $this->beginAside(array(
           'id' => 'shopFilter',
           'title' => 'Фильтр',
         ));
@@ -352,6 +273,100 @@ class ShopController extends Controller
 			'title' => $title,
 		));
 	}
+
+  /**
+   * Метод генерирует SELECT запрос, который вернет prod_id товаров, 
+   * у которых присутствуют все выбранные пользователем характеристики
+   * Далее присоединяет этот подзапрос (если он не пустой) к основному запросу $criteria
+   * 
+   * @param array $filterData массив с данными фильтра (элементы CF и CNF)
+   * @param CDbCriteria $criteria 
+   * @access protected
+   * @return void
+   */
+  protected function getCharSubQuery(array $filterData, CDbCriteria $criteria)
+  {
+    // В этой части скрипта мы сначала напишем подзапрос, который достанет нам id товаров, которые подходят под заданные характеристики
+    // выборка делается следующим образом:
+    // - сначала мы выбираем все строки, которые содержат нужные нам характеристики, используя OR
+    // - потом мы делаем count и groupd by prod_id, что бы получить по строке на товар и колонку, в которой написано сколько характеристик совпало
+    // - далее в основном запросе сравниваем count с размером массива $ids, если они равны, значит совпали все характеристики
+    // далее я буду продолжать повторять обьяснения алгоритма, так как это весьма запутанная часть скрипта
+    $charCriteria = new CDbCriteria;
+
+    if (isset($filterData['CF']))
+    {
+      // для типов множественного выбора (checkbox в админке). 
+      if (is_array($filterData['CF']['m']))
+      {
+        // тут подразумевается, что пользователь ставя галочки расчитывает получить товары, 
+        // в которых присутствует не менее одного из выбранных им вариантов
+        // (к примеру цвет, размер, диагональ экрана, обьем оперативной памяти и т.д.)
+        foreach($filterData['CF']['m'] as $likeId => $likeArr)
+        {
+          // добавляем в массив в котором хранятся все id характеристик характеристик,
+          // которые обязаны присутствовать у товара
+          $ids[] = $likeId; 
+          foreach($likeArr as $likeValue)
+          {
+            $charCriteria->compare('CONCAT(char.char_value, ";")', $likeValue . ';', true , 'OR');
+          }
+        }
+      }
+
+      // для типов радио и выпадающее меню
+      // нам надо, что бы эти условия сравнивались между собой через AND, потому мы добавляем их в $criteria первыми
+      foreach($filterData['CF'] as $id => $value)
+      {
+        // выбирая одну из характеристик данного типа пользователю нужно получить товар, 
+        // в котором обязательно присутствует выбранная им опция (потому мы добавляем id характеристики в массив $ids)
+        // В конце концов мы должны получить count($ids) характеристик, которые обязаны присутствовать у товара
+        // оператор OR используется потому, что на данном этапе мы выбираем все 
+        // характеристики из shop_char с помощью подзапроса.
+        if($id == 'm') continue; // пропускаем элемент с характеристиками с множественным выбором
+        $charCriteria->compare('char.char_value', $value, false , 'OR');
+        $ids[] = $id;
+      }
+    }
+
+    // для типа число
+    if (isset($filterData['CNF']))
+      foreach($filterData['CNF'] as $id => $value)
+      {
+        // проверяем граничные значения
+        // если значения фильтра совпадают с граничными значениями - не фильтруем по текущей характеристике
+        $charMinMax = Char::setId($id);
+        //T!: Char::setId($id)->minValue использовать, когда данные будут кешироваться          
+        if ($value[0] == $charMinMax->minValue && $value[1] == $charMinMax->maxValue) continue;
+        $charCriteria->addBetweenCondition('CAST( char.char_value AS DECIMAL )', $value[0], $value[1], 'OR');
+        $ids[] = $id;
+      }
+
+    $charCriteria->compare('char.char_id', $ids);
+    $charCriteria->select = 'prod_id, count(prod_id) AS charCount';
+    $charCriteria->group = 'prod_id';
+
+    // генерируем подзапрос из $charCriteria
+    $model = Char::model();
+    $subQuery=$model->getCommandBuilder()->createFindCommand($model->getTableSchema(),$charCriteria, 'char')->getText();
+
+    // заменяем стандартные параметры :ycp на :yiicp, что бы в общем запросе не было конфликтов
+    $subQuery = preg_replace('/:ycp(\d+)/', ':yiicp$1', $subQuery);
+    // тоже самое для массива с параметрами и их значениями
+    if(count($ids))
+    {
+      array_walk($charCriteria->params, function(&$val, $key) use(&$params) {
+        $newKey = preg_replace('/:ycp(\d+)/', ':yiicp$1', $key);
+        $params[$newKey] = $val;
+      });
+      $criteria->params = array_merge($criteria->params, $params);
+
+      $criteria->join = 'LEFT OUTER JOIN (' . $subQuery . ') `char` ON (t.id = char.prod_id)';
+
+      // если это не будет истинной, значит нету товара, у которого совпадают все выбранные пользователем характеристики
+      $criteria->addCondition('char.charCount='.count($ids));
+    }
+  }
 	
 	public function actionIndex()
 	{
@@ -397,7 +412,7 @@ class ShopController extends Controller
 	  }
 	  
 	  $this->render('compare', array(
-	    'charCompareArr' => $charCompareArr,
+	    'charCompareArr' => is_array($charCompareArr) ? $charCompareArr : array(),
 	    'models' => $models,
 	  ));
 	}

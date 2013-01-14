@@ -5,6 +5,7 @@
 $title = $model->name;
 $this->breadcrumbs=array(
 	$this->module->params['moduleName']=>array('index'),
+  $model->album->name => $model->album->viewUrl,
 	$title,
 );
 

@@ -188,26 +188,26 @@ class AdminAction extends HAdminAction
       if($saved && $this->crud == 'create')
         $data = array(
           'action' => 'redirect',
-          'content' => $this->curModuleUrl . 'update/'.$model->id,
+          'content' => $this->curModuleUrl . 'album/update/'.$model->id,
         );
       else
         $data = array(
           'action' => 'renewForm',
           'content' => $this->renderPartial('update',array(
-                         'model'=>$model,
-                       ), true, true),
+            'model'=>$model,
+          ), true, true),
         );
-      
+
       echo json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
       Yii::app()->end();
     }
 
-		if(!$_POST['ajaxSubmit'])
+    if(!$_POST['ajaxSubmit'])
       $this->render('update',array(
-			  'model'=>$model,
-		  ));
-	}
-	public function actionAlbumCreate()
+        'model'=>$model,
+      ));
+  }
+  public function actionAlbumCreate()
 	{
 		$this->actionAlbumUpdate();
 	}

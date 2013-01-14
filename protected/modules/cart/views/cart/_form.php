@@ -17,7 +17,7 @@ $butt = function($value, $step = false, $submit = true) use ($formAction) {
   ));
 };
 
-echo '<div id="catContent" class="form">';
+echo '<div id="cartContent" class="form">';
 $form = $this->beginWidget('CActiveForm', array(
     'id'=>'cartForm',
     'enableAjaxValidation'=>true,
@@ -40,7 +40,8 @@ switch($step)
   case 1:
     echo "<h1>Выберите способ оплаты</h1>"; 
     echo '<p>' . $form->radioButtonList($model, 'currency', $model->orderCurrency) . '</p>';
-    echo '<p><b>Внимание!</b> Б/Н оплата и оплата электронными деньгами произвдится по курсу: 1$=' . Yii::app()->params->currency['toEmoney'] . 'грн.<br />
+    if(in_array('Безналичный расчет', $model->orderCurrency) && isset(Yii::app()->params['currency']['toEmoney']))
+      echo '<p><b>Внимание!</b> Б/Н оплата и оплата электронными деньгами произвдится по курсу: 1$=' . Yii::app()->params->currency['toEmoney'] . 'грн.<br />
     Пересчет суммы к оплате будет произведен перед последним шагом оформления заказа.
     </p>';
     
@@ -265,7 +266,7 @@ else
   }
 }
 echo '</p>';
-echo '</div>'; //#catContent
+echo '</div>'; //#cartContent
   
 //echo CHtml::hiddenField('step', $step);
 

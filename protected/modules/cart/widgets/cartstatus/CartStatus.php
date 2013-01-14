@@ -15,6 +15,13 @@
 class CartStatus extends CWidget
 {
   protected $assetsUrl;
+  /**
+   * @property boolean $ajax маркер, говорящий о том, 
+   * что виджет должен вернуть контент для аякс запрос, 
+   * тоесть к примеру без контейнера виджета (так как именно в нем будет заменяться контент)
+   */
+  public $ajax = false;
+
   public function init()
   {
     // регестрируем assets
@@ -24,8 +31,10 @@ class CartStatus extends CWidget
     $order = Yii::app()->session['order'];
     $summary = $order['summary'];
     
-    echo '<div id="cartStatusWidget">';
-	  if($order['cart'])
+    if(!$this->ajax)
+      echo '<div id="cartStatusWidget">';
+
+    if($order['cart'])
 	  {
 	    foreach($order['cart'] as $prod)
       {
@@ -41,8 +50,10 @@ class CartStatus extends CWidget
 	   echo '<a href="/cart/">В вашей корзине <b class="qtotal">' . $amount . '</b> ' . $this->pluralForm($amount, 'товар', 'товара', 'товаров') . ' на сумму <b class="sumtotal">' . $summ . ' грн.</b></a>';
     }	  
 	  else
-	   echo 'Ваша корзина';// <b>пустая</b>
-	  echo '</div>';
+      echo 'Ваша корзина';// <b>пустая</b>
+
+    if(!$this->ajax)
+      echo '</div>';
   }
 	
 	/**

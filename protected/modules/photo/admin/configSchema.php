@@ -1,5 +1,13 @@
 <?php
 return array(  
+  'showOnIndex' => array(
+    'label' => 'На главной модуля размещать',
+    'type' => 'dropdownlist',
+    'items' => array(
+      'photos' => 'Все фотографии',
+      'album' => 'Все альбомы',
+    ),
+  ),
   // global params schema and admin panel settings
   'hamster' => array(
     'global' => array(),

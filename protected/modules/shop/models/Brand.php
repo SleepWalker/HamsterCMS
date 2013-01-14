@@ -108,7 +108,7 @@ class Brand extends CActiveRecord
 	{
 	  if(parent::beforeValidate())
     {
-      $this->brand_alias = Translit::url($this->brand_alias);
+      $this->brand_alias = Translit::url((empty($this->brand_alias) ? $this->brand_name : $this->brand_alias));
       return true;
     }
     else

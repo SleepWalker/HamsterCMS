@@ -220,7 +220,7 @@ class AuthItem extends CActiveRecord
    * @access public
    * @return void
    */
-  public function addToTransfer(CActiveRecord $user, $chosenRole)
+  public function addToTransfer(User $user, $chosenRole)
   {
     if(!in_array($chosenRole, $user->rolesList))
       return; // эту роль нельзя выбирать
@@ -228,11 +228,26 @@ class AuthItem extends CActiveRecord
     $authAss = $this->am->assign('transfer', $user->primaryKey, null, array('chosenRole' => $chosenRole));
     // Отправляем емейл администратору
     User::mailAdmin(array(
-      'application.modules.user.views.mail.roleTransfer',
+      'application.modules.user.views.mail.transfer_admin',
       'user' => $user,
       'chosenRole' => $chosenRole,
     ),
     '[Новый пользователь] Запрос на перемещение в группу');
+  }
+
+  /**
+   * Присваивает элемент авторизации пользователю $user  
+   * 
+   * @param User $user 
+   * @param string $itemName 
+   * @param mixed $bizRule 
+   * @param mixed $data 
+   * @access public
+   * @return void
+   */
+  public function assign(User $user, $itemName, $bizRule = null, $data = null)
+  {
+    $this->am->assign($itemName, $user->primaryKey, $bizRule, $data);
   }
 
   /**
@@ -259,10 +274,17 @@ class AuthItem extends CActiveRecord
 	}
 
   /**
-   * @access protected
    * @return CDbAuthManager
    */
   public function getAm()
+  {
+    return self::am();
+  }
+
+  /**
+   * @return CDbAuthManager
+   */
+  public static function am()
   {
     return Yii::app()->authManager;
   }

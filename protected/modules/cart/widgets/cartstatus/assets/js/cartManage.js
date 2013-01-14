@@ -4,7 +4,7 @@ $(function() {
    */
   function cartSetValues(quantity, summ)
   {
-    // Самый топорный метод (в некоторых случаях - единственный)
+    // обновляем виджет корзины
     renderCartStatus(quantity, summ);
     // Устанавливает сумму с учетом множественного числа у слова "товар"
     if (quantity !== false)
@@ -53,7 +53,38 @@ $(function() {
       content = 'Ваша корзина';// <b>пустая</b>
     $('#cartStatusWidget').html(content);
   }
+
+  /**
+   * ajax Обновление виджета корзины
+   */
+  function updateCartStatus()
+  {
+    $.ajax('/cart/widget/cartstatus',{
+      success: function(content) {
+        $('#cartStatusWidget').html(content);
+      },
+    });
+  }
   
   // делаем функцию глобальной
   window.renderCartStatus = cartSetValues;
+
+  /*
+  * Удаление из корзины в jquery ui dialog
+  */
+  $('body').on('click', '.hDialog .delLink', function() {
+    var $row = $(this).parents('tr');
+    var id = $(this).prop('id').slice(1);
+    $.ajax({
+      url: $(this).prop('href'),
+      success: function()
+      {
+        updateCartStatus();
+        if($row.parents('table').find('tr').length <= 2)
+          location.reload();
+        $row.remove();
+      } 
+    }); 
+    return false;
+  });  
 });

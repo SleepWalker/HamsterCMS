@@ -23,30 +23,30 @@ class CartController extends Controller
 	/**
 	 * @return array action filters
 	 */
-	public function filters()
+	/*public function filters()
 	{
 		return array(
 			'accessControl', // perform access control for CRUD operations
 		);
-	}
+  }*/
 
 	/**
 	 * Specifies the access control rules.
 	 * This method is used by the 'accessControl' filter.
 	 * @return array access control rules
 	 */
-	public function accessRules()
+	/*public function accessRules()
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index', 'add', 'clear', 'result', 'success', 'order'),
+				'actions'=>array('index', 'add', 'clear', 'result', 'success', 'order', 'widgetcartstatus'),
 				'users'=>array('*'),
 			),
 			array('deny',  // deny all users
 				'users'=>array('*'),
 			),
 		);
-	}
+  }*/
 	
 	/**
 	*  Показывает корзину юзера
@@ -58,6 +58,7 @@ class CartController extends Controller
 	  $order = Yii::app()->session['order'];
     
     $cart = $order['cart'];
+	  if(count($cart) == 0) $this->redirect('/');
 
 	  if(isset($order['summary']))
 	  { // юзер прошел все этапы  по оплате электронными деньгами, показываем ему последний
@@ -65,20 +66,33 @@ class CartController extends Controller
 	    Yii::app()->end();
 	  }
     
+    Yii::app()->getClientScript()->registerCoreScript('jquery');
     $this->module->registerScriptFile('cart.js');
 	  
-	  if(count($cart) == 0) $this->redirect('/');
 	  $this->render('cart', array(
       'models' => $cart,	  
 	  ));
 	}
+
+  /**
+   * Это экшен для аякс запроса обновления статуса корзины  
+   * 
+   * @access public
+   * @return void
+   */
+  public function actionWidgetCartStatus()
+  {
+    $this->widget('application.modules.cart.widgets.cartstatus.CartStatus', array(
+      'ajax' => true,
+    ));
+  }
 	
 	/**
 	*  Действие добавление товара в корзину
   *  @param string $id id товара, который нужно добавить в корзину
 	**/
 	public function actionAdd($id, $_pattern = '<id:\d+>')
-	{
+  {
     $model = Shop::model()->published()->findByPk($id);
     if(!$model)
       throw new CHttpException(404,'Ошибка добавления в корзину');   
@@ -94,7 +108,7 @@ class CartController extends Controller
       Yii::app()->session->add('order', array());
     
     $cartContent = Yii::app()->session['order'];  
-    $cartContent['cart'][$id] = (object) array(
+    $productInfo = (object) array(
       'img' => $model->img(45),
       'product_name' => $model->product_name,
       'price' => $model->price,
@@ -102,9 +116,28 @@ class CartController extends Controller
       'viewUrl' => $model->viewUrl,
       'quantity' => 1,
     );
-    
+    // характеристики типа варианты
+    // запоминаем в сессии выбранный вариант товара (цвет, размер и т.д.)
+    if(isset($_POST['variants']))
+    {
+      $chars = CharShema::model()->findAllByPk(array_keys($_POST['variants']), array(
+        'condition' => 'type = ' . CharShema::TYPE_VARIANTS
+      ));
+      foreach($chars as $char)
+      {
+        $productInfo->variants[$char->char_name] = CHtml::encode($_POST['variants'][$char->primaryKey]);
+      }
+      // используем хэш сериализированного POST, для того, что бы 
+      // можно было добавить несколько одинаковых товаров разных вариантов
+      ksort($_POST['variants']);
+      $id .= '_' . md5(serialize($_POST['variants']));
+    }
+
+    $cartContent['cart'][$id] = $productInfo;
     Yii::app()->session['order'] = $cartContent;
-    
+
+    // Отключаем jquery (так как при ajax он уже подключен)
+    Yii::app()->clientscript->scriptMap['jquery.js'] = Yii::app()->clientscript->scriptMap['jquery.min.js'] = false; 
     $this->renderPartial('_add', array(
       'cart' => $cartContent['cart'],
     )); 
@@ -127,7 +160,18 @@ class CartController extends Controller
 	  {
 	    Yii::app()->session->remove('order');
 	  }
-	}
+  }
+
+  /**
+   * Синоним метода {@link actionClear} для случая, когда надо удалить один товар  
+   * 
+   * @access public
+   * @return void
+   */
+  public function actionRemove($id, $_pattern = '<id:\w+>')
+  {
+    $this->actionClear($id);
+  }
 		
 	/**
 	*  Выбирает слово в правильном падеже в зависимости от величины числа $n
@@ -264,7 +308,7 @@ class CartController extends Controller
           $this->stepNum = 3;
       case 3:
         if(
-         (!isset($this->order['address']) && !isset($this->order['user']))
+         (!isset($this->order['address']) || !isset($this->order['user']))
          || isset($_POST['OrderAddress'])
         )
           $this->stepNum = 2;
@@ -352,10 +396,6 @@ class CartController extends Controller
       $userModel->attributes = $_POST[get_class($userModel)];
       $adressModel->attributes = $_POST['OrderAddress'];
       
-      // Сохраняем массивы пост в сессию, что бы потом обработать
-      $this->order['address'] = $_POST['OrderAddress'];
-      $this->order['user'] = $_POST[get_class($userModel)];
-      
       if($_POST['oldAddress'] && !$_POST['newAddress'])
       {
         // Юзер выбрал один из ранее веденных адресов
@@ -370,6 +410,13 @@ class CartController extends Controller
       }
       
       $valid = $userModel->validate() && $valid;
+      
+      if($valid)
+      {
+        // Сохраняем массивы пост в сессию, что бы потом обработать
+        $this->order['address'] = $_POST['OrderAddress'];
+        $this->order['user'] = $_POST[get_class($userModel)];
+      }
     } 
 
     return (object)array(
@@ -397,16 +444,27 @@ class CartController extends Controller
     else
       $currencyCoeff = 1;
     $paymentAmount = 0; // Сумма заказа
-    foreach($this->order['cart'] as $prodId => $cartProduct)
+    foreach($this->order['cart'] as $cartProduct)
     {
       // суммарное колличество товаров
       $prodCount += $cartProduct->quantity;
       // сумма заказа
       $paymentAmount += $cartProduct->price  * $cartProduct->quantity * $currencyCoeff;
+
+      // варианты товара (на пример разный цвет, размер и т.д.)
+      if(isset($cartProduct->variants))
+      {
+        $variants =  '<dl>';
+        foreach($cartProduct->variants as $name => $value)
+          $variants .= "<dt>$name</dt><dd>$value</dd>";
+        $variants .= '</dl>';
+      }else{
+        $variants = '';
+      }
       // Массив для CGridView, что бы выводить информацию о заказе
       $orderInfo[] = array(
         '<a href="' . $cartProduct->viewUrl . '" target="_blank">' . $cartProduct->img . '</a>',
-        '<a href="' . $cartProduct->viewUrl . '" target="_blank"><b>' . $cartProduct->product_name . '</b></a>',
+        '<a href="' . $cartProduct->viewUrl . '" target="_blank"><b>' . $cartProduct->product_name . '</b></a>' . $variants,
         $cartProduct->quantity,
         number_format($cartProduct->price * $currencyCoeff, 2, ',', ' ') . ' грн.' .
         ($cartProduct->quantity > 1 ? '<br /> <b>' . number_format($cartProduct->price  * $cartProduct->quantity * $currencyCoeff, 2, ',', ' ') . ' грн.</b>' : ''),
@@ -524,6 +582,7 @@ class CartController extends Controller
           
         // подгружаем данные из сессии
         $orderModel->attributes = $this->order['order'];
+
         $valid = $orderModel->save() && $valid;
         if(!$valid)
             Yii::log("OrderModel: \n" . CVarDumper::dumpAsString($this->order['order']) . "\n\nErrors: \n" . CVarDumper::dumpAsString($orderModel->errors), 'error', 'order');
@@ -544,13 +603,15 @@ class CartController extends Controller
           $currencyCoeff = Yii::app()->params->currency['toEmoney']/Yii::app()->params->currency['toDollar'];
         else
           $currencyCoeff = 1;
-        foreach($this->order['cart'] as $prodId => $cartProduct)
+        foreach($this->order['cart'] as $cartProduct)
         {
           $checkModel = new OrderCheck;
           $checkModel->order_id = $orderModel->primaryKey;
-          $checkModel->prod_id = $prodId;
+          $checkModel->prod_id = $cartProduct->id;
           $checkModel->quantity = $cartProduct->quantity;
           $checkModel->price = $cartProduct->price * $currencyCoeff;
+          if(isset($cartProduct->variants))
+            $checkModel->meta = serialize($cartProduct->variants);
           $valid = $checkModel->save() && $valid;
           
           $paymentAmount += $checkModel->price * $cartProduct->quantity;
@@ -646,10 +707,6 @@ class CartController extends Controller
 	**/
 	public function sendOrderSummary()
 	{
-    $bccEmails = Yii::app()->modules['cart']['params']['bccEmails'];
-    if(empty($bccEmails)) return;
-    if(strpos($bccEmails, ',')) $bccEmails = preg_split('/ *, */', $bccEmails);
-    else $bccEmails = array($bccEmails);
     
 	  $message = new YiiMailMessage;
     $message->view = 'orderSummary';
@@ -665,7 +722,16 @@ class CartController extends Controller
       
     
     $message->addTo($user['email']);
-    $message->setBcc($bccEmails);
+
+    // отправляем скрытые копии для операторов
+    $bccEmails = Yii::app()->modules['cart']['params']['bccEmails'];
+    if(!empty($bccEmails))
+    {
+      if(strpos($bccEmails, ',')) $bccEmails = preg_split('/ *, */', $bccEmails);
+      else $bccEmails = array($bccEmails);
+      $message->setBcc($bccEmails);
+    }
+
     $message->subject = 'Информация о заказе №' . $this->order['summary']['orderNo'];
     $message->from = array(Yii::app()->params['noReplyEmail'] => Yii::app()->params['shortName']);
     Yii::app()->mail->send($message);

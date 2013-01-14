@@ -14,6 +14,9 @@ class Product extends CWidget
   // количество строк с товарами
   public $rows = 3;
   
+  // Контейнер для строчек
+  public $rowContainer = false;
+  
   // сколько товаров показывать (если так и останется false, то значение переопределится в init() )
   public $amount = false;
   
@@ -86,14 +89,25 @@ class Product extends CWidget
   ***********************/
   protected function renderProducts($dataProvider) {
     $prods = $dataProvider->data;
-    foreach($prods as $prod)
-    {
+
+    // если был задан контейнер для строчек
+    if($this->rowContainer)
+      echo CHtml::openTag($this->rowContainer);
+      
+    foreach($prods as $i => $prod)
+    {      
       $this->render($this->view, array(
         'cols' => $this->cols,
         'rows' => $this->rows,
         'data' => $prod,
       ));
+      
+      if($this->rowContainer && ($i+1)%$this->cols == 0)
+        echo CHtml::openTag($this->rowContainer);
     }
+    
+    if($this->rowContainer) 
+      echo CHtml::closeTag($this->rowContainer);
   }
   
   protected function registerScriptFile($fileName,$position=CClientScript::POS_END)

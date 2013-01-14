@@ -5,7 +5,7 @@
   </header>
 
 	<section class="postContent">
-    <?php echo array_shift(explode('{%CUT%}', $data->content)) . ' &hellip;'; ?>
+    <?php echo (strpos($data->content, '{%CUT%}') ? array_shift(explode('{%CUT%}', $data->content)) . ' &hellip;' : $data->content); ?>
 	</section>
   <footer>
     <section class="tags" style="float:right;">

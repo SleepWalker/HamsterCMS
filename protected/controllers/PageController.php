@@ -49,10 +49,12 @@ class PageController extends Controller
 	 */
   public function actionIndex($path = '')
   {
-    if($this->getViewFile('static/'.$path)!==false)
+    if(Yii::app()->request->requestUri == '/page')
+      $this->pageNotFound();
+
+    $view = 'static/'.(empty($path) ? 'index' : $path);
+    if($this->getViewFile($view)===false)
     {
-      $view = 'static/'.$path;
-    }else{
       $model=$this->loadModel(array('full_path'=>'/' . $path));
       $view = 'index';
     }
@@ -88,8 +90,19 @@ class PageController extends Controller
       $this->_model=Page::model()->findByAttributes($param);
       
       if($this->_model===null)
-        throw new CHttpException(404,'Запрашиваемая страница не существует.');
+        $this->pageNotFound();
     }
     return $this->_model;
+  }
+
+  /**
+   * Отображает ошибку 404  
+   * 
+   * @access protected
+   * @return void
+   */
+  protected function pageNotFound()
+  {
+    throw new CHttpException(404,'Запрашиваемая страница не существует.');
   }
 }

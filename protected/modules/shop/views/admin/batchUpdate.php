@@ -154,7 +154,7 @@ $("body").on("click.sortUp", "table .sortUp", function() {
 // а так же ctrl+shift+кнопка вверх(или вниз) для сортировки
 function setEnterCtrlEnterEvents(className, enter, ctrlenter)
 {
-  $("." + className + " input").keydown(function() {
+  $("." + className + " input").keydown(function(event) {
     if (event.keyCode == 13 && event.ctrlKey)
       return ctrlenter(this);
     if (event.keyCode == 13 && !event.ctrlKey)

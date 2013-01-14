@@ -8,8 +8,6 @@
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
  
-Yii::app()->getClientScript()->registerCoreScript('jquery');
-
 $this->pageTitle = 'Ваша корзина';
 
 $this->breadcrumbs[] = $this->pageTitle;
@@ -22,9 +20,9 @@ foreach($models as $model)
 $action = '/cart/order?step=last';
 
 ?>
-<div id="catContent" class="form">
+<div id="cartContent" class="form">
 <?php
-echo '<div style="float:right;margin-top:6px;">' . CHtml::ajaxButton('Отменить заказ', $this->createUrl('/cart/clear'), array('complete'=>'js: function() {location.href="/"}')) . '</div>';
+echo '<div id="cartCancelOrder">' . CHtml::ajaxButton('Отменить заказ', $this->createUrl('/cart/clear'), array('complete'=>'js: function() {location.href="/"}')) . '</div>';
 ?>
 <h1>В вашей корзине <span class='qtotal'><?php echo $total ?></span> <? echo $this->pluralForm($total, 'товар', 'товара', 'товаров')  ?></h1>
 <?php 
@@ -34,15 +32,27 @@ if($total)
 ?>
 <table>
 <?php 
-foreach($models as $model) 
+foreach($models as $index => $model) 
 {
+  // $index == $model->id за исключением случая с вариантами, 
+  // в котором к id еще добавляется хэш варианта
   $check += $model->price * $model->quantity;
-  $price[$model->id] = $model->price;
-  $quantity[$model->id] = $model->quantity;
+  $price[$index] = $model->price;
+  $quantity[$index] = $model->quantity;
   ?>
   <tr>
   <td><a href="<?php echo $model->viewUrl ?>" target="_blank"><?php echo $model->img ?></a></td>
-  <td><a href="<?php echo $model->viewUrl ?>" target="_blank"><b><?php echo $model->product_name ?></b></a></td>
+  <td><a href="<?php echo $model->viewUrl ?>" target="_blank"><b><?php echo $model->product_name ?></b></a>
+  <?php
+  if(isset($model->variants))
+  {
+    echo '<dl>';
+    foreach($model->variants as $name => $value)
+      echo "<dt>$name</dt><dd>$value</dd>";
+    echo '</dl>';
+  }
+  ?>
+</td>
   <td style="min-width:85px;">
   <?php echo number_format($model->price, 2, ',', ' ') ?> грн.
   <?php 
@@ -50,8 +60,8 @@ foreach($models as $model)
   if($model->quantity > 1) echo '<div class="prodSumm">' . number_format($model->price * $model->quantity, 2, ',', ' ') . ' грн.</div>' 
   ?>
   </td>
-  <td><input type="number" class="quantity" id="q<?php echo $model->id ?>" name="quantity[<?php echo $model->id ?>]" value="<?php echo $model->quantity; ?>" min="1" max="500" size="4"></td>
-  <td><a href="/cart/clear/<?php echo $model->id ?>" id="d<?php echo $model->id ?>" class="delLink">Удалить</a></td>
+  <td><input type="number" class="quantity" id="q<?php echo $index ?>" name="quantity[<?php echo $index ?>]" value="<?php echo $model->quantity; ?>" min="1" max="500" size="4"></td>
+  <td><a href="<?php echo Yii::app()->createUrl('cart/cart/remove', array('id' => $index)) ?>" id="d<?php echo $index ?>" class="delLink">Удалить</a></td>
   </tr>
   <?php  
 }

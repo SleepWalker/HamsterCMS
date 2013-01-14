@@ -1,0 +1,44 @@
+/* Фильтр прайсов */
+.hAsideCharFilter {
+ padding:10px;
+ display:block;
+ width:auto;
+}
+
+.hAsideCharFilter input[type=text],
+.hAsideCharFilter input[type=submit],
+.hAsideCharFilter input[type=button],
+.hAsideCharFilter select {
+  width: 100%;
+}
+
+#shopFilter input[type=submit],
+#shopFilter input[type=button] {
+  margin-top: 5px;
+}
+
+.hAsideCharFilter .FilterRangeSlider {
+  overflow:hidden;
+  margin: 10px 0;
+}
+
+.hAsideCharFilter .FilterRangeSlider label {
+  width: 50%;
+  display:inline-block;
+}
+
+.hAsideCharFilter .FilterRangeSlider label:last-of-type {
+  text-indent: 5px;
+}
+
+.hAsideCharFilter .FilterRangeSlider input {
+  width:48%;
+  margin: 0;
+  padding: 4px 0;
+  text-indent: 5px;
+  float:right;
+}
+
+.hAsideCharFilter .FilterRangeSlider input:first-of-type {
+  float:left;
+}

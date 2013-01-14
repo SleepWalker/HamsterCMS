@@ -36,7 +36,7 @@ class Controller extends CController
    * @access public
    * @return void
    */
-  public function beginAside($id = '', array $params = array())
+  public function beginAside(array $params = array())
   {
     array_push($this->_asideStack, $params);
     ob_start();
@@ -75,22 +75,24 @@ class Controller extends CController
   /**
    * Рендерит блоки  
    * 
+   * @param array $options настройки рендеринга блоков
    * @access public
    * @return void
    */
-  public function renderAside()
+  public function renderAside($options = array())
   {
-    //FIXME: настроить портлеты
-    foreach($this->aside as $aside)
-    {
-      $this->beginWidget('zii.widgets.CPortlet', $aside['portlet']);
-      echo $aside['content'];
-      $this->endWidget();
-    }
+    $asides = CMap::mergeArray(
+      $this->aside,
+      // блоки, которые должны быть в самом низу
+      $this->_asideBottom
+    );
 
-    // блоки, которые должны быть в самом низу
-    foreach($this->_asideBottom as $aside)
+    //FIXME: настроить портлеты
+    foreach($asides as $aside)
     {
+      if(is_array($options['blackList']) && in_array($aside['portlet']['id'], $options['blackList']))
+        continue;
+
       $this->beginWidget('zii.widgets.CPortlet', $aside['portlet']);
       echo $aside['content'];
       $this->endWidget();

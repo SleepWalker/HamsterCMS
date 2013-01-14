@@ -65,6 +65,17 @@ class Config extends CFormModel
   {
     if(empty($moduleId))
       throw new CException('moduleId не может быть пустой строкой');
+    // проверяем можем ли мы писать в необходимых директориях
+    $path = Yii::getPathOfAlias('application.config') . '/hamster.php';
+      if(!is_writable($path))
+      {
+        Yii::app()->user->setFlash('error', "Файл '$path' не доступен для записи.");
+      }
+    $path = Yii::getPathOfAlias('application.config') . '/hamsterModules.php';
+      if(!is_writable($path))
+      {
+        Yii::app()->user->setFlash('error', "Файл '$path' не доступен для записи.");
+      }
     $this->_moduleId = $moduleId;
     $this->_config = $config;
     parent::__construct($scenario);
@@ -173,10 +184,11 @@ class Config extends CFormModel
         $linkTo = $fieldOptions['linkTo'];
         unset($fieldOptions['linkTo']);
       }
+
       $this->hamsterConfigSchema($fieldId, $fieldOptions, $linkTo);
     }
   }
-  
+
   /**
    * Парсит текущий элемент конфига и по его параметрам добавляет в конфиг CFrom новый элемент
    *
@@ -301,23 +313,34 @@ class Config extends CFormModel
     $this->att2CFormConfig($name, $params);
 
     $this->_attVals[$name] = '';
+
+    // данные поля или полей
     $attVal = &$this->_attVals[$name];
 
     if($linkTo == 'global') // вяжем к глобальным параметрам Yii
     { 
       $this->_curModConfig['config']['params'][$name] = &$attVal;
     } elseif($linkTo) { // вяжем еще куда-то
+      /*FIXME: if(strpos($linkTo, 'params') == 9 && 0)
+      {
+        foreach($params['elements'] as $name => $devNull)
+        {
+          $attVal[$name] = '';
+          $this->_curModConfig['config']['params'][$name] = &$attVal[$name];
+        }
+        return;
+      }*/
       $linkTo = strtr($linkTo, array(
         '$config' => '$this->_curModConfig["config"]',
         '$modulesInfo' => '$this->_curModConfig["modulesInfo"]',
       ));
+
       eval($linkTo . ' = &$attVal;');
     }else{ // вяжем в локальные параметры модуля
       $this->_curModConfig['config']['modules'][$this->moduleId]['params'][$name] = &$attVal;
     }
   }
 
-  // public isAttributeSafe(attribute) {{{ 
   /**
    * Переопределяем стандартную функцию, что бы она расспознавала аттрибуты-массивы 
    * 
@@ -325,12 +348,12 @@ class Config extends CFormModel
    * @access public
    * @return void
    */
-  public function isAttributeSafe($attribute){
+  public function isAttributeSafe($attribute)
+  {
     if(($pos = strpos($attribute, '[')) !== false)
       $attribute = substr($attribute, 0, $pos);
     return parent::isAttributeSafe($attribute);
   }
-  // }}}
   
   /**
    * Переопределяем магический метод __get Yii, что бы можно было обращаться к свойствам, указанным в {@link _config}
@@ -451,6 +474,12 @@ if(isset($_SERVER['REMOTE_ADDR']))
     && (file_put_contents(Yii::getPathOfAlias('application.config') . '/hamsterModules.php', $hamsterModulesStr) !== false);
   }
 
+  /**
+   * Заполняет массивы актуальными данными из уже существующих конфигов
+   * 
+   * @access protected
+   * @return void
+   */
   protected function mergeConfigs()
   {
     if(!$this->_isMerged)
@@ -460,7 +489,19 @@ if(isset($_SERVER['REMOTE_ADDR']))
       $hamsterModules = $this->hamsterModules;
 
       $this->_hamsterModules = CMap::mergeArray($this->_curModConfig, $hamsterModules);
-      $this->_isMerged = true;
+
+      // сохраним в эту переменную изначальную версию элемента конфига params
+      // это нужно для того, что бы пофиксить баг оверврайта полностью всех глобальных параметров при сохранении основных настроек цмс (это из-за того, что там linkTo => '$config["params"]'. 
+      // То есть при отправке формы ее данные заменят полностью все глобальные параметры, а нам этого не надо
+      $this->_isMerged = $hamsterModules['config']['params'];
+    }
+
+    // нам надо добавить в массив те эллементы из массива params, которые были затерты оверврайтом при сейве основных настроек
+    $params = $this->_isMerged;
+    $elementsToAdd = array_diff(array_keys($params), array_keys($this->_curModConfig['config']['params']));
+    foreach($elementsToAdd as $elementName)
+    {
+      $this->_curModConfig['config']['params'][$elementName] = $params[$elementName];
     }
   }
   

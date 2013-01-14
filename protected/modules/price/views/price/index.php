@@ -7,9 +7,9 @@ $this->beginAside('', array(
   'title' => 'Фильтр',
   'position' => 'top',
 ));
-echo '<div class="form" id="priceFilter>';
+echo '<div class="form hAsideCharFilter" id="priceFilter">';
 $action = preg_replace('/\?[^\?]*$/','',$_SERVER["REQUEST_URI"]);
-$form = $this->beginWidget('CActiveForm', array(
+$form = $this->beginWidget(array(
   'id'=>'priceFilterForm',
   'method'=>'get',
   'action'=>$action,

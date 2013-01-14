@@ -36,14 +36,25 @@ abstract class HUpdateDb
    */
   protected final function __construct($moduleId)
   {
+    // проверяем можем ли мы писать в необходимых директориях
+    $path = Yii::getPathOfAlias('application.config') . '/hamster.php';
+      if(!is_writable($path))
+      {
+        Yii::app()->user->setFlash('error', "Файл '$path' не доступен для записи.");
+      }
+    $path = Yii::getPathOfAlias('application.config') . '/hamsterModules.php';
+      if(!is_writable($path))
+      {
+        Yii::app()->user->setFlash('error', "Файл '$path' не доступен для записи.");
+      }
     $this->moduleId = $moduleId;
     $this->c = Yii::app()->db;
-    
+
     // подключаем модели модуля
     Yii::app()->controller->module->setImport(array(
-			$moduleId.'.models.*',
+      $moduleId.'.models.*',
     ));
-    
+
     // проверяем все ли методы для обновления у нас есть
     $verHistory = $this->verHistory();
     unset($verHistory[0]); // первый элемент убираем, так как это версия, с которой приложение начало свое существование
@@ -55,14 +66,14 @@ abstract class HUpdateDb
         $this->updateMethods[(string)$ver] = $curMethod; 
     $this->init();
   }
-  
+
   public static function instance($moduleId)
   {
     Yii::import('application.modules.' . $moduleId . '.admin.UpdateDb', true);
     $updater = new UpdateDb($moduleId);
     return $updater;
   }
-  
+
   /**
    * Метод, который вызывается сразу после инициализации
    * может быть переопределен, для добавления необходимых операций на этапе инициализации
@@ -73,7 +84,7 @@ abstract class HUpdateDb
   protected function init()
   {
   }
-  
+
   /**
    * Метод должен возвращать массив с историей версий БД вида: array(1,1.1,1.2.3,2...)
    * 
@@ -82,7 +93,7 @@ abstract class HUpdateDb
    * @return array история БД
    */
   abstract public function verHistory();
-  
+
   /**
    * Основной метод класса. По очереди запускает методы обновления базы данных.  
    * 
@@ -108,12 +119,12 @@ abstract class HUpdateDb
         $this->logPush($oldV, $newV);       
         $oldV = $newV;
       }
-      
+
       $tr->commit();
-      
+
       // обрабатываем все сообщения в стеке лога
       $this->log();
-      
+
       // обновляем версию БД в конфиге хомяка
       $config = Config::load($this->moduleId); // конфиг, в котором лежит актуальная версия бд
       $config->dbVersion = $newV;

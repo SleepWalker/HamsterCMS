@@ -117,7 +117,7 @@ class HFilterRangeSlider extends CJuiInputWidget
 			  if(empty($this->model->{$this->attribute}) || $this->model->{$this->attribute} < $this->options['min'])
 			    $this->model->{$this->attribute} = $this->options['min'];
 			    
-			  echo '<div class="FilterRangeSlide">';
+			  echo '<div class="FilterRangeSlider">';
 				$options=$this->htmlOptions;
 				echo CHtml::activeLabel($this->model,$this->attribute);
 				echo CHtml::activeLabel($this->model,$this->maxAttribute);

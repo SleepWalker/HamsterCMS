@@ -54,9 +54,9 @@ class AdminAction extends HAdminAction
     $pathTofileListDirectory = Yii::getPathOfAlias($this->scriptAlias);
     if(is_dir($pathTofileListDirectory))
       foreach( new DirectoryIterator($pathTofileListDirectory) as $file) {
-        if( $file->isFile() === TRUE) {
+        if( $file->isFile() === TRUE && $file->getExtension() == 'php') {
           array_push($fileListOfDirectory, array(
-            'name' => $file->getBasename(),
+            'name' => $file->getBasename('.php'),
             //'size' => $file->getSize(),
             //'time' => $file->getMTime()
           ));
@@ -81,7 +81,7 @@ class AdminAction extends HAdminAction
       'dataProvider'=>$dataProvider,
       'buttons' => array(
         'run'=>array(
-          'url'=>'"/admin/meval/run/".substr($data["name"], 0, strpos($data["name"], "."))',
+          'url'=>'"/admin/meval/run/".$data["name"]',
           'imageUrl'=> $this->adminAssetsUrl . '/images/icon_run.png',
         )
       ),

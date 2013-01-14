@@ -112,7 +112,7 @@ class AdminAction extends HAdminAction
 		if(Yii::app()->request->isPostRequest)
 		{
 			// we only allow deletion via POST request
-			$model = Comment::model()->findByPk($this->crudid)->delete();
+			Comment::model()->findByPk($this->crudid)->delete();
 	  }
 		else
 			throw new CHttpException(400,'Не правильный запрос. Пожалуйста не повторяйте этот запрос еще раз.');

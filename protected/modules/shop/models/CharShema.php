@@ -24,6 +24,11 @@ class CharShema extends CActiveRecord
   public $isCaption;
   // indicates wether current char sould be required
   public $isRequired;
+
+  // константы типов характеристик
+  // TODO: возможность выбора цвета именно как цвета
+  // TODO: выводить как-то в виде таблице, причем при наведении, что бы это добро не корявило таблицы заказов
+  const TYPE_VARIANTS = 7;
   
 	/**
 	 * Returns the static model of the specified AR class.
@@ -42,6 +47,7 @@ class CharShema extends CActiveRecord
 	 '4' => 'Число',
 	 '5' => 'Одиноч. выбор',
 	 '6' => 'Скрытое поле',
+   self::TYPE_VARIANTS => 'Варианты',
 	);
 	
   public $_ddMenuArr; // в этой переменной хранится массив для выпадающей менюшки или чекбоксов (редактирование товара - таблица с характеристиками)
@@ -204,6 +210,7 @@ class CharShema extends CActiveRecord
           $element = 'dropDownList';
         break;
         case 3: // checkbox
+        case 7:
           $element = 'checkBoxList';
         break;
       }

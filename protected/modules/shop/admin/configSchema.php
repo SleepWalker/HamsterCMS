@@ -1,12 +1,36 @@
 <?php
 return array(  
+  'codeFormat' => array(
+    'label' => 'Формат кода товаров',
+    'type' => 'dropdownlist',
+    'items' => array(
+      'normal' => 'Обычный',
+      'zerofill' => 'С ведущими нулями',
+      'supplierPreffix' => 'С добавлением id поставщика',
+    ),
+    'default' => 'normal',
+    //'hint' => 'Формат задается аналогично php функции <a href="http://php.net/manual/ru/function.sscanf.php">scanf</a>.<br> Примеры: %s, %\'07s (7 знаков с ведущими нулями). Также можно добавить в начало кода id <a href="/admin/shop/suppliers">производителя</a>: <b>%\'02d</b>%\'05s. Внимание! Код производителя можно добавлять только в начале и только в указаном формате.',
+  ),
+  'codeLength' => array(
+    'label' => 'Длина кода товаров',
+    'type' => 'dropdownlist',
+    'items' => array(
+      '4' => 4,5,6,7,8,9,10,11
+    ),
+    'hint' => 'Имеет значение только в случае, если используется формат кода <b>с добавлением id поставщика</b>',
+    'default' => 7,
+  ),
   'viewCssFile'=> array(
     'label' => 'Адрес css файла для вида товаров',
     'type' => 'text',
   ),
   'filterAlign'=> array(
     'label' => 'Выравнивание подсказки в фильтре относительно характеристики (left|right)',
-    'type' => 'text',
+    'type' => 'dropdownlist',
+    'items' => array(
+      'right' => 'right',
+      'left' => 'left',
+    ),
     'default' => 'right',
   ),
   'prodPageSize'=> array(

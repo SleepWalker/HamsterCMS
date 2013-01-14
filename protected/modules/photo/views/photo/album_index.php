@@ -3,7 +3,7 @@
 /* @var $dataProvider CActiveDataProvider */
 
 $this->breadcrumbs=array(
-	'Разделы галереи',
+	$this->module->params['moduleName'],
 );
 
 $this->menu=array(

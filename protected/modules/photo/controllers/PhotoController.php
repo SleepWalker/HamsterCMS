@@ -80,8 +80,13 @@ class PhotoController extends Controller
 	 */
 	public function actionIndex()
 	{
-    $this->render('photo_index',array(
-      'photos'=>Photo::model()->findAll(),
-    ));
+    if($this->module->params['showOnIndex'] == 'album')
+      $this->render('album_index',array(
+        'dataProvider'=>new CActiveDataProvider('Album'),
+      ));
+    else
+      $this->render('photo_index',array(
+        'photos'=>Photo::model()->findAll(),
+      ));
 	}
 }

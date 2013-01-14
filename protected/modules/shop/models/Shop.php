@@ -203,7 +203,7 @@ class Shop extends CActiveRecord
    */
   static function genId($prId, $supplier_id)
   {
-    return str_pad($supplier_id, 2, "0", STR_PAD_LEFT) . str_pad($prId, 5, "0", STR_PAD_LEFT);
+    return sprintf("%'02s%'05s", $supplier_id, $priId);//str_pad($supplier_id, 2, "0", STR_PAD_LEFT) . str_pad($prId, 5, "0", STR_PAD_LEFT);
   }
 
 	/**
@@ -414,8 +414,8 @@ class Shop extends CActiveRecord
     $this->review = $extra['review'];
     $this->video = $extra['video'];
     $this->photo = $extra['photo'];
-    $this->id = str_pad($this->id, 7, "0", STR_PAD_LEFT);
-    $this->prId = substr($this->id, 2);
+    $this->id = sprintf("%'07s", $this->id);
+    list($null, $this->prId) = sscanf($this->id, "%2s%5s");
     if(!is_array($this->photo)) $this->photo = array();
 	}
 	

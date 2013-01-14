@@ -47,44 +47,6 @@ class AdminController extends HAdminController
 	{
     $this->layout = 'main';
 		$this->render('index');
-		/*$auth=Yii::app()->authManager;
- 
-    $auth->createOperation('createPost','create a post');
-    $auth->createOperation('readPost','read a post');
-    $auth->createOperation('updatePost','update a post');
-    $auth->createOperation('deletePost','delete a post');
-     
-    $bizRule='return Yii::app()->user->id==$params["post"]->authID;';
-    $task=$auth->createTask('updateOwnPost','update a post by author himself',$bizRule);
-    $task->addChild('updatePost');
-     
-    $role=$auth->createRole('reader');
-    $role->addChild('readPost');
-     
-    $role=$auth->createRole('author');
-    $role->addChild('reader');
-    $role->addChild('createPost');
-    $role->addChild('updateOwnPost');
-     
-    $role=$auth->createRole('editor');
-    $role->addChild('reader');
-    $role->addChild('updatePost');
-     
-    $role=$auth->createRole('admin');
-    $role->addChild('editor');
-    $role->addChild('author');
-    $role->addChild('deletePost');
-     
-    $auth->assign('reader','readerA');
-    $auth->assign('author','authorB');
-    $auth->assign('editor','editorC');
-    $auth->assign('admin','adminD');*/
-    
-    /*$auth=Yii::app()->authManager;
-    $role=$auth->createRole('admin','Super User');
-    $role=$auth->createRole('stuff', 'Managers of Shop');
-    $auth->assign('admin',1);
-    $auth->assign('admin',9);*/
 	}
 	
 	public function actionLogs()
@@ -281,6 +243,12 @@ class AdminController extends HAdminController
     $this->actionId = ($actionId == 'Index')?'index':implode('/', array_map('strtolower', $actionParts) );
     $this->curModuleUrl = '/' . $this->module->id . '/' . $this->action->id . '/';
     $this->actionPath = $this->curModuleUrl . ( ($this->actionId == 'index')?'':$this->actionId . '/'); // admin/{имя модуля, что администрируется}/{имя действия администрирования}
+
+    //импортим модели и компоненты
+		$this->module->setImport(array(
+			'application.modules.' . $this->action->id . '.models.*',
+			'application.modules.' . $this->action->id . '.components.*',
+    ));
     
     
     /*if($_GET['module'] == 'photo')
@@ -394,10 +362,6 @@ class AdminController extends HAdminController
             'shortName' => array(
               'label' => 'Короткое имя сайта, которым будут подписываться, к примеру, письма от сайта',
               'type' => 'text',
-            ),
-            'vkApiId'=> array(
-              'label' => 'Идентификатор API vkontakte (ApiId)',
-              'type' => 'number',
             ),
             'adminEmail'=> array(
               'label' => 'Емейл администратора',
@@ -594,7 +558,7 @@ class AdminController extends HAdminController
       file_put_contents(Yii::getPathOfAlias('application.config') . '/hamsterModules.php', $configStr);
       
       // Обновим статус модуля в конфиге (FIXME: честно говоря грубый способ... но пока так)
-      Config::load($moduleNameForConfig)->save(false);
+      Config::load($moduleName)->save(false);
       
       $this->redirect('/admin/config' . $redirectParams);
     }

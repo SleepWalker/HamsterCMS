@@ -7,10 +7,17 @@
 * @param Album $model
  */
 $title = isset($model) ? $model->name : $this->module->params['moduleName'];
+if(isset($model))
+{
 $this->breadcrumbs=array(
-	'Albums'=>array('index'),
+	$this->module->params['moduleName']=>array('index'),
 	$title,
 );
+}else{
+  $this->breadcrumbs=array(
+    $this->module->params['moduleName'],
+  );
+}
 
 $this->pageTitle = $title;
 
@@ -27,6 +34,7 @@ if(isset($model))
 <section class="left wideC gridC photoGrid">
 <?php 
 if(!$photos) $photos = $model->photos;
+if(is_array($photos))
   foreach($photos as $photo)
     $this->renderPartial('_view_photo', array('data'=>$photo));
 ?>

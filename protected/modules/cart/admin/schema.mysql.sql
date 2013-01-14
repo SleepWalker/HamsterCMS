@@ -73,6 +73,7 @@ CREATE TABLE IF NOT EXISTS `order_check` (
   `prod_id` int(11) unsigned NOT NULL,
   `quantity` int(10) unsigned NOT NULL,
   `price` decimal(19,2) unsigned NOT NULL,
+  `meta` TEXT,
   PRIMARY KEY (`id`),
   KEY `order_id` (`order_id`,`prod_id`),
   KEY `prod_id` (`prod_id`)

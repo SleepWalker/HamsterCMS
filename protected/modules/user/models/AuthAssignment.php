@@ -104,6 +104,33 @@ class AuthAssignment extends CActiveRecord
     return $this->user->email;
   }
 
+  /**
+   * Выполняет обработку трансфера пользователя в выбранную им роль в зависимости от $assign
+   * 
+   * @param boolean $assign если true пользователь будет перемещен в выбранную им роль
+   * @access public
+   * @return AuthAssignment модель с информацией до трансфера
+   */
+  public function transfer($userid, $assign)
+  {
+    $aa = AuthAssignment::model()->findByPk(array('userid' => $userid, 'itemname' => 'transfer'));
+
+    $role = $aa->data['chosenRole'];
+    if($assign)
+      AuthItem::am()->assign($role, $aa->userid);
+
+    AuthItem::am()->revoke('transfer', $aa->userid);
+
+    $aa->user->mail(array(
+      'application.modules.user.views.mail.transfer_user', 
+      'chosenRole' => $role, 
+      'accepted' => $assign,
+      'user' => $aa->user,
+    ), Yii::app()->params['shortName']);
+
+    return $aa;
+  }
+
 	/**
 	 * Retrieves a list of models based on the current search/filter conditions.
 	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.

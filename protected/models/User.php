@@ -17,7 +17,7 @@
  * @property ShopRating[] $shopRatings
  *
  * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @package    shop.ShopController
+ * @package    hamster.models.User
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
@@ -49,6 +49,13 @@ class User extends CActiveRecord
 	{
 		return parent::model($className);
 	}
+
+  public function init()
+  {
+    Yii::app()->setImport(array(
+      'application.modules.user.models.*',
+    ));
+  }
 
 	/**
 	 * @return string the associated database table name
@@ -264,19 +271,21 @@ class User extends CActiveRecord
    * @access protected
    * @return void
    */
-  static protected function mailInternal(array $view, $subject, $to = false, $from = false)
+  static protected function mailInternal($view, $subject, $to = false, $from = false)
   {
     $message = new YiiMailMessage;
 
+    if(!is_array($view)) $view = array($view);
+
     list($view, $params) = array(array_shift($view), $view);
 
-    if(($pos = strrpos($view, '.')) && Yii::getPathOfAlias($view))
+    /*if(($pos = strrpos($view, '.')) && Yii::getPathOfAlias($view))
     { 
       // передан правильный алиас, значит нам надо
       // использовать не стандартный путь к вьюхам
       Yii::app()->mail->viewPath = substr($view, 0, $pos);
       $view = substr($view, $pos + 1);
-    }
+    }*/
 
     if(!$from)
       $from = array(Yii::app()->params['noReplyEmail'] => Yii::app()->params['shortName']);
@@ -305,7 +314,7 @@ class User extends CActiveRecord
    * @access public
    * @return void
    */
-  public static function mailAdmin(array $view, $subject, $to = false, $from = false)
+  public static function mailAdmin($view, $subject, $to = false, $from = false)
   {
     self::mailInternal($view, $subject, $to, $from);
   }
@@ -316,7 +325,7 @@ class User extends CActiveRecord
 	**/
 	public function sendMailConfirm()
 	{
-	  $this->mail('confirmMail', 'Активация аккаунта на ' . Yii::app()->params['shortName']);
+	  $this->mail('//mail/confirmMail', 'Активация аккаунта на ' . Yii::app()->params['shortName']);
 	}
 	
 	/**
@@ -324,7 +333,7 @@ class User extends CActiveRecord
 	**/
 	public function sendChpassMail()
 	{
-	  $this->mail('changePassword', 'Смена пароля на ' . Yii::app()->params['shortName']);
+	  $this->mail('//mail/changePassword', 'Смена пароля на ' . Yii::app()->params['shortName']);
 	}
 	
 	/**

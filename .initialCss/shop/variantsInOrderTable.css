@@ -1,0 +1,34 @@
+/* Отображение вариантов в таблице заказа */
+
+#cartContent dd,
+#cartContent dt,
+#cartContent dl
+{
+  margin:0; padding:0;
+  line-height:20px;
+  color:#999;
+}
+
+#cartContent dd,
+#cartContent dt
+{
+  display:inline;
+}
+
+#cartContent dt:after,
+#cartContent dd:after
+{
+  content:':';
+  padding-right: 3px;
+  display: inline;
+}
+
+#cartContent dd:after
+{
+  content:',';
+}
+
+#cartContent dd:last-child:after
+{
+  content:normal;
+}

@@ -4,3 +4,4 @@ Disallow: /success/
 Disallow: /admin/
 Disallow: /cart/
 Disallow: /api/
+Disallow: /shop/compare/

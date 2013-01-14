@@ -1,0 +1,32 @@
+/* Вид фотографий модуля photo */
+.photoGrid {
+  text-align:center;
+}
+
+.photoGrid .block {
+  display: inline-block;
+  width:auto;
+  padding:0;
+  box-shadow:none;
+  overflow:hidden;
+  margin:8px;
+}
+
+.photoGrid .block img,
+.photoGrid .block {
+  width:180px;
+  height:180px;
+}
+
+.photoGrid .block header {
+  background: rgba(255,255,255,0.3);
+  position: relative;
+  padding: 10px 0;
+}
+
+.photoGrid .block * {
+  margin-top: 0;
+  margin-bottom: 0;
+  font-size:13px;
+  color:#121212;
+}

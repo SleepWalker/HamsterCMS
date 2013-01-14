@@ -25,6 +25,7 @@ class PriceCat extends CActiveRecord
    * @property array $_models используется аналогичным образом как и такая же переменная в родительском классе
    */
   private static $_models=array();      // class name => model
+	private $_md;								// meta data
 
   /**
    * Этот метод полностью соответствует аналогичному в CActiveRecord,

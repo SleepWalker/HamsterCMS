@@ -72,7 +72,7 @@ class Char extends CActiveRecord
 			array('char_id, char_value', 'safe', 'on'=>'search'),
 		);
 	}
-  
+
   protected function beforeValidate()
   {
     if(parent::beforeSave())
@@ -83,6 +83,29 @@ class Char extends CActiveRecord
     }
     else
       return false;
+  }
+
+  /**
+   * Функция, пребразующая значения характеристики в удобный для юзера формат  
+   * 
+   * @access public
+   * @return string html код
+   */
+  public function getValue()
+  {
+    $value = $this->char_value;
+
+    if($this->charShema->type == CharShema::TYPE_VARIANTS)
+    {
+      // делаем выпадающий список, 
+      // используя который, юзер должен делать выбор варианта товара
+      $items = array_flip(explode(';', $value));
+      foreach($items as $i => &$item)
+        $item = $i;
+
+      $value = CHtml::dropDownList('variants['.$this->primaryKey.']','',$items);
+    }
+    return $value;
   }
   
   /**

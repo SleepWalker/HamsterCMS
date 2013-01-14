@@ -10,10 +10,10 @@
 /* Виджет комментариев */
 .HCommentInternal textarea {
   height: 56px;
-  padding: 3px 0px;
+  padding: 5px 1%;
   resize: vertical;
   font-size: 11px;
-  width:100%;
+  width:98%;
 }
 
 .HCommentInternal input {

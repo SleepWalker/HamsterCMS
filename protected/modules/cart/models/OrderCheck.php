@@ -8,6 +8,7 @@
  * @property string $order_id
  * @property string $prod_id
  * @property string $quantity
+ * @property string $meta дополнительная информация о товаре (цвет, размер и т.д.)
  *
  * The followings are the available model relations:
  * @property Shop $prod
@@ -72,9 +73,22 @@ class OrderCheck extends CActiveRecord
 			'id' => 'ID',
 			'order_id' => 'Order',
 			'prod_id' => 'Код товара',
-			'quantity' => 'Количество',
+      'quantity' => 'Количество',
+      'meta' => 'Дополнительная информация о товаре',
 		);
 	}
+
+  public function afterFind()
+  {
+    parent::afterFind();
+    // создаем из мета информации необходимую нам структуру
+    if(!empty($this->meta))
+    {
+      foreach(unserialize($this->meta) as $name => $value)
+        $meta .= "<b>$name</b>: $value<br />";
+      $this->meta = $meta;
+    }
+  }
 
 	/**
 	 * Retrieves a list of models based on the current search/filter conditions.

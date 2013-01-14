@@ -26,11 +26,17 @@ class PriceController extends Controller
 	 * This method is used by the 'accessControl' filter.
 	 * @return array access control rules
 	 */
-	public function accessRules()
-	{
-		return array(
-		);
-	}
+  public function accessRules()
+  {
+    return array(
+      array('allow',
+      'roles'=>array('price.access'),
+    ),
+    array('deny',  // deny all users
+    'users'=>array('*'),
+  ),
+);
+  }
 
   /**
    * Отображает прайсы и фильтрует их позиции на основе информации из GET запроса

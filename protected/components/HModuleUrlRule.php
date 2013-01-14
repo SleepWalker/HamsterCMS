@@ -106,10 +106,8 @@ class HModuleUrlRule extends CBaseUrlRule
         // Массив с адресами всех модулей
         $moduleUrls[$moduleId] = $moduleUrl ? $moduleUrl : $moduleId;
       }
-      // админский модуль пока живет сам по себе!
-      $moduleUrls['admin'] = 'admin';
       
-      if(!in_array($url[0], $moduleUrls)) return false; // нет такого модуль
+      if(!in_array($url[0], $moduleUrls)) return false; // нет такого модуля
 
       $getModuleByUrl = array_flip($moduleUrls);
       $moduleId = $getModuleByUrl[$url[0]];
@@ -153,15 +151,26 @@ class HModuleUrlRule extends CBaseUrlRule
       $actionId = implode($actionParts);
       while( !method_exists($controllerClass, 'action' . $actionId) )
       {
-        if(count($actionParts) == 0) // осталось проверить только view действие
-          if(!isset($url[2]) && method_exists($controllerClass, 'actionView')) //view действия
+        // осталось проверить только view действие
+        if(count($actionParts) == 0)
+        {
+          if(method_exists($controllerClass, 'actionView'))
           {
-            // если второй параметр в url - не controllerId, значит это viewUrl
-            $_GET['id'] = $url[1];
-            return $moduleId . '/' . $moduleId . '/view';
-          }else{
-            return false;
+            if(!isset($url[2])) 
+            {
+              // module/module/view  + id параметр
+              $_GET['id'] = $url[1];
+              return $moduleId . '/' . $moduleId . '/view';
+            }
+            elseif(!isset($url[3]) && $url[0] != $url[1]) 
+            {
+              // module/controller/view + id параметр
+              $_GET['id'] = $url[2];
+              return $moduleId . '/' . $controllerId . '/view';
+            }
           }
+          return false;
+        }
 
         unset($actionParts[count($actionParts)-1]);
         $actionId = implode($actionParts);
@@ -200,7 +209,7 @@ class HModuleUrlRule extends CBaseUrlRule
         array_pop($actionParams); // удаляем элемент _pattern
         $_pattern = $lastParam->getDefaultValue();
         
-        // тут идет кусок скоращенного и немного переделанного кода конструктора CUrlRule
+        // тут идет кусок сокращенного и немного переделанного кода конструктора CUrlRule
         // =========================
         if(preg_match_all('/<(\w+):?(.*?)?>/',$_pattern,$matches))
         {

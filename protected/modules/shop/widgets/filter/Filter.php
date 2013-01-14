@@ -3,7 +3,7 @@
  * Filter widget class for shop module
  *
  * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @package    shop.ShopController
+ * @package    hamster.modules.shop.widgets.filter.Filter
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
@@ -25,7 +25,6 @@ class Filter extends CWidget
     
     // регестрируем assets
     $this->assetsUrl = Yii::app()->getAssetManager()->publish($widgetPath.'assets',false,-1,YII_DEBUG);
-    $this->registerCssFile('filter.css');
     $this->registerCssFile('tip-twitter.css');
     $this->registerScriptFile('jquery.poshytip.min.js');
     
@@ -57,7 +56,7 @@ class Filter extends CWidget
 	    );
 	    
 	    $models = $dataProvider->getData();
-	    echo '<section id="ShopProductFilter">';
+	    echo '<section id="ShopProductFilter" class="hAsideCharFilter">';
 	    // убираем GET запрос из url (если такой был)
 	    $action = preg_replace('/\?[^\?]*$/','',$_SERVER["REQUEST_URI"]);
 	    echo CHtml::beginForm($action, 'GET');
@@ -93,15 +92,15 @@ class Filter extends CWidget
 
 	    foreach ($models as $model)
 	    {
-	     if ($model->type == 1 || $model->type == 6) continue; // текстовые или скрытые  поляне обрабатываем
+	     if ($model->type == 1 || $model->type == 6) continue; // текстовые или скрытые поля не обрабатываем
 	     echo '<h4>' . $model->char_name . '</h4>';
-	     if($model->type == 3 || $model->type == 2 || $model->type == 5)
+	     if($model->type == 3 || $model->type == 2 || $model->type == 5 || $model->type == CharShema::TYPE_VARIANTS)
 	     { // поля типа множественный (select/checkbox) и одиночный выбор
 	       $chtmlMethodName = $model->type == 5 ? 'radioButtonList' : 'checkBoxList';
 	       // для характеристик типа множественный выбор (checkbox) делаем отдельный элемент в массиве запроса
 	       // так как там нужно обеспечить сравнения по типу LIKE
-	       $inputName = $model->type == 3 ? "CF[m][" . $model->char_id . "]" : "CF[" . $model->char_id . "]";
-	       $inputValues = $model->type == 3 ? $_GET['CF']['m'][$model->char_id] : $_GET['CF'][$model->char_id];
+	       $inputName = $model->type == 3 || $model->type == CharShema::TYPE_VARIANTS ? "CF[m][" . $model->char_id . "]" : "CF[" . $model->char_id . "]";
+	       $inputValues = $model->type == 3 || $model->type == CharShema::TYPE_VARIANTS ? $_GET['CF']['m'][$model->char_id] : $_GET['CF'][$model->char_id];
 	       echo CHtml::$chtmlMethodName($inputName, $inputValues, 
           $model->ddMenuArr['items']);
 	     }
@@ -130,8 +129,8 @@ class Filter extends CWidget
         ));
 	     }
 	    }
-	    echo '<p>' . CHtml::submitButton('Применить', array('name'=>'', 'style'=>'width:114px;'));
-	    echo '<br />' . CHtml::button('Сброс', array('style'=>'width:114px;', 'onclick'=>'location.href=' . CJavaScript::encode($action))) . '</p>';
+	    echo '<p>' . CHtml::submitButton('Применить', array('name'=>''));
+	    echo '<br />' . CHtml::button('Сброс', array('onclick'=>'location.href=' . CJavaScript::encode($action))) . '</p>';
 	    echo CHtml::endForm();
 	    echo '</section>';
 	    

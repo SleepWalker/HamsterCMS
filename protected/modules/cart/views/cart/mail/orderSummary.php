@@ -50,8 +50,14 @@ PWN-Zone.com
 <p style="font-size:20px;"><b>Вы заказали:</b></p>
 <ul>
 <?php
-  foreach($cart as $prodId => $prod)
-    echo '<li>' . $prod->product_name . ' (' . $prod->id . ')' . ' — ' . $prod->price . ' грн.</li>';
+  foreach($cart as $prod)
+  {
+    echo '<li>' . $prod->product_name . ' (' . $prod->id . ')' . ' — ' . $prod->price . ' грн.';
+    if(isset($prod->variants))
+      foreach($prod->variants as $name => $value)
+        echo "<br />$name: $value";
+    echo '</li>';
+  }
 ?>
 </ul>
 </td>

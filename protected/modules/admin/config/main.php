@@ -80,7 +80,7 @@ return
         // на некоторых хостах пхп не может на прямую передавать параметры серверу
         'transportOptions' => false,
    			'logging' => true,
-   			'dryRun' => false // when true the mail will not be sended
+   			'dryRun' => YII_DEBUG, // when true the mail will not be sended
    		),
       'widgetFactory'=>array(
         'class'=>'EWidgetFactory',

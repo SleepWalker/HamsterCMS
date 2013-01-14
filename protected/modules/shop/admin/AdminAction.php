@@ -141,8 +141,10 @@ class AdminAction extends HAdminAction
   public function actionUpdate() 
   {
     $uploadPath = $_SERVER['DOCUMENT_ROOT'].Shop::$uploadsUrl;
+    if(($dir = Yii::getPathOfAlias('webroot.uploads')) && !is_writable($dir))
+      throw new CException("Нужны права на запись в директорию '$dir'");
 	  if(!is_dir($uploadPath)) // создаем директорию для картинок
-	    mkdir($uploadPath, 0777);
+	    mkdir($uploadPath, 0777, true);
 	    
     //JS для обработки зависимых выпадающих списков выбора категории и подгрузки полей характеристик
     $this->registerFormUpdScript();

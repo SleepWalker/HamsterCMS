@@ -436,6 +436,14 @@ th{
   -moz-border-radius-topleft: 5px;
 }
 
+/* Таблицы для redactorJs */
+.redactor_editor table tbody th,
+.redactor_editor table tbody tr,
+.redactor_editor table tbody td {
+  background: none;
+}
+/**/
+
 th:empty, th.button-column{
   background: transparent;
   border: none;
@@ -642,6 +650,16 @@ input[type = submit], input[type = button] {
   color: #FFFFFF;
   cursor: pointer;
   border: 1px #380912 solid;
+}
+
+
+form > input[type = submit], 
+form > input[type = button], 
+.form > input[type = submit], 
+.form > input[type = button] 
+{
+  display:block;
+  margin: 10px 0;
 }
 
 input[type = radio], input[type = checkbox] {

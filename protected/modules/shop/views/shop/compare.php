@@ -43,7 +43,9 @@ foreach ($models as $model)
   </div>
   <p style="font-weight:normal">
   <b style="color:#609d00;"> <?php echo number_format($model->price, 2, ',', ' ') ?> грн. </b><br />
-  <?php echo number_format(round($model->price/Yii::app()->params->currency['toDollar']), 2, ',', ' ') ?> $
+  <?php 
+    if(is_array(Yii::app()->params['currency']) && Yii::app()->params->currency['toDollar'] && Yii::app()->params->currency['toEmoney'])    
+      echo number_format(round($model->price/Yii::app()->params->currency['toDollar']), 2, ',', ' ') ?> $
   </p>
   <a href="/cart/add/<?php echo $model->id ?>" class="button buyButton">Купить</a>
   </th>

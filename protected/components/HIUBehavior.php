@@ -279,10 +279,15 @@ class HIUBehavior extends CActiveRecordBehavior
    */
   public function getUploadPath()
   {
-    $dir = Yii::getPathOfAlias('webroot') . '/uploads/'.$this->dirName.'/';
+    if(($dir = Yii::getPathOfAlias('webroot.uploads')) && !is_writable($dir))
+      throw new CException("Нужны права на запись в директорию '$dir'");
+
+    $dir = $dir . '/'.$this->dirName.'/';
+
     foreach($this->sizes as $sizeName => $size)
       if(!is_dir($dir.$size['prefix']))
-        mkdir($dir.$size['prefix']); // создаем директорию для картинок
+        mkdir($dir.$size['prefix'], 0777, true); // создаем директорию для картинок
+
     return $dir;
   }
   

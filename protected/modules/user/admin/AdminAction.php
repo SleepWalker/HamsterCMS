@@ -18,12 +18,6 @@ class AdminAction extends HAdminAction
 
   public function run()
   {    
-    // import the module-level models and components
-		$this->module->setImport(array(
-			'user.models.*',
-			'user.components.*',
-    ));
-
     $this->am=Yii::app()->authManager;
   }
   
@@ -158,7 +152,7 @@ class AdminAction extends HAdminAction
   public function actionAssign()
   {
     AuthItem::model()->am->assign($_POST['role'], $_POST['userId']);
-    echo '<div class="tagControll">' . $_POST['role'] . '<a href="" class="icon_delete"></a></div>';
+    echo '<div class="tagControll">' . $_POST['role'] . '<a href="" class="icon_delete roleRevoke"></a></div>';
   }
 
   /**
@@ -337,23 +331,48 @@ class AdminAction extends HAdminAction
     );
   }
 
+  /**
+   * Отклонение перемещения пользователя в выбранную им при регистрации роль  
+   * 
+   * @access public
+   * @return void
+   */
   public function actionTransferRevoke()
   {
-    //TODO: переместить в модель
-    $this->am->revoke('transfer', $this->crudid);
+    $this->actionTransferAssign(false);
   }
 
-  public function actionTransferAssign()
+  /**
+   * Подтверждение перемещения пользователя в выбранную им при регистрации роль 
+   * 
+   * @param boolean $assign если true пользователь будет перемещен в выбранную им роль
+   * @access public
+   * @return void
+   */
+  public function actionTransferAssign($assign = true)
   {
-    //TODO: переместить в модель
-    $assignment = $this->am->getAuthAssignment('transfer', $this->crudid);
-    $authAss = AuthAssignment::model()->findByPk(array('userid' => $this->crudid, 'itemname' => 'transfer'));
-    $role = $assignment->data['chosenRole'];
-    $this->am->assign($role, $this->crudid);
-    $this->am->revoke('transfer', $this->crudid);
-    $authAss->user->mail(array('transferSuccess', 'role' => $role), 'Ваша заявка одобрена');
-    Yii::app()->user->setFlash('success', 'Пользователь <b>' . $authAss->name . '</b> успешно перемещен в группу "' . $role . '"');
+    $model = AuthAssignment::model()->transfer($this->crudid, $assign);
+
+    if($assign)
+      Yii::app()->user->setFlash('success', 'Пользователь <b>' . $model->name . '</b> успешно перемещен в группу "' . $model->data['chosenRole'] . '"');
+
     $this->redirect('/admin/user/transfer');
   }
+
+	/**
+	 * Deletes a particular model.
+	 * If deletion is successful, the browser will be redirected to the 'admin' page.
+	 * @param integer $id the ID of the model to be deleted
+	 */
+	public function actionDelete()
+	{
+		if(Yii::app()->request->isPostRequest)
+		{
+			// we only allow deletion via POST request
+			User::model()->findByPk($this->crudid)->delete();
+	  }
+		else
+			throw new CHttpException(400,'Не правильный запрос. Пожалуйста не повторяйте этот запрос еще раз.');
+	} 
 } 
 ?>

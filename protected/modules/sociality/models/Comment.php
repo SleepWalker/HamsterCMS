@@ -30,6 +30,12 @@ class Comment extends CActiveRecord
    */
   protected $_email;
 
+  /**
+   * @property mixed $_relatedModel модель, к которой привязаны комментарии 
+   *    или пустышка в случае если это статические страницы
+   */
+  protected $_relatedModel;
+
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @param string $className active record class name.
@@ -130,7 +136,20 @@ class Comment extends CActiveRecord
     if(!$this->isNewRecord)
     {
       $this->date = Yii::app()->dateFormatter->formatDateTime($this->date, 'short', 'short');
+    }
+  }
 
+  /**
+   * Возвращает модель к которой были прикрепленны комменты или обьект-пустышку 
+   * с свойством viewUrl в случае, если это статическая страница
+   * 
+   * @access public
+   * @return void
+   */
+  public function getModel()
+  {
+    if(!isset($this->_relatedModel))
+    {
       list($moduleId, $modelId) = explode('.', $this->model_id);
       if(empty($modelId))
       {
@@ -138,15 +157,22 @@ class Comment extends CActiveRecord
         unset($moduleId);
       }
 
-      if(isset($moduleId))
+      $modelId = ucfirst($modelId);
+
+      if(isset($moduleId) && file_exists(Yii::getPathOfAlias('application.modules.' . $moduleId . '.models.') . DIRECTORY_SEPARATOR . $modelId . '.php'))
       {
-        Yii::import('application.modules.' . $moduleId . '.models.*');
+        Yii::import('application.modules.' . $moduleId . '.models.' . $modelId);
+        $this->metaData->addRelation('modelRelation', array(
+          self::BELONGS_TO, $modelId, 'model_pk'
+        ));
+        $this->_relatedModel = $this->modelRelation;
+      }else{
+        $this->_relatedModel = (object) array(
+          'viewUrl' => Yii::app()->createUrl('page/index', array('path' => strtolower($modelId))),
+        );
       }
-      
-      $this->metaData->addRelation('model', array(
-        self::BELONGS_TO, ucfirst($modelId), 'model_pk'
-      ));
     }
+    return $this->_relatedModel;
   }
 
   /**

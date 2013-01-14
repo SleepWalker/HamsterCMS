@@ -41,14 +41,21 @@ $this->beginWidget('application.widgets.lightbox.HLightBox', array(
   'id'=>'prod_photo',
 ));
 
-  $width = 280;
-  foreach($model->photo as $src) {
-    echo CHtml::link(
+$width = 280;
+$src = array_shift($model->photo);
+echo CHtml::link(
+  CHtml::image(Shop::imgSrc($src, $width), $this->pageTitle, array('width'=>$width)),
+  Shop::imgSrc($src)
+);
+$width = 45;
+echo '<div class="smallPreviews">';
+foreach($model->photo as $src) {
+  echo CHtml::link(
     CHtml::image(Shop::imgSrc($src, $width), $this->pageTitle, array('width'=>$width)),
     Shop::imgSrc($src)
-    );
-    $width = 45;
-  }
+  );
+}
+echo '</div>';
  
 $this->endWidget('application.widgets.lightbox.HLightBox');
 
@@ -76,8 +83,17 @@ echo $model->statusName;
 ?></div>
 
 <section class="pricePart">
-  <b><?php echo number_format($model->price, 2, ',', ' '); ?> грн.</b>
-  <?php echo number_format(round($model->price/Yii::app()->params->currency['toDollar']), 2, ',', ' '); ?> $
+<b><?php
+if($model->price)
+  echo number_format($model->price, 2, ',', ' ') . ' грн.'; 
+else
+  echo 'Цену уточняйте';
+
+?></b>
+  <?php 
+  if(is_array(Yii::app()->params['currency']) && Yii::app()->params->currency['toDollar'])
+    echo number_format(round($model->price/Yii::app()->params->currency['toDollar']), 2, ',', ' ') . ' $'; 
+  ?>
 </section>
 <div class="additionalActions">
   <?php
@@ -90,7 +106,8 @@ echo $model->statusName;
 </div>
 <p style="clear:both;padding-top:5px;">
 <?php 
-echo 'Б/Н и электронные деньги: <b>' . number_format(round($model->price/Yii::app()->params->currency['toDollar']*Yii::app()->params->currency['toEmoney']), 2, ',', ' ') . ' грн.</b>';
+  if(is_array(Yii::app()->params['currency']) && Yii::app()->params->currency['toDollar'] && Yii::app()->params->currency['toEmoney'])
+    echo 'Б/Н и электронные деньги: <b>' . number_format(round($model->price/Yii::app()->params->currency['toDollar']*Yii::app()->params->currency['toEmoney']), 2, ',', ' ') . ' грн.</b>';
 ?>
 <?php if ($model->waranty != '') { ?>
 <span style="float:right;">Гарантия <b><?php echo $model->waranty ?></b> мес.</span>
@@ -177,7 +194,7 @@ echo 'Б/Н и электронные деньги: <b>' . number_format(round($
               {
                 ob_start();
                 echo '<tr><td>' . $charShema->char_name . $suffix . '</td>
-                <td>' . $char->char_value . '</td></tr>';
+                <td>' . $char->value . '</td></tr>';
                 $charRow[$char->char_id] = ob_get_clean();
               }elseif($charShema->isCaption && $charShema->type == 1) // Отображаем характеристику как заголовок
               {

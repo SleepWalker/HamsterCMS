@@ -173,14 +173,27 @@ class Order extends CActiveRecord
 		);
 	}
 
+  /**
+   * Возвращает доступные валюты для использования в форме оформления заказа
+   * 
+   * @access public
+   * @return array
+   */
   public function getOrderCurrency()
   {
-    $currencyParams = Yii::app()->modules['cart']['params']['emoney'];
-    foreach($currencyParams['other'] as $currencyId)
+    $currencyParams = isset(Yii::app()->modules['cart']['params']['emoney']) 
+      ? Yii::app()->modules['cart']['params']['emoney'] 
+      : array();
+
+    // прочие, не электронные, способы оплаты
+    if(is_array($currencyParams['other']))
     {
-      $enabledCurrencies[$currencyId] = $this->_orderCurrency[$currencyId];
+      foreach($currencyParams['other'] as $currencyId)
+      {
+        $enabledCurrencies[$currencyId] = $this->_orderCurrency[$currencyId];
+      }
+      unset($currencyParams['other']);
     }
-    unset($currencyParams['other']);
 
     foreach($currencyParams as $emoneyId => $emoney)
     {
@@ -196,13 +209,26 @@ class Order extends CActiveRecord
         }
     }
 
+    if(!count($enabledCurrencies))
+      throw new CException('Настройте хоть один способ оплаты в админкe');
+
     return $enabledCurrencies;
   }
 
 
+  /**
+   * Возвращает доступные способы доставки
+   * 
+   * @access public
+   * @return array
+   */
   public function getOrderType()
   {
     $typeParams = Yii::app()->modules['cart']['params']['deliveryTypes'];
+
+    if(!count($typeParams))
+      throw new CException('Настройте хоть один способ доставки');
+
     foreach($typeParams as $typeId)
       $enabledTypes[$typeId] = $this->_orderType[$typeId];
 
