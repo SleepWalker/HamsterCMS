@@ -135,12 +135,20 @@ class YiiMailMessage extends CComponent {
 				$controller = Yii::app()->controller;
 			else
 				$controller = new CController('YiiMail');
-			
+
+      // FIXME: это нам не нужно. я не использую консольные приложения, потому сделаем расширение более удобным.
+      // теперь оно будет работать в точности так же, как и работает render у текущего контроллера
 			// renderPartial won't work with CConsoleApplication, so use 
 			// renderInternal - this requires that we use an actual path to the 
 			// view rather than the usual alias
-			$viewPath = Yii::getPathOfAlias(Yii::app()->mail->viewPath.'.'.$this->view).'.php';
-			$body = $controller->renderInternal($viewPath, array_merge($body, array('mail'=>$this)), true);	
+			//$viewPath = Yii::getPathOfAlias(Yii::app()->mail->viewPath.'.'.$this->view).'.php';
+      //$body = $controller->renderInternal($viewPath, array_merge($body, array('mail'=>$this)), true);	
+
+      if($this->view[0] != '/' && strpos($this->view, '.') === false)
+        // пускай папка с шаблонами писем находится в папке mail в папке вьюх текущего контроллера
+        $this->view = 'mail/'.$this->view; 
+
+      $body = $controller->renderPartial($this->view, array_merge($body, array('mail'=>$this)), true);
 		}
 		return $this->message->setBody($body, $contentType, $charset);
 	}
