@@ -192,6 +192,10 @@ class AdminController extends HAdminController
   protected function afterAction(CAction $action) 
   {
     //if ($action->id == 'index' || $action->id == 'logs') return true;
+
+    // если сейчас не активно AdminAction, то нам нету смысла выполнять эту функцию дальше
+    if(!($action instanceof AdminAction))
+      return;
     
     $path = implode('/', array(
       $_GET['module'],

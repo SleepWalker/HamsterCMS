@@ -33,6 +33,43 @@ class HAdminController extends CController
   public $adminAssetsUrl;
 
   /**
+   * Переопредиляем стандартный метод таким образом, что бы он искал вьюхи в следущем порядке:
+   *  - Сначала во вьюхах админки (admin/views/admin/*)
+   *  Далее, если активно действие администрирования модуля (AdminAction)
+   *    - в темах модуля, который админиться (themes/.../moduleId/admin/*)
+   *    - во вьюхах модуля, который админиться (views/moduleId/admin/*)
+   *
+   *  Примечание: Стандартный метод getViewFile так же будет искать вьюхи модуля admin и в темах, 
+   *      но так как по умолчанию не рассчитывается, что такие будут, они не вошли в список выше
+   * 
+   * @param string $viewName 
+   * @access public
+   * @return mixed путь к файлу вьюхи или false, если файла не существует
+   */
+  public function getViewFile($viewName)
+  {
+    if(!($viewFile = parent::getViewFile($viewName)) && $this->action instanceof AdminAction)
+    {
+      // попробуем поискать в admin вьюхах текущего модуля
+      // @property $this->action->id id текущего модуля, админ часть которого активна.
+      $basePath = Yii::app()->getViewPath();
+      $moduleViewPath = Yii::getPathOfAlias('application.modules.' . $this->action->id);
+      $viewPath = $moduleViewPath . '/views/admin';
+
+      $themeBasePath = Yii::app()->getTheme()->getViewPath();
+      $themeModuleViewPath = $themeBasePath . '/' . $this->action->id;
+      $themeViewPath = $themeModuleViewPath . '/admin';
+
+      if(!($viewFile = $this->resolveViewFile($viewName,$themeViewPath,$themeBasePath, $themeModuleViewPath)))
+      {
+        $viewFile = $this->resolveViewFile($viewName,$viewPath,$basePath, $moduleViewPath);
+      }
+    }
+
+    return $viewFile;
+  }
+
+  /**
    * Возвращает массив конфигурации табов (карта действий) 
    * 
    * @access public

@@ -491,26 +491,23 @@ class AdminAction extends HAdminAction
     
     $mpdf = Yii::app()->ePdf->mpdf();
     // ищим файлы с лого (либо тема, либо в вьюхах модуля)
-    $viewPathSuffix = '/cart/cart/check/';
-    // устанвливаем путь на нужные нам вьюшки
-    Yii::app()->setViewPath(Yii::getPathOfAlias('application.modules.cart.views'));
-    $this->module->id='cart';
+    $viewPathSuffix = '/cart/admin/check/';
     if(!(
       ($theme=Yii::app()->getTheme())!==null 
       && is_file($logoPath=$theme->viewPath . $viewPathSuffix . 'logo.png')!==false
       && is_file($logoGrayscalePath=$theme->viewPath . $viewPathSuffix . 'logo_grayscale.png')!==false)
       )
     {
-      $logoPath = Yii::getPathOfAlias('cart.views.cart.check') . '/logo_grayscale.png';
-      $logoGrayscalePath = Yii::getPathOfAlias('cart.views.cart.check') . '/logo.png';
+      $logoPath = Yii::getPathOfAlias('cart.views.admin.check') . '/logo_grayscale.png';
+      $logoGrayscalePath = Yii::getPathOfAlias('cart.views.admin.check') . '/logo.png';
     }
 
     $mpdf->logo = file_get_contents($logoGrayscalePath);
-    $mpdf->WriteHTML($this->renderPartial('//cart/check/check', array('order' => $order), true));
+    $mpdf->WriteHTML($this->renderPartial('check/check', array('order' => $order), true));
 
     $mpdf->AddPage();
     $mpdf->logo = file_get_contents($logoPath);
-    $mpdf->WriteHTML($this->renderPartial('//cart/check/waranty', array('order' => $order), true));
+    $mpdf->WriteHTML($this->renderPartial('check/waranty', array('order' => $order), true));
 
     $mpdf->Output('confirm_' . $order->id . '.pdf', EYiiPdf::OUTPUT_TO_BROWSER);
   }
