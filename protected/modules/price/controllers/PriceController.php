@@ -14,12 +14,12 @@ class PriceController extends Controller
 	/**
 	 * @return array action filters
 	 */
-	public function filters()
+	/*public function filters()
 	{
 		return array(
 			'accessControl', // perform access control for CRUD operations
 		);
-  }
+  }*/
   
   /**
 	 * Specifies the access control rules.
@@ -28,14 +28,15 @@ class PriceController extends Controller
 	 */
   public function accessRules()
   {
-    return array(
+    return array();
+    /*return array(
       array('allow',
       'roles'=>array('price.access'),
     ),
     array('deny',  // deny all users
     'users'=>array('*'),
   ),
-);
+);*/
   }
 
   /**

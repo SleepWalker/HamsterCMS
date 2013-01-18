@@ -14,7 +14,7 @@ if($data)
 <br />
 <p>Пользователя интересует следующий товар: 
 <?php
-  echo CHtml::link("{$data->product_name} ($data->id)", Yii::app()->createAbsoluteUrl(Yii::app()->createUrl('shop/shop/view', array('id'=>$data->page_alias))));
+  echo CHtml::link("{$data->product_name} ($data->code)", Yii::app()->createAbsoluteUrl(Yii::app()->createUrl('shop/shop/view', array('id'=>$data->page_alias))));
 }
 ?></p>
 

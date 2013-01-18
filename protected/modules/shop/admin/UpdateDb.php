@@ -4,7 +4,7 @@ class UpdateDb extends HUpdateDb
 {
   public function verHistory()
   {
-    return array(1, 1.1);
+    return array(1, 1.1, 1.2, '1.2.1');
   }
   
   public function update1_1()
@@ -20,5 +20,34 @@ UPDATE `shop` SET `status`=4 WHERE `status`=5;
 UPDATE `shop` SET `status`=5 WHERE `status`=6;
 <?php
     $this->endRawSql();
+  }
+
+  /**
+   * В этом обновлении мы проследим, что бы у колонки id была длина 10 знаков, 
+   * так как теперь длина кода контролируется в модели
+   */
+  public function update1_2()
+  {
+    if(Shop::model()->tableSchema->columns['id']->size != 10)
+    {
+      $this->startRawSql();
+?>
+ALTER TABLE  `shop` CHANGE  `id`  `id` INT( 10 ) UNSIGNED NOT NULL;
+<?
+      $this->endRawSql();
+    }
+  }
+  public function update1_2_1()
+  {
+    if(empty(Shop::model()->tableSchema->columns['code']))
+    {
+      $this->startRawSql();
+?>
+ALTER TABLE  `shop` CHANGE  `id`  `id` INT( 10 ) UNSIGNED NOT NULL AUTO_INCREMENT;
+ALTER TABLE  `shop` ADD  `code` INT UNSIGNED NOT NULL AFTER  `id`;
+UPDATE `shop` SET `code`=`id`;
+<?
+      $this->endRawSql();
+    }
   }
 }

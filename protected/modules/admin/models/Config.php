@@ -493,15 +493,18 @@ if(isset($_SERVER['REMOTE_ADDR']))
       // сохраним в эту переменную изначальную версию элемента конфига params
       // это нужно для того, что бы пофиксить баг оверврайта полностью всех глобальных параметров при сохранении основных настроек цмс (это из-за того, что там linkTo => '$config["params"]'. 
       // То есть при отправке формы ее данные заменят полностью все глобальные параметры, а нам этого не надо
-      $this->_isMerged = $hamsterModules['config']['params'];
+      $this->_isMerged = is_array($hamsterModules['config']['params']) ? $hamsterModules['config']['params'] : true;
     }
 
     // нам надо добавить в массив те эллементы из массива params, которые были затерты оверврайтом при сейве основных настроек
-    $params = $this->_isMerged;
-    $elementsToAdd = array_diff(array_keys($params), array_keys($this->_curModConfig['config']['params']));
-    foreach($elementsToAdd as $elementName)
+    if(is_array($this->_isMerged) && is_array($this->_curModConfig['config']['params']))
     {
-      $this->_curModConfig['config']['params'][$elementName] = $params[$elementName];
+      $params = $this->_isMerged;
+      $elementsToAdd = array_diff(array_keys($params), array_keys($this->_curModConfig['config']['params']));
+      foreach($elementsToAdd as $elementName)
+      {
+        $this->_curModConfig['config']['params'][$elementName] = $params[$elementName];
+      }
     }
   }
   

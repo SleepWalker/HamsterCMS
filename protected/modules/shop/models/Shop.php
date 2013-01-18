@@ -5,6 +5,7 @@
  *
  * The followings are the available columns in table 'shop':
  * @property string $id
+ * @property string $code
  * @property string $supplier_id
  * @property string $edit_date
  * @property string $add_date
@@ -117,8 +118,9 @@ class Shop extends CActiveRecord
 			//!T: review, video = url нужно добавить это правило
 			array('status', 'length', 'max'=>1),
       array('supplier_id', 'length', 'max'=>2),
-      array('prId', 'length', 'max'=>5),
-      array('id', 'length', 'max'=>7),
+      //Длину кодов проверим в idValidator
+      //array('prId', 'length', 'max'=>5),
+      //array('id', 'length', 'max'=>7),
 			//array('categorie, new*', 'safe'),
 			array('uImage', 'file',
         'types'=>'jpg, gif, png',
@@ -135,11 +137,11 @@ class Shop extends CActiveRecord
               'value'=>new CDbExpression('NOW()'),
               'setOnEmpty'=>false,'on'=>'insert')*/
       array('page_alias', 'unique'),
-      array('prId', 'idUniqValidator'),
+      array('prId, code', 'idValidator'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
       // используется в админке
-			array('id, date_add_from, date_add_to, date_edit_from, date_edit_to, page_title, price, product_name, rating, status, user_search, cat_search, brand_search, supplier_search', 'safe', 'on'=>'search'),
+			array('code, date_add_from, date_add_to, date_edit_from, date_edit_to, page_title, price, product_name, rating, status, user_search, cat_search, brand_search, supplier_search', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -179,31 +181,55 @@ class Shop extends CActiveRecord
   
   /**
    *  Проверяет уникальность идентификатора продукта
+   *  а так же соответствию формату, заданному в настройках модуля
    */
-  public function idUniqValidator($attribute,$params)
+  public function idValidator($attribute,$params)
   {
-    // Составляем id из prId (идентификатор продукта) и supplier_id (идентификатор поставщика)
-    $id = self::genId($this->prId, $this->supplier_id);
-    
-    if(!$this->isNewRecord && (int)$id==(int)$this->oldPrimaryKey) return true;
-    if($attribute != 'prId')
-      throw new CException('idUniqValidator should be used on prId attribute');
-    
-    if(Shop::model()->findByPk($id))
-      $this->addError($attribute, 'Продукт с таким кодом уже существует');
+    if($attribute != 'prId' && $attribute != 'code')
+      throw new CException('idValidator should be used on prId or code attribute');
+
+    // Составляем code из prId (идентификатор продукта) и supplier_id (идентификатор поставщика)
+    $code = self::genCode($this->prId, $this->supplier_id);
+
+    if($attribute == 'prId')
+    {
+      if(($model = Shop::model()->findByAttributes(array('code' => $code))) && $model->primaryKey != $this->primaryKey)
+        $this->addError($attribute, 'Продукт с таким кодом уже существует');
+
+      $codeFormat = Yii::app()->modules['shop']['params']['codeFormat'];
+
+      if($codeFormat == 'supplierPreffix' || $codeFormat == 'zerofill') {
+        // проверим длину prId
+        $maxLength = Yii::app()->modules['shop']['params']['codeLength'];
+        if($codeFormat == 'supplierPreffix')
+          $maxLength -= 2; 
+        if(strlen($this->prId) > $maxLength)
+          $this->addError($attribute, 'Слишком длинный код');
+      }
+    }
   }
   
   /**
-   *  Генерирует конечный id товара из id поставщика и id товара у поставщика
+   *  Генерирует конечный code товара из id поставщика и prId товара у поставщика
    * 
-   *  @param integer $prId id Товара
+   *  @param integer $prId code Товара
    *  @param integer $supplier_id id поставщика
    *
    *  @return integer $id pkid товара
    */
-  static function genId($prId, $supplier_id)
+  static function genCode($prId, $supplier_id)
   {
-    return sprintf("%'02s%'05s", $supplier_id, $priId);//str_pad($supplier_id, 2, "0", STR_PAD_LEFT) . str_pad($prId, 5, "0", STR_PAD_LEFT);
+    switch(Yii::app()->modules['shop']['params']['codeFormat'])
+    {
+    case 'supplierPreffix':
+      return sprintf("%'02s%'0" . (Yii::app()->modules['shop']['params']['codeLength']-2) . "s", $supplier_id, $priId);//str_pad($supplier_id, 2, "0", STR_PAD_LEFT) . str_pad($prId, 5, "0", STR_PAD_LEFT);
+      break;
+    case 'zerofill':
+      return sprintf("%'0" . Yii::app()->modules['shop']['params']['codeLength'] . "s", $priId);
+      break;
+    default:
+      return $prId;
+    }
   }
 
 	/**
@@ -212,7 +238,7 @@ class Shop extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'id' => 'Код',
+			'code' => 'Код',
 			'edit_date' => 'Дата редактирования',
 			'add_date' => 'Дата добавления',
 			'page_title' => 'Title страницы',
@@ -414,8 +440,16 @@ class Shop extends CActiveRecord
     $this->review = $extra['review'];
     $this->video = $extra['video'];
     $this->photo = $extra['photo'];
-    $this->id = sprintf("%'07s", $this->id);
-    list($null, $this->prId) = sscanf($this->id, "%2s%5s");
+    $this->prId = $this->code;
+
+    // Форматирование кода в зависимости от формата, указанного в админке
+    $codeFormat = Yii::app()->modules['shop']['params']['codeFormat'];
+    if($codeFormat == 'supplierPreffix' || $codeFormat == 'zerofill') 
+      $this->prId = $this->code = sprintf("%'0" . Yii::app()->modules['shop']['params']['codeLength'] . "s", $this->code);
+
+      if($codeFormat == 'supplierPreffix')
+        list($null, $this->prId) = sscanf($this->code, "%2d%" . (Yii::app()->modules['shop']['params']['codeLength'] - 2) . "s");
+
     if(!is_array($this->photo)) $this->photo = array();
 	}
 	
@@ -441,8 +475,8 @@ class Shop extends CActiveRecord
       $extra['review'] = $this->review;
       $extra['video'] = $this->video;
       $extra['photo'] = $this->photo;
-      // Составляем id из prId (идентификатор продукта) и supplier_id (идентификатор поставщика)
-      $this->id = self::genId($this->prId, $this->supplier_id);
+      // Составляем code из prId (идентификатор продукта) и supplier_id (идентификатор поставщика)
+      $this->code = self::genCode($this->prId, $this->supplier_id);
       $this->shop_extra = serialize($extra);
       return true;
     }
@@ -544,8 +578,8 @@ class Shop extends CActiveRecord
 		//$criteria->compare('description',$this->description,true);
 		//$criteria->compare('waranty',$this->varanty,true);
 		//$criteria->compare('price',$this->price);
-    if(!empty($this->id))
-      $criteria->compare('t.id',(int)$this->id, true);
+    if(!empty($this->code))
+      $criteria->compare('t.code',(int)$this->code, true);
 		$criteria->compare('t.product_name',$this->product_name,true);
 		$criteria->compare('t.rating',$this->rating,true);
 		$criteria->compare('t.status',$this->status);

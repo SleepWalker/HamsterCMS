@@ -254,7 +254,7 @@ echo 'У пользователя ' . written_number($m_count) . ' ' . $friendm[
         ?>
       <tr>
         <td><?php echo ($i+1) ?></td>
-        <td><?php echo $prod->id ?></td>
+        <td><?php echo $prod->code ?></td>
         <td class="align-left"><?php echo $prod->product_name ?></td>
         <td><?php echo $check->quantity ?></td>
         <td><?php echo number_format($prod->price, 2, ",", " ") ?></td>

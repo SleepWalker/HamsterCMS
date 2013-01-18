@@ -52,7 +52,7 @@ PWN-Zone.com
 <?php
   foreach($cart as $prod)
   {
-    echo '<li>' . $prod->product_name . ' (' . $prod->id . ')' . ' — ' . $prod->price . ' грн.';
+    echo '<li>' . $prod->product_name . ' (' . $prod->code . ')' . ' — ' . $prod->price . ' грн.';
     if(isset($prod->variants))
       foreach($prod->variants as $name => $value)
         echo "<br />$name: $value";

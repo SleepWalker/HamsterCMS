@@ -113,6 +113,7 @@ class CartController extends Controller
       'product_name' => $model->product_name,
       'price' => $model->price,
       'id' => $model->id,
+      'code' => $model->code,
       'viewUrl' => $model->viewUrl,
       'quantity' => 1,
     );

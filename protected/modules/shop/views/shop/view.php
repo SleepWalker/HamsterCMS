@@ -33,7 +33,7 @@ else
   $this->module->registerCssFile($this->module->params['viewCssFile'], true);
 ?>
 <article>
-<div style="float:right;margin-top:10px;">(Код товара: <b><?php echo $model->id; ?></b>)</div>
+<div style="float:right;margin-top:10px;">(Код товара: <b><?php echo $model->code; ?></b>)</div>
 <h1><?php echo $model->product_name; ?></h1>
 <div class="productLeft">
 <?php

@@ -66,6 +66,11 @@ class ShopController extends Controller
 	{
 	  //T!:поиск должен быть через модель, иначе не будут работать правила валидации
 	  $criteria=new CDbCriteria;
+		$criteria->compare('code',$query,true, 'OR');
+		$criteria->compare('page_alias',$query,true, 'OR');
+		$criteria->compare('description',$query,true, 'OR');
+		//$criteria->compare('cat_id',$this->cat_id);
+		//$criteria->compare('brand_id',$this->brand_id);
 		$criteria->compare('page_title',$query,true, 'OR');
 		$criteria->compare('page_alias',$query,true, 'OR');
 		$criteria->compare('description',$query,true, 'OR');
@@ -132,7 +137,7 @@ class ShopController extends Controller
   }
 	
 	/**
-	 * Выводит список брендов или товары, пренадлежащие определенному бренду и категории товаров.
+	 * Выводит список брендов или категории, пренадлежащие определенному бренду, а так же описание бренда.
 	 * @param integer $id the ID of the model to be displayed
 	 */
 	public function actionBrand($alias='')
@@ -140,7 +145,9 @@ class ShopController extends Controller
 	  if($alias == '')
 	    $this->renderAllBrands();
 	  else
-	    $this->renderProdByCriteria('brand');
+    {
+      $this->renderProdByCriteria('brand');
+    }
 	}
 	
 	/**

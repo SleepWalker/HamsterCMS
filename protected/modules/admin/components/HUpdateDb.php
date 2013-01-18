@@ -25,6 +25,11 @@ abstract class HUpdateDb
    * @property array $updateMethods названия методов обновления
    */
   protected $updateMethods = array();
+
+  /**
+   * @property boolean $rawSqlStarted флаг, говорящий о том, что метод {@link HUpdateDB::startRawSql()} был вызван и вместе с ним соответственно ob_start()
+   */
+  protected $rawSqlStarted = false;
   
   /**
    * Инициализирует свойства класса
@@ -186,7 +191,34 @@ abstract class HUpdateDb
    */
   protected function startRawSql()
   {
+    $this->rawSqlStarted = true;
     ob_start();
+  }
+
+  /**
+   * Вызывает {@link HUpdateDb::startRawSql()} если запрос в параметре $sql вернет хоть одну строку
+   * 
+   * @param string $sql sql запрос-условие
+   * @access protected
+   * @return void
+   */
+  protected function startRawSqlIf($sql)
+  {
+    if($this->c->createCommand($sql)->execute())
+      $this->startRawSql();
+  }
+
+  /**
+   * Вызывает {@link HUpdateDb::startRawSql()} если запрос в параметре $sql вернет 0 строк
+   * 
+   * @param string $sql sql запрос-условие
+   * @access protected
+   * @return void
+   */
+  protected function startRawSqlIfNot($sql)
+  {
+    if($this->c->createCommand($sql)->execute() == 0)
+      $this->startRawSql();
   }
   
   /**
@@ -198,6 +230,8 @@ abstract class HUpdateDb
    */
   protected function endRawSql()
   {
-    $this->c->createCommand(ob_get_clean())->execute();
+    if($this->rawSqlStarted)
+      $this->c->createCommand(ob_get_clean())->execute();
+    $this->rawSqlStarted = true;
   }
 }

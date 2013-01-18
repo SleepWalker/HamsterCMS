@@ -490,7 +490,7 @@ class AdminAction extends HAdminAction
 			 'filter'=>$model,
 			),
 			'columns'=>array(
-			  'id',
+			  'code',
 			  array(            
             'name'=>'photo',
             'value'=>'count($data->photo) ? $data->img(45) : ""',

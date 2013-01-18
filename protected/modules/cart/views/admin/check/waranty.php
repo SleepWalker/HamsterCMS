@@ -123,7 +123,7 @@
   ?>
 <tr>
   <td><?php echo ($i++) ?></td>
-  <td><?php echo $prod->id ?></td>
+  <td><?php echo $prod->code ?></td>
   <td class="align-left"><?php echo $prod->product_name ?></td>
   <td> </td>
   <td><?php echo $prod->waranty ?></td>

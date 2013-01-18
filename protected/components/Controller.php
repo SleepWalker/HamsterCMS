@@ -25,13 +25,50 @@ class Controller extends CController
    * @property array $aside массив с html блоками
    */
   public $aside = array();
+  /**
+   * @property array $_asideStack массив-стэк aside блоков. Используется для хранения параметров блока до вызова {@link Controller::endAside()}
+   */
   protected $_asideStack = array();
   protected $_asideBottom = array();
 
   /**
+   * Добавляет блок кода в стэк aside  
+   * 
+   * @param string $content код aside блока
+   * @param array $params параметры
+   *    position => top|bottom|null
+   *    id => string
+   *    title => string
+   *
+   * @access public
+   * @return void
+   */
+  public function pushAside($content, $params = array())
+  {
+    $position = $params['position'];
+    unset($params['position']);
+    $blockSettings = array(
+      'portlet' => $params,
+      'content' => $content,
+    );
+
+    switch($position)
+    {
+    case 'top':
+      array_unshift($this->aside, $blockSettings);
+      break;
+    case 'bottom':
+      array_push($this->_asideBottom, $blockSettings);
+      break;
+    default:
+      array_push($this->aside, $blockSettings);
+      break;
+    }
+  }
+
+  /**
    * Начало блока  
    * 
-   * @param string $id 
    * @param array $params 
    * @access public
    * @return void
@@ -51,25 +88,7 @@ class Controller extends CController
   public function endAside()
   {
     $params = array_shift($this->_asideStack);
-    $position = $params['position'];
-    unset($params['position']);
-    $blockSettings = array(
-      'portlet' => $params,
-      'content' => ob_get_clean(),
-    );
-
-    switch($position)
-    {
-    case 'top':
-      array_unshift($this->aside, $blockSettings);
-      break;
-    case 'bottom':
-      array_push($this->_asideBottom, $blockSettings);
-      break;
-    default:
-      array_push($this->aside, $blockSettings);
-      break;
-    }
+    $this->pushAside(ob_get_clean(), $params);
   }
 
   /**

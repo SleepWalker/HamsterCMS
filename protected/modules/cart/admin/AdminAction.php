@@ -262,7 +262,7 @@ class AdminAction extends HAdminAction
             $client->order_id = $order->primaryKey;
             $client->save(false);
             //$OrderCheck = array('prod_id'=>'quantity');
-            $prods = Shop::model()->findAllByPk(array_keys($OrderCheck));
+            $prods = Shop::model()->findAllByAttributes(array('code' => array_keys($OrderCheck)));
             $valid = 1;
             foreach($prods as $prod)
             {
@@ -298,19 +298,19 @@ class AdminAction extends HAdminAction
     // таким образом мы запустим инициализацию скриптов, но текстовое поле писать не будем,
     // это сделает за нас CForm
     $this->widget('zii.widgets.jui.CJuiAutoComplete', array(
-      'name' => 'Shop_id',
+      'name' => 'Shop_code',
       'sourceUrl'=>$this->curModuleUrl . 'acprod',
       'themeUrl' => $this->adminAssetsUrl . '/css/jui',
       // additional javascript options for the autocomplete plugin
       'options'=>array(
-          'minLength'=>'3',
+          'minLength'=>'1',
           'focus'=>'js:function( event, ui ) {
-            $( "#Shop_id" ).val( ui.item.value );
+            $( "#Shop_code" ).val( ui.item.value );
             return false;
           }',
           'select'=>'js: function( event, ui ) {
             // При выборе нам нужно добавить скрытые поля и строку с инфой о выбранном товаре
-            $( "#Shop_id" ).val("");
+            $( "#Shop_code" ).val("");
             $("<div>" + ui.item.label + "</div>")
             .appendTo(
               $("#checkContainer").append("<br>")
@@ -360,11 +360,11 @@ class AdminAction extends HAdminAction
               .click(function() {$(this).parents(".checkRow").remove();return false;})
             )
             // поля формы
-            .append(\'<input type="hidden" name="OrderCheck[\'+ui.item.value+\']" value="1" class="quantity" />\')
+            .append(\'<input type="hidden" name="OrderCheck[\'+ui.item.value*1+\']" value="1" class="quantity" />\')
             ;
             
             //а также можно задереть противные красные надписи валидатора
-            $("#Shop_id").siblings().removeClass("error").removeClass("errorMessage");
+            $("#Shop_code").siblings().removeClass("error").removeClass("errorMessage");
 
             return false;
           }',
@@ -373,7 +373,7 @@ class AdminAction extends HAdminAction
     
     
     $js = '
-		$("#Shop_id").data( "autocomplete" )._renderItem = function( ul, item ) {
+		$("#Shop_code").data( "autocomplete" )._renderItem = function( ul, item ) {
 			return $( "<li></li>" )
 				.data( "item.autocomplete", item )
 				.append( "<a>" + item.label + "</a>" )
@@ -396,9 +396,9 @@ class AdminAction extends HAdminAction
   {
     $data = new CActiveDataProvider('Shop', array(
       'criteria' => array(
-        'condition'=>'id LIKE :id',
+        'condition'=>'code LIKE :code',
         'params' => array(
-          ':id' => (int)$_GET['term'] . '%',
+          ':code' => (int)$_GET['term'] . '%',
         ),
       )
     ));
@@ -408,8 +408,8 @@ class AdminAction extends HAdminAction
       foreach($data as $item)
       {
         $itemsArr[] = array(
-          'label' => '<div style="overflow:auto"><span style="float:left;margin-right:10px;">' . $item->img(45) . '</span><b>'.$item->product_name.'</b><br /><span style="color:#666666;font-size:10px;">'.$item->id . '</span></div>',
-          'value' => $item->id,
+          'label' => '<div style="overflow:auto"><span style="float:left;margin-right:10px;">' . $item->img(45) . '</span><b>'.$item->product_name.'</b><br /><span style="color:#666666;font-size:10px;">'.$item->code . '</span></div>',
+          'value' => $item->code,
         );
       }
       
@@ -456,6 +456,7 @@ class AdminAction extends HAdminAction
 			    'value' => '"<div class=\"quantity\">" . CHtml::image(Shop::imgSrc($data->prod->photo[0], 45)) . "<span>" . $data->quantity . "</span></div>"',
 			    'type' => 'raw',
 			  ),
+			 'prod.code',
 			 'prod.product_name',
 			  array(
 			    'name'=>'price',

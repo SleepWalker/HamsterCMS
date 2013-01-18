@@ -133,6 +133,7 @@ return
   		// uncomment the following to enable URLs in path-format
   		'urlManager'=>array(
   			'urlFormat'=>'path',
+  			'showScriptName' => false,
   			'rules'=>array(
           // Правило url для модулей
           array(
@@ -152,7 +153,6 @@ return
           // для всего кроме crud
           'admin/<module:\w+>/<action:([^\/]+\/?)+>'=>'admin/admin/<module>',
   			),
-  			'showScriptName' => false,
   		),
   		'authManager'=>array(
         'class'=>'CDbAuthManager',

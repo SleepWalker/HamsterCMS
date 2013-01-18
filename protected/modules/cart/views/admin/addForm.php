@@ -29,7 +29,7 @@ return array(
         'prod_id'=>array(
           'type' => 'text',
           'attributes' => array(
-            'name' => 'Shop[id]',
+            'name' => 'Shop[code]',
           ),
         ),
         '<div id="checkContainer"></div>',
