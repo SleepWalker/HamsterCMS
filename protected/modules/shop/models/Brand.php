@@ -8,6 +8,7 @@
  * @property string $brand_name
  * @property string $brand_alias
  * @property string $brand_logo
+ * @property string $description
  *
  * The followings are the available model relations:
  * @property Shop[] $shops
@@ -56,7 +57,8 @@ class Brand extends CActiveRecord
         'tooLarge'=>'Файл весит больше 5 MB. Пожалуйста, загрузите файл меньшего размера.',
         'safe' => true,
 			),
-			array('brand_alias', 'unique'),
+      array('brand_alias', 'unique'),
+      array('description', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('brand_id, brand_name, brand_alias, brand_logo', 'safe', 'on'=>'search'),
@@ -71,7 +73,11 @@ class Brand extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'shops' => array(self::HAS_MANY, 'Shop', 'brand_id'),
+      'shops' => array(self::HAS_MANY, 'Shop', 'brand_id'),
+      // используется как пост для связи 'cats', что бы отфильтровать строки с уникальными id категорий
+      'shopBridge' => array(self::HAS_MANY, 'Shop', 'brand_id', 'group' => 'shopBridge.cat_id'),
+      // эта связь добывает все категории, в которых есть товары текущего бренда
+      'cats' => array(self::HAS_MANY, 'Categorie', array('cat_id' => 'cat_id'), 'through' => 'shopBridge'),
 		);
 	}
 
@@ -85,7 +91,8 @@ class Brand extends CActiveRecord
 			'brand_name' => 'Бренд',
 			'brand_alias' => 'ЧПУ бренда',
 			'brand_logo' => 'Лого',
-			'uImage' => 'Лого',
+      'uImage' => 'Лого',
+      'description' => 'Описание бренда',
 		);
 	}
 	
@@ -97,7 +104,8 @@ class Brand extends CActiveRecord
 		return array(
 			'brand_name' => 'text',
 			'brand_alias' => 'translit',
-			'uImage' => 'file',
+      'uImage' => 'file',
+      'description' => 'textarea',
 		);
 	}
 	

@@ -4,7 +4,7 @@ class UpdateDb extends HUpdateDb
 {
   public function verHistory()
   {
-    return array(1, 1.1, 1.2, '1.2.1');
+    return array(1, 1.1, 1.2, '1.2.1', 1.3);
   }
   
   public function update1_1()
@@ -46,6 +46,18 @@ ALTER TABLE  `shop` CHANGE  `id`  `id` INT( 10 ) UNSIGNED NOT NULL;
 ALTER TABLE  `shop` CHANGE  `id`  `id` INT( 10 ) UNSIGNED NOT NULL AUTO_INCREMENT;
 ALTER TABLE  `shop` ADD  `code` INT UNSIGNED NOT NULL AFTER  `id`;
 UPDATE `shop` SET `code`=`id`;
+<?
+      $this->endRawSql();
+    }
+  }
+
+  public function update1_3()
+  {
+    if(empty(Brand::model()->tableSchema->columns['description']))
+    {
+      $this->startRawSql();
+?>
+ALTER TABLE  `shop_brand` ADD  `description` TEXT;
 <?
       $this->endRawSql();
     }

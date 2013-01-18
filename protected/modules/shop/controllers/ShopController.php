@@ -146,7 +146,12 @@ class ShopController extends Controller
 	    $this->renderAllBrands();
 	  else
     {
-      $this->renderProdByCriteria('brand');
+      $brand = Brand::model()->with('cats')->findByAttributes(array('brand_alias' => $alias));
+      $this->render('brand', array(
+        'brand' => $brand,
+        'cats' => $brand->cats,
+      ));
+      //$this->renderProdByCriteria('brand');
     }
 	}
 	

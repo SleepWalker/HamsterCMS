@@ -28,7 +28,8 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE IF NOT EXISTS `shop` (
-  `id` int(7) unsigned NOT NULL,
+  `id` INT unsigned NOT NULL AUTO_INCREMENT,
+  `code` INT UNSIGNED NOT NULL,
   `supplier_id` tinyint(2) unsigned NOT NULL,
   `user_id` int(11) unsigned NOT NULL,
   `edit_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -61,6 +62,7 @@ CREATE TABLE IF NOT EXISTS `shop_brand` (
   `brand_name` varchar(128) NOT NULL,
   `brand_alias` varchar(128) NOT NULL,
   `brand_logo` varchar(128) NOT NULL,
+  `description` TEXT,
   PRIMARY KEY (`brand_id`),
   UNIQUE KEY `brands_alias` (`brand_alias`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
