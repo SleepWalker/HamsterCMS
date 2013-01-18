@@ -37,6 +37,10 @@ ALTER TABLE  `shop` CHANGE  `id`  `id` INT( 10 ) UNSIGNED NOT NULL;
       $this->endRawSql();
     }
   }
+
+  /**
+   * Добавили колонку code для того, что бы обеспечить более гибкую поддержку разных кодов товаров
+   */
   public function update1_2_1()
   {
     if(empty(Shop::model()->tableSchema->columns['code']))
@@ -51,6 +55,9 @@ UPDATE `shop` SET `code`=`id`;
     }
   }
 
+  /**
+   * Добавляем поле для описания брендов
+   */
   public function update1_3()
   {
     if(empty(Brand::model()->tableSchema->columns['description']))

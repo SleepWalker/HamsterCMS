@@ -13,7 +13,7 @@ $this->pageTitle = $brand->brand_name . ' - ' . Yii::app()->name;
   <h1><?php echo CHtml::encode($brand->brand_name); ?></h1>
   <article class="hContent">
     <header>
-<?php echo CHtml::image(Brand::$uploadsUrl . $data->brand_logo, CHtml::encode($data->brand_name), array('width'=>120)); ?>
+<?php echo CHtml::image(Brand::$uploadsUrl . $brand->brand_logo, CHtml::encode($brand->brand_name), array('width'=>120)); ?>
     </header>
 <?php
     echo $brand->description;

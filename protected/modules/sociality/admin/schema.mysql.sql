@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS `comment` (
   `model_id` varchar(32) NOT NULL,
   `comment` text NOT NULL,
   `date` datetime DEFAULT NULL,
+  `ip` INT NOT NULL,
   PRIMARY KEY (`id`),
   KEY `model_pk` (`model_pk`,`model_id`),
   KEY `user_id` (`user_id`)

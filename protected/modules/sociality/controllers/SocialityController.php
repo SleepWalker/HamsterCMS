@@ -55,6 +55,7 @@ class SocialityController extends Controller
 
       if($comment->save())
       {
+        // возвращаем фьюху с новым комментарием
         $this->renderPartial('_comment', array(
           'data' => $comment,
         ));
@@ -71,7 +72,8 @@ class SocialityController extends Controller
       $comments->attributes=$cData;
 
       echo $this->renderPartial('view', array(
-        'comments' => $comments->search(),
+        // перед тем, как передать dataProvider затераем аттрибуты имени и емейла юзера (гостя)
+        'comments' => $comments->unsetUserData()->search(),
         'newComment' => new Comment,
         'modelId' => $cData['model_id'],
         'modelPk' => $cData['model_pk'],

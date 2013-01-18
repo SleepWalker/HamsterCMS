@@ -89,7 +89,6 @@ if(!empty(Yii::app()->params['vkApiId']))
 }
 ?>
 </div>
-
 <script>
 $(function() {
   $("textarea", "#HCommentForm").keydown(function(event) {

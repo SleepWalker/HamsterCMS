@@ -41,23 +41,33 @@ class AdminAction extends HAdminAction
     if(isset($_GET['Comment']))
       $model->attributes=$_GET['Comment'];
 	  
+      ob_start();
+      ?>
+        <p>Цвета emailов: <span class="status_3">Email подтвержден</span>
+        <span class="status_1">Email не подтвержден</span>
+        <span class="status_4">Гостевой комментарий</span>
+        </p>
+      <?php
+      $statusInfo = ob_get_clean();
+
 		$this->render('table',array(
 			'dataProvider'=> $model->search(),
-      'buttons' => array('delete'),
+      'buttons' => array('delete', 'view'),
 			'options' => array(
 			 'filter'=>$model,
 			),
+      'preTable' => $statusInfo,
 			'columns'=>array(
-        array(
-          'name' => 'id',
-          'type'=>'raw',
-          'value'=>'CHtml::link($data->id, $data->model->viewUrl, array("target"=>"_blank"))',
-        ),
         'model_pk',
         'model_id',
         'comment',
         'name',
-        'email',
+        array(
+          'name' => 'email',
+          'value' => '$data->emailWithStatus',
+          'type' => 'raw',
+        ),
+        'ip',
         /*array(            
             'name'=>'status',
             'type'=>'raw',

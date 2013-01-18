@@ -10,6 +10,7 @@
  * @property string $model_id
  * @property string $comment
  * @property string $date
+ * @property string $ip
  *
  * The followings are the available model relations:
  * @property AuthUser $user
@@ -115,10 +116,13 @@ class Comment extends CActiveRecord
   protected function afterConstruct()
   {
     if(Yii::app()->user->isGuest)
+    {
       $this->scenario = 'guest';
 
-    if(Yii::app()->session['HComment'])
-      $this->attributes = Yii::app()->session['HComment'];
+      // попробуем заполнить поля имени и фамилии, если они уже есть в сессии
+      if(Yii::app()->session['HComment'])
+        $this->attributes = Yii::app()->session['HComment'];
+    }
 
     parent::afterConstruct();
   }
@@ -126,6 +130,7 @@ class Comment extends CActiveRecord
   /**
    * Форматирует дату сразу после того, 
    * как модель запонится данными из бд
+   * преобразовывает ip юзера из бд
    * 
    * @access protected
    * @return void
@@ -137,6 +142,8 @@ class Comment extends CActiveRecord
     {
       $this->date = Yii::app()->dateFormatter->formatDateTime($this->date, 'short', 'short');
     }
+
+	  $this->ip=long2ip($this->ip);
   }
 
   /**
@@ -213,8 +220,9 @@ class Comment extends CActiveRecord
   }
 
   /**
-	 *  Обновляем даты
-   *  Добавляем id юзера в зависимости от того гость он или нет
+	 * Обновляем даты
+   * Добавляем id юзера в зависимости от того гость он или нет
+   * преобразовывает ip юзера из бд
 	 */
 	protected function beforeSave()
   {
@@ -224,7 +232,10 @@ class Comment extends CActiveRecord
       {
         $this->date = new CDbExpression('NOW()');
         $this->user_id = $this->scenario == 'guest' ? new CDbExpression('NULL') : Yii::app()->user->id;
+        $this->ip=ip2long(CHttpRequest::getUserHostAddress());
       }
+      else
+        $this->ip=ip2long($this->ip);
 
       return true;
     }
@@ -258,6 +269,18 @@ class Comment extends CActiveRecord
   public function htmlEncode()
   {
     $this->comment = CHtml::encode($this->comment);
+  }
+
+  /**
+   * Очищает поля {@link Comment::name} и {@link Comment::email} от данных полученных от пользователя
+   * 
+   * @access public
+   * @return Comment обьект модели, для того, что бы можно было использовать метод в цепочке методов
+   */
+  public function unsetUserData()
+  {
+    $this->name = $this->email = '';
+    return $this;
   }
 
   /**
@@ -309,6 +332,17 @@ class Comment extends CActiveRecord
   }
 
   /**
+   * Метод для отображения цветных email в админке  
+   * 
+   * @access public
+   * @return void
+   */
+  public function getEmailWithStatus()
+  {
+    return "<span class=\"status_" . ( $this->user && $this->user->is_active ? "3" : (empty($this->user_id) ? "4" : "1")) . "\">" . (empty($this->user_id) ? CHtml::encode($this->cUser->email) : CHtml::encode($this->user->email) ) . "</span>";
+  }
+
+  /**
    * Сеттер для аттрибута email
    * 
    * @param string $email 
@@ -318,6 +352,11 @@ class Comment extends CActiveRecord
   public function setEmail($email)
   {
     $this->_email = $email;
+  }
+
+  public function getViewUrl()
+  {
+    return $this->model->viewUrl;
   }
 
 
