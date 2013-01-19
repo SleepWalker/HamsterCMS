@@ -27,9 +27,11 @@ SET time_zone = "+00:00";
 DROP TABLE IF EXISTS `price_cat`;
 CREATE TABLE IF NOT EXISTS `price_cat` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `file_id` int(10) unsigned,
   `name` varchar(128) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `cat_name` (`name`)
+  UNIQUE KEY `cat_name` (`name`),
+  KEY `file_id` (`file_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------

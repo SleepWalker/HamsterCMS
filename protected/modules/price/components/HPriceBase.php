@@ -215,6 +215,7 @@ class HPriceBase extends CComponent
     //$objReader->setReadFilter($chunkFilter); 
 
     $totalRows = count(file($inputFileName));
+    $r = 0;
     //  Loop to read our worksheet in "chunk size" blocks 
     for ($startRow = 0; $startRow <= $totalRows; $startRow += $chunkSize)
     {
@@ -224,7 +225,7 @@ class HPriceBase extends CComponent
       $objPHPExcel = $objReader->load($inputFileName); 
       //    Do some processing here 
       $objWorksheet = $objPHPExcel->getActiveSheet();
-      $r = 0;
+
       $tableArr = array();
       foreach ($objWorksheet->getRowIterator() as $row) 
       {
@@ -370,7 +371,7 @@ class HPriceBase extends CComponent
     $insertQuery = "INSERT IGNORE INTO `{$model->tableName()}`(" . $columns . ") VALUES({insertValues});\n";
 
     //INSERT CATS QUERY
-    $insertCatsQuery = "INSERT IGNORE INTO `{catTable}`(name) VALUES({insertValues});\n";
+    $insertCatsQuery = "INSERT IGNORE INTO `{catTable}`(file_id, name) VALUES({$item['file_id']}, {insertValues});\n";
 
     // результирующий запрос
     $sqls = '';
@@ -417,12 +418,21 @@ class HPriceBase extends CComponent
       }
     }
 
+    // обьеденяем оставшиеся инсерты (это произойдет в том случае, если их осталось < 150)
+    if(count($insertValues))
+    {
+      $sqls .= strtr($insertQuery, array(
+        '{insertValues}' => implode('),(', $insertValues),
+      ));
+      $insertValues = array();
+    }
+
     // создаем запрос для добавления категорий в соответствующие таблицы
     $catsSql = '';
     foreach($cats as $catId => $catNames)
     {
       $catsSql .= strtr($insertCatsQuery, array(
-        '{insertValues}' => implode('),(', $catNames),
+        '{insertValues}' => implode("),({$item['file_id']},", $catNames),
         '{catTable}' => 'price_' . $catId,
       ));
     }
@@ -509,9 +519,11 @@ CREATE TABLE IF NOT EXISTS `price` (
 DROP TABLE IF EXISTS `price_<?php echo $id; ?>`;
 CREATE TABLE IF NOT EXISTS `price_<?php echo $id; ?>` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `file_id` int(10) unsigned,
   `name` varchar(128) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `price_<?php echo $id; ?>_name` (`name`)
+  UNIQUE KEY `price_<?php echo $id; ?>_name` (`name`),
+  KEY `file_id` (`file_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 <?php

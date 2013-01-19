@@ -61,7 +61,7 @@ class PriceController extends Controller
         {
           if(!isset($cats[$curCat . '_id']))
           {
-            $catsData = PriceCat::model($curCat)->findAll();
+            $catsData = PriceCat::model($curCat)->findAllByAttributes(array('file_id' => (int)$_GET['Price']['file_id']));
             $label = isset($config['attributeLabels'][$curCat]) 
               ? $config['attributeLabels'][$curCat]
               : 'Категория';

@@ -105,19 +105,24 @@ class AdminAction extends HAdminAction
     ob_start();
     if(isset($_FILES['price']))
     {
-      if(!empty($_POST['priceSchema']))
+      if(empty($_FILES['price']['name'][0]))
       {
-
-        $files = $_FILES['price'];
-        foreach($files['tmp_name'] as $i => $tmpName)
+        Yii::app()->user->setFlash('info', 'Вы забыли выбрать файл прайса');
+      }else{
+        if(!empty($_POST['priceSchema']))
         {
-          $name = HPrice::getPricePath() . '/' . $files["name"][$i];
-          // Сохраняем исходный файл в Uploads
-          move_uploaded_file($tmpName, $name);        
-          HPrice::load($name, $_POST['priceSchema'])->import();
-        }
-      }else
-        Yii::app()->user->setFlash('info', 'Вы забыли выбрать схему прайса');
+
+          $files = $_FILES['price'];
+          foreach($files['tmp_name'] as $i => $tmpName)
+          {
+            $name = HPrice::getPricePath() . '/' . $files["name"][$i];
+            // Сохраняем исходный файл в Uploads
+            move_uploaded_file($tmpName, $name);        
+            HPrice::load($name, $_POST['priceSchema'])->import();
+          }
+        }else
+          Yii::app()->user->setFlash('info', 'Вы забыли выбрать схему прайса');
+      }
 
       $this->refresh();
     }
@@ -137,7 +142,7 @@ class AdminAction extends HAdminAction
     echo 'Выберите прайсы (csv, xls, xlsx)'
       . CHtml::fileField('price[]', '', array(
         //'accept' => 'application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'multiple' => 'multiple',
+        //'multiple' => 'multiple',
       ))
       .'<p>'
       . CHtml::submitButton('Загрузить')

@@ -89,6 +89,7 @@ if(is_array(($extra = $config['extraLabels'])))
   foreach($extra as $attribute => $name)
     $columns[] = array(
       'name' => $name,
+      'header' => $name,
       'value' => '$data->extra["' . $attribute . '"]',
     );
 

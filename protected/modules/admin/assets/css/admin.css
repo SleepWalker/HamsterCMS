@@ -131,7 +131,7 @@ height: 40px;
 }
 
 .content_wrapper {
-  margin-right: 190px;
+  margin-right: 220px;
 }
 
 #footer {
@@ -365,7 +365,6 @@ height: 40px;
 
 .tabs {
   border-bottom: 1px #320606 solid;
-  margin-right: 30px;
   height: 20px;
   margin-bottom: 10px;
   overflow:hidden;

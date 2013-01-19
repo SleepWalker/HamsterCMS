@@ -119,6 +119,7 @@ class AdminAction extends HAdminAction
 
     $this->render('table', array(
       'dataProvider' => $model->with('roles')->search(),
+      'disableButtons' => true,
       'columns' => array(
         'id',
         'fullName',
