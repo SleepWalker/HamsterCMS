@@ -43,11 +43,9 @@ class MailingForm extends CFormModel
    */
   public static function getRolesList()
   {
-    $roles = array_merge(array(
-      'users' => 'Все пользователи',
-    ),
-      AuthItem::getRolesList());
-
+    $roles = AuthItem::getRolesList();
+    // госятм писем не отправишь...
+    unset($roles['guest']);
     return $roles;
   }
 

@@ -4,7 +4,7 @@ class UpdateDb extends HUpdateDb
 {
   public function verHistory()
   {
-    return array(1, 1.1, 1.2, '1.2.1', 1.3);
+    return array(1, 1.1, 1.2, '1.2.1', 1.3, '1.3.1');
   }
   
   public function update1_1()
@@ -68,5 +68,12 @@ ALTER TABLE  `shop_brand` ADD  `description` TEXT;
 <?
       $this->endRawSql();
     }
+  }
+
+  /**
+   * Добавили индекс для поля code
+   */
+  public function update1_3_1()
+  {
   }
 }

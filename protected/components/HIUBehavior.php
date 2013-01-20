@@ -125,6 +125,33 @@ class HIUBehavior extends CActiveRecordBehavior
     $model->processUpload($model, $this->fileAtt);
     $event->isValid = true;
   }
+
+  /**
+   * После сохранения присваиваем полю uImage ссылку на актуальное изображение  
+   * 
+   * @param CEvent $event 
+   * @access public
+   * @return void
+   */
+  public function afterSave(CEvent $event)
+  {
+    $model = $event->sender;
+    $model->uImage = $model->image;
+  }
+
+  /**
+   * Заполняем поле uImage адресом текущего изображения  
+   * 
+   * @param CEvent $event 
+   * @access public
+   * @return void
+   */
+  public function afterFind(CEvent $event)
+  {
+    $model = $event->sender;
+    $model->uImage = $model->image;
+  }
+
   
   /**
 	 * Удаляем картинки, загруженные с моделью 

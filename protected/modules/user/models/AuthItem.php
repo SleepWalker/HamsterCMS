@@ -24,6 +24,17 @@ class AuthItem extends CActiveRecord
   public $showOnRegister;
 
   /**
+   * @property array $namesI18n массив с переводом идентификаторов стандартных ролей на русский язык
+   */
+  public static $namesI18n = array(
+    'user' => 'Пользователь',
+    'admin' => 'Администратор',
+    'staff' => 'Контент менеджер',
+    'guest' => 'Гость',
+    'transfer' => 'Ожидающий переноса',
+  );
+
+  /**
    * @property CAuthItem $ai
    */
   protected $ai;
@@ -92,6 +103,7 @@ class AuthItem extends CActiveRecord
 	{
 		return array(
 			'name' => 'Имя',
+      'l10edName' => 'Имя',
 			'type' => 'Тип',
 			'description' => 'Описание',
 			'bizrule' => 'Бизнес правило',
@@ -135,9 +147,8 @@ class AuthItem extends CActiveRecord
     $models = self::model()->findAll();
     $return = array();
     foreach($models as $model)
-    {
-      $return[$model->primaryKey] = $model->primaryKey;
-    }
+      $return[$model->primaryKey] = $model->l10edName;
+
     return $return;
   }
 
@@ -153,10 +164,22 @@ class AuthItem extends CActiveRecord
     $models = self::model()->findAllByAttributes(array('type' => AuthItem::TYPE_ROLE));
     $return = array();
     foreach($models as $model)
-    {
-      $return[$model->primaryKey] = $model->primaryKey;
-    }
+      $return[$model->primaryKey] = $model->l10edName;
+
     return $return;
+  }
+
+  /**
+   * Переводит стандартные названия ролей на русский язык
+   * 
+   * @access public
+   * @return void
+   */
+  public function getL10edName()
+  {
+    return in_array($this->primaryKey, array_keys(self::$namesI18n)) 
+      ? self::$namesI18n[$this->primaryKey] 
+      : $this->primaryKey;
   }
 
   /**

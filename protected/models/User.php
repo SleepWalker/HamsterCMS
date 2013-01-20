@@ -542,7 +542,7 @@ class User extends CActiveRecord
   {
     foreach($this->roles as $role)
     {
-      $roles .= '<div class="tagControll">' . $role->itemname . '<a href="" class="icon_delete roleRevoke"></a></div>';
+      $roles .= '<div class="tagControll" data-roleid="' . $role->itemname . '" data-userid="' . $this->primaryKey . '">' . $role->l10edName . '<a href="" class="icon_delete roleRevoke"></a></div>';
     }
     $roles .= '<div><a href="" class="icon_add icon_label roleAssign" data-id="' . $this->primaryKey . '">Добавить роль</a></div>';
     return $roles;

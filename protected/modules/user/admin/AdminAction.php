@@ -56,8 +56,8 @@ class AdminAction extends HAdminAction
           $.ajax("' . Yii::app()->createUrl('admin/admin/user') . '/revoke", {
             type: "post",
             data: {
-              role: $(this).parent().text(),
-              userId: $(this).parents("tr").find("td").eq(0).html(),
+              roleId: $(this).parent().data("roleid"),
+              userId: $(this).parent().data("userid"),
   },
   context: $(this),
   success: function(data){
@@ -76,6 +76,7 @@ class AdminAction extends HAdminAction
           $.ajax("' . Yii::app()->createUrl('admin/admin/user') . '/assign", {
             type: "post",
             data: {
+              roleId: $(this).data("roleId"),
               role: $(this).text(),
               userId: target.parents("tr").find("td").eq(0).html(),
   },
@@ -90,7 +91,7 @@ class AdminAction extends HAdminAction
   });
       $.each(roles, function(roleId, role) {
         $dd.append(
-          $("<a>").text(role)
+          $("<a href=\'\'>").text(role).data("roleId", roleId)
         );
   });
   $("body").append($dd.hide());
@@ -152,8 +153,8 @@ class AdminAction extends HAdminAction
    */
   public function actionAssign()
   {
-    AuthItem::model()->am->assign($_POST['role'], $_POST['userId']);
-    echo '<div class="tagControll">' . $_POST['role'] . '<a href="" class="icon_delete roleRevoke"></a></div>';
+    AuthItem::model()->am->assign($_POST['roleId'], $_POST['userId']);
+    echo '<div class="tagControll" data-roleid="' . $_POST['roleId'] . '" data-userid="' . $_POST['userId'] . '">' . $_POST['role'] . '<a href="" class="icon_delete roleRevoke"></a></div>';
   }
 
   /**
@@ -164,7 +165,7 @@ class AdminAction extends HAdminAction
    */
   public function actionRevoke()
   {
-    AuthItem::model()->am->revoke($_POST['role'], $_POST['userId']);
+    AuthItem::model()->am->revoke($_POST['roleId'], $_POST['userId']);
   }
 
   /**
@@ -180,7 +181,7 @@ class AdminAction extends HAdminAction
 		$this->render('table',array(
 			'dataProvider'=> $model->search(),
 			'columns'=>array(
-        'name',
+        'l10edName',
         'type',
         'description',
         'bizrule',

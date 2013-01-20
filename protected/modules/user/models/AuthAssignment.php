@@ -78,7 +78,26 @@ class AuthAssignment extends CActiveRecord
 
   public function findAllByRole($roles)
   {
-    return self::model()->with('user')->findAllByAttributes(array('itemname' => $roles));
+    // группа user (пользователи) у нас автоматически присваивается,
+    // потому нам нужно вручную выбрать всех пользователей
+    // выбирать юзеров остальных ролей нету смысла, так как в группу user 
+    // входят все зарегестрированные пользователи
+    if(is_array($roles) && in_array('user', $roles) || $roles == 'user')
+    {
+      $users = User::model()->findAll();
+      $models = array();
+      foreach($users as $i => $user)
+      {
+        $models[$i] = new self;
+        $models[$i]->setAttributes(array(
+          'itemname' => 'user',
+          'userid' => $user->primaryKey,
+          'user' => $user,
+        ));
+      }
+      return $models;
+    }else
+      return self::model()->with('user')->findAllByAttributes(array('itemname' => $roles));
   }
 
   public function afterFind()
@@ -102,6 +121,19 @@ class AuthAssignment extends CActiveRecord
   public function getEmail()
   {
     return $this->user->email;
+  }
+
+  /**
+   * Переводит стандартные названия ролей на русский язык
+   * 
+   * @access public
+   * @return void
+   */
+  public function getL10edName()
+  {
+    return in_array($this->itemname, array_keys(AuthItem::$namesI18n)) 
+      ? AuthItem::$namesI18n[$this->itemname] 
+      : $this->itemname;
   }
 
   /**

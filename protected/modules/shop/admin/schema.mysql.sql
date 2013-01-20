@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS `shop` (
   KEY `brand_id` (`brand_id`),
   KEY `cat_id` (`cat_id`),
   KEY `user_id` (`user_id`),
+  KEY `code` (`code`),
   KEY `supplier_id` (`supplier_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

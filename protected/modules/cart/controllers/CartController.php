@@ -440,7 +440,7 @@ class CartController extends Controller
     // дабы хоть раз показать этот шаг ставим ему $valid = 0
     $valid = 0;
     // вводим коефициент для конвертации валюты для разных способов оплаты
-    if($this->order['order']['currency'] > 1)
+    if($this->order['order']['currency'] > 1 && Yii::app()->params->currency['toEmoney'] > 0 && Yii::app()->params->currency['toDollar'] > 0)
       $currencyCoeff = Yii::app()->params->currency['toEmoney']/Yii::app()->params->currency['toDollar'];
     else
       $currencyCoeff = 1;
@@ -600,7 +600,7 @@ class CartController extends Controller
         // Создаем чек
         $paymentAmount = 0; // Сумма заказа
         // вводим коефициент для конвертации валюты для разных способов оплаты
-        if($this->order['order']['currency'] > 1)
+        if($this->order['order']['currency'] > 1 && Yii::app()->params->currency['toDollar']>0 && Yii::app()->params->currency['toEmoney']>0)
           $currencyCoeff = Yii::app()->params->currency['toEmoney']/Yii::app()->params->currency['toDollar'];
         else
           $currencyCoeff = 1;

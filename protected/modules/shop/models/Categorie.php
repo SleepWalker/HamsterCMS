@@ -131,7 +131,7 @@ class Categorie extends CActiveRecord
 	{
 	  if(parent::beforeSave())
     {
-      if(empty($this->sindex))
+      if(empty($this->cat_sindex))
       {
         // при добавлении новой характеристики 
         // нам необходимо выбрать для нее самый большой и уникальный sindex
