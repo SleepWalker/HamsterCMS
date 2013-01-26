@@ -12,12 +12,24 @@
  */
 class ContactForm extends CFormModel
 {
+	/**
+	 * Храним данные в моделе, а не в контроллере (с)Мастир
+	 */
+	public $result_success = 'Спасибо за ваше письмо. Мы ответим при первой же возможности.';
+	public $result_faild = 'Отправка письма не может быть выполнена, проверте правильность введенных данных';
+	/**
+	 * Название вьюхи храним тут для возможности использования несольки форм на сайте без костылей в контроллере
+	 */
+	public $view = 'contact.php';
+	public $files = array();
+	public $verifyCode;
+	
 	public $name;
 	public $email;
 	public $subject;
 	public $body;
-	public $verifyCode;
 
+	
 	/**
 	 * Declares the validation rules.
 	 */
@@ -47,4 +59,45 @@ class ContactForm extends CFormModel
       'verifyCode' => 'Проверочный код',
 		);
 	}
+
+	
+	/**
+	 * Реализуем интерфейс данных необходимых контроллеру
+	 */
+
+	/**
+	 * Вьюха для рендеринга письма
+	 */
+	public function getView(){
+		return $this->view;
+	}
+	
+	/**
+	 * Сообщение об успешной отправке
+	 */
+	public function getSendSuccessMessage(){
+		return $this->result_success;
+	}	
+	
+	/**
+	 * Сообщение о ошибке
+	 */
+	public function getSendFailMessage(){
+		return $this->result_faild;
+	}
+	
+	/**
+	 * Тема письма
+	 */
+	public function getSubject(){
+		return $this->subject;
+	}
+	
+	/**
+	 * Прикрепленные файлы
+	 */
+	public function getFiles(){
+		return (array)$this->files;
+	}
+	
 }

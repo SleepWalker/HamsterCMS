@@ -72,10 +72,27 @@ class SiteController extends Controller
 			$model->attributes=$_POST['ContactForm'];
 			if($model->validate())
 			{
-				$headers="From: {$model->email}\r\nReply-To: {$model->email}";
-				mail(Yii::app()->params['adminEmail'],$model->subject,$model->body,$headers);
-				Yii::app()->user->setFlash('contact','Спасибо за ваше письмо. Мы ответим при первой же возможности.');
+			/**
+			 * Меняем логику по принципам MVC
+			 * Письмо создаем и отсылаем в контроллере
+			 * Все данные необходимые для него запрашиваем из модели
+			 * Текст рендерим во вьюхе (с)Мастир
+			 */
+				$message = new YiiMailMessage();
+				$message->addTo(Yii::app()->params['adminEmail']);
+				$message->from = array(Yii::app()->params['noReplyEmail'] => Yii::app()->params['shortName']);
+				$message->view = $model->getView();
+				$message->setBody(array('data'=>$model), 'text/html');
+				$message->subject = $model->getSubject();
+				foreach($model->getFiles() as $file)
+					$message->attach($file);
+				if(Yii::app()->mail->send($message))
+					Yii::app()->user->setFlash('contact',$model->getSendSuccessMessage());
+				else
+					$model->getSendFailMessage();
 				$this->refresh();
+			} else {
+				$model->getSendFailMessage();
 			}
 		}
 		$this->render('contact',array('model'=>$model));
