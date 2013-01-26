@@ -579,7 +579,7 @@ class Shop extends CActiveRecord
 		//$criteria->compare('waranty',$this->varanty,true);
 		//$criteria->compare('price',$this->price);
     if(!empty($this->code))
-      $criteria->compare('t.code',(int)$this->code, true);
+      $criteria->compare('t.code',$this->code, true);
 		$criteria->compare('t.product_name',$this->product_name,true);
 		$criteria->compare('t.rating',$this->rating,true);
 		$criteria->compare('t.status',$this->status);

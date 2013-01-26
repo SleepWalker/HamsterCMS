@@ -113,6 +113,13 @@ abstract class HUpdateDb
   {
     if(empty($oldV)) $oldV = 0;
 
+    // убираем из массива обновления предыдущих версий
+    $versionList = array_flip($this->updateMethods);
+    while($oldV != array_shift($versionList))
+      array_shift($this->updateMethods);
+    // удалили текущую версию
+    array_shift($this->updateMethods);
+
     $tr = $this->c->beginTransaction();
     try
     {

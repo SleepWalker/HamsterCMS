@@ -29,7 +29,7 @@ SET time_zone = "+00:00";
 
 CREATE TABLE IF NOT EXISTS `shop` (
   `id` INT unsigned NOT NULL AUTO_INCREMENT,
-  `code` INT UNSIGNED NOT NULL,
+  `code` VARCHAR(10),
   `supplier_id` tinyint(2) unsigned NOT NULL,
   `user_id` int(11) unsigned NOT NULL,
   `edit_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

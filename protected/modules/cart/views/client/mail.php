@@ -4,7 +4,7 @@
 if(!empty($phone))
   echo '<p>Телефон: <b>' . CHtml::encode($phone) .'</b></p>';
 if(!empty($email))
-  echo '<p>Email: <b>' . CHtml::encode($phone) .'</b></p>';
+  echo '<p>Email: <b>' . CHtml::encode($email) .'</b></p>';
 if(!empty($question))
   echo '<p>Вопрос:<br />' . CHtml::encode($question) .'</p>';
 

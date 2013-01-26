@@ -20,6 +20,7 @@
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
+namespace Shop;
 class Categorie extends CActiveRecord
 {
   public static $uploadsUrl = '/uploads/shop/categorie/';

@@ -184,7 +184,7 @@ class ShopController extends Controller
 	  $this->render('index',array(
 		  'dataProvider'=>$dataProvider,
 		  'itemView'=>'_cat',
-		  'title' => $this->curCat->cat_name ? $this->curCat->cat_name : 'Магазин',
+		  'title' => $this->curCat->cat_name ? $this->curCat->cat_name : $this->module->params['moduleName'],
 	  ));
 	}
 	

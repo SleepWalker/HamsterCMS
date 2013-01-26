@@ -245,9 +245,7 @@ class HPriceBase extends CComponent
         {
           $cellVal = trim($cell->getCalculatedValue());
           // если это цена - конвертим ее в float
-          $this->_price[$r][$c] = preg_match('/^\d+([\.\,]\d+)?$/', $cellVal) 
-            ? (float)round(str_replace(',', '.', $cellVal), 2)
-            : $cellVal;
+          $this->_price[$r][$c] = $cellVal;
           $c++;
         }
         $r++;
@@ -329,7 +327,7 @@ class HPriceBase extends CComponent
         'file_id' => $this->fileId,
         'cat' => $cats,
         'name' => $data[$this->columns['name']],
-        'price' => $data[$this->columns['price']],
+        'price' => (float)round(str_replace(',', '.', $data[$this->columns['price']]), 2),
         'extra' => serialize($extra),
       );
     }

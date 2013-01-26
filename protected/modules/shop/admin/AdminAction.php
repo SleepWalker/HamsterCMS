@@ -864,12 +864,15 @@ class AdminAction extends HAdminAction
 	  $parentIds = Categorie::model()->getParentsCatIds($this->crudid);
 	  if(count($parentIds))
 	  {
-	    $header = '<h1>Родительские характеристики</h1>';
 	    foreach($parentIds as $pCatId)
 	    {
 	      $pCatCSchema = CharShema::model()->findAllByCat($pCatId);
-	      foreach($pCatCSchema as $pCatChar)
-	        $header .= $pCatChar->char_name.'; ';
+        foreach($pCatCSchema as $pCatChar)
+        {
+          if(empty($header)) 
+            $header = '<h1>Родительские характеристики</h1>';
+          $header .= $pCatChar->char_name.'; ';
+        }
 	    }
 	  }
 	  

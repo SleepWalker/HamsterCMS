@@ -125,9 +125,8 @@ class CartController extends Controller
         'condition' => 'type = ' . CharShema::TYPE_VARIANTS
       ));
       foreach($chars as $char)
-      {
         $productInfo->variants[$char->char_name] = CHtml::encode($_POST['variants'][$char->primaryKey]);
-      }
+
       // используем хэш сериализированного POST, для того, что бы 
       // можно было добавить несколько одинаковых товаров разных вариантов
       ksort($_POST['variants']);

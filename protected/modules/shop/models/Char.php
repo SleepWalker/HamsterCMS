@@ -103,7 +103,7 @@ class Char extends CActiveRecord
       foreach($items as $i => &$item)
         $item = $i;
 
-      $value = CHtml::dropDownList('variants['.$this->primaryKey.']','',$items);
+      $value = CHtml::dropDownList('variants['.$this->char_id.']','',$items);
     }
     return $value;
   }
