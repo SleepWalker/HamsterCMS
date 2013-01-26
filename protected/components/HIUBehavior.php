@@ -16,6 +16,11 @@ class HIUBehavior extends CActiveRecordBehavior
   public $uImage;
   // имя поля через которое будет загружаться файл
   public $fileFieldName = 'uImage';
+
+  /**
+   * @property string $noImageUrl ссылка на картинку, которая будет выводится, если поле картинки пустое
+   */
+  public $noImageUrl;
   
   // настройки качества изображений
   public $quality = array(
@@ -136,7 +141,7 @@ class HIUBehavior extends CActiveRecordBehavior
   public function afterSave(CEvent $event)
   {
     $model = $event->sender;
-    $model->uImage = $model->image;
+    $model->uImage = $model->{$this->fileAtt};
   }
 
   /**
@@ -149,7 +154,7 @@ class HIUBehavior extends CActiveRecordBehavior
   public function afterFind(CEvent $event)
   {
     $model = $event->sender;
-    $model->uImage = $model->image;
+    $model->uImage = $model->{$this->fileAtt};
   }
 
   
@@ -275,7 +280,7 @@ class HIUBehavior extends CActiveRecordBehavior
    */
   public function img($size = 'normal', $alt = '', array $htmlOptions = array())
   {
-    if(($src = $this->src($size)) != '')
+    if(($src = $this->src($size)))
       return CHtml::image($src, $alt, $htmlOptions);
     else
       return '';
@@ -287,18 +292,25 @@ class HIUBehavior extends CActiveRecordBehavior
    * @param string $size имя элемента из массива {@link $sizes}
    * @see $sizes
    * @access public
-   * @return 
+   * @return mixed uri картинки, url заглушки или false
    */
   public function src($size = 'normal')
   {
+    // TODO: пускай скрипт генерирует картинку, если такой не существует
+    // если картинка-оригинал меньше той картинки, которую надо получить - возвращаем normal
     if(is_array($this->sizes[$size]) && !empty($this->filename))
     {
       $relFilePath = $this->sizes[$size]['prefix'].$this->filename;
-      if($size == 'full' && !file_exists($this->uploadPath.$relFilePath))
+      if(!file_exists($this->uploadPath.$relFilePath) && $name != 'normal')
         return $this->src('normal');
       return $this->uploadsUrl.$relFilePath;
     }
+    elseif(isset($this->noImageUrl))
+    {
+      return $this->noImageUrl;
+    }
 
+    return false;
   }
   
   /**
