@@ -3,6 +3,9 @@
  * This is the bootstrap file for test application.
  * This file should be removed when the application is deployed for production.
  */
+ 
+error_reporting(E_ALL ^ E_NOTICE);
+ini_set('display_errors', '1');
 
 // change the following paths if necessary
 $yii=dirname(__FILE__).'/yii/framework/yii.php';

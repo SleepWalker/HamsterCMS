@@ -279,14 +279,6 @@ class User extends CActiveRecord
 
     list($view, $params) = array(array_shift($view), $view);
 
-    /*if(($pos = strrpos($view, '.')) && Yii::getPathOfAlias($view))
-    { 
-      // передан правильный алиас, значит нам надо
-      // использовать не стандартный путь к вьюхам
-      Yii::app()->mail->viewPath = substr($view, 0, $pos);
-      $view = substr($view, $pos + 1);
-    }*/
-
     if(!$from)
       $from = array(Yii::app()->params['noReplyEmail'] => Yii::app()->params['shortName']);
 
@@ -530,6 +522,14 @@ class User extends CActiveRecord
   public function getEmailWithStatus()
   {
     return '<span class="status_' . ( $this->is_active ? "3" : "1") . '">' . CHtml::encode($this->email) . '</span>';
+  }
+
+  /**
+   * @return boolean Возвращает статус активации емейла пользователя  
+   */
+  public function getIsActive()
+  {
+    return $this->is_active;
   }
 
   /**

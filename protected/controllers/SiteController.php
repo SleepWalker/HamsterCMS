@@ -24,12 +24,17 @@ class SiteController extends Controller
 				'backColor'=>0xFFFFFF,
         'foreColor'=>0x980d0d,
 			),
-			// page action renders "static" pages stored under 'protected/views/site/pages'
-			// They can be accessed via: index.php?r=site/page&view=FileName
-			'page'=>array(
-				'class'=>'CViewAction',
-			),
-		);
+      'oauth' => array(
+        'class'=>'ext.hoauth.HOAuthAction',
+        'model' => 'User',
+        'attributes' => array(
+          'email' => 'email',
+          'first_name' => 'firstName',
+          'last_name' => 'lastName',
+          'is_active' => 1,
+        ),
+      ),
+    );
 	}
 
 	/**
@@ -199,99 +204,96 @@ class SiteController extends Controller
 	*  Подтверждение адресса Email
 	**/
 	public function actionConfirm()
-	{
-	  $model = User::model()->findByEmail($_GET['email']);
-	  if($model && !$model->is_active && $_GET['h'] == $model->confirmHash)
-	  {
-	    $model->is_active = 1;
-	    if($model->save())
-	     $this->renderText('
-  	     <h1>Активация аккаунта прошла успешно</h1>
-  	     <p>Теперь вы сможете получать специальные скидки и участвовать в акциях нашего магазина.</p>
-  	     <p>Для продолжения работы с сайтом вернитесь на <a href="/">главную страницу</a>.</p>
-  	     <p>Если вы еще не авторизовались, можете воспользоваться формой входа:</p>
-  	     <p><a href="/site/login">Войти на сайт</a></p>
-	     ');
-	  }elseif($model && !$model->is_active){
-	    $model->sendMailConfirm(); // Отправляем письмо с ссылкой подтверждения Email
-  	  $this->renderText('
-  	    <h1>Активация аккаунта не удалась</h1>
-  	    <p>На ваш почтовый ящик было выслано повторное письмо для активации</p>
-      ');
-	  }else{
-	   throw new CHttpException(404,'Ошибка. Такого аккаунта не существует, либо он уже активирован');
-	  }
-	}
+  {
+    $model = User::model()->findByEmail($_GET['email']);
+    if($model && !$model->isActive) 
+    {
+      if($_GET['h'] == $model->confirmHash)
+      {
+        $model->isActive = 1;
+        if($model->save())
+          $code=1;
+      }else{
+        $model->sendMailConfirm(); // Отправляем письмо с ссылкой подтверждения Email
+        $code=2;
+      }
+    }
+
+    /**
+     * @var $code код результата проверки емейла
+     *    0 - Такого эмейла не существует
+     *    1 - Успешная активация
+     *    2 - Аккаунт уже активирован
+     */
+    $this->render('confirm', array('code' => $code));
+  }
 	
 	/**
-	 * Форма смены пароля
-	 */
-	public function actionChpass()
-	{	
-	  if($_POST['h'])
-	  { // Сохраняем новый пароль
-	    $model = User::model()->findByEmail($_GET['email']);
-  	  if($model && $_POST['h'] == $model->chpassHash && $_POST['User'])
-  	  {
-  	    $model->scenario = 'register';
-  	    $model->attributes = $_POST['User'];
-  	    
-  	    if($model->save())
-        {
-  	      $this->renderText('
-    	     <h1>Смена пароля прошла успешно</h1>
-    	     <p>Для продолжения работы с сайтом вернитесь на <a href="/">главную страницу</a>.</p>
-    	     <p>Или можете воспользоваться формой входа:</p>
-    	     <p><a href="/site/login">Войти на сайт</a></p>
-           ');
-          Yii::app()->end();
-        }
-  	  }
-	  }
+   * Форма смены пароля
+   */
+  public function actionChpass()
+  {	
+    $email = isset($_POST['User']['email']) ? $_POST['User']['email'] : $_GET['email'];
 
-    $model = new User;
-	  
-	  if($_GET['h'])
-	  { // Проверяем хеши и выводим форму для смены пароля
-	    if(!Yii::app()->request->isPostRequest) // если пост - модель уже создана
-	     $model = User::model()->findByEmail($_GET['email']);
-  	  if($model && $model->is_active && $_GET['h'] == $model->chpassHash)
-  	  {
-        $model->scenario = 'register';
-        // далее выполнится рендер в конце файла
-  	  }else{
-  	   throw new CHttpException(404,'Ошибка восстановления пароля');
-  	  }
-	  }
-	  
-	  if($_POST['User'])
-	  {
-	    $model = User::model()->findByEmail($_POST['User']['email']);
-	    if($model)
-	    {
-	      $model->sendChpassMail();
-  	    $this->renderText('
-    	     <h1>Восстановление пароля</h1>
-    	     <p>На указанный вами Email было отправленно письмо с ссылкой для восстановления пароля.</p>
-    	     <p>Для продолжения работы с сайтом вы можете вернуться на <a href="/">главную страницу</a>.</p>
-	     ');
-        Yii::app()->end();
-	    }
-	    else
+    $code = 1;
+    if(!empty($email))
+    {
+      $model = User::model()->findByEmail($email);
+      if(!$model->isActive)
       {
-	      $this->renderText('
-    	     <h1>Ошибка</h1>
-    	     <p>Такого Email не существует. Вы можете попробовать <a href="' . Yii::app()->createUrl('site/chpass') . '">еще раз</a></p>
-    	     <p>Для продолжения работы с сайтом вы можете вернуться на <a href="/">главную страницу</a>.</p>
-           ');
-        Yii::app()->end();
+        $code = 0; // пользователи с не активированным мылом не могут восстановить пароль
+        unset($_GET);
+        unset($_POST);
       }
-	  }
-    
+    }
+    else
+      $model = new User;
+
+    if($model && $_GET['h'] == $model->chpassHash)
+    { 
+      $model->scenario = 'register';
+      // Сохраняем новый пароль
+      if(isset($_POST['User']))
+      {
+        $model->attributes = $_POST['User'];
+
+        if($model->save())
+        {
+          $code = 5;
+          unset($_GET);
+          unset($_POST);
+        }
+      }else
+        // выводим форму для смены пароля
+        $code = 4;
+    }else
+      $code = 0;
+
+    if($_POST['User'] && !isset($_POST['h']))
+    {
+      if($model)
+      {
+        $model->sendChpassMail();
+        $code = 3;
+      }
+      else
+        $code = 2;
+    }
+
+    /**
+     * @var $code код статуса операции смены пароля
+     *    0 - ошибка восстановления пароля (не правильный хэш)
+     *    1 - необходимо запросить емейл пользователя
+     *    2 - такого емейла не существует
+     *    3 - сообщение о том, что емейл был отправлен
+     *    4 - запрос нового пароля
+     *    5 - успешная смена пароля
+     */
     $this->render('chpass', array(
       'model'=>$model,
+      'code' => $code,
     ));
-	}
+  }
 	
 	/**
 	*  Редирект
