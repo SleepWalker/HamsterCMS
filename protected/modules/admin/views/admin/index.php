@@ -88,7 +88,6 @@ if(is_array($menu))
 <br /><br /><br /><br /><br /><br />
 <div style="text-align:right;">
 <a href="https://github.com/Pststudio/HamsterCMS" target="_blank"><img src="<?php echo $this->adminAssetsUrl; ?>/images/icon_git.png" alt="Мы на github.com" /></a>
-<a href="http://pwn-zone.com/" target="_blank"><img src="<?php echo $this->adminAssetsUrl; ?>/images/pwnz_logo.png" alt="PWN-Zone" /></a>
 <a href="/LICENSE" target="_blank"><img src="<?php echo $this->adminAssetsUrl; ?>/images/gplv3-88x31.png" alt="GPLv3" /></a>
 <a href="http://www.yiiframework.com" target="_blank"><img src="<?php echo $this->adminAssetsUrl; ?>/images/yii-powered.png" alt="Yii Powered" /></a>
 </div>

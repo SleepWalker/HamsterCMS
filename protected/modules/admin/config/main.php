@@ -54,8 +54,12 @@ return
   		'admin',	
   	),
   
-  	// application components
-  	'components'=>array(
+    // application components
+    'components'=>array(
+      'request'=>array(
+        'enableCookieValidation'=>true,
+        'enableCsrfValidation'=>true,
+      ),
       'db'=>array(
         'enableParamLogging'=>true, // логирует SQL вместе с привязанными параметрами
         'charset' => 'utf8',
@@ -125,6 +129,7 @@ return
       'session' => array(
         'class' => 'system.web.CDbHttpSession',
         'connectionID' => 'db',
+        'autoCreateSessionTable' => YII_DEBUG,
       ),
       'cache'=>array(
         'class'=>'system.caching.CFileCache',
