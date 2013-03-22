@@ -45,8 +45,11 @@ class Controller extends CController
    */
   public function pushAside($content, $params = array())
   {
-    $position = $params['position'];
-    unset($params['position']);
+    if(isset($params['position']))
+    {
+      $position = $params['position'];
+      unset($params['position']);
+    }
     $blockSettings = array(
       'portlet' => $params,
       'content' => $content,
@@ -106,15 +109,114 @@ class Controller extends CController
       $this->_asideBottom
     );
 
-    //FIXME: настроить портлеты
     foreach($asides as $aside)
     {
       if(is_array($options['blackList']) && in_array($aside['portlet']['id'], $options['blackList']))
         continue;
 
-      $this->beginWidget('zii.widgets.CPortlet', $aside['portlet']);
+      //$this->beginWidget('zii.widgets.CPortlet', $aside['portlet']);
+      echo '<div class="block">';
+      echo "<h4>{$aside['portlet']['title']}</h4>";
       echo $aside['content'];
-      $this->endWidget();
+      echo '</div>';
+      //$this->endWidget();
     }
+  }
+	
+  /**
+   * Отображает ошибку 404  
+   * 
+   * @access protected
+   * @return void
+   */
+  protected function pageNotFound()
+  {
+    throw new CHttpException(404, Yii::t('base', 'Запрашиваемая страница не существует'));
+  }
+
+  /**
+   * Renders a view file.
+   * This method is required by {@link IViewRenderer}.
+   * @param CBaseController $context the controller or widget who is rendering the view file.
+   * @param string $sourceFile the view file path
+   * @param mixed $data the data to be passed to the view
+   * @param boolean $return whether the rendering result should be returned
+   * @return mixed the rendering result, or null if the rendering result is not needed.
+   */
+  public function renderFile($viewFile,$data=null,$return=false)
+  {
+    // для mustache шаблонов добавляем дополнительные переменные в массив конфигурации
+    if(strpos($viewFile, '.mustache'))
+    {
+      $controller = $this;
+      $aside = new HAsideBlock;
+      $data = CMap::mergeArray(
+        $data,
+        array(
+          'pageTitle' => $this->pageTitle,
+          // {{# setLayout}}main{{/ setLayout }} - переключает layout для вьюхи
+          'setLayout' => function($layout) use ($controller) {$controller->layout = '//layouts/'.$layout;},
+
+          // добавление и рендеринг блоков
+          'aside' => array(
+            'extend' => array(
+              'block' => $aside->block(),
+              'title' => $aside->title(),
+            ),
+            'render' => function() use ($controller) {ob_start(); $controller->renderAside(); return ob_get_clean();},
+          ),
+        )
+      );
+
+      if(strpos($viewFile, 'layouts'))
+      {
+        $data['layouts'] = new HLayouts;
+      }
+    }
+
+    return parent::renderFile($viewFile, $data, $return);
+  }
+}
+
+/**
+ * Этот класс добавляет возможность использования beginContent и endContent в mustache шаблонах
+ */
+class HLayouts
+{
+  public function __isset($name)
+  {
+    return true;
+  }
+
+  public function __get($name)
+  {
+    return function($val) use ($name) {
+      ob_start();
+      Yii::app()->controller->beginContent('//layouts/'.$name);
+      echo $val;
+      Yii::app()->controller->endContent();
+      return ob_get_clean();
+    };
+  }
+}
+
+class HAsideBlock
+{
+  public $title;
+  public function title()
+  {
+    $obj = $this;
+    return function($title) use($obj) {
+      $obj->title = $title;
+    };
+  }
+
+  public function block()
+  {
+    $obj = $this;
+    return function($text, $helper) use($obj) {
+      $content = $helper->render($text);
+      Yii::app()->controller->pushAside($content, array('title' => $obj->title));
+    };
   }
 }

@@ -59,6 +59,7 @@ return
       'request'=>array(
         'enableCookieValidation'=>true,
         'enableCsrfValidation'=>true,
+        'csrfTokenName' => 'csrf',
       ),
       'db'=>array(
         'enableParamLogging'=>true, // логирует SQL вместе с привязанными параметрами
@@ -82,9 +83,19 @@ return
         // (по умолчанию это '-f%s', тоесть на выходе имеем '-fmailFrom@site.com')
         // на некоторых хостах пхп не может на прямую передавать параметры серверу
         'transportOptions' => false,
-   			'logging' => true,
-   			'dryRun' => YII_DEBUG, // when true the mail will not be sended
-   		),
+        'logging' => true,
+        'dryRun' => YII_DEBUG, // when true the mail will not be sended
+      ),
+      'viewRenderer' => array(
+        'class' => 'application.extensions.EMustache.EMustacheViewRenderer',
+        /*
+        'mustacheOptions' => array(
+          'helpers' => array(
+            'pageTitle' => 'phpexpr:function() {return Yii::app()->controller->pageTitle;}',
+          ),
+        ),
+         */
+      ),
       'widgetFactory'=>array(
         'class'=>'EWidgetFactory',
         'widgets'=>array(
