@@ -71,6 +71,7 @@ class UpdateController extends HAdminController
       'application.extensions',
       'application.models',
       'application.vendors',
+      'application.views',
       'application.widgets',
     );
     $enModsIds[] = 'admin';
