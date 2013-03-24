@@ -14,7 +14,7 @@
 }
 
 .priceDownload a {
-  display:block;
+  display:inline-block;
   line-height: 28px;
   font-size: 15px;
   background:url('../images/icon_excel.png') no-repeat;

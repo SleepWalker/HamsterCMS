@@ -9,7 +9,7 @@
  */
 class PriceController extends Controller
 {
-  //TODO: можно сохранять прайсы в защищенной дириктории и выдавать их по экшену только необходимым людям
+  //TODO: нужно сохранять прайсы в защищенной дириктории и выдавать их по экшену только необходимым людям
   public $layout='//layouts/column3';
 	/**
 	 * @return array action filters
@@ -49,7 +49,7 @@ class PriceController extends Controller
   {
     $config = HPrice::getConfig();
 
-    $choseInvitation = $priceChoises[''] = 'Не важно';
+    $chooseInvitation = $priceChoises[''] = 'Не важно';
     // меню фильтрации по файлам прайсов
     foreach($config as $price)
       if(isset($price['id']))
@@ -61,38 +61,85 @@ class PriceController extends Controller
         {
           if(!isset($cats[$curCat . '_id']))
           {
-            $catsData = PriceCat::model($curCat)->findAllByAttributes(array('file_id' => (int)$_GET['Price']['file_id']));
-            $label = isset($config['attributeLabels'][$curCat]) 
-              ? $config['attributeLabels'][$curCat]
-              : 'Категория';
-            $cats[$curCat . '_id'][''] = $choseInvitation;
+            if(isset($_GET['Price']['file_id']))
+              $catsData = PriceCat::model($curCat)->findAllByAttributes(array('file_id' => (int)$_GET['Price']['file_id']));
+            else
+              $catsData = PriceCat::model($curCat)->findAll();
+
+            $cats[$curCat . '_id'][''] = $chooseInvitation;
             foreach($catsData as $cat)
               $cats[$curCat . '_id'][$cat->primaryKey] = $cat->name;
           }
         }
       }
-
-    $priceDownloadMenu = array();
-    // список файлов в директории
-    foreach( new DirectoryIterator(HPrice::getPricePath()) as $file) {
-      if( $file->isFile() === TRUE && substr($file->getBasename(), 0, 1) != '.') 
-        $priceDownloadMenu[HPrice::getPriceUrl() . '/' . $file->getBasename()] = $file->getBasename();
-    }
     
     $prod = new Price('search');
     if($_GET['Price'])
       $prod->attributes = $_GET['Price'];
       
     $dataProvider = $prod->search();
-    
-		$this->render('index', array(
-      'brands' => $brands,
-      'cats' => $cats,
+
+
+    $this->pushAside(array(
+      'block_filter',
       'prod' => $prod,
-      'config' => $config,
-      'priceChoises' => $priceChoises,
-      'dataProvider' => $dataProvider,
-      'priceDownloadMenu' => $priceDownloadMenu,
+      'cats' => $cats,
+      ),
+    array(
+      'title' => 'Фильтр',
+      'position' => 'top',
+    ));
+
+    // колонки для таблицы
+    // TODO: перенести в модель всю инфу о колонках
+    $columns =  array(
+      'code',
+      'name',
+      'price',
+    );
+
+    foreach(array_keys($cats) as $cat)
+      $columns[] = str_replace('_id', 'Name', $cat);
+
+
+    // TODO: названия колонок должны генерироваться в модели
+    if(is_array(($extra = $config['extraLabels'])))
+      foreach($extra as $attribute => $name)
+        $columns[] = array(
+          'name' => $name,
+          'header' => $name,
+          'value' => '$data->extra["' . $attribute . '"]',
+        );
+
+    $priceTable = $this->widget('zii.widgets.grid.CGridView', array(
+      'dataProvider'=>$dataProvider,
+      'columns'=>$columns,
+      'pager'=>array(
+        'cssFile'=>false,
+        'header'=>false,
+        'maxButtonCount' => 8,
+      ),
+      'cssFile'=>false,
+      'summaryText' => false,
+      'enableHistory' => true,
+    ), true);
+
+
+    $priceDownloadMenu = array();
+    // список прайсов
+    foreach( new DirectoryIterator(HPrice::getPricePath()) as $file) {
+      if( $file->isFile() === TRUE && substr($file->getBasename(), 0, 1) != '.') 
+        $priceDownloadMenu[] = array(
+          'name' => $file->getBasename(),
+          'link' => HPrice::getPriceUrl() . '/' . $file->getBasename(),
+        );
+    }
+
+		$this->render('index', array(
+      'priceTable' => $priceTable,
+      'priceDownloadMenu' => array(
+        'elements' => $priceDownloadMenu,
+      ),
     ));
 	}
 }

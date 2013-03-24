@@ -149,12 +149,12 @@ class AdminAction extends HAdminAction
       . CHtml::endForm();
 ?>
 <hr />
-    <form action="" method="post" style="display:inline-block;text-align:center;">
 <?php
+    echo CHtml::beginForm('', 'post', array('style' => 'display:inline-block;text-align:center;'));
     echo CHtml::submitButton('Очистить БД от всех прайсов', array('name'=>'flush'));
     echo ' ' . CHtml::submitButton('Очистить ФС от всех прайсов', array('name'=>'unlink'));
+    echo CHtml::endForm();
 ?>
-    </form>
     <p>
       <ul>
         <li><b>Очистить БД от всех прайсов</b> - полностью очищает базу данных от содержимого прайсов. (использовать, когда нужно обновить прайсы в базе данных)</li>

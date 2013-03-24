@@ -19,7 +19,7 @@ class PriceCat extends CActiveRecord
    * @property string $tableName таблица для которой инициализируется модель по умолчанию, 
    *    если при вызове метода {@link PriceCat::model()} не задать другую
    */
-  private $tableName = 'price_cat';
+  private $_tableName = 'price_cat';
 
   /**
    * @property array $_models используется аналогичным образом как и такая же переменная в родительском классе
@@ -52,7 +52,7 @@ class PriceCat extends CActiveRecord
     else
     {
       $model=self::$_models[$tableName.$className]=new $className(null);
-      $model->tableName = $tableName;
+      $model->_tableName = $tableName;
       $model->_md=new CActiveRecordMetaData($model);
       $model->attachBehaviors($model->behaviors());
       return $model;
@@ -64,7 +64,7 @@ class PriceCat extends CActiveRecord
 	 */
 	public function tableName()
 	{
-		return $this->tableName;
+		return $this->_tableName;
 	}
 
 	/**
@@ -126,6 +126,8 @@ class PriceCat extends CActiveRecord
   public function findAll($condition='',$params=array())
   {
     $models = parent::findAll($condition,$params);
+
+    // кешируем названия категорий
     if(!isset(Price::$catNames[$tableId]))
     {
       $tableId = str_replace('price_','', $this->tableName());
@@ -134,4 +136,16 @@ class PriceCat extends CActiveRecord
     }
     return $models;
   }
+
+	/**
+	 * Returns the meta-data for this AR
+	 * @return CActiveRecordMetaData the meta for this AR class.
+	 */
+	public function getMetaData()
+	{
+		if($this->_md!==null)
+			return $this->_md;
+		else
+			return $this->_md=self::model($this->tableName())->_md;
+	}
 }

@@ -113,7 +113,6 @@ class Price extends CActiveRecord
 
 		return array_merge(array(
 			'code' => 'Код',
-			'cat_id' => 'Категория',
 			'name' => 'Наименование товара',
 			'price' => 'Цена, грн.',
       'min' => 'От',
@@ -188,15 +187,28 @@ class Price extends CActiveRecord
     {
       $tableId = $matches[1];
       if(!isset(self::$catNames[$tableId]))
-      {
         // в методе {@link PriceCat::findAll()} сразу после выборки 
         // будет заполнен необходимый нам массив {@link Price::$catNames}
-        $models = PriceCat::model($tableId)->findAll();
-      }
+        PriceCat::model($tableId)->findAll();
 
       return self::$catNames[$tableId][$this->{$tableId . '_id'}];
     }
     return parent::__get($name);
+  }
+
+  /**
+   * Добавляет функционал необходимый для переопределенного геттера
+   * 
+   * @param mixed $att 
+   * @access public
+   * @return void
+   */
+  public function __isset($att)
+  {
+    if(preg_match('/^(\w+)Name$/', $att))
+      return true;
+
+    return parent::__isset($att);
   }
 
 	/**

@@ -436,11 +436,11 @@ class HPriceBase extends CComponent
     }
     $connection->createCommand($catsSql)->execute();
 
-    // получаем категории
+    // получаем id категорий для вставки в основную таблицу прайсов
     foreach(array_keys($cats) as $catId)
     {
       // переключаем модель на нужную нам таблицу
-      $allCats = PriceCat::model('price_' . $catId)->findAll();
+      $allCats = PriceCat::model($catId)->findAll();
       foreach($allCats as $cat)
       {
         $catTockens['{' . $catId . $cat->name . '}'] = $cat->primaryKey;
