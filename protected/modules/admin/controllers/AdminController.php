@@ -363,6 +363,11 @@ class AdminController extends HAdminController
           'title' => 'Настройки глобальных параметров Hamster',
           'type' => 'fieldset',
           'elements' => array(
+            'defaultLayout' => array(
+              'label' => 'Шаблон по умолчанию',
+              'type' => 'text',
+              'default' => 'column2',
+            ),
             'shortName' => array(
               'label' => 'Короткое имя сайта, которым будут подписываться, к примеру, письма от сайта',
               'type' => 'text',

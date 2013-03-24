@@ -31,10 +31,16 @@ class Controller extends CController
   protected $_asideStack = array();
   protected $_asideBottom = array();
 
+  public function init() 
+  {
+    if(!empty(Yii::app()->params['defaultLayout']))
+      $this->layout = '//layouts/' . Yii::app()->params['defaultLayout'];
+  }
+
   /**
    * Добавляет блок кода в стэк aside  
    * 
-   * @param string $content код aside блока
+   * @param mixed $content код aside блока или массив array('viewName', 'param1' => $param1, 'param2' => $param2, ...)
    * @param array $params параметры
    *    position => top|bottom|null
    *    id => string
@@ -45,6 +51,10 @@ class Controller extends CController
    */
   public function pushAside($content, $params = array())
   {
+    // передана вьюха
+    if(is_array($content))
+      $content = $this->renderPartial($content[0], array_slice($content, 1), true);
+
     if(isset($params['position']))
     {
       $position = $params['position'];
@@ -150,22 +160,32 @@ class Controller extends CController
     {
       $controller = $this;
       $aside = new HAsideBlock;
-      $data = CMap::mergeArray(
-        $data,
-        array(
-          'pageTitle' => $this->pageTitle,
-          // {{# setLayout}}main{{/ setLayout }} - переключает layout для вьюхи
-          'setLayout' => function($layout) use ($controller) {$controller->layout = '//layouts/'.$layout;},
+      $mustacheTags = array(
+        // {{# pageTitle }}title to set {{/ pageTitle }} или {{ pageTitle }} (выведет сам титл)
+        'title' => function ($title = false) use ($controller) {
+          if($title)
+            $controller->pageTitle = $title;
+          else
+            return $controller->pageTitle;
+        },
+        // {{# setLayout}}main{{/ setLayout }} - переключает layout для вьюхи
+        'layout' => function($layout) use ($controller) {$controller->layout = '//layouts/'.$layout;},
 
-          // добавление и рендеринг блоков
-          'aside' => array(
-            'extend' => array(
-              'block' => $aside->block(),
-              'title' => $aside->title(),
-            ),
-            'render' => function() use ($controller) {ob_start(); $controller->renderAside(); return ob_get_clean();},
+        'js' => function($code, $mustache) {
+          Yii::app()->clientScript->registerScript(__CLASS__.uniqid(), $mustache->render($code), CClientScript::POS_END);
+        },
+
+        // добавление и рендеринг блоков
+        'aside' => array(
+          'extend' => array(
+            'block' => $aside->block(),
+            'title' => $aside->title(),
           ),
-        )
+          'render' => function() use ($controller) {ob_start(); $controller->renderAside(); return ob_get_clean();},
+        ),
+      );
+      $data = CMap::mergeArray(
+        $data, array ('hamster' => $mustacheTags, 'h' => $mustacheTags)
       );
 
       if(strpos($viewFile, 'layouts'))

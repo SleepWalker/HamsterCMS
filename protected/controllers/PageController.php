@@ -52,15 +52,17 @@ class PageController extends Controller
     if(Yii::app()->request->requestUri == '/page')
       $this->pageNotFound();
 
+    $model=$this->loadModel(array('full_path'=>'/' . $path));
+
     $view = 'static/'.(empty($path) ? 'index' : $path);
     if($this->getViewFile($view)===false)
     {
-      $model=$this->loadModel(array('full_path'=>'/' . $path));
       $view = 'index';
     }
 
     $this->render($view,array(
       'model'=>$model,
+      'content'=>$model->content,
     ));
   }
 
