@@ -15,8 +15,7 @@ if(is_array($menu))
 <?php
   foreach($menu as $label => $route)
   {
-    $moduleId = array_pop(explode('/', $route[0]));
-    $route = Yii::app()->createUrl($route[0]);
+    list($route, $moduleId) = parseRoute($route);
 ?>
   <article>
     <h3><?php echo CHtml::link($label, $route); ?></h3>
@@ -42,8 +41,7 @@ if(is_array($menu))
 <?php
   foreach($menu as $label => $route)
   {
-    $moduleId = array_pop(explode('/', $route[0]));
-    $route = Yii::app()->createUrl($route[0]);
+    list($route, $moduleId) = parseRoute($route);
 ?>
   <article>
     <h3><?php echo CHtml::link($label, $route); ?></h3>
@@ -69,8 +67,7 @@ if(is_array($menu))
 <?php
   foreach($menu as $label => $route)
   {
-    $moduleId = array_pop(explode('/', $route[0]));
-    $route = Yii::app()->createUrl($route[0]);
+    list($route, $moduleId) = parseRoute($route);
 ?>
   <article>
     <h3><?php echo CHtml::link($label, $route); ?></h3>
@@ -93,4 +90,14 @@ if(is_array($menu))
 </div>
 <?php
 Yii::app()->clientScript->registerCoreScript('jquery');
+
+function parseRoute($route)
+{
+  $route = $route[0];
+  $parts = explode('/', $route);
+  $moduleId = array_pop($parts);
+  $route = Yii::app()->createUrl($route);
+
+  return array($route, $moduleId);
+}
 ?>

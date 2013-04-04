@@ -156,7 +156,7 @@ class Hi18nBehavior extends CActiveRecordBehavior
     }
   }
  */
-  public function afterFind(CEvent $event)
+  public function afterFind($event)
   {
     $model = $event->sender;
     // создаем модели в тех полях, которые оказались пустыми
@@ -191,7 +191,7 @@ class Hi18nBehavior extends CActiveRecordBehavior
     }
   }
 
-  public function afterSave(CEvent $event)
+  public function afterSave($event)
   {
     $model = $event->sender;
     $language = $_POST[get_class($model)]['i18nlang'];

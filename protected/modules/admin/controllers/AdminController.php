@@ -189,7 +189,7 @@ class AdminController extends HAdminController
   /**
 	 * Выбирает какое действие администрирования запустить
 	 */
-  protected function afterAction(CAction $action) 
+  protected function afterAction($action) 
   {
     //if ($action->id == 'index' || $action->id == 'logs') return true;
 

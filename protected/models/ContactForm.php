@@ -20,7 +20,7 @@ class ContactForm extends CFormModel
 	/**
 	 * Название вьюхи храним тут для возможности использования несольки форм на сайте без костылей в контроллере
 	 */
-	public $view = 'contact.php';
+	public $view = 'contact';
 	public $files = array();
 	public $verifyCode;
 	

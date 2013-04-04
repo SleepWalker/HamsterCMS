@@ -298,7 +298,7 @@ class SiteController extends Controller
 	/**
 	*  Редирект
 	**/
-	public function redirect($referrer = false)
+	public function redirect($referrer = false, $terminate = true, $statusCode = 302)
   {
     if (!$referrer)
     {
