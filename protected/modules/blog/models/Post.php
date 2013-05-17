@@ -116,6 +116,16 @@ class Post extends CActiveRecord
         'i18nAtts'=>'title, content',
         'moduleId'=>'blog',
       ),
+/*
+      'CTimestampBehavior' => array(
+        http://stackoverflow.com/questions/2978473/lost-in-dates-and-timezones
+        http://stackoverflow.com/questions/1852223/mysql-keep-server-timezone-or-user-timezone
+        'class' => 'zii.behaviors.CTimestampBehavior',
+        'createAttribute' => 'create_time_attribute',
+        'updateAttribute' => 'update_time_attribute',
+        'setUpdateOnCreate' => true,
+      ),
+*/
     );
   }
   
