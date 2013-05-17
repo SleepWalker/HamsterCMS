@@ -312,7 +312,7 @@ class User extends CActiveRecord
   }
 
   
-  /**
+   /**
 	*  Отправляет письмо для подтверждения Email адреса
 	**/
 	public function sendMailConfirm()
@@ -352,9 +352,16 @@ class User extends CActiveRecord
 	*  Проверка пароля
 	**/
 	public function validatePassword($password)
-  {    
-    return $this->hashPassword($password, $this->salt)===$this->password;
-  }
+    {    
+        return $this->hashPassword($password, $this->salt)===$this->password;
+    }
+    /**
+     * Синоним метода validatePassword для расширения hoauth
+     */
+    public function verifyPassword($password)
+    {
+        return $this->validatePassword($password);
+    }
 
   /**
   *   Хэш функция из Django
