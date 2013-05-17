@@ -119,7 +119,7 @@ class AuthItem extends CActiveRecord
    * @access public
    * @return void
    */
-  public function findByPk($authItemId)
+  public function findByPk($authItemId, $condition = '', $params = array())
   {
     $this->ai = $this->am->getAuthItem($authItemId);
     $this->setAttributes(array(
@@ -196,7 +196,7 @@ class AuthItem extends CActiveRecord
     return $data ? $data : null;
   }
 
-  public function save($runValidation=true)
+  public function save($runValidation=true, $attributes = NULL)
   {
     if(!$runValidation || $this->validate())
     {
