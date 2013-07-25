@@ -1,7 +1,7 @@
 <h1 align="center">Добро пожаловать в установщик HamsterCMS!</h1>
 
 <?php
-echo '<div class="form" style="width:400px;margin:0 auto;">'.CHtml::beginForm()
+echo '<div class="form" style="width:400px;margin:0 auto;">'.CHtml::beginForm('/db')
 .CHtml::label('Выберите вариант установки', 'installType')
 .'<br>'
 .CHtml::radioButtonList('installType', 'quick', array(

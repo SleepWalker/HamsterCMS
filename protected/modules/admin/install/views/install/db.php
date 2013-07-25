@@ -13,8 +13,8 @@ echo CHtml::beginForm()
 . CHtml::textField('db[name]', $data['name'], array('required' => 'required'
 ))
 
-. CHtml::label('Пользователь', 'db[user]')
-. CHtml::textField('db[user]', $data['user'], array('required' => 'required'
+. CHtml::label('Пользователь', 'db[username]')
+. CHtml::textField('db[username]', $data['username'], array('required' => 'required'
 ))
 
 . CHtml::label('Пароль', 'db[password]')
@@ -22,6 +22,7 @@ echo CHtml::beginForm()
 ))
 
 . CHtml::submitButton('Отправить')
+. CHtml::link(CHtml::button('Назад'), '/')
 
 . CHtml::endForm()
 . '</div>'

@@ -16,6 +16,7 @@ echo '<div class="form">'.CHtml::beginForm()
 .CHtml::textField('memcache[port]')
 .'</div>'
 .CHtml::submitButton('Отправить')
+.CHtml::link(CHtml::button('Назад'), '/db')
 .CHtml::endForm()
 .'</div>'
 ;

@@ -35,96 +35,138 @@ class InstallController extends Controller
     $installType = isset($_POST['installType']) ? $_POST['installType'] : Yii::app()->session['installType'];
     if(isset($_POST['installType']))
       Yii::app()->session['installType'] = $_POST['installType'];
-    if(isset($installType))
+      
+    if(isset($installType) && 0)
     {
       $this->setupDb();
       $this->setupCache();
       $this->generateConfig();
       $this->registerAdmin();
       $this->generateConfig(true);
-    }else
-      $this->render('index');
+    }
+    $this->render('index');
   }
 
-  protected function setupDb()
+  public function actionDb()
   {
-    if(is_array(Yii::app()->session['db']))
-      return;
 
     // проверяем соединение
-    if(isset($_POST['db']))
+    if(isset($_POST['db']['host']))
     {
-      try{
-        $dsn = "mysql:dbname={$_POST['db']['name']};host={$_POST['db']['host']}";
-        $connection=new CDbConnection($dsn,$_POST['db']['user'],$_POST['db']['password']);
+      try
+      {
+        $dsn = "mysql:dbname={$_POST['name']};host={$_POST['host']}";
+        $connection=new CDbConnection($dsn,$_POST['username'],$_POST['password']);
         $connection->active=true;
-
-        Yii::app()->session['db'] = array(
-          'connectionString' => $dsn,
-          'username' => $_POST['db']['user'],
-          'password' => $_POST['db']['password'],
-        );
-        return;
+        
+        Yii::app()->session['db'] = $_POST['db'];
+        $this->redirect('/cache');
       }
       catch(CDbException $e)
-      {
-      }
+      {}
     }
+    elseif(empty($_POST['db']))
+        $_POST['db'] = Yii::app()->session['db'];
 
     $this->render('db', array(
       'data' => $_POST['db'],
       'error' => isset($e) ? $e->getMessage() : false,
     ));
-    Yii::app()->end();
   }
 
-  protected function setupCache()
+  public function actionCache()
   {
-    if(is_array(Yii::app()->session['cache']))
-      return;
-
     //TODO: Проверка соединения мемкейчед
-    switch($_POST['cacheType'])
+    if(isset($_POST['cacheType']))
     {
-    case 'filesystem':
-      // кэш в файловой систем по умолчанию, потому ничего не трогаем
-      return Yii::app()->session['cache'] = array();
-      break;
-    case 'memcached':
-    case 'memcache':
-
-      Yii::app()->session['cache'] = array(
-        'class'=>'system.caching.CMemCache',
-        'servers'=>array(
-          array('host'=>$_POST['memcache']['host'], 'port'=>$_POST['memcache']['port'], 'weight'=>60),
-        ),
-      );
-      if($_POST['cacheType'] == 'memcached')
-        Yii::app()->session['cache']['useMemcached'] = true;
-      return;
-      break;
+      Yii::app()->session['cache'] = $_POST;
+      $this->redirect('/validate');
     }
-
-    if(empty($_POST['cacheType']))
+    else
+    {
       $_POST['cacheType'] = 'filesystem';
+      if(!empty(Yii::app()->session['cacheType']))
+        $_POST['cacheType'] = Yii::app()->session['cacheType'];
+    }
 
     $this->render('cache', array(
       'data' => $_POST,
+    ));
+  }
+  
+  public function actionValidate()
+  {
+  
+    if($this->validateConfig())
+    {
+      // генерируем временный конфиг для регистрации юзера администратора
+      $this->generateConfig();
+      $this->redirect('/register');
+    }
+    else
+    {
+      throw new CException('При проверке конфигурационных данных возникла не известная ошибка! :(');
+    }
+  }
+
+  /**
+   * Регистрация администратора
+   */
+  public function actionRegister()
+  {
+    //TODO: сделать логин при редиректе, что бы сессия таки переключилась на дб и юзер залогинился
+    if(Yii::app()->session['adminRegistered'] || !$this->validateConfig())
+      return;
+      
+    // на этом этапе нам уже необходимо создать первые таблицы в бд
+    $this->restoreDb();
+
+    $model = new User('register');
+
+    // AJAX валидация
+    if(isset($_POST['ajax']))
+    {
+      $model->attributes = $_POST['User'];
+      echo CActiveForm::validate($model);
+      Yii::app()->end();
+    }
+
+    if(isset($_POST['User']))
+    {
+      $model->attributes = $_POST['User'];
+
+      if ($model->validate())
+      {
+        $model->is_active = true; // админ у нас будет сразу активированным
+        $model->save();
+
+        $authItem = new AuthItem;
+        AuthItem::model()->assign($model, 'admin');
+        
+        $model->login();
+
+        Yii::app()->session['adminRegistered'] = true;
+        
+        // генерируем финальный конфиг
+        $this->generateConfig(true);
+        $this->redirect('/admin');
+      }
+    }
+	  
+    $this->pageTitle = 'Регистрация пользователя администратора';
+	  $form = $this->renderPartial('application.views.site.register', array(
+      'model' => $model,	
+    ), true, true);
+
+    $this->render('admin', array(
+      'form' => $form,
     ));
     Yii::app()->end();
   }
 
   protected function generateConfig($mergeFinal = false)
   {
-    if(!$mergeFinal && Yii::app()->session['configUpdated'])
-      return;
-
-    $dbConfig = array(
-      'components' => array(
-        'cache' => Yii::app()->session['cache'],
-        'db' => Yii::app()->session['db'],
-      ),
-    );
+    $config = $this->getValidatedConfig();
 
     // проводим финальное сливание конфигов
     // на выходе будет стартовый конфиг для нормальной работы цмс
@@ -140,7 +182,7 @@ class InstallController extends Controller
 
       $mainConfig = require(Yii::getPathOfAlias('application.modules.admin.config') . DIRECTORY_SEPARATOR . 'main.php');
       // мерджим массивы
-      $hamsterModules['config'] = CMap::mergeArray($hamsterModules['config'], $dbConfig);
+      $hamsterModules['config'] = CMap::mergeArray($hamsterModules['config'], $config);
       $hamster = CMap::mergeArray($mainConfig, $hamsterModules['config']); 
     }else{
       // здесь мы только подключаем бд и кэш и мерджим с конфигом install, 
@@ -149,77 +191,82 @@ class InstallController extends Controller
       $installConfig = require(Yii::getPathOfAlias('application.modules.admin.install.config') . DIRECTORY_SEPARATOR . 'install.php');
       // настраиваем менеджер авторизации, что бы на этапе регистрации
       // мы могли присвоить роль админа первому юзеру
-      $dbConfig['components']['authManager'] = array(
+      $config['components']['authManager'] = array(
         'class'=>'CDbAuthManager',
         'connectionID'=>'db',
         'defaultRoles' => array('guest', 'user'),
       );
-      $dbConfig['components']['user'] = array(
+      $config['components']['user'] = array(
         'class' => 'application.modules.user.components.HWebUser',
   			'allowAutoLogin'=>true,
   		);
-      $dbConfig['components']['session'] = array(
+  		/*
+      $config['components']['session'] = array(
         'class' => 'system.web.CDbHttpSession',
         'connectionID' => 'db',
   		);
-      $hamster = CMap::mergeArray($installConfig, $dbConfig); 
-
-      // сообщаем скрипту, что к конфигу Install уже подключена база данных 
-      // и данному методу при следущем вызове можно генерировать основной конфиг сайта
-      Yii::app()->session['configUpdated'] = true;
+  		*/
+      $hamster = CMap::mergeArray($installConfig, $config); 
     }
 
     $hamster = "<?php\n\nreturn " . var_export($hamster, true) . ";";
     file_put_contents(Yii::getPathOfAlias('application.config') . '/hamster.php', $hamster);
-    //FIXME: после refresh в самом конце возвращается пустая страница
-    //FIXME: после refresh слетает сессия из-за того, что она становится в бд
-    $this->refresh();
   }
-
-  protected function registerAdmin()
+  
+  protected function getValidatedConfig()
   {
-    //FIXME: не логинится юзер
-    if(Yii::app()->session['adminRegistered'])
-      return;
-
-    $model = new User('register');
-
-
-    // AJAX валидация
-    if(isset($_POST['ajax']))
+    if(!$this->validateConfig())
+      return null;
+      
+    $configParams['db'] = Yii::app()->session['db'];
+    
+    $config['components']['db'] = array (
+      'charset' => 'utf8',
+      'emulatePrepare' => true,
+      'connectionString' => "mysql:dbname={$configParams['db']['name']};host={$configParams['db']['host']}",
+      'username' => $configParams['db']['username'],
+      'password' => $configParams['db']['password'],
+    );
+    
+    $configParams['cache'] = Yii::app()->session['cache'];  
+     
+    if($configParams['cache']['cacheType'] == 'filesystem')
+      // кэш в файловой систем по умолчанию, потому ничего не трогаем
+      $config['components']['cache'] = array('class'=>'system.caching.CFileCache');
+    else 
     {
-      $model->attributes = $_POST['User'];
-      echo CActiveForm::validate($model);
-      Yii::app()->end();
+      $config['components']['cache'] = array(
+          'class'=>'system.caching.CMemCache',
+          'servers'=>array(
+              array('host'=>$configParams['cache']['memcache']['host'], 'port'=>$configParams['cache']['memcache']['port'], 'weight'=>60),
+          ),
+      );
+      
+      if($configParams['cache']['cacheType'] == 'memcached')
+        $config['components']['cache']['useMemcached'] = true;
     }
-
-    if(isset($_POST['User']))
-    {
-      $model->attributes = $_POST['User'];
-
-      if ($model->save())
-      {
-        $model->is_active = true; // админ у нас будет сразу активированным
-        $model->save();
-        $model->login();
-
-        $authItem = new AuthItem;
-        AuthItem::model()->assign($model, 'admin');
-
-        Yii::app()->session['adminRegistered'] = true;
-
-        Yii::app()->end();
-      }
-    }
-	  
-    $this->pageTitle = 'Регистрация пользователя администратора';
-	  $form = $this->renderPartial('application.views.site.register', array(
-      'model' => $model,	
-    ), true, true);
-
-    $this->render('admin', array(
-      'form' => $form,
-    ));
-    Yii::app()->end();
+    
+    return $config;
+  }
+  
+  protected function validateConfig()
+  {
+    if(empty(Yii::app()->session['db']))
+        $this->redirect('/db');
+    if(empty(Yii::app()->session['cache']))
+        $this->redirect('/cache');
+        
+    return true;
+  }
+  
+  protected function restoreDb()
+  {
+		if(Yii::app()->db->getSchema()->getTable('auth_user') === null)
+		{
+		  $sql = file_get_contents(Yii::getPathOfAlias('application.modules.user.admin').DIRECTORY_SEPARATOR.'schema.mysql.sql');
+		  Yii::app()->db->createCommand($sql)->execute();
+		  $sql = file_get_contents(Yii::getPathOfAlias('application.controllers.page').DIRECTORY_SEPARATOR.'schema.mysql.sql');
+		  Yii::app()->db->createCommand($sql)->execute();
+		}
   }
 }
