@@ -40,10 +40,18 @@ class SocialityController extends Controller
     // Отключаем jquery (так как при ajax он уже подключен)
     Yii::app()->clientscript->scriptMap['jquery.js'] = Yii::app()->clientscript->scriptMap['jquery.min.js'] = false; 
 
-    $cData = $_POST['Comment'];
+    if(isset($_POST['Comment']))
+      $cData = $_POST['Comment'];
+    else
+      $cData = array(
+        'model_id' => null,
+        'model_pk' => null,
+      );
 
-    if(isset($cData['comment']))
+    // добавление нового коммента
+    if (isset($cData['comment']))
     {
+
       $comment = new Comment;
       $comment->attributes = $cData;
 
@@ -61,6 +69,7 @@ class SocialityController extends Controller
         ));
       }
     }else{
+      // просто вывод комментов
       if(isset($_GET['modelId']) && isset($_GET['modelPk']))
       {
         $cData['model_id'] = $_GET['modelId'];

@@ -232,7 +232,7 @@ class Comment extends CActiveRecord
       {
         $this->date = new CDbExpression('NOW()');
         $this->user_id = $this->scenario == 'guest' ? new CDbExpression('NULL') : Yii::app()->user->id;
-        $this->ip=ip2long(CHttpRequest::getUserHostAddress());
+        $this->ip=ip2long(Yii::app()->request->getUserHostAddress());
       }
       else
         $this->ip=ip2long($this->ip);

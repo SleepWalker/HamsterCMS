@@ -7,6 +7,50 @@ Licensed under the GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
 - attribution requires leaving author name, author link, and the license info intact
 */
 
+setTimeout(function() {
+  if(!window.hSocialInit)
+  {
+    window.___gcfg = {                // Настройки языка для Google +1 Button
+          lang: 'ru'
+    };
+
+    var apis = {
+      gpApi: 'https://apis.google.com/js/plusone.js',                                            // Google +1 Button
+      vkApi: '//vk.com/js/api/openapi.js?75',                                                    // Vkontakte API
+      twApi: '//platform.twitter.com/widgets.js',                                                // Twitter Widgets
+      fbApi: '//connect.facebook.net/en_US/all.js#xfbml=1',                                      // Facebook SDK
+    },
+    script   = 'script',
+
+    fragment = document.createDocumentFragment(),
+    element  = document.createElement(script),
+
+    clone;
+
+    // вставляем в дом скрипты для всех apis
+    for (var id in apis)
+    {
+      clone = element.cloneNode(false);
+      clone.async = true;
+      clone.src = apis[id];
+      clone.id = id;
+      clone.type = 'text/javascript';
+      fragment.appendChild(clone);
+    }
+
+    clone = document.getElementsByTagName(script)[0];
+    clone.parentNode.insertBefore(fragment, clone);
+
+    
+    window.vkAsyncInit = function() {
+      window.VK = VK; // на всякий случай
+      $('body').trigger('vkInit');
+    };
+
+    window.hSocialInit = true;
+  }
+}, 200);
+
 $.fn.hcomments = function(type)
 {
   if(!$(this).data('initialized'))
@@ -15,52 +59,23 @@ $.fn.hcomments = function(type)
     VK.Widgets.Comments('vkcomments', {limit: 10, attach: '*'});
   }
 };
-setTimeout(function() {
-  if(!window.hSocialInit)
-  {
-    (function(d, s, id) {
-      var div = d.createElement('div');
-      div.id = 'fb-root';
-      d.body.insertBefore(div, d.body.firstChild);
-      var js, fjs = d.getElementsByTagName(s)[0]; 
-      if (d.getElementById(id)) {return;} 
-      js = d.createElement(s); js.id = id; 
-      js.src = '//connect.facebook.net/en_US/all.js#xfbml=1';
-      fjs.parentNode.insertBefore(js, fjs); 
-    }(document, 'script', 'facebook-jssdk'));
 
-    (function() {
-      var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-      po.src = 'https://apis.google.com/js/plusone.js';
-      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
-    })();
-
-    window.___gcfg = {
-      lang: 'ru',
-      parsetags: 'onload'
-    };
-
-    !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','twitter-wjs');
-
-    var vkTransport = document.createElement('div');
-    vkTransport.id = 'vk_api_transport';
-    document.body.appendChild(vkTransport);
-    
-    window.vkAsyncInit = function() {
-      if(document.getElementById('vklike'))
-        VK.Widgets.Like('vklike', {type: 'vertical', height: 24}); 
-        
-      window.VK = VK; // на всякий случай
-    };
-
-      var el = document.createElement('script');
-      el.type = 'text/javascript';
-      el.src = 'http://vkontakte.ru/js/api/openapi.js';
-      el.async = true;
-      document.getElementById('vk_api_transport').appendChild(el);
-      window.hSocialInit = true;
-  }
-}, 200);
+$.hvklike = function(settings)
+{
+  var vkLikeInit = function() {
+    window.VK.Widgets.Like('vklike', settings);
+  };
+  if($('#vklike').is(':empty'))
+    if(window.VK === undefined)
+    {
+      $('body').off('vkInit', vkLikeInit);
+      $('body').on('vkInit', vkLikeInit);
+    }
+    else
+    {
+      vkLikeInit();
+    }
+};
 
 $(function() {
   $('body').on('click', '.HTabs > a', function () {

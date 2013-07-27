@@ -45,13 +45,21 @@ class HLike extends CWidget
    */
   public $vertical = false;
 
+  /**
+   * @property string $size размер социальных кнопок (small|medium|standard|big)
+   */
+  public $size = 'big';
+
+  /**
+   * @property string $annotation позиция аннотации с количеством лайков
+   */
+  public $annotation = 'counter';
+
 	public function init() {
 		if (empty($this->_assetsUrl))
 			$this->_assetsUrl = Yii::app()->getAssetManager()->publish(
 				dirname(__FILE__). DIRECTORY_SEPARATOR.'assets'
 			);
-
-		$this->registerClientScript();
 		parent::init();
 	}
 
@@ -82,14 +90,56 @@ class HLike extends CWidget
     }
 
     $cs->registerMetaTag(Yii::app()->params['vkApiId'], NULL, NULL, array('property' => 'vk:app_id'));
+
+    if($this->size != 'pie')
+    {
+
+      $this->registerClientScript();
+      switch($this->size)
+      {
+      case 'big':
+        $size['google'] = 'tall';
+        $size['vk'] = 'vertical';
+        $size['facebook'] = 'box_count';
+        $size['twitter'] = array('vertical', '');
+        break;
+      case 'standard':
+        $size['google'] = 'standard';
+        $size['vk'] = 'button';
+        $size['facebook'] = 'standard';
+        $size['twitter'] = array('large', '');
+        break;
+      case 'medium':
+        $size['google'] = 'medium';
+        $size['vk'] = 'mini';
+        $size['facebook'] = 'button_count';
+        $size['twitter'] = array('', '');
+        break;
+      case 'small':
+        $size['google'] = 'small';
+        $size['vk'] = 'mini';
+        $size['facebook'] = 'button_count';
+        $size['twitter'] = array('', '');
+        break;
+      }
 ?>
   <section class="hlike"<?php echo $this->vertical ? '' : ' style="height:65px"';?>> 
-      <a href="https://twitter.com/share" class="twitter-share-button" data-count="vertical" data-via="">Tweet</a> <?php if($this->vertical) echo '<br />'; ?>
-      <fb:like send="false" style="vertical-align: top;margin-top:1px;" layout="box_count" show_faces="true"></fb:like><?php if($this->vertical) echo '<br />'; ?>
-      <g:plusone size="tall"></g:plusone> 
+      <a href="https://twitter.com/share" class="twitter-share-button" data-count="<?php echo $size['twitter'][1]; ?>" data-size="<?php echo $size['twitter'][0]; ?>" data-via="">Tweet</a> <?php if($this->vertical) echo '<br />'; ?>
+      <fb:like send="false" style="vertical-align: top;margin-top:1px;" layout="<?php echo $size['facebook']; ?>" show_faces="true"></fb:like><?php if($this->vertical) echo '<br />'; ?>
+      <div class="g-plusone" data-size="<?php echo $size['google']; ?>"></div>
       <div id="vklike"<?php if(!$this->vertical) echo 'style="display:inline-block;"'; ?>></div> 
     </section>
 <?php
+      $cs->registerScript(__CLASS__, "$.hvklike({type: '{$size['vk']}', height: 24});", CClientScript::POS_END);
+    }
+    else
+    {
+      $cs->registerScriptFile('https://www.google.com/jsapi', CClientScript::POS_END);
+      $cs->registerScriptFile($this->_assetsUrl.'/js/'.'socialPie.js', CClientScript::POS_END);
+      $this->render('pie', array(
+        'title' => $this->title,
+      ));
+    }
   }
 
 	protected function registerClientScript(){
