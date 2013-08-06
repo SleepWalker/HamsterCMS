@@ -58,39 +58,12 @@ class AdminAction extends HAdminAction
 
 		if(isset($_POST['Post']))
 		{
-
 			$model->attributes=$_POST['Post'];
 
-      if($model->save())
-      {
-        $saved = true;
-      }
+      $model->save();
 		}
 		
-		if($_POST['ajaxIframe'] || $_POST['ajaxSubmit'])
-    {
-      // если модель сохранена и это было действие добавления, переадресовываем на страницу редактирования этого же материала
-      if($saved && $this->crud == 'create')
-        $data = array(
-          'action' => 'redirect',
-          'content' => $this->curModuleUrl . 'update/'.$model->id,
-        );
-      else
-        $data = array(
-          'action' => 'renewForm',
-          'content' => $this->renderPartial('update',array(
-                         'model'=>$model,
-                       ), true, true),
-        );
-      
-      echo json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
-      Yii::app()->end();
-    }
-		
-		if(!$_POST['ajaxSubmit'])
-      $this->render('update',array(
-			  'model'=>$model,
-		  ));
+    $this->renderForm($model);
   }
   
   /**
@@ -117,7 +90,7 @@ class AdminAction extends HAdminAction
     {
       array_push($tagsMenu, $tag->name);
     }
-    $this->aside['Теги'] = $tagsMenu;
+    $this->aside = CMap::mergeArray($this->aside, array('Теги' => $tagsMenu));
 	  
 		$this->render('table',array(
 			'dataProvider'=> $model->latest()->search(),
@@ -213,6 +186,7 @@ class AdminAction extends HAdminAction
 
   public function actionCategorie()
   {
+    // TODO: убрать кнопку charschema
 	  $models = Categorie::model()->findAll(array(
 	    'order'=>'sindex ASC'
 	  ));
@@ -259,7 +233,7 @@ class AdminAction extends HAdminAction
 			$valid = $model->save();
 		}
 		
-		if($_POST['ajaxSubmit'])
+		if(isset($_POST['ajaxSubmit']))
     {
       $data = array(
         'action' => 'renewForm',
@@ -275,8 +249,7 @@ class AdminAction extends HAdminAction
       echo json_encode($data, JSON_HEX_TAG);
       Yii::app()->end();
     }
-    
-		if(!$_POST['ajaxSubmit'])
+    else 
       $this->renderPartial('update',array(
 			  'model'=>$model,
 		  ), false, true);

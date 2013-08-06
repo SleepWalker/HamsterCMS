@@ -136,6 +136,7 @@ class Categorie extends CActiveRecord
 	public function getCatsList()
 	{
 	  $list = $this->findAll(array('select'=>'id, name', 'order' => 'name'));
+    $newList = array();
 	  foreach($list as $catModel)
 	  {
 	    $newList[$catModel->id] = $catModel->name;

@@ -4,7 +4,7 @@ class UpdateDb extends HUpdateDb
 {
   public function verHistory()
   {
-    return array(1, 1.1);
+    return array(1, 1.1, 1.2);
   }
   
   public function update1_1()
@@ -29,5 +29,20 @@ INSERT IGNORE INTO `blog_categorie` (`alias`, `name`, `parent`, `sindex`) VALUES
     $this->c->createCommand('UPDATE `blog` SET `cat_id`=1')->execute();
 
     $this->c->createCommand()->addForeignKey('FK_blog_categorie_id', Post::model()->tableName(), 'cat_id', Categorie::model()->tableName(), 'id', 'CASCADE', 'CASCADE');
+  }
+  
+  /**
+   * Добавленная колонка для рейтинга материалов
+   */
+  public function update1_2()
+  {
+    if(!isset(Yii::app()->db->getSchema()->getTable('blog')->columns['rating']))
+    {
+      $this->startRawSql();
+?>
+ALTER TABLE  `blog` ADD  `rating` decimal(7,3) unsigned NOT NULL AFTER `tags`;
+<?php
+      $this->endRawSql();
+    }
   }
 }

@@ -105,11 +105,14 @@ class Post extends CActiveRecord
             'width'=>1024,
           ),
           'thumb' => array(
-            'width' => 150,
-            'height' => 150,
+            'width' => 176,
+            'height' => 176,
             'crop' => true,
           ),
         ),
+      ),
+      'HRating' => array(
+        'class' => 'HRatingBehavior',
       ),
       'i18n'=>array(
         'class'=>'Hi18nBehavior',
@@ -241,7 +244,7 @@ class Post extends CActiveRecord
 			),
       'tags' => 'tags',
       'uImage' => 'file',
-			'content' => 'textarea',
+			'content' => 'markdown',
 		);
 	}
   
@@ -262,6 +265,20 @@ class Post extends CActiveRecord
       self::STATUS_PUBLISHED => 'Опубликовано',
       self::STATUS_ARCHIVED => 'Архив',
     );
+  }
+
+  /**
+   * Возвращает дату в красивом формате
+   * @param string $date строка с датой из базы данных
+   */
+  public function prettyDate($date)
+  {
+    return Yii::app()->dateFormatter->formatDateTime($date, 'medium', 'short');
+  }
+
+  function getPrettyAddDate()
+  {
+    return $this->prettyDate($this->add_date);
   }
 
   /**

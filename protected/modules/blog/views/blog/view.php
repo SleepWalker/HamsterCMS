@@ -16,15 +16,18 @@ $this->pageTitle = $model->title;
 	<section class="postContent">
     <?php 
 $this->beginWidget('application.widgets.lightbox.HLightBox');
+$this->beginWidget('CMarkdown', array('purifyOutput'=>true));
 echo str_replace('{%CUT%}', '', $model->content); 
+$this->endWidget('CMarkdown');
 $this->endWidget('application.widgets.lightbox.HLightBox');
 ?>
 	</section>
   <footer>
 <?php
+$parts = explode('{%CUT%}', $model->content);
 $this->widget('application.modules.sociality.widgets.HLike', array(
   'imgSrc' => $model->src('thumb'),
-  'description' => array_shift(explode('{%CUT%}', $model->content)),
+  'description' => array_shift($parts),
   'title' => $model->title,
 ));
 ?>
