@@ -21,6 +21,12 @@ class HIUBehavior extends CActiveRecordBehavior
    * @property string $noImageUrl ссылка на картинку, которая будет выводится, если поле картинки пустое
    */
   public $noImageUrl;
+
+  /**
+   * @var boolean $multiple если true, то к модели можно будет загрузить несколько изображений
+   * TODO
+   */
+  public $multiple = false;
   
   // настройки качества изображений
   public $quality = array(
@@ -101,20 +107,26 @@ class HIUBehavior extends CActiveRecordBehavior
       if(empty($size['scale']))
         $size['scale'] = 'down';
 
-      if($size['crop'] === true)
+      if(isset($size['crop']) && $size['crop'] === true)
         $size['fit'] = 'outside';
 
-      if($id == 'normal')
-        continue;
-      
+      if($id == 'full')
+        $size['prefix'] = '';
+      else 
       $size['prefix'] = $id .'/';
+
+      if(!isset($size['height']))
+        $size['height'] = null;
+
+      if(!isset($size['width']))
+        $size['width'] = null;
     }
   }
 
   /**
 	 * Новым моделям инициализируем имя файла
 	 */
-  public function beforeValidate(CEvent $event)
+  public function beforeValidate($event)
   {
     $model = $event->sender;
     if($model->isNewRecord)
@@ -124,7 +136,7 @@ class HIUBehavior extends CActiveRecordBehavior
   /**
 	 * Сохраняем загруженное изображение
 	 */
-	public function beforeSave(CEvent $event)
+	public function beforeSave($event)
   {
     $model = $event->sender;
     $model->processUpload($model, $this->fileAtt);
@@ -138,7 +150,7 @@ class HIUBehavior extends CActiveRecordBehavior
    * @access public
    * @return void
    */
-  public function afterSave(CEvent $event)
+  public function afterSave($event)
   {
     $model = $event->sender;
     $model->uImage = $model->{$this->fileAtt};
@@ -151,17 +163,20 @@ class HIUBehavior extends CActiveRecordBehavior
    * @access public
    * @return void
    */
-  public function afterFind(CEvent $event)
+  public function afterFind($event)
   {
     $model = $event->sender;
     $model->uImage = $model->{$this->fileAtt};
+    if($put = Yii::app()->request->getPut('User'))
+    {
+      print_r($put);exit;
+    }
   }
-
   
   /**
 	 * Удаляем картинки, загруженные с моделью 
 	 */
-	public function afterDelete(CEvent $event)
+	public function afterDelete($event)
 	{
     $model = $event->sender;
     $this->deleteImage($model->{$this->fileAtt});
@@ -175,38 +190,76 @@ class HIUBehavior extends CActiveRecordBehavior
    * @param string $attribute имя атрибута в котором хранится название файла картинки
    */
   protected function processUpload($model, $attribute)
-  {  
-    if(!preg_match('%/$%', $model->uploadPath)) $uploadPath = $model->uploadPath.'/';
-    else $uploadPath = $model->uploadPath;
-    
-    // вернет имя для файла изображения и если надо сгенерирует новое, а старое удалит
-    $fileName = $this->fileName;
+  { 
+    $model->uImage = $this->getUploadedFile();
 
-    if(!$model->uImage)
+    // попробуем удалить старое изображение, если в запросе присутствуют соответствующие флаги
+    $fileName = $this->owner->{$this->fileAtt};
+    if(!empty($fileName) && isset($_POST[get_class($this->owner)]['uImage']) && $_POST[get_class($this->owner)]['uImage'] == 'delete')
+    {
+      $this->deleteImage($fileName);
+      $fileName = '';
+    }
+
+    if(!$model->uImage || is_string($model->uImage))
       // Юзер не производил загрузки новой картинки
       return;
     
-    Yii::import('application.vendors.wideImage.WideImage');
-    $wideImage = WideImage::load($model->uImage->tempName);
-    $initialWidth = $wideImage->getWidth();
+    $wideImage = $this->loadImage($model->uImage->tempName);
+    //$initialWidth = $wideImage->getWidth();
     
-    if($initialWidth <= $this->sizes['normal']['width']) // изображение меньше максимальной ширины
-      unset($this->sizes['full']);
+    //if($initialWidth <= $this->sizes['normal']['width']) // изображение меньше максимальной ширины
+    //  unset($this->sizes['full']);
 
     foreach($this->sizes as $size)
     {
-      if($size['crop'] == true)
-      {
-        $cropWidth = $size['width'];
-        $cropHeight = $size['height'];
-      }
-      else
-        $cropWidth = $cropHeight = '100%';
-
-      $wideImage->resize($size['width'], $size['height'], $size['fit'], $size['scale'])
-        ->crop('center', 'center', $cropWidth, $cropHeight)
-        ->saveToFile($uploadPath . $size['prefix'] . $fileName, $this->qualityForFile($fileName));
+      $this->resizeTo($size, $wideImage);
     }
+  }
+
+  /**
+   * Создает изображение заданного размера $size.
+   * 
+   * @param mixed $size псевдоним размера или массив с настройками размера
+   * @param mixed $filePath путь к файлу картинки-исходника или обьект WideImage
+   * @access protected
+   * @return void
+   */
+  protected function resizeTo($size, $filePath)
+  {
+    if(!preg_match('%/$%', $this->owner->uploadPath)) $uploadPath = $this->owner->uploadPath.'/';
+    else $uploadPath = $this->owner->uploadPath;
+
+    if(is_string($filePath))
+    {
+      $wideImage = $this->loadImage($filePath);
+    }
+    else
+    {
+      // в качестве аргумента был передан обьект WideImage
+      $wideImage = $filePath;
+    }
+
+    if(is_string($size))
+    {
+      // добываем настройки для псевдонима размера
+      $size = $this->sizes[$size];
+    }
+
+    // вернет имя для файла изображения и если надо сгенерирует новое, а старое удалит
+    $fileName = $this->fileName;
+
+    if(isset($size['crop']) && $size['crop'] == true)
+    {
+      $cropWidth = $size['width'];
+      $cropHeight = $size['height'];
+    }
+    else
+      $cropWidth = $cropHeight = '100%';
+
+    $wideImage->resize($size['width'], $size['height'], $size['fit'], $size['scale'])
+      ->crop('center', 'center', $cropWidth, $cropHeight)
+      ->saveToFile($uploadPath . $size['prefix'] . $fileName, $this->qualityForFile($fileName));
   }
 
   /**
@@ -223,6 +276,23 @@ class HIUBehavior extends CActiveRecordBehavior
   }
 
   /**
+   * Возвращает имя файла картинки или генерирует новоей (если юзер загрузил картинку)
+   * 
+   * @see {@link generateFileName}
+   * @access public
+   * @return string имя файла картинки
+   */
+  public function getFileName()
+  {
+    $fileName = $this->owner->{$this->fileAtt};
+
+    if(empty($fileName))
+      $this->generateFileName($this->owner);
+      
+    return $this->owner->{$this->fileAtt};
+  }
+
+  /**
    * Генерирует уникальное имя файла для картинки с учетом заданных в настройках расширений
    * 
    * @param CActiveRecord $model
@@ -231,9 +301,7 @@ class HIUBehavior extends CActiveRecordBehavior
    */
   protected function generateFileName($model)
   {
-    $model->uImage=CUploadedFile::getInstance($model, $this->fileFieldName);	
-    if(!$model->uImage)
-      $model->uImage=CUploadedFile::getInstanceByName($this->fileFieldName);
+    $model->uImage = $this->getUploadedFile();
 
     if(!$model->uImage) return; // юзер ничего не загрузил
 
@@ -249,6 +317,18 @@ class HIUBehavior extends CActiveRecordBehavior
 
       $model->{$this->fileAtt} = uniqid().'.'.$ext;
     }
+  }
+
+  /**
+   * @return возвращает обьект CUploadedFile для загруженного файла
+   */
+  protected function getUploadedFile()
+  {
+    $uImage=CUploadedFile::getInstance($this->owner, $this->fileFieldName);  
+    if(!$uImage)
+      $uImage=CUploadedFile::getInstanceByName($this->fileFieldName);
+
+    return $uImage; // юзер ничего не загрузил
   }
 
   /**
@@ -281,9 +361,28 @@ class HIUBehavior extends CActiveRecordBehavior
   public function img($size = 'normal', $alt = '', array $htmlOptions = array())
   {
     if(($src = $this->src($size)))
+    {
+      $htmlOptions = CMap::mergeArray(
+        array(
+          'width' => $this->sizes[$size]['width'],
+        ),
+        $htmlOptions
+      );
+      if(isset($htmlOptions['src']))
+        $src = $htmlOptions['src'];
+
       return CHtml::image($src, $alt, $htmlOptions);
+    }
     else
       return '';
+  }
+
+  /**
+   * Возвращает false, если к модели не прикрепленно ниодной картинки
+   */
+  public function getHasImg()
+  {
+    return !empty($this->owner->{$this->fileAtt});
   }
 
   /**
@@ -300,10 +399,20 @@ class HIUBehavior extends CActiveRecordBehavior
     // если картинка-оригинал меньше той картинки, которую надо получить - возвращаем normal
     if(is_array($this->sizes[$size]) && !empty($this->filename))
     {
-      $relFilePath = $this->sizes[$size]['prefix'].$this->filename;
-      if(!file_exists($this->uploadPath.$relFilePath) && $name != 'normal')
-        return $this->src('normal');
-      return $this->uploadsUrl.$relFilePath;
+      if(strpos($this->filename, '://'))
+      {
+        // возвращаем просто значение поле, так как в нем находиться ссылка
+        return $this->filename;
+      }else{
+        $relFilePath = $this->sizes[$size]['prefix'].$this->filename;
+        if(!file_exists($this->uploadPath.$relFilePath) && $size != 'full')
+        {
+          $this->resizeTo($size, $this->uploadPath.$this->filename);
+          //return $this->src('normal');
+        }
+
+        return $this->uploadsUrl.$relFilePath;
+      }
     }
     elseif(isset($this->noImageUrl))
     {
@@ -311,6 +420,12 @@ class HIUBehavior extends CActiveRecordBehavior
     }
 
     return false;
+  }
+
+  public function getSizes($size = 'normal')
+  {
+    $size = $this->sizes[$size];
+    return array('width' => $size['width'], 'height' => $size['height']);
   }
   
   /**
@@ -339,24 +454,15 @@ class HIUBehavior extends CActiveRecordBehavior
   }
 
   /**
-   * Возвращает имя файла картинки или генерирует новоей (если юзер загрузил картинку)
+   * Возвращает экземпляр обьекта WideImage для изображения $imagePath  
    * 
-   * @see {@link generateFileName}
-   * @access public
-   * @return string имя файла картинки
+   * @param mixed $imagePath
+   * @access protected
+   * @return void
    */
-  public function getFileName()
+  protected function loadImage($imagePath)
   {
-    $fileName = $this->owner->{$this->fileAtt};
-    if(!empty($fileName) && $_POST[get_class($this->owner)]['uImage'] == 'delete')
-    {
-      $this->deleteImage($fileName);
-      $fileName = '';
-    }
-
-    if(empty($fileName))
-      $this->generateFileName($this->owner);
-      
-    return $this->owner->{$this->fileAtt};
+    Yii::import('application.vendors.wideImage.WideImage');
+    return WideImage::load($imagePath);
   }
 }
