@@ -46,6 +46,26 @@ CREATE TABLE IF NOT EXISTS `blog` (
   KEY `cat_id` (`cat_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
+
+
+CREATE TABLE IF NOT EXISTS `blog_categorie` (
+  `id` mediumint(4) unsigned NOT NULL AUTO_INCREMENT,
+  `alias` varchar(128) NOT NULL,
+  `name` varchar(128) NOT NULL,
+  `parent` mediumint(4) unsigned NOT NULL,
+  `sindex` mediumint(8) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `cat_alias` (`alias`),
+  KEY `parent` (`parent`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `blog_tag` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(128) COLLATE utf8_unicode_ci NOT NULL,
+  `frequency` int(11) DEFAULT '1',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
 --
 -- Ограничения внешнего ключа сохраненных таблиц
 --
