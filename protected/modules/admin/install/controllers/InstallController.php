@@ -55,8 +55,8 @@ class InstallController extends Controller
     {
       try
       {
-        $dsn = "mysql:dbname={$_POST['name']};host={$_POST['host']}";
-        $connection=new CDbConnection($dsn,$_POST['username'],$_POST['password']);
+        $dsn = "mysql:dbname={$_POST['db']['name']};host={$_POST['db']['host']}";
+        $connection=new CDbConnection($dsn,$_POST['db']['username'],$_POST['db']['password']);
         $connection->active=true;
         
         Yii::app()->session['db'] = $_POST['db'];
@@ -115,8 +115,13 @@ class InstallController extends Controller
   public function actionRegister()
   {
     //TODO: сделать логин при редиректе, что бы сессия таки переключилась на дб и юзер залогинился
-    if(Yii::app()->session['adminRegistered'] || !$this->validateConfig())
+    if(!$this->validateConfig())
       return;
+    if(Yii::app()->session['adminRegistered'])
+    {
+      $this->generateConfig(true);
+      $this->redirect('/admin');
+    }
       
     // на этом этапе нам уже необходимо создать первые таблицы в бд
     $this->restoreDb();
@@ -172,18 +177,23 @@ class InstallController extends Controller
     // на выходе будет стартовый конфиг для нормальной работы цмс
     if($mergeFinal)
     {
+      // TODO: совершить поиск установленных в системе модулей и произвести обновление конфига-информации о модулях (hamsterModules.php)
       $hamsterModules = Yii::getPathOfAlias('application.config') . DIRECTORY_SEPARATOR . 'hamsterModules.php';
       if(is_file($hamsterModules))
       {
         $hamsterModules = require($hamsterModules);
       }else{
-        $hamsterModules = array();
+        $hamsterModules = array('config' => array());
       }
 
+      // мерджим массивы
       $mainConfig = require(Yii::getPathOfAlias('application.modules.admin.config') . DIRECTORY_SEPARATOR . 'main.php');
       // мерджим массивы
       $hamsterModules['config'] = CMap::mergeArray($hamsterModules['config'], $config);
       $hamster = CMap::mergeArray($mainConfig, $hamsterModules['config']); 
+
+      $hamsterModules = "<?php\n\nreturn " . var_export($hamsterModules, true) . ";";
+      file_put_contents(Yii::getPathOfAlias('application.config') . '/hamsterModules.php', $hamsterModules);
     }else{
       // здесь мы только подключаем бд и кэш и мерджим с конфигом install, 
       // от которого работает приложение установки

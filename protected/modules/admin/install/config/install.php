@@ -1,6 +1,7 @@
 <?php
 return array(
   'language' => 'ru',
+  'name' => 'Hamster CMS',
   'sourceLanguage'=>'ru',
   'charset'=>'UTF-8',
   'defaultController' => 'install',
