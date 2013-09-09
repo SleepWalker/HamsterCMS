@@ -20,7 +20,7 @@ if(is_array($menu))
   <article>
     <h3><?php echo CHtml::link($label, $route); ?></h3>
     <p>
-      <?php echo $modulesInfo[$moduleId]['description']; ?>
+      <?php if(isset($modulesInfo[$moduleId]['description'])) echo $modulesInfo[$moduleId]['description']; ?>
     </p>
   </article>
 <?php
@@ -46,7 +46,7 @@ if(is_array($menu))
   <article>
     <h3><?php echo CHtml::link($label, $route); ?></h3>
     <p>
-      <?php echo $modulesInfo[$moduleId]['description']; ?>
+      <?php if(isset($modulesInfo[$moduleId]['description'])) echo $modulesInfo[$moduleId]['description']; ?>
     </p>
   </article>
 <?php
@@ -72,7 +72,7 @@ if(is_array($menu))
   <article>
     <h3><?php echo CHtml::link($label, $route); ?></h3>
     <p>
-      <?php echo $modulesInfo[$moduleId]['description']; ?>
+      <?php if(isset($modulesInfo[$moduleId]['description'])) echo $modulesInfo[$moduleId]['description']; ?>
     </p>
   </article>
 <?php

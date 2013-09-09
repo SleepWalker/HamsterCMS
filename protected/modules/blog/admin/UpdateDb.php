@@ -4,7 +4,7 @@ class UpdateDb extends HUpdateDb
 {
   public function verHistory()
   {
-    return array(1, 1.1, 1.2);
+    return array(1, 1.1, 1.2, '1.2.1');
   }
   
   public function update1_1()
@@ -41,6 +41,21 @@ INSERT IGNORE INTO `blog_categorie` (`alias`, `name`, `parent`, `sindex`) VALUES
       $this->startRawSql();
 ?>
 ALTER TABLE  `blog` ADD  `rating` decimal(7,3) unsigned NOT NULL AFTER `tags`;
+<?php
+      $this->endRawSql();
+    }
+  }
+  
+  /**
+   * Поддержка вставки изображений через форму
+   */
+  public function update1_2_1()
+  {
+    if(!isset(Yii::app()->db->getSchema()->getTable('blog')->columns['attachmens']))
+    {
+      $this->startRawSql();
+?>
+ALTER TABLE  `blog` ADD  `attachments` TEXT NOT NULL AFTER `status`;
 <?php
       $this->endRawSql();
     }

@@ -23,13 +23,13 @@
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
 //$pageSize=Yii::app()->user->getState('pageSize',Yii::app()->params['defaultPageSize']);
-if(!is_array($buttons)) 
+if(!isset($buttons)) 
   $buttons = array('update', 'delete', 'view');
   
-if(!is_array($options)) 
+if(!isset($options)) 
   $options = array();
   
-if($disableButtons) 
+if(isset($disableButtons) && $disableButtons) 
   $buttons = array();
 else
 {
@@ -90,6 +90,7 @@ else
     'class'=>'CButtonColumn',
   );
   
+  $buttCol['template'] = '';
   foreach($buttons as $buttonName => $button)
   {
     $curButtonSettings = array();
@@ -126,13 +127,14 @@ foreach($columns as &$column)
   if(!is_array($column))
     continue;
 
-  switch($column['type'])
-  {
-  case 'datetime':
-    $column['type'] = 'raw';
-    $column['value'] ='str_replace(" ", "<br />", Yii::app()->dateFormatter->formatDateTime($data->' . $column['name'] . '))';
-    break;
-  }
+  if(isset($column['type']))
+    switch($column['type'])
+    {
+    case 'datetime':
+      $column['type'] = 'raw';
+      $column['value'] ='str_replace(" ", "<br />", Yii::app()->dateFormatter->formatDateTime($data->' . $column['name'] . '))';
+      break;
+    }
 }
 
 
@@ -153,7 +155,9 @@ $defOpts = array(
 if($buttCol)
   $defOpts['columns'][] = $buttCol;
 
-echo $preTable;
+if(isset($preTable))
+  echo $preTable;
+
 $this->widget('zii.widgets.grid.CGridView', array_merge(
   $defOpts,
   $options

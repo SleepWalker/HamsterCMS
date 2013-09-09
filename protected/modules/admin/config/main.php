@@ -37,7 +37,7 @@ return
   		'application.components.*',
   		'ext.yii-mail.YiiMailMessage',
   	),
-    'onBeginRequest' => array(HBeginRequest, 'onBeginRequest'),
+    'onBeginRequest' => array('HBeginRequest', 'onBeginRequest'),
     //TODO: maintance mode
     /*'catchAllRequest'=>array(
         'controllerId/actionId',
@@ -58,8 +58,8 @@ return
     'components'=>array(
       'request'=>array(
         'enableCookieValidation'=>true,
-        'enableCsrfValidation'=>true,
-        'csrfTokenName' => 'csrf',
+        //'enableCsrfValidation'=>true,
+        //'csrfTokenName' => 'csrf',
       ),
       'db'=>array(
         'enableParamLogging'=>true, // логирует SQL вместе с привязанными параметрами
@@ -196,7 +196,7 @@ return
   				),
           array(
             'class'=>'CWebLogRoute',
-            'enabled' => 'phpexpr:YII_DEBUG && !($_GET["ajax"] ||  $_POST["ajax"] || $_POST["ajaxSubmit"] || $_POST["ajaxIframe"])',
+            'enabled' => 'phpexpr:YII_DEBUG && !(isset($_GET["ajax"]) ||  isset($_POST["ajax"]) || isset($_POST["ajaxSubmit"]) || isset($_POST["ajaxIframe"]) || (isset($_SERVER["HTTP_X_REQUESTED_WITH"]) && $_SERVER["HTTP_X_REQUESTED_WITH"]==="XMLHttpRequest"))',
             'filter'=> array(
               'class'=>'CLogFilter',
               'prefixSession' => false,

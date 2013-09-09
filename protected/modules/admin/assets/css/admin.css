@@ -610,9 +610,24 @@ div.form .errorSummary ul
 }
 
 
-textarea {
+textarea,
+{
   width: 90%;
   height: 400px;
+}
+
+
+.markItUp
+{ 
+  width: 90% !important;
+}
+
+
+.markItUp .markItUpEditor
+{
+  height: 400px;
+  width: 99%;
+  padding: 0.5%;
 }
 
 input:hover, textarea:hover, input:focus, textarea:focus {
@@ -1004,6 +1019,7 @@ ul.filseList canvas {
   display:inline-block;
   line-height:13px;
   vertical-align: middle;
+  text-indent: -50000px;
 }
 
 #dnd .icon_delete, #dnd .icon_edit, #dnd .icon_refresh, #dnd .icon_add, #dnd .icon_table, #dnd .icon_view, #dnd .icon_print {

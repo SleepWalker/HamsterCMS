@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS `blog` (
   `tags` text NOT NULL,
   `rating` decimal(7,3) unsigned NOT NULL,
   `status` smallint(5) unsigned NOT NULL,
+  `attachments` text NOT NULL,
   `edit_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `add_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`id`),

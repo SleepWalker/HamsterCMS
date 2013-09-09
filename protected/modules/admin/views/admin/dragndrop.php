@@ -29,7 +29,7 @@ foreach ($models as $model) {
   }
 }
 
-if(is_array($tree))
+if(isset($tree))
 {
   $tree = array_values($tree[0]); // реиндексируем массив
 

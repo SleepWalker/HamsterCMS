@@ -41,7 +41,7 @@ class AjaxDialogWidget extends CJuiWidget
   {
     $js = '';
     foreach($this->selectors as $func => $selector)
-      $js .= "$('" . $this->parentSel . "').off('click.dialog').on('click.dialog','" . $selector . "', " . $function . ");";
+      $js .= "$('" . $this->parentSel . "').off('.dialog').on('click.dialog','" . $selector . "', " . $function . ");";
 
     Yii::app()->getClientScript()->registerScript(__CLASS__.serialize($this->selectors), $js);
   }

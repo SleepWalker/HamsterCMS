@@ -24,11 +24,11 @@ class HModuleUrlRule extends CBaseUrlRule
   public function createUrl($manager,$route,$params,$ampersand)
   {    
     $routeParts = explode("/", $route);
-    
+
     //exception for standard yii module 'Gii'
     if($routeParts[0] == 'gii') return false;
     
-    if(count($routeParts) > 3) return; // если это случилось, значит где-то ошибка FIXME (в будущем можно будет логировать и убрать этот баг для оптимизации системы)
+    if(count($routeParts) > 3 || count($routeParts) < 2) return; // если это случилось, значит где-то ошибка FIXME (в будущем можно будет логировать и убрать этот баг для оптимизации системы)
     if(count($routeParts) == 3)
     { 
       if($routeParts[0] == $routeParts[1]) // что-то на подобии admin/admin/action
@@ -38,11 +38,11 @@ class HModuleUrlRule extends CBaseUrlRule
       }
 
       // узнаем, изменен ли у модуля не стандартный url
-      if(Yii::app()->modules[$routeParts[0]]['params']['moduleUrl']) 
+      if(isset(Yii::app()->modules[$routeParts[0]]['params']['moduleUrl'])) 
         $routeParts[0] = Yii::app()->modules[$routeParts[0]]['params']['moduleUrl'];
     }
 
-    if($routeParts[1] == 'view') // если это действие actionview - убираем его из url
+    if(isset($routeParts[1]) && $routeParts[1] == 'view') // если это действие actionview - убираем его из url
     {
       unset($routeParts[1]); // удлаяем view часть из url
       // Присоединяем к урл ид модели
@@ -56,14 +56,19 @@ class HModuleUrlRule extends CBaseUrlRule
       if(end($routeParts) == 'index') // индекс нам в урл не нужен
         array_pop($routeParts);
       $methodParams = $this->getActionParamsByRoute($route);
+
       //TODO: добавить парсинг по регулярным выражениям
       if($methodParams)
         foreach($methodParams as $mparam)
         {
-          $urlExtra[] = $params[$mparam->getName()];
-          unset($params[$mparam->getName()]);
+          if(isset($params[$mparam->getName()]))
+          {
+            $urlExtra[] = $params[$mparam->getName()];
+            unset($params[$mparam->getName()]);
+          }
         }
     }
+
 
     $url = implode("/", $routeParts);
     if(isset($urlExtra) && count($urlExtra)) 
@@ -91,7 +96,7 @@ class HModuleUrlRule extends CBaseUrlRule
    */
   public function parseUrl($manager,$request,$pathInfo,$rawPathInfo)
   {
-    $url = explode('/', $pathInfo);
+    $url = explode('/', strtolower($pathInfo));
     
     //exception for standard yii module 'Gii'
     if($url[0] == 'gii') return false;
@@ -102,9 +107,8 @@ class HModuleUrlRule extends CBaseUrlRule
       
       foreach($modules as $moduleId => $moduleConfig)
       {
-        $moduleUrl = $moduleConfig['params']['moduleUrl'];
         // Массив с адресами всех модулей
-        $moduleUrls[$moduleId] = $moduleUrl ? $moduleUrl : $moduleId;
+        $moduleUrls[$moduleId] = isset($moduleConfig['params']) && !empty($moduleConfig['params']['moduleUrl']) ? $moduleConfig['params']['moduleUrl'] : $moduleId;
       }
       
       if(!in_array($url[0], $moduleUrls)) return false; // нет такого модуля
@@ -117,6 +121,8 @@ class HModuleUrlRule extends CBaseUrlRule
         return $moduleId . '/' . $moduleId . '/index';
 
 
+      // TODO: в этом месте могут не проходить контроллеры на подобии ShareCountController. из-за нескольких смен регистра в имени
+      // можно пофиксить этот момент разве что с помощью ручного поиска в фс
       $classFile = ucfirst($url[1]).'Controller.php';
 
       $moduleControllersDirectory = Yii::app()->basePath.DIRECTORY_SEPARATOR.'modules'.DIRECTORY_SEPARATOR.$moduleId.DIRECTORY_SEPARATOR.'controllers';
@@ -255,6 +261,7 @@ class HModuleUrlRule extends CBaseUrlRule
   {
     $methodName='action'.$actionId;
     $method=new ReflectionMethod($controllerClass, $methodName);
+    $actionParams = null;
     if($method->getNumberOfParameters()>0)
     {
       $actionParams = $method->getParameters();

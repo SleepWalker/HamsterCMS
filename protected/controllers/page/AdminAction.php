@@ -56,7 +56,7 @@ class AdminAction extends HAdminAction
         
       $saved = true;
 		}
-		if($_POST['ajaxSubmit'])
+		if(isset($_POST['ajaxSubmit']))
     {
       if($saved && $this->crud == 'create')
         $data = array(

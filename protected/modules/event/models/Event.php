@@ -173,7 +173,7 @@ class Event extends CActiveRecord
   public function getGCalUrl()
   {
     // конвертируем временные зоны в +00:00
-    date_default_timezone_set('Europe/Ukraine');
+    date_default_timezone_set('Europe/Kiev');
     $utc0 = new DateTimeZone('Etc/GMT');
     $datetime = new DateTime($this->start_date);
     $datetime->setTimezone($utc0);
@@ -191,7 +191,7 @@ class Event extends CActiveRecord
       'details' => $this->desc,
       'location' => $this->location,
       'trp' => false,
-      'sprop' => $event->viewUrl,
+      //'sprop' => $event->viewUrl,
       'sprop' => 'name:'.Yii::app()->name,
     );
     return 'http://www.google.com/calendar/event?'.http_build_query($params);

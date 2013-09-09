@@ -60,38 +60,10 @@ class AdminAction extends HAdminAction
 
 			$model->attributes=$_POST['Event'];
       
-			if ($model->save()) 
-      {      
-        $saved = true;
-			}
-			//else
-			//  throw new CHttpException(404,'Ошибка при сохранении');
+      $model->save();
 		}
-		
-		if($_POST['ajaxIframe'] || $_POST['ajaxSubmit'])
-    {
-      // если модель сохранена и это было действие добавления, переадресовываем на страницу редактирования этого же материала
-      if($saved && $this->crud == 'create')
-        $data = array(
-          'action' => 'redirect',
-          'content' => $this->curModuleUrl . 'update/'.$model->id,
-        );
-      else
-        $data = array(
-          'action' => 'renewForm',
-          'content' => $this->renderPartial('update',array(
-                         'model'=>$model,
-                       ), true, true),
-        );
-      
-      echo json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
-      Yii::app()->end();
-    }
-		
-		if(!$_POST['ajaxSubmit'])
-      $this->render('update',array(
-			  'model'=>$model,
-		  ));
+
+    $this->renderForm($model);
   }
   
   /**
@@ -108,7 +80,7 @@ class AdminAction extends HAdminAction
   public function actionIndex() 
   {
 		$this->render('table', array(
-			'dataProvider'=> new CActiveDataProvider(Event),
+			'dataProvider'=> new CActiveDataProvider('Event'),
       'columns'=>array(
         'eventId',
         'name',

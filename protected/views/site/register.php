@@ -47,7 +47,7 @@ function parseCFormElements(&$form, $model, $controller)
 {
   foreach ($model->fieldTypes as $fieldName => $fieldType)
   { 
-    $fieldValue = $model->attributes[$fieldName];
+    $fieldValue = isset($model->attributes[$fieldName]) ? $model->attributes[$fieldName] : null;
 
     $fieldParams = ''; // Очищаем переменную от старых значений
     

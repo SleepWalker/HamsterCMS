@@ -154,6 +154,7 @@ class Categorie extends CActiveRecord
   public function getCatsMenu()
   {
     $models = $this->findAll();
+    $menu = array();
     foreach($models as $model)
     {
       $menu[] = array(

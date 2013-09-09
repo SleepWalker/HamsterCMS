@@ -146,9 +146,24 @@ abstract class HUpdateDb
     }
     catch(Exception $e) {
       $tr->rollback();
-      Yii::log($e->getMessage(), 'error', 'hamster.update.db');
+      Yii::log($this->getTrace($e), 'error', 'hamster.update.db');
     }
     return false;
+  }
+  
+  public function getTrace($e)
+  {
+    $traces = $e->getTrace();
+    $msg = '';
+    foreach($traces as $trace)
+    {
+        if(isset($trace['file'],$trace['line']) && strpos($trace['file'],YII_PATH)!==0)
+        {
+            $msg.="\nin ".$trace['file'].' ('.$trace['line'].')';
+            break; // остальные строки напечатает Yii
+        }
+    }
+    return $e->getMessage() . $msg;
   }
   
   /**

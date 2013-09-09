@@ -2,22 +2,31 @@
 /**
  * Обеспечивает автоматическую генирацию html форм для админки
  *
+ * @var CActiverRecord $model модель для которой создается форма
+ * @var array $buttons массив с дополнительными кнопками формы
+ * @var array $elements массив с настройками дополнительных полей формы
+ *
  * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
  * @package    hamster.modules.admin.views.admin.update
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
+
 $form = array(
-  'buttons'=>array(
-    'submit'=>array(
-      'type'=>'submit',
-      'label'=> is_subclass_of($model, 'CFormModel') ? 'Отправить' : $model->isNewRecord ? 'Добавить' : 'Сохранить',
-      'attributes' => array(
-        'class' => 'submit',
-        'id' => 'submit',
-      ),
-    )
+  'buttons'=>CMap::mergeArray(
+      array(
+      'submit'=>array(
+        'type'=>'submit',
+        'label'=> is_subclass_of($model, 'CFormModel') ? 'Отправить' : $model->isNewRecord ? 'Добавить' : 'Сохранить',
+        'attributes' => array(
+          'class' => 'submit',
+          'id' => 'submit',
+        ),
+      )
+    ),
+    isset($buttons) ? $buttons : array()
   ),
+  'id' => $this->action->id . 'Form',
   'activeForm'=>array(
     'enableAjaxValidation'=>true,
     'enableClientValidation'=>false,
@@ -33,11 +42,12 @@ $form = array(
 
 parseCFormElements($form, $model, $this);
 
-$form['model'] = $model;
+if(isset($elements))
+  $form['elements'] = CMap::mergeArray($form['elements'], $elements);
 
-$form = new CForm($form);
+$form = new CForm($form, $model);
 echo '<div class="form">';
-echo $form;
+echo $form->render();
 echo '</div>';
 
 
@@ -46,7 +56,7 @@ function parseCFormElements(&$form, $model, $controller)
 {
   foreach ($model->fieldTypes as $fieldName => $fieldType)
   { 
-    $fieldValue = $model->attributes[$fieldName];
+    $fieldValue = isset($model->attributes[$fieldName]) ? $model->attributes[$fieldName] : null;
 
     $fieldParams = ''; // Очищаем переменную от старых значений
     
@@ -119,7 +129,7 @@ function parseCFormElements(&$form, $model, $controller)
     
     if(strpos($fieldType, "html:") === 0)// html строка
     {
-      $form['elements'][]  = substr($fieldType, 5);
+      $form['elements'][] = substr($fieldType, 5);
       $form['elements'][] = '<p>';
       continue;
     }
@@ -129,6 +139,19 @@ function parseCFormElements(&$form, $model, $controller)
     {
       $fieldParams['style'] = "width:400px;height:150px;";
       $fieldParams['type'] = 'textarea';
+    }
+
+    // textarea для редактирования markdown
+    if ($fieldType == 'markdown')
+    {
+      $fieldParams = array(
+          'type' => 'ext.markitup.HMarkitupWidget',
+          'theme'=>'hamster',
+          //'htmlOptions'=>array('rows'=>15, 'cols'=>70),
+          'options'=>array(
+            //'previewParserPath'=>Yii::app()->urlManager->createUrl($preview)
+          )
+        );
     }
     
     // datetime picker
@@ -153,7 +176,8 @@ function parseCFormElements(&$form, $model, $controller)
     }
     
     // autocomplete field for yandexMap
-    if($fieldType == 'yandexAutoComplete') {
+    if($fieldType == 'yandexAutoComplete') 
+    {
       $controller->widget('application.widgets.yandex.YandexAutoComplete', array(
         'model'     => $model,
         'attribute' => $fieldName,
@@ -166,32 +190,20 @@ function parseCFormElements(&$form, $model, $controller)
       ), true); // ставим флаг captureOutput, так как нам нужно только подключить события и скрипт
       $fieldParams['type'] ='text';
     }
+
+    if ($fieldType == 'file')
+    {
+      $fieldParams = array(
+        'type' => 'ext.fields.HFileField',
+      );
+    }
        
+    // добавляем элемент в форму
     $form['elements'][$fieldName] = $fieldParams;
     
     if($fieldType == 'form') // мы нашли форму, запускаем рекурсию
     {
       //parseCFormElements($form['elements'][$fieldName], $fieldParams['model'], $controller);
-    }
-
-    if ($fieldType == 'file' && $model[$fieldName] != '' && !is_array($model[$fieldName]))
-    {// Выводим картинку (только в случае если картинка одна, тоесть атрибут модели не содержит массив)
-      $form['elements'][$fieldName]['style'] = 'display:none;';
-      $form['elements'][] = CHtml::image($model->uploadsUrl . $model[$fieldName], $fieldName, array('id'=>$fieldName.'_tag'));
-      $form['elements'][] = CHtml::link(CHtml::image($controller->adminAssetsUrl.'/images/icon_delete.png','Удалить картинку'), '#', array('id'=>'renewImage'));
-      Yii::app()->clientScript->registerCoreScript('jquery');
-      Yii::app()->getClientScript()
-      ->registerScript('renewImage','jQuery("#renewImage").bind("click", function() {
-          $(this).remove();
-          $("#' . $fieldName.'_tag").remove();
-          $("#yt' . get_class($model).'_'.$fieldName . '").val("delete");
-          with($("#' . get_class($model).'_'.$fieldName . '")) 
-          {
-            css({display:"block"});
-            after("Изображение окончательно удалится/изменится после отправки формы");
-          }
-          return false;
-        });', CClientScript::POS_END);
     }
     
     if ($fieldType == 'textarea') // запускаем виз. редактор
@@ -216,9 +228,10 @@ function parseCFormElements(&$form, $model, $controller)
 
 }
 
-$formJs = <<<EOD
+ob_start();
+?>
 // вешаем обработчик на уровень выше, что бы он всегда срабатывал после валидации формы
-$('form#yw0').parent().on('submit.ajaxSubmit', 'form#yw0', function() {
+$('#<?php echo $form['id'] ?>').parent().on('submit.ajaxSubmit', '#<?php echo $form['id'] ?>', function() {
   $.ajax({
     type: 'POST',
     dataType: 'JSON',
@@ -226,27 +239,18 @@ $('form#yw0').parent().on('submit.ajaxSubmit', 'form#yw0', function() {
     beforeSend: startLoad,
     complete: stopLoad,
     data: $(this).serialize()+"&ajaxSubmit=1",
+    context: $(this),
     error: function(xhr, textStatus, errorThrown){console.log(jQuery.parseJSON(xhr.responseText).content)},
-    success: function (data) {parseAnswer(data)},
+    success: function (data) {parseAnswer(this, data)},
     cahe: false,
   });
   return false;
 });
-      /*'ajax' => array(
-        'type' => 'POST', //request type
-        'url' => $this->actionPath.$this->crudid, //url to call.
-        'beforeSend' => 'startLoad',
-        'complete' => 'stopLoad',
-        'data' => 'js:jQuery(this).parents("form").serialize()+"&ajaxSubmit=1"',
-        //'success' => 'function (data) {parseAnswer(data)}',
-        'error' => 'function(xhr, textStatus, errorThrown){console.log(jQuery.parseJSON(xhr.responseText).content)}',
-        'cahe' => false,
-      ),
-      'live'=>false, // Отключаем live */
+
 /**
  *  Обрабатывает ответ сервера
  **/
-function parseAnswer(answer)
+function parseAnswer($form, answer)
 {
   if(!answer) {
     console.log('parseAnswer: No Data');
@@ -258,7 +262,7 @@ function parseAnswer(answer)
          console.log(answer.content);
       break;
       case 'renewForm':
-        $( $('#submit')[0].form.parentNode ).replaceWith( answer.content );
+        $form.parent().replaceWith( answer.content );
         // Перезапускаем транспорт
         //prepareForm();
       break;
@@ -267,75 +271,8 @@ function parseAnswer(answer)
       break;
     }
 }
-EOD;
+<?php
+$formJs = ob_get_clean();
 
-if (strpos($form, 'type="file"')) 
-{
-$iframeTransport = <<<EOD
-var d = document; 
-
-// Отключаем обработку события отправки формы через AJAX
-$('form#yw0').parent().off('submit.ajaxSubmit');
-
-var frame = createTransportFrame();
-prepareForm();
-
-/**
- * Готовит форму к iframe транспорту
- **/
-function prepareForm(form)
-{
-  $('form#yw0').prop('target', frame.name);
-  
-  // вешаем обработчик на уровень выше, что бы он всегда срабатывал после валидации формы
-  $('form#yw0').parent().on('submit', 'form#yw0', startLoad);
-  
-  
-  $('#submit').prop('name', 'ajaxSubmit');
-  
-  $('<input type="hidden" name="ajaxIframe" value="1" />').insertAfter('#submit');
-}
-
-/**
- *  Создает iframe для транспорта
- **/
-function createTransportFrame() 
-{
-  // Создаем фрейм, через который мы будем общаться с сервером
-  if(document.getElementById('upload_target')) return document.getElementById('upload_target');
-  
-  var iframe = d.createElement('iframe');
-  iframe.name = 'upload_target';
-  iframe.id = 'upload_target';
-  iframe.style.display = 'none';
-  d.body.appendChild(iframe);
-  
-  iframe.onload = function() 
-  {
-    // При создании фрейма он загрузится с страницей типа about:blank и создаст событие. Игнорим его
-    if(parent.upload_target.location.href == 'about:blank') return;
-    
-    stopLoad();
-    
-    // Проверяем, ответил ли сервер. Если ответил, обрабатываем ответ
-    var answer = parent.upload_target.document.body.innerHTML;
-    if (answer == '') return;
-    try
-    {
-      var JSONanswer = jQuery.parseJSON(answer);
-    } catch(e) {
-      console.log(e.name + ' : ' + e.message);
-      console.log(answer);
-      return;
-    }
-    
-    parseAnswer(JSONanswer);
-  };
-  
-  return iframe;
-}
-EOD;
-}
-Yii::app()->getClientScript()
-      ->registerScript('iframeTransport', $formJs . $iframeTransport); 
+Yii::app()->getClientScript()->registerScript('formJs', $formJs); 
 ?>

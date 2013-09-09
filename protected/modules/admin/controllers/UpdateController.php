@@ -221,16 +221,16 @@ class UpdateController extends HAdminController
   protected function getDbUpdateList()
   {
     $updateList = array(); // модули к обновлению
-    foreach($this->enabledModules as $moduleId => $devnull)
+    foreach(array_keys($this->enabledModules) as $moduleId)
     {
       $config = Config::load($moduleId); // конфиг, в котором лежит актуальная версия бд
       if(!$config) continue;
 
       $config = $config->adminConfig;
-      $newV = $config['db']['version'];
+      $newV = (string)$config['db']['version'];
 
-      $oldV = $this->modulesInfo[$moduleId]['db']['version'];
-      if(isset($newV) && $newV != $oldV)
+      $oldV = (string)$this->modulesInfo[$moduleId]['db']['version'];
+      if($newV != $oldV)
         $updateList[$this->modulesInfo[$moduleId]['title']] = array(
           'moduleId' => $moduleId, 
           'newV' => $newV,

@@ -106,7 +106,10 @@ class Page extends CActiveRecord
    */
 	public function getViewUrl()
   {
-    return Yii::app()->createUrl('page' . $this->full_path);
+    if ($this->full_path == '/') // главная страница
+      return '/';
+    else
+      return Yii::app()->createUrl('page' . $this->full_path);
   }
 
 	/**

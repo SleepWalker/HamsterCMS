@@ -49,7 +49,7 @@ class PageController extends Controller
 	 */
   public function actionIndex($path = '')
   {
-    if(Yii::app()->request->requestUri == '/page')
+    if(Yii::app()->request->requestUri == '/page') // избавляемся от дубля главной страницы
       $this->pageNotFound();
 
     $model=$this->loadModel(array('full_path'=>'/' . $path));
@@ -57,12 +57,17 @@ class PageController extends Controller
     $view = 'static/'.(empty($path) ? 'index' : $path);
     if($this->getViewFile($view)===false)
     {
+      if($model===null)
+        $this->pageNotFound();
+
       $view = 'index';
     }
 
+    $content = $model ? $model->content : $model;
+
     $this->render($view,array(
       'model'=>$model,
-      'content'=>$model->content,
+      'content'=>$content,
     ));
   }
 
@@ -74,6 +79,8 @@ class PageController extends Controller
 	{
 		$_GET['path'] = implode('/', $path);
 		$model=$this->loadModel(array('full_path'=>'/' . $_GET['path']));
+    if($model===null)
+      $this->pageNotFound();
 		// если $partial = true мы возвращаем строку вьюхи, вместо прямого вывода в браузер
     return $this->renderPartial('index',array(
         'model'=>$model,
@@ -90,9 +97,6 @@ class PageController extends Controller
     if($this->_model===null)
     {
       $this->_model=Page::model()->findByAttributes($param);
-      
-      if($this->_model===null)
-        $this->pageNotFound();
     }
     return $this->_model;
   }

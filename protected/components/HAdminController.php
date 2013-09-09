@@ -48,22 +48,33 @@ class HAdminController extends CController
    */
   public function getViewFile($viewName)
   {
-    if(!($viewFile = parent::getViewFile($viewName)) && $this->action instanceof AdminAction)
+    if(!($viewFile = parent::getViewFile($viewName)))
     {
-      // попробуем поискать в admin вьюхах текущего модуля
-      // @property $this->action->id id текущего модуля, админ часть которого активна.
-      $basePath = Yii::app()->getViewPath();
-      $moduleViewPath = Yii::getPathOfAlias('application.modules.' . $this->action->id);
-      $viewPath = $moduleViewPath . '/views/admin';
+        $basePath = Yii::app()->getViewPath();
+        if ($this->action instanceof AdminAction)
+        {
+          // попробуем поискать в admin вьюхах текущего модуля
+          // @property $this->action->id id текущего модуля, админ часть которого активна.
+          $moduleViewPath = Yii::getPathOfAlias('application.modules.' . $this->action->id) . '/views';
+          $viewPath = $moduleViewPath . '/admin';
 
-      $themeBasePath = Yii::app()->getTheme()->getViewPath();
-      $themeModuleViewPath = $themeBasePath . '/' . $this->action->id;
-      $themeViewPath = $themeModuleViewPath . '/admin';
+          $themeBasePath = Yii::app()->getTheme()->getViewPath();
+          $themeModuleViewPath = $themeBasePath . '/' . $this->action->id;
+          $themeViewPath = $themeModuleViewPath . '/admin';
 
-      if(!($viewFile = $this->resolveViewFile($viewName,$themeViewPath,$themeBasePath, $themeModuleViewPath)))
-      {
-        $viewFile = $this->resolveViewFile($viewName,$viewPath,$basePath, $moduleViewPath);
-      }
+          if(!($viewFile = $this->resolveViewFile($viewName,$themeViewPath,$themeBasePath, $themeModuleViewPath)))
+          {
+            $viewFile = $this->resolveViewFile($viewName,$viewPath,$basePath, $moduleViewPath);
+          }
+        }
+        else
+        {
+            // для обычных контроллеров модуля admin, в случае если в их директории нету нужной вьюхи, 
+            // попробуем поискать ее во вьюхах контроллера AdminController
+            $moduleViewPath = $this->module->getViewPath();
+            $viewPath = $moduleViewPath . '/admin';
+            $viewFile = $this->resolveViewFile($viewName,$viewPath,$basePath, $moduleViewPath);
+        }
     }
 
     return $viewFile;
@@ -149,7 +160,7 @@ class HAdminController extends CController
    */
   public function getModulesInfo()
   {
-    return  is_array($this->hamsterModules['modulesInfo']) ? $this->hamsterModules['modulesInfo'] : array();
+    return  isset($this->hamsterModules['modulesInfo']) && is_array($this->hamsterModules['modulesInfo']) ? $this->hamsterModules['modulesInfo'] : array();
   }
   
   /**
@@ -157,7 +168,7 @@ class HAdminController extends CController
    */
   public function getEnabledModules()
   {
-    return is_array($this->hamsterModules['enabledModules']) ? $this->hamsterModules['enabledModules'] : array();
+    return isset($this->hamsterModules['enabledModules']) && is_array($this->hamsterModules['enabledModules']) ? $this->hamsterModules['enabledModules'] : array();
   }
 
   /**
@@ -195,5 +206,54 @@ class HAdminController extends CController
     }
 
     closedir($mydir);
+  }
+
+  /**
+   * Измененный CCOntroler::renderPartial() с целью отключения jQuery при ajax запросах
+   *
+   * TODO: возможно разместить отключение jQuery в config (там было что-то вроде маппинга скрипта в CClientScript)
+   */
+  public function renderPartial($view, $data = null, $return = false, $processOutput = false)
+  {
+    if(isset($_POST['ajaxIframe']) || isset($_POST['ajaxSubmit']) || Yii::app()->request->isAjaxRequest)
+      Yii::app()->clientscript->scriptMap['jquery.js'] = Yii::app()->clientscript->scriptMap['jquery.min.js'] = false; 
+
+    return parent::renderPartial($view, $data, $return, $processOutput);
+  }
+  
+  /**
+   * Гибридный рендеринг (render/renderPartial) для форм редактирования в админке  
+   * 
+   * @access public
+   * @return void
+   */
+  public function renderForm($model, $params = array())
+  {
+    $params = CMAp::mergeArray(array('model' => $model), $params);
+        
+		if(Yii::app()->request->isPostRequest)
+    {
+      // если модель сохранена и это было действие добавления, переадресовываем на страницу редактирования этого же материала
+      if(!$model->hasErrors() && (property_exists($this->action, 'crud') && $this->action->crud == 'create'))
+        $data = array(
+          'action' => 'redirect',
+          'content' => $this->curModuleUrl . 'update/'.$model->id,
+        );
+      else
+        $data = array(
+          'action' => 'renewForm',
+          'content' => $this->renderPartial('update', $params, true, true),
+        );
+      
+      echo json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
+      Yii::app()->end();
+    }
+    else
+    {
+    if(isset($_POST['ajaxIframe']) || isset($_POST['ajaxSubmit']) || Yii::app()->request->isAjaxRequest)
+      $this->renderPartial('update', $params, false, true);
+    else
+      $this->render('update', $params);
+    }
   }
 }

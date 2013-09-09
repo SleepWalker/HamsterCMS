@@ -45,7 +45,7 @@
 
         // Определяем в какое меню пойдет модуль в зависимости 
         // от того, есть ли у него контент (контент-модуль)
-        $menuVarName = $moduleConfig['internal'] ? 'extraMenuArray' : 'menuArray';
+        $menuVarName = isset($moduleConfig['internal']) ? 'extraMenuArray' : 'menuArray';
         ${$menuVarName}[$moduleConfig['title']] = array('admin/admin/' . $moduleId);
       }
     Yii::app()->menuMap->render($menuArray, 'hamsterContentModules');
@@ -54,7 +54,7 @@
 
 <div id="menu5" class="ddmenu">
 <?php
-    if(is_array($extraMenuArray))
+    if(isset($extraMenuArray) && is_array($extraMenuArray))
       Yii::app()->menuMap->render($extraMenuArray, 'hamsterInternalModules');
 ?>
 </div>

@@ -19,7 +19,7 @@ class Config extends CFormModel
   protected $_hamsterModules = array();
   // переменная, в которой хранится конфиг текущего модуля (application.modules.{moduleId}.admin.configSchema)
   protected $_config;
-  // индикатор, говорящий, что массив {@link _curModConfig} оуже обьединен с {@link _hamsterModules}
+  // индикатор, говорящий, что массив {@link _curModConfig} уже обьединен с {@link _hamsterModules}
   protected $_isMerged;
   // массив настроек для класса CForm
   protected $_CFormConfig;
@@ -33,7 +33,7 @@ class Config extends CFormModel
   protected $_attributes = array();
   // массив с значениями аттрибутов
   protected $_attVals = array();
-  // массив с значениями аттрибутов
+  // массив с значениями аттрибутов по умолчанию
   protected $_attValsDef = array();
   // id модуля для которого строится модель
   protected $_moduleId;
@@ -72,7 +72,7 @@ class Config extends CFormModel
         Yii::app()->user->setFlash('error', "Файл '$path' не доступен для записи.");
       }
     $path = Yii::getPathOfAlias('application.config') . '/hamsterModules.php';
-      if(!is_writable($path))
+      if(is_file($path) && !is_writable($path))
       {
         Yii::app()->user->setFlash('error', "Файл '$path' не доступен для записи.");
       }
@@ -107,7 +107,7 @@ class Config extends CFormModel
     }
     
     // парсим настройки hamster, где находится секция для глобальных параметров
-    if(is_array($this->_config['hamster']['global']))
+    if(isset($this->_config['hamster']['global']))
       foreach($this->_config['hamster']['global'] as $name => $params)
       {
         $this->hamsterConfigSchema($name, $params, true);
@@ -115,7 +115,7 @@ class Config extends CFormModel
       
     // добавим в массив с настройками еще параметры, которые передаются модулю
     // TODO: Обязательно написать об этом в будущей документации, бо я сам чуть не забыл о такой возможности
-    if(is_array($this->_config['hamster']['options']))
+    if(isset($this->_config['hamster']['options']))
       $this->_curModConfig['config']['modules'][$this->moduleId] = CMap::mergeArray($this->_curModConfig['config']['modules'][$this->moduleId], $this->_config['hamster']['options']);
     
     if($this->moduleId != 'admin') //все настройки для админки генерируются из AdminController
@@ -131,7 +131,7 @@ class Config extends CFormModel
       ));
 
       // добавляем поля url и имя модуля, которые будут отображаться на сайте
-      if(!$this->_config['hamster']['admin']['internal'])
+      if(!(isset($this->_config['hamster']['admin']['internal']) && $this->_config['hamster']['admin']['internal']))
       {
         if(!isset($this->_config['moduleName']))
           $this->addConfigFields(array(
@@ -179,6 +179,7 @@ class Config extends CFormModel
   {
     foreach($options as $fieldId => $fieldOptions)
     {
+      $linkTo = false;
       if(isset($fieldOptions['linkTo']))
       {
         $linkTo = $fieldOptions['linkTo'];
@@ -282,7 +283,7 @@ class Config extends CFormModel
           {
             if($subParams['type'] == 'fieldset')
               $subParams['default'] = $parseDefaults($subParams);
-            $params['default'][$subName] = $subParams['default'];
+            $params['default'][$subName] = isset($subParams['default']) ? $subParams['default'] : '';
           }
           return $params['default'];
         }
@@ -437,12 +438,13 @@ class Config extends CFormModel
     
     // загружаем файл с настройками hamster и обьединяем их с массивом настроек, за исключением некоторых элементов
     $hamsterConfig = require(Yii::getPathOfAlias('application.modules.admin.config').'/main.php');
-    $hamsterConfig = CMap::mergeArray($hamsterConfig, $this->_hamsterModules['config']);
+    if(is_array($this->_hamsterModules['config']))
+      $hamsterConfig = CMap::mergeArray($hamsterConfig, $this->_hamsterModules['config']);
     unset($hamsterConfig['modules']); // удаляем всю старую информацию о модулях
     // добавляем в массив настроек настройки модулей, с учетом их включенности/выключенности в админке
     foreach($this->enabledModules as $moduleId => $moduleInfo)
     {
-      if($this->_hamsterModules['config']['modules'][$moduleId])
+      if(isset($this->_hamsterModules['config']['modules'][$moduleId]))
         $hamsterConfig['modules'][$moduleId] = $this->_hamsterModules['config']['modules'][$moduleId];
       else
         $hamsterConfig['modules'][] = $moduleId;
@@ -493,11 +495,11 @@ if(isset($_SERVER['REMOTE_ADDR']))
       // сохраним в эту переменную изначальную версию элемента конфига params
       // это нужно для того, что бы пофиксить баг оверврайта полностью всех глобальных параметров при сохранении основных настроек цмс (это из-за того, что там linkTo => '$config["params"]'. 
       // То есть при отправке формы ее данные заменят полностью все глобальные параметры, а нам этого не надо
-      $this->_isMerged = is_array($hamsterModules['config']['params']) ? $hamsterModules['config']['params'] : true;
+      $this->_isMerged = isset($hamsterModules['config']['params']) && is_array($hamsterModules['config']['params']) ? $hamsterModules['config']['params'] : true;
     }
 
     // нам надо добавить в массив те эллементы из массива params, которые были затерты оверврайтом при сейве основных настроек
-    if(is_array($this->_isMerged) && is_array($this->_curModConfig['config']['params']))
+    if(is_array($this->_isMerged) && isset($this->_curModConfig['config']['params']) && is_array($this->_curModConfig['config']['params']))
     {
       $params = $this->_isMerged;
       $elementsToAdd = array_diff(array_keys($params), array_keys($this->_curModConfig['config']['params']));

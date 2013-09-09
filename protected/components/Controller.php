@@ -55,6 +55,7 @@ class Controller extends CController
     if(is_array($content))
       $content = $this->renderPartial($content[0], array_slice($content, 1), true);
 
+    $position = null;
     if(isset($params['position']))
     {
       $position = $params['position'];
@@ -121,12 +122,13 @@ class Controller extends CController
 
     foreach($asides as $aside)
     {
-      if(is_array($options['blackList']) && in_array($aside['portlet']['id'], $options['blackList']))
+      if(isset($options['blackList']) && in_array($aside['portlet']['id'], $options['blackList']))
         continue;
 
       //$this->beginWidget('zii.widgets.CPortlet', $aside['portlet']);
       echo '<div class="block">';
-      echo "<h4>{$aside['portlet']['title']}</h4>";
+      if(isset($aside['portlet']['title']))
+        echo "<h6>{$aside['portlet']['title']}</h6>";
       echo $aside['content'];
       echo '</div>';
       //$this->endWidget();

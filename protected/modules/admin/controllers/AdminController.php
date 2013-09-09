@@ -74,6 +74,7 @@ class AdminController extends HAdminController
 
 	  $dataProvider=new CArrayDataProvider($filteredData, array(
         'id'=>'log',
+        'keyField' => false,
         'pagination'=>array(
             'pageSize'=>20,
         ),
@@ -196,16 +197,16 @@ class AdminController extends HAdminController
     // если сейчас не активно AdminAction, то нам нету смысла выполнять эту функцию дальше
     if(!($action instanceof AdminAction))
       return;
-    
+
     $path = implode('/', array(
-      $_GET['module'],
-      $_GET['action'],
-      $_GET['crudid'],
+      isset($_GET['module']) ? $_GET['module'] : '',
+      isset($_GET['action']) ? $_GET['action'] : '',
+      isset($_GET['crudid']) ? $_GET['crudid'] : '',
     ));
     $path = trim($path, '/');
     $path = str_replace("//", "/", $path);
     
-    // вызыв экшена через гет параметр в аякс запросе (используется в dragndrop)
+    // вызов экшена через гет параметр в аякс запросе (используется в dragndrop)
     if(Yii::app()->request->isPostRequest && isset($_POST['ajaxAction'])) 
       $_GET['ajaxAction'] = $_POST['ajaxAction']; 
     
@@ -283,53 +284,13 @@ class AdminController extends HAdminController
   public function getCrud()
   {
     $action = $_GET['action'];
+    $parts = explode('/' , $action);
     if (strpos($action, 'create') !== false) $crud = 'create';
     if (strpos($action, 'update') !== false) $crud = 'update';
     if (strpos($action, 'delete') !== false) $crud = 'delete';
-    else $crud = array_pop(explode('/' , $action));
+    else $crud = array_pop($parts);
     
     return $crud;
-  }
-    
-  /**
-   *  Метод для загрузки изображений через redactorJS
-   *
-   *  @source http://redactorjs.com/docs/images/
-   */
-  public function actionImageUpload()
-  {
-    Image::turnOffWebLog(); // отключили weblog route
-    
-    $image=new Image;
-    
-    if($image->save())
-    {
-      echo $image->getHtml();
-      Yii::app()->end();
-    }
-    print_r($image->errors);
-  }
-  
-  /**
-   *  @return JSON массив с информацией о загруженных изоображениях для redactorJS
-   */
-  public function actionUploadedImages()
-  {
-    Image::turnOffWebLog(); // отключили weblog route
-    
-    $images = Image::model()->findAll();
- 
-    foreach($images as $image)
-      $jsonArray[]=array(
-        'thumb' => $image->src('thumb'),
-        'image' => $image->src('normal'),
-        //'folder' => 'test',
-        //'title' => 'test1',
-        'full' => $image->src('full'),
-      );
-
-    header('Content-type: application/json');
-    echo CJSON::encode($jsonArray);
   }
   
   /**
@@ -347,7 +308,7 @@ class AdminController extends HAdminController
     }
     $this->aside['Доступные модули<a href="/admin/modulediscover" class="icon_refresh"></a><a href="/admin/clearTmp" class="icon_delete"></a>'] = $modulesMenu;
 
-    if($_GET['m'])
+    if(isset($_GET['m']))
     {
       $config = Config::load($_GET['m']);
     }else{
@@ -504,12 +465,12 @@ class AdminController extends HAdminController
             unset($adminConfig['title']);*/
 
           $modulesInfo[$moduleName] = $adminConfig;
-          // восстанавливаем версию БД (нам та версия, котора сейчас реально установленна)
-          if($oldModulesInfo[$moduleName]['db']['version'] != '')
+          // восстанавливаем версию БД (нам нужна та версия, котора сейчас реально установленна)
+          if(isset($oldModulesInfo[$moduleName]['db']['version']) && !empty($oldModulesInfo[$moduleName]['db']['version']))
             $modulesInfo[$moduleName]['db']['version'] = $oldModulesInfo[$moduleName]['db']['version'];
 
           // восстанавливаем старое имя (на случай, если его менял юзер)
-          if($oldModulesInfo[$moduleName]['title'] != '')
+          if(isset($oldModulesInfo[$moduleName]['title']) && !empty($oldModulesInfo[$moduleName]['title']))
             $modulesInfo[$moduleName]['title'] = $oldModulesInfo[$moduleName]['title'];
           
           if(file_exists($modulePath.'/admin/AdminAction.php'))
@@ -542,6 +503,7 @@ class AdminController extends HAdminController
   {
     $enabledModules = $this->enabledModules;
     $moduleName = $_GET['m'];
+    $redirectParams = '';
     if($moduleName)
     {
       $moduleAdminPath = Yii::getPathOfAlias('application.modules.' . $moduleName . '.admin');
@@ -622,7 +584,7 @@ class AdminController extends HAdminController
   {
     if($error=Yii::app()->errorHandler->error)
     {
-      if($_POST['ajax'] || $_POST['ajaxSubmit'] || $_POST['ajaxaction'] || $_POST['ajaxIframe'])
+      if(isset($_POST['ajax']) || isset($_POST['ajaxSubmit']) || isset($_POST['ajaxaction']) || isset($_POST['ajaxIframe']) || Yii::app()->request->isAjaxRequest)
         echo CJSON::encode(array(
           'action'=>404, 
           'content'=>$error['message']

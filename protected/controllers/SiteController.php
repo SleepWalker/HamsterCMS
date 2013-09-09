@@ -56,7 +56,7 @@ class SiteController extends Controller
 	{
 	    if($error=Yii::app()->errorHandler->error)
 	    {
-	    	if($_POST['ajax'] || $_POST['ajaxSubmit'] || $_POST['ajaxaction'] || $_POST['ajaxIframe'])
+	    	if(isset($_POST['ajax']) || isset($_POST['ajaxSubmit']) || isset($_POST['ajaxaction']) || isset($_POST['ajaxIframe']))
 	    		echo CJSON::encode(array(
 	      		'action'=>404, 
 	      		'content'=>$error['message']

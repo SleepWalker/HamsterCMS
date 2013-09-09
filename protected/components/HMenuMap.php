@@ -77,6 +77,7 @@ class HMenuMap extends CApplicationComponent
   {
     if($menuId === false) $menuId = (int)count($this->_menuMap);
     $this->_menuMap[$menuId] = $menu;
+    $parentId = 0;
     return array($menuId, $parentId);
   }
   // }}}
@@ -174,7 +175,7 @@ class HMenuMap extends CApplicationComponent
    */
   public function getHasSuggestions()
   {
-    return is_array($this->_cachedRouteMap[$this->route]);
+    return isset($this->_cachedRouteMap[$this->route]) && is_array($this->_cachedRouteMap[$this->route]);
   }
   // }}}
   
@@ -207,7 +208,7 @@ class HMenuMap extends CApplicationComponent
   {
     //TODO: На данном этапе этот метод работает только в случае, если он вызывается после того, как карта меню была создана
     //в будущем нужно бы сделать эту функцию рабочей в любом месте кода
-    return $this->_cachedRouteMap['__menu'][$menuId];
+    return isset($this->_cachedRouteMap['__menu'][$menuId]) ? $this->_cachedRouteMap['__menu'][$menuId] : '';
   }
   // }}}
 

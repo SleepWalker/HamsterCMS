@@ -24,7 +24,7 @@ class EWidgetFactory extends CWidgetFactory
       // Merge widget class specific factory config and the $properties parameter
       // into $properties.
       if(isset($this->widgets[$widgetName]))
-        $properties=$properties===array() ? $this->widgets[$widgetName] : CMap::mergeArray($this->widgets[$widgetName],$properties);
+        $properties = $properties===array() ? $this->widgets[$widgetName] : CMap::mergeArray($this->widgets[$widgetName],$properties);
 
       // для админки у нас особые условия!
       if(method_exists($owner, 'getModule') && $owner->module->id == 'admin') {
@@ -33,7 +33,7 @@ class EWidgetFactory extends CWidgetFactory
 
       // Merge CJui common factory config and the $properties parameter
       // into the $properties parameter of parent call.
-      return parent::createWidget($owner,$className,CMap::mergeArray($this->widgets[$commonProperties],$properties));
+      return parent::createWidget($owner,$className,CMap::mergeArray($this->widgets['CJuiWidget'],$properties));
     }
 
     return parent::createWidget($owner,$className,$properties);

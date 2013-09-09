@@ -29,10 +29,11 @@ return array(
       'title' => 'Блог',
       'description' => 'Информационный контент модуль, который идеально подходит для таких рещений как: Блог, Новости и т.д.',
       'db' => array(
-        'version' => 1.2,
+        'version' => '1.2.1',
         'tables' => array(
           'blog',
           'blog_tag',
+          'blog_categorie',
         ),
       ),
     ),

@@ -37,15 +37,6 @@ return CMap::mergeArray(
         'logging' => true,
         'dryRun' => false
       ),*/
-      
-      // если нужно использовать кэш в файловой системе, просто удалите этот элемент
-      'cache'=>array(
-        'class'=>'system.caching.CMemCache',
-        'servers'=>array(
-            array('host'=>'localhost', 'port'=>11211, 'weight'=>60),
-        ),
-        'useMemcached' => true,
-      ),
     ),
   )
 );
