@@ -4,12 +4,11 @@
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @link http://www.yiiframework.com/
- * @copyright Copyright &copy; 2008-2011 Yii Software LLC
+ * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
 
-require_once(Yii::getPathOfAlias('system.vendors.markdown.Markdown').'.php');
-require_once(Yii::getPathOfAlias('system.vendors.markdown.MarkdownExtra').'.php');
+require_once(Yii::getPathOfAlias('system.vendors.markdown.markdown').'.php');
 if(!class_exists('HTMLPurifier_Bootstrap',false))
 {
 	require_once(Yii::getPathOfAlias('system.vendors.htmlpurifier').DIRECTORY_SEPARATOR.'HTMLPurifier.standalone.php');
@@ -48,7 +47,7 @@ if(!class_exists('HTMLPurifier_Bootstrap',false))
  * @package system.utils
  * @since 1.0
  */
-class CMarkdownParser extends \Michelf\MarkdownExtra
+class CMarkdownParser extends MarkdownExtra_Parser
 {
 	/**
 	 * @var string the css class for the div element containing
@@ -111,7 +110,7 @@ class CMarkdownParser extends \Michelf\MarkdownExtra
 	 */
 	public function _doFencedCodeBlocks_callback($matches)
 	{
-		return "\n\n".$this->hashBlock($this->highlightCodeBlock($matches[4]))."\n\n";
+		return "\n\n".$this->hashBlock($this->highlightCodeBlock($matches[2]))."\n\n";
 	}
 
 	/**
