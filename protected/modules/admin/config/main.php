@@ -3,17 +3,11 @@
  * Hamster base config file
  *
  * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @package    admin.AdminModule
+ * @package    hamster.modules.admin.config.main
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
 
-// добавляем глобальную переменную с uri запроса
-if(isset($_SERVER['REQUEST_URI']))
-  $GLOBALS['_REQUEST_URI'] = $_SERVER['REQUEST_URI'];
-if(isset($_SERVER['REMOTE_ADDR']))
-  $GLOBALS['_REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];
-  
 /*
 * Для того, что бы было легче поддерживать актуальные конфиги во всех моих проектах
 * файлы конфига разбиты на несколько частей: базовый конфиг (admin.config.main)
@@ -202,7 +196,12 @@ return
               'prefixSession' => false,
               'prefixUser' => false,
               'logUser' => false,
-              'logVars'=>array('_GET', '_POST', '_REQUEST_URI', '_REMOTE_ADDR'),
+              'logVars'=>array(
+                '_GET', 
+                '_POST', 
+                array('_SERVER', 'REQUEST_URI'), 
+                array('_SERVER', 'REMOTE_ADDR'),
+              ),
             ),
           ),
   				/*array(
