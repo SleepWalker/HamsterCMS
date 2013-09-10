@@ -39,7 +39,7 @@ class HAdminAction extends CAction
   public function __isset($name) 
   {
     if(parent::__isset($name)) return true;
-    else return isset($name);
+    else return $this->controller->__isset($name);
   }
   
   public function __call($name,$parameters)

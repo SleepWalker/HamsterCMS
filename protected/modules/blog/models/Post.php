@@ -27,28 +27,28 @@
  */
 class Post extends CActiveRecord
 {
-  private $_oldTags;
-  
-  const STATUS_DRAFT=1;
-  const STATUS_PUBLISHED=2;
-  const STATUS_ARCHIVED=3;
-  
-  protected $_statusNames = array(
-    self::STATUS_DRAFT => '<span style="color:#с9с9с9;">Черновик</span>',
-    self::STATUS_PUBLISHED => '<span style="color:#76B348;">Опубликовано</span>',
-    self::STATUS_ARCHIVED => '<span style="color:#FE5050;">Архив</span>',
-  );
-  
-  /**
-   *  Переменные специально для поиска и фильтрации с помощью search()
-   */
-  public $user_search; // свойство для реализации фильтрации по имени юзера
-  // фильтрация по диапазонам дат
-  public $date_add_from;
-  public $date_add_to;
-  public $date_edit_from;
-  public $date_edit_to;
-    
+	private $_oldTags;
+	
+	const STATUS_DRAFT=1;
+	const STATUS_PUBLISHED=2;
+	const STATUS_ARCHIVED=3;
+	
+	protected $_statusNames = array(
+		self::STATUS_DRAFT => '<span style="color:#с9с9с9;">Черновик</span>',
+		self::STATUS_PUBLISHED => '<span style="color:#76B348;">Опубликовано</span>',
+		self::STATUS_ARCHIVED => '<span style="color:#FE5050;">Архив</span>',
+	);
+	
+	/**
+	 *  Переменные специально для поиска и фильтрации с помощью search()
+	 */
+	public $user_search; // свойство для реализации фильтрации по имени юзера
+	// фильтрация по диапазонам дат
+	public $date_add_from;
+	public $date_add_to;
+	public $date_edit_from;
+	public $date_edit_to;
+		
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @param string $className active record class name.
@@ -56,7 +56,7 @@ class Post extends CActiveRecord
 	 */
 	public static function model($className=__CLASS__)
 	{
-    return parent::model($className);
+		return parent::model($className);
 	}
 
 	/**
@@ -64,7 +64,7 @@ class Post extends CActiveRecord
 	 */
 	public function tableName()
 	{
-      return 'blog';
+			return 'blog';
 	}
 
 	/**
@@ -82,72 +82,72 @@ class Post extends CActiveRecord
 			array('image', 'length', 'max'=>128),
 			array('alias, title', 'length', 'max'=>200),
 			array('tags', 'match', 'pattern'=>'/^[a-zA-Zа-яА-Я0-9_\s,\.]+$/u',
-        'message'=>'В тегах можно использовать только буквы.'),
-      array('tags', 'normalizeTags'),
-      array('alias', 'unique'),
+				'message'=>'В тегах можно использовать только буквы.'),
+			array('tags', 'normalizeTags'),
+			array('alias', 'unique'),
 
-      array('title, status, user_search, date_add_from, date_add_to, date_edit_from, date_edit_to, cat_id', 'safe', 'on'=>'search'),
+			array('title, status, user_search, date_add_from, date_add_to, date_edit_from, date_edit_to, cat_id', 'safe', 'on'=>'search'),
 		);
 	}
 
-  public function behaviors()
-  {
-    return array(
-      'HIU'=>array(
-        'class'=>'HIUBehavior',
-        'fileAtt' => 'image',
-        'dirName' => 'blog',
-        'sizes'=>array(
-          'normal' => array(
-            'width'=>625,
-          ),
-          'full' => array(
-            'width'=>1024,
-          ),
-          'thumb' => array(
-            'width' => 176,
-            'height' => 176,
-            'crop' => true,
-          ),
-        ),
-      ),
-      'HRating' => array(
-        'class' => 'HRatingBehavior',
-      ),
-      'i18n'=>array(
-        'class'=>'Hi18nBehavior',
-        'i18nAtts'=>'title, content',
-        'moduleId'=>'blog',
-      ),
+	public function behaviors()
+	{
+		return array(
+			'HIU'=>array(
+				'class'=>'HIUBehavior',
+				'fileAtt' => 'image',
+				'dirName' => 'blog',
+				'sizes'=>array(
+					'normal' => array(
+						'width'=>625,
+					),
+					'full' => array(
+						'width'=>1024,
+					),
+					'thumb' => array(
+						'width' => 176,
+						'height' => 176,
+						'crop' => true,
+					),
+				),
+			),
+			'HRating' => array(
+				'class' => 'HRatingBehavior',
+			),
+			'i18n'=>array(
+				'class'=>'Hi18nBehavior',
+				'i18nAtts'=>'title, content',
+				'moduleId'=>'blog',
+			),
 /*
-      'CTimestampBehavior' => array(
-        http://stackoverflow.com/questions/2978473/lost-in-dates-and-timezones
-        http://stackoverflow.com/questions/1852223/mysql-keep-server-timezone-or-user-timezone
-        'class' => 'zii.behaviors.CTimestampBehavior',
-        'createAttribute' => 'create_time_attribute',
-        'updateAttribute' => 'update_time_attribute',
-        'setUpdateOnCreate' => true,
-      ),
+			'CTimestampBehavior' => array(
+				http://stackoverflow.com/questions/2978473/lost-in-dates-and-timezones
+				http://stackoverflow.com/questions/1852223/mysql-keep-server-timezone-or-user-timezone
+				'class' => 'zii.behaviors.CTimestampBehavior',
+				'createAttribute' => 'create_time_attribute',
+				'updateAttribute' => 'update_time_attribute',
+				'setUpdateOnCreate' => true,
+			),
 */
-    );
-  }
-  
-  public function normalizeTags($attribute,$params)
-  {
-    $this->tags=Tag::array2string(array_unique(Tag::string2array($this->tags)));
-  }
-  
-  public function scopes()
-  {
-    return array(
-      'published'=>array(
-        'condition'=>'status = '.self::STATUS_PUBLISHED,
-      ),
-      'latest'=>array(
-        'order'=>'add_date DESC',
-      ),
-    );
-  }
+		);
+	}
+	
+	public function normalizeTags($attribute,$params)
+	{
+		$this->tags=Tag::array2string(array_unique(Tag::string2array($this->tags)));
+	}
+	
+	public function scopes()
+	{
+		return array(
+			'published'=>array(
+				'condition'=>'status = '.self::STATUS_PUBLISHED,
+			),
+			'latest'=>array(
+				'order'=>'add_date DESC',
+			),
+		);
+	}
 
 	/**
 	 * @return array relational rules.
@@ -161,46 +161,43 @@ class Post extends CActiveRecord
 			'cat' => array(self::BELONGS_TO, 'Categorie', 'cat_id'),
 		);
 	}
-  
-  /**
+	
+	/**
 	 *  Обновляем даты
-   *  Добавляем автора материала
+	 *  Добавляем автора материала
 	 */
 	protected function beforeSave()
-  {
-    if(parent::beforeSave())
-    {
-      if($this->isNewRecord)
-      {
-        $this->add_date=$this->edit_date=new CDbExpression('NOW()');
-        $this->user_id=Yii::app()->user->id;
-      }
-      else
-        $this->edit_date=new CDbExpression('NOW()');
+	{
+		if(parent::beforeSave())
+		{
+			if($this->isNewRecord)
+			{
+				$this->add_date=$this->edit_date=new CDbExpression('NOW()');
+				$this->user_id=Yii::app()->user->id;
+			}
+			else
+				$this->edit_date=new CDbExpression('NOW()');
 
-      return true;
-    }
-    else
-      return false;
-  }
-  
-  /**
-   *  Инициируем поле для загрузки изображения значением из поля, в котором хранится имя уже загруженного изображения
-   **/
-  protected function afterSave()
-  {
-    parent::afterSave();
-    //При сохранении записи мы хотим также обновить информацию о частоте использования тегов (модель Tag)
-    Tag::model()->updateFrequency($this->_oldTags, $this->tags);
-    $this->uImage = $this->image;
-  }
-  
-  protected function afterFind()
-  {
-    parent::afterFind();
-    $this->_oldTags=$this->tags;
-    $this->uImage = $this->image;
-  }
+			return true;
+		}
+		else
+			return false;
+	}
+	
+	protected function afterSave()
+	{
+		parent::afterSave();
+		//При сохранении записи мы хотим также обновить информацию о частоте использования тегов (модель Tag)
+		Tag::model()->updateFrequency($this->_oldTags, $this->tags);
+		//$this->uImage = $this->image;
+	}
+	
+	protected function afterFind()
+	{
+		parent::afterFind();
+		$this->_oldTags=$this->tags;
+		//$this->uImage = $this->image;
+	}
 
 	/**
 	 * @return array customized attribute labels (name=>label)
@@ -219,83 +216,83 @@ class Post extends CActiveRecord
 			'status' => 'Статус',
 			'edit_date' => 'Дата редактирования',
 			'add_date' => 'Добавлено',
-      'user_search' => 'Добавил',
-      'uImage' => 'Изображение материала',
+			'user_search' => 'Добавил',
+			'uImage' => 'Изображение материала',
 		);
 	}
-  
-  /**
+	
+	/**
 	 * @return array типы полей для форм администрирования модуля
 	 */
 	public function getFieldTypes()
 	{
 		return array(
-      'i18nlang' => $this->i18n->langField,
+			'i18nlang' => $this->i18n->langField,
 			'title' => 'text',
-      'alias' => 'translit',
-      'status' => array(
-			  'dropdownlist',
-			  'items' => $this->statusNames,
+			'alias' => 'translit',
+			'status' => array(
+				'dropdownlist',
+				'items' => $this->statusNames,
 			),
 			'cat_id' => array(
-			  'dropdownlist',
-			  'items' => Categorie::model()->catsList,
-			  'empty' => '--Выберите категорию--',
+				'dropdownlist',
+				'items' => Categorie::model()->catsList,
+				'empty' => '--Выберите категорию--',
 			),
-      'tags' => 'tags',
-      'uImage' => 'file',
+			'tags' => 'tags',
+			'uImage' => 'file',
 			'content' => 'markdown',
 		);
 	}
-  
-  /**
-   * Возвращает текстовое представление статуса
-   */
+	
+	/**
+	 * Возвращает текстовое представление статуса
+	 */
 	public function getStatusName()
 	{
-	  return $this->_statusNames[$this->status];
+		return $this->_statusNames[$this->status];
 	}
-  
-  /*
+	
+	/*
 	*  используется для фильтра в CGridView, а так же при добавлении товара
 	*/
-  public static function getStatusNames() {
-    return array(
-      self::STATUS_DRAFT => 'Черновик',
-      self::STATUS_PUBLISHED => 'Опубликовано',
-      self::STATUS_ARCHIVED => 'Архив',
-    );
-  }
+	public static function getStatusNames() {
+		return array(
+			self::STATUS_DRAFT => 'Черновик',
+			self::STATUS_PUBLISHED => 'Опубликовано',
+			self::STATUS_ARCHIVED => 'Архив',
+		);
+	}
 
-  /**
-   * Возвращает дату в красивом формате
-   * @param string $date строка с датой из базы данных
-   */
-  public function prettyDate($date)
-  {
-    return Yii::app()->dateFormatter->formatDateTime($date, 'medium', 'short');
-  }
+	/**
+	 * Возвращает дату в красивом формате
+	 * @param string $date строка с датой из базы данных
+	 */
+	public function prettyDate($date)
+	{
+		return Yii::app()->dateFormatter->formatDateTime($date, 'medium', 'short');
+	}
 
-  function getPrettyAddDate()
-  {
-    return $this->prettyDate($this->add_date);
-  }
+	function getPrettyAddDate()
+	{
+		return $this->prettyDate($this->add_date);
+	}
 
-  /**
-   * Возвращает url страницы материала
-   */
+	/**
+	 * Возвращает url страницы материала
+	 */
 	public function getViewUrl()
-  {
-    return Yii::app()->createUrl('blog/blog/view', array('id' =>$this->alias));
-  }
-  
-  /**
-   *  @return array теги материала в виде массива
-   */
-  public function getTagsArr()
-  {
-    return Tag::model()->string2array($this->tags);
-  }
+	{
+		return Yii::app()->createUrl('blog/blog/view', array('id' =>$this->alias));
+	}
+	
+	/**
+	 *  @return array теги материала в виде массива
+	 */
+	public function getTagsArr()
+	{
+		return Tag::model()->string2array($this->tags);
+	}
 
 	/**
 	 * Retrieves a list of models based on the current search/filter conditions.
@@ -307,37 +304,37 @@ class Post extends CActiveRecord
 		// should not be searched.
 
 		$criteria=new CDbCriteria;
-    
-    // фильтрация по промежуткам дат
-    if((isset($this->date_add_from) && trim($this->date_add_from) != "") && (isset($this->date_add_to) && trim($this->date_add_to) != ""))
-      $criteria->addBetweenCondition('t.add_date', ''.date_format(new DateTime($this->date_add_from), 'Y-m-d').'', ''.date_format(new DateTime($this->date_add_to), 'Y-m-d').'');
-    if((isset($this->date_edit_from) && trim($this->date_edit_from) != "") && (isset($this->date_edit_to) && trim($this->date_edit_to) != ""))
-      $criteria->addBetweenCondition('t.edit_date', ''.date_format(new DateTime($this->date_edit_from), 'Y-m-d').'', ''.date_format(new DateTime($this->date_edit_to), 'Y-m-d').'');
+		
+		// фильтрация по промежуткам дат
+		if((isset($this->date_add_from) && trim($this->date_add_from) != "") && (isset($this->date_add_to) && trim($this->date_add_to) != ""))
+			$criteria->addBetweenCondition('t.add_date', ''.date_format(new DateTime($this->date_add_from), 'Y-m-d').'', ''.date_format(new DateTime($this->date_add_to), 'Y-m-d').'');
+		if((isset($this->date_edit_from) && trim($this->date_edit_from) != "") && (isset($this->date_edit_to) && trim($this->date_edit_to) != ""))
+			$criteria->addBetweenCondition('t.edit_date', ''.date_format(new DateTime($this->date_edit_from), 'Y-m-d').'', ''.date_format(new DateTime($this->date_edit_to), 'Y-m-d').'');
 
 		$criteria->compare('title',$this->title,true);
 		$criteria->compare('tags',$this->tags,true);
 		$criteria->compare('status',$this->status);
 		$criteria->compare('cat_id',$this->cat_id);
-    
-    // Критерии для фильтрации по related таблицам
+		
+		// Критерии для фильтрации по related таблицам
 		$criteria->compare( 'user.' . User::first_name, $this->user_search, true );
-    
-    $criteria->with=array(
-      'user'=>array('select'=>'user.' . User::first_name),
-      'cat'=>array('select'=>'cat.name'),
-    );
+		
+		$criteria->with=array(
+			'user'=>array('select'=>'user.' . User::first_name),
+			'cat'=>array('select'=>'cat.name'),
+		);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
-      'sort'=>array(
-        'attributes'=>array(
-          'user_search'=>array(
-            'asc'=>'user.' . User::first_name,
-            'desc'=>'user.' . User::first_name . ' DESC',
-          ),
-          '*',
-        ),
-      ),
+			'sort'=>array(
+				'attributes'=>array(
+					'user_search'=>array(
+						'asc'=>'user.' . User::first_name,
+						'desc'=>'user.' . User::first_name . ' DESC',
+					),
+					'*',
+				),
+			),
 		));
 	}
 }
