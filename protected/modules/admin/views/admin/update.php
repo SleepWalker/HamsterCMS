@@ -231,7 +231,7 @@ function parseCFormElements(&$form, $model, $controller)
 ob_start();
 ?>
 // вешаем обработчик на уровень выше, что бы он всегда срабатывал после валидации формы
-$('#<?php echo $form['id'] ?>').parent().on('submit.ajaxSubmit', '#<?php echo $form['id'] ?>', function() {
+$('#<?php echo $form->id ?>').parent().on('submit.ajaxSubmit', '#<?php echo $form->id ?>', function() {
   $.ajax({
     type: 'POST',
     dataType: 'JSON',
