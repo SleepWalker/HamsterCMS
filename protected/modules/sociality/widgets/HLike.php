@@ -89,7 +89,8 @@ class HLike extends CWidget
       $cs->registerLinkTag('image_src', NULL, $imgSrc);
     }
 
-    $cs->registerMetaTag(Yii::app()->params['vkApiId'], NULL, NULL, array('property' => 'vk:app_id'));
+    if(!empty(Yii::app()->params['vkApiId']))
+      $cs->registerMetaTag(Yii::app()->params['vkApiId'], NULL, NULL, array('property' => 'vk:app_id'));
 
     if($this->size != 'pie')
     {
@@ -101,12 +102,12 @@ class HLike extends CWidget
         $size['google'] = 'tall';
         $size['vk'] = 'vertical';
         $size['facebook'] = 'box_count';
-        $size['twitter'] = array('vertical', '');
+        $size['twitter'] = array('vertical', 'vertical');
         break;
       case 'standard':
         $size['google'] = 'standard';
         $size['vk'] = 'button';
-        $size['facebook'] = 'standard';
+        $size['facebook'] = 'button_count';
         $size['twitter'] = array('large', '');
         break;
       case 'medium':

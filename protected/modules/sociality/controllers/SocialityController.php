@@ -69,7 +69,7 @@ class SocialityController extends Controller
         ));
       }
     }else{
-      // просто вывод комментов
+      // вывод комментов и формы добавления комментов
       if(isset($_GET['modelId']) && isset($_GET['modelPk']))
       {
         $cData['model_id'] = $_GET['modelId'];

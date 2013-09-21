@@ -16,7 +16,6 @@ setTimeout(function() {
 
     var apis = {
       gpApi: 'https://apis.google.com/js/plusone.js',                                            // Google +1 Button
-      vkApi: '//vk.com/js/api/openapi.js?75',                                                    // Vkontakte API
       twApi: '//platform.twitter.com/widgets.js',                                                // Twitter Widgets
       fbApi: '//connect.facebook.net/en_US/all.js#xfbml=1',                                      // Facebook SDK
     },
@@ -25,7 +24,15 @@ setTimeout(function() {
     fragment = document.createDocumentFragment(),
     element  = document.createElement(script),
 
-    clone;
+    clone,
+
+    vkAppId = $('meta[property="vk:app_id"]').eq(0).prop('content');
+    if(vkAppId != undefined && vkAppId != '')
+    {
+      apis.vkApi = '//vk.com/js/api/openapi.js?75';                                                    // Vkontakte API
+        alert(123);
+      alert(vkAppId);
+    }
 
     // вставляем в дом скрипты для всех apis
     for (var id in apis)
@@ -48,6 +55,10 @@ setTimeout(function() {
     };
 
     window.hSocialInit = true;
+  }else{
+    twttr.widgets.load();
+    gapi.plusone.go();
+    FB.XFBML.parse();
   }
 }, 200);
 
@@ -62,6 +73,7 @@ $.fn.hcomments = function(type)
 
 $.hvklike = function(settings)
 {
+  // TODO: переместить сюда инициализацию всех кнопок и переименовать эту функцию
   var vkLikeInit = function() {
     window.VK.Widgets.Like('vklike', settings);
   };

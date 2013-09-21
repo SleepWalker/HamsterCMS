@@ -55,7 +55,8 @@ class HComment extends CWidget
 	public function run() 
   {
     $cs = Yii::app()->clientScript;
-    $cs->registerMetaTag(Yii::app()->params['vkApiId'], NULL, NULL, array('property' => 'vk:app_id'));
+    if(!empty(Yii::app()->params['vkApiId']))
+      $cs->registerMetaTag(Yii::app()->params['vkApiId'], NULL, NULL, array('property' => 'vk:app_id'));
 
     if($this->model)
     {
