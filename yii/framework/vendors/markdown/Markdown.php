@@ -10,8 +10,6 @@
 # Copyright (c) 2004-2006 John Gruber  
 # <http://daringfireball.net/projects/markdown/>
 #
-namespace Michelf;
-
 
 #
 # Markdown Parser Class
@@ -1524,7 +1522,7 @@ class Markdown {
 # one.
 #
 
-class _MarkdownExtra_TmpImpl extends \Michelf\Markdown {
+class _MarkdownExtra_TmpImpl extends Markdown {
 
 	### Configuration Variables ###
 
@@ -3092,5 +3090,3 @@ class _MarkdownExtra_TmpImpl extends \Michelf\Markdown {
 
 }
 
-
-?>
