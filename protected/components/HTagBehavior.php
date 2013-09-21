@@ -73,6 +73,27 @@ class HTagBehavior extends CActiveRecordBehavior
 	}
 
 	/**
+	 * Suggests a list of existing tags matching the specified keyword.
+	 * @param string the keyword to be matched
+	 * @param integer maximum number of tags to be returned
+	 * @return array list of matching tag names
+	 */
+	public function suggestTags($term,$limit=20)
+	{
+		$model = Tag::model();
+		$tags = $model->string2array($term); // работаем только с последним тегом из списка
+		return $model->suggestTags(array_pop($tags));
+	}
+
+	/**
+	 * @return Tag модель тегов связанная с текущей
+	 */
+	public function tagModel()
+	{
+		return Tag::model();
+	}
+
+	/**
 	 * Возвращает название таблицы в которой будет хранится подробная информация о каждом голосе  
 	 * 
 	 * @access public
