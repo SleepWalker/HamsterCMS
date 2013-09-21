@@ -10,6 +10,8 @@ defined('YII_TRACE_LEVEL') or define('YII_TRACE_LEVEL',3);
 
 error_reporting(E_ALL ^ E_NOTICE);
 ini_set('display_errors', YII_DEBUG*1);
+ini_set("track_errors", YII_DEBUG*1);
+ini_set("html_errors", YII_DEBUG*1);
 
 require_once($yii);
 Yii::createWebApplication($config)->run();

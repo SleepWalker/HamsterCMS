@@ -117,7 +117,7 @@ function parseCFormElements(&$form, $model, $controller)
         'attribute' => $fieldName,
         'sourceUrl'=>$controller->curModuleUrl . 'ac'.$fieldName,
         // additional javascript options for the autocomplete plugin
-        'options'=>array_merge(
+        'options'=> CMap::mergeArray(
           array(
             'minLength'=>'2',
           ),

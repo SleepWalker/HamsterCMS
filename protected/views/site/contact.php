@@ -16,7 +16,7 @@ $this->breadcrumbs=array(
 <?php else: ?>
 
 <p>
-Если у вас есть вопросы по поводу работы нашего сайта или вы хотите воспользоваться нашими услугами, пожалуйста заполните следующую форму, что бы связаться с нами. Спасибо.
+Если у вас есть вопросы по поводу работы нашего сайта, пожалуйста заполните следующую форму, что бы связаться с нами. Спасибо.
 </p>
 
 <div class="form">
@@ -58,18 +58,16 @@ $this->breadcrumbs=array(
 	</div>
 
 	<?php if(CCaptcha::checkRequirements()): ?>
-  <br />
-	<div class="row">
+	<div class="row captcha">
 		<div>
-		<?php $this->widget('CCaptcha'); ?>
-		<?php echo $form->textField($model,'verifyCode'); ?>
+			<?php $this->widget('CCaptcha'); ?>
+			<?php echo $form->textField($model,'verifyCode'); ?>
+	    	<?php echo $form->error($model,'verifyCode'); ?>
 		</div>
-    <?php echo $form->error($model,'verifyCode'); ?>
 		<div class="hint">Пожалуйста введите буквы с изображения выше.
 		<br/>Буквы не чувствительны к регистру.</div>
 	</div>
 	<?php endif; ?>
-  <br />
 	<div class="row buttons">
 		<?php echo CHtml::submitButton('Отправить'); ?>
 	</div>

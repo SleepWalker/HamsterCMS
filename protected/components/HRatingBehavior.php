@@ -79,7 +79,7 @@ class HRatingBehavior extends CActiveRecordBehavior
   public function ratingWidget($params = array(), $showTotalVotes = false)
   {
     // запрос на изменение рейтинга
-    if ( Yii::app()->request->isAjaxRequest && !in_array('callbackUrl', $params))
+    if ( Yii::app()->request->isAjaxRequest && !in_array('callbackUrl', $params) && isset($_GET['val']))
     {
       while(@ob_end_clean());
       $this->addVote($_GET['val']);
