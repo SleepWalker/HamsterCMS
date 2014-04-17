@@ -147,24 +147,29 @@ class Event extends CActiveRecord
   /**
    * @return string Html код части карты с метом проведения мероприятия
    */
-  public function getImg() {
-    return CHtml::image($this->src, $this->name);
+  public function getMapImage($params = array()) {
+    return CHtml::image($this->getMapSrc($params), $this->name);
   }
 
   /**
    * @return string ссылку на изображение куска карты яндекса
    */
-  public function getSrc() {
-    $params = array(
+  public function getMapSrc($params = array()) 
+  {
+    $params = CMap::mergeArray(array(
+      'width' => 200,
+      'height' => 200,
+      ), $params);
+    $query = array(
       'l' => 'map',
       'll' => $this->latitude . ',' . $this->longitude,
-      'size' => '200,200',
+      'size' => $params['width'] .','. $params['height'],
       'z' => '15', // масштаб
       'pt' => $this->latitude . ',' . $this->longitude . ',flag', // метка
       'lang' => Yii::app()->sourceLanguage,
       //'key' => $this->module->params['yandexApiKey'],
     );
-    return 'http://static-maps.yandex.ru/1.x/?'.http_build_query($params);
+    return 'http://static-maps.yandex.ru/1.x/?'.http_build_query($query);
   }
   
   /**

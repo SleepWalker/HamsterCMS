@@ -12,6 +12,7 @@ $this->pageTitle = 'Ваша корзина';
 
 $this->breadcrumbs[] = $this->pageTitle;
 
+$total = 0;
 foreach($models as $model) 
   $total += $model->quantity;
 
@@ -32,6 +33,7 @@ if($total)
 ?>
 <table>
 <?php 
+$check = 0;
 foreach($models as $index => $model) 
 {
   // $index == $model->id за исключением случая с вариантами, 

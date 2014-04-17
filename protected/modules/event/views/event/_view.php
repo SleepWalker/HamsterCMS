@@ -1,16 +1,18 @@
 <?
-if(true)
+global $past;
+if(strtotime($data->start_date) < time() && !$past)
 {
   if($index == 0)
     echo '<p class="noData">Нет мероприятий</p>';
 
   echo '<h2>Прошедшие мероприятия</h2>';
+  $past = true;
 }
 ?>
 <article class="partialView <?php echo $this->module->id ?>PartialView">
   <header>
     <h2><?php echo CHtml::link(CHtml::encode($data->name), $data->viewUrl) ?></h2>
-    <?php echo CHtml::link($data->img, $data->viewUrl); ?>
+    <?php echo CHtml::link($data->mapImage, $data->viewUrl); ?>
   </header>
 
 	<div class="content <?php echo $this->module->id ?>Content">

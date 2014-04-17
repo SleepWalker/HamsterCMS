@@ -8,6 +8,8 @@
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
+
+// TODO: переписать этот даунский класс!
 class Config extends CFormModel
 {
   //TODO: loadCForm()
@@ -18,7 +20,7 @@ class Config extends CFormModel
   // в конце этот массив будет сливаться с массивом настроек сайта application.config.hamster
   protected $_hamsterModules = array();
   // переменная, в которой хранится конфиг текущего модуля (application.modules.{moduleId}.admin.configSchema)
-  protected $_config;
+  protected $_configSchema;
   // индикатор, говорящий, что массив {@link _curModConfig} уже обьединен с {@link _hamsterModules}
   protected $_isMerged;
   // массив настроек для класса CForm
@@ -77,7 +79,7 @@ class Config extends CFormModel
         Yii::app()->user->setFlash('error', "Файл '$path' не доступен для записи.");
       }
     $this->_moduleId = $moduleId;
-    $this->_config = $config;
+    $this->_configSchema = $config;
     parent::__construct($scenario);
   }
   
@@ -101,22 +103,23 @@ class Config extends CFormModel
   public function init()
   {
     // Настройки на уровне модуля
-    foreach($this->_config as $name => $params)
+    foreach($this->_configSchema as $name => $params)
     {
+      if($name == 'hamster') continue;
       $this->hamsterConfigSchema($name, $params);
     }
     
     // парсим настройки hamster, где находится секция для глобальных параметров
-    if(isset($this->_config['hamster']['global']))
-      foreach($this->_config['hamster']['global'] as $name => $params)
+    if(isset($this->_configSchema['hamster']['global']))
+      foreach($this->_configSchema['hamster']['global'] as $name => $params)
       {
         $this->hamsterConfigSchema($name, $params, true);
       }
       
     // добавим в массив с настройками еще параметры, которые передаются модулю
-    // TODO: Обязательно написать об этом в будущей документации, бо я сам чуть не забыл о такой возможности
-    if(isset($this->_config['hamster']['options']))
-      $this->_curModConfig['config']['modules'][$this->moduleId] = CMap::mergeArray($this->_curModConfig['config']['modules'][$this->moduleId], $this->_config['hamster']['options']);
+    // TODO: Обязательно написать об этом (['hamtser']['options'] == конфиг модуля) в будущей документации, бо я сам чуть не забыл о такой возможности
+    if(isset($this->_configSchema['hamster']['options']))
+      $this->_curModConfig['config']['modules'][$this->moduleId] = CMap::mergeArray($this->_curModConfig['config']['modules'][$this->moduleId], $this->_configSchema['hamster']['options']);
     
     if($this->moduleId != 'admin') //все настройки для админки генерируются из AdminController
     {
@@ -124,16 +127,16 @@ class Config extends CFormModel
       $this->addConfigFields(array(
         'adminTitle' => array(
           'label' => 'Название модуля в админ панели',
-          'default' => isset($this->_config['hamster']['admin']['title']) ? $this->_config['hamster']['admin']['title'] : $this->moduleId,
+          'default' => isset($this->_configSchema['hamster']['admin']['title']) ? $this->_configSchema['hamster']['admin']['title'] : $this->moduleId,
           'type' => 'text',
           'linkTo' => '$modulesInfo[$this->moduleId]["title"]',
         ),
       ));
 
       // добавляем поля url и имя модуля, которые будут отображаться на сайте
-      if(!(isset($this->_config['hamster']['admin']['internal']) && $this->_config['hamster']['admin']['internal']))
+      if(!(isset($this->_configSchema['hamster']['admin']['internal']) && $this->_configSchema['hamster']['admin']['internal']))
       {
-        if(!isset($this->_config['moduleName']))
+        if(!isset($this->_configSchema['moduleName']))
           $this->addConfigFields(array(
             'moduleName' => array(
               'label' => 'Название модуля',
@@ -142,7 +145,7 @@ class Config extends CFormModel
             ),
           ));
 
-        if(!isset($this->_config['moduleUrl']))
+        if(!isset($this->_configSchema['moduleUrl']))
           $this->addConfigFields(array(
             'moduleUrl' => array(
               'label' => 'URI Адрес модуля',
@@ -151,6 +154,28 @@ class Config extends CFormModel
             ),
           ));
       }
+
+
+      /**
+       * Структура настройки роутов в конфиг файле
+       * moduleId => array(
+       *    'params' => array(
+       *        'routes' => array(
+       *             'blog' => array( // роут (uri), который будет реально на сайте
+       *                'layout' => 'main',
+       *                'originalRoute' => 'blog/index', // в роут не входит id модуля. только controller - action
+       *              )
+       *         ),
+       *    )
+       * )
+       */
+      $this->addConfigFields(array(
+        'layout' => array(
+          'label' => 'Layout модуля',
+          'type' => 'dropdownlist',
+          'items' => AdminModule::getLayoutIds(),
+        )
+      ));
     }
   }
   
@@ -161,12 +186,12 @@ class Config extends CFormModel
    * $this->addConfigField(array(
    *    'adminTitle' => array(
    *      'label' => 'Название модуля в админ панели',
-   *      'default' => $this->_config['hamster']['admin']['title'],
+   *      'default' => $this->_configSchema['hamster']['admin']['title'],
    *      'type' => 'text',
    *    ),
    *    'adminTitle2' => array(
    *      'label' => 'Название модуля в админ панели',
-   *      'default' => $this->_config['hamster']['admin']['title'],
+   *      'default' => $this->_configSchema['hamster']['admin']['title'],
    *      'type' => 'text',
    *    ),
    *  ));
@@ -186,7 +211,8 @@ class Config extends CFormModel
         unset($fieldOptions['linkTo']);
       }
 
-      $this->hamsterConfigSchema($fieldId, $fieldOptions, $linkTo);
+      if(!is_numeric($fieldId))
+        $this->hamsterConfigSchema($fieldId, $fieldOptions, $linkTo);
     }
   }
 
@@ -254,7 +280,6 @@ class Config extends CFormModel
       $this->_CFormConfig[$name] = $CFormArr;
   }
 
-  // public setModelAttribute(stringname,arrayparams) {{{ 
   /**
    * Добавляет в модель новый аттрибут
    * 
@@ -296,7 +321,6 @@ class Config extends CFormModel
       $this->_attValsDef[$name] = $params['default'];
     }
   }
-  // }}}
   
   /**
    * Инициализирует массив с значениями по умолчанию и с текущими значениями аттрибутов, а также масив, который потом будет сейвится в конфиг
@@ -307,7 +331,6 @@ class Config extends CFormModel
    */
   protected function hamsterConfigSchema($name, $params, $linkTo = false)
   {  
-    if($name == 'hamster') return false;
     if($params['type'] == '') throw new CException("У параметра $name не указан обязательный параметр type");
 
     // Добавляем поле в конфиг CForm
@@ -357,7 +380,7 @@ class Config extends CFormModel
   }
   
   /**
-   * Переопределяем магический метод __get Yii, что бы можно было обращаться к свойствам, указанным в {@link _config}
+   * Переопределяем магический метод __get Yii, что бы можно было обращаться к свойствам, указанным в {@link _configSchema}
    * @param string $name the property name or the event name
    * @return mixed
    */
@@ -381,7 +404,7 @@ class Config extends CFormModel
   }
   
   /**
-   * Переопределяем магический метод __set Yii, что бы можно было менять свойства, указанным в {@link _config}
+   * Переопределяем магический метод __set Yii, что бы можно было менять свойства, указанным в {@link _configSchema}
    * @param string $name the property name or the event name
    * @return mixed
    */
@@ -402,7 +425,7 @@ class Config extends CFormModel
     $this->mergeConfigs();
 
     if(!$this->_CForm && $this->_CFormConfig)
-    {
+    {      
       $this->_CForm = new CForm(array(
         'buttons'=>array(
           'submit'=>array(
@@ -458,7 +481,9 @@ class Config extends CFormModel
 if(isset($_SERVER['REQUEST_URI']))
   $GLOBALS['_REQUEST_URI'] = $_SERVER['REQUEST_URI'];
 if(isset($_SERVER['REMOTE_ADDR']))
-  $GLOBALS['_REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];    
+  $GLOBALS['_REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];  
+
+Yii::setPathOfAlias('hamster', dirname(dirname(__FILE__)));
     <?php
     $configHeader = ob_get_clean();
 
@@ -560,7 +585,7 @@ if(isset($_SERVER['REMOTE_ADDR']))
    */
   public function getAdminConfig()
   {
-    return $this->_config['hamster']['admin'];
+    return $this->_configSchema['hamster']['admin'];
   }
 
   public function setDbVersion($v)

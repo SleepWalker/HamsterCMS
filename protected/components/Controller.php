@@ -22,19 +22,41 @@ class Controller extends CController
 	public $breadcrumbs=array();
 
   /**
-   * @property array $aside массив с html блоками
+   * @var array $aside массив с html блоками
    */
   public $aside = array();
+
   /**
-   * @property array $_asideStack массив-стэк aside блоков. Используется для хранения параметров блока до вызова {@link Controller::endAside()}
+   * @var array $bodyClasses массив с css классами для body
+   */
+  public $bodyCssClasses = array();
+
+  /**
+   * @var array $_asideStack массив-стэк aside блоков. Используется для хранения параметров блока до вызова {@link Controller::endAside()}
    */
   protected $_asideStack = array();
   protected $_asideBottom = array();
 
-  public function init() 
+  protected function beforeAction($action)
   {
     if(!empty(Yii::app()->params['defaultLayout']))
       $this->layout = '//layouts/' . Yii::app()->params['defaultLayout'];
+
+    // Определяем текущий роут, что бы по нему определить лейаут
+    if($this->module)
+    {
+      $route = preg_replace('#' .$this->module->id . '/#', '', $this->route, 1);
+      if(isset($this->module->params['routes'][$route]['layout']))
+      {
+        $this->layout = '//layouts/' . $this->module->params['routes'][$route]['layout'];
+      }
+    }
+
+    // инициализируем цсс классы
+    $layoutId = explode('/', $this->layout);
+    $this->bodyCssClasses = array(end($layoutId), $this->id, $this->id . ucfirst($this->action->id));
+
+    return true;
   }
 
   /**
@@ -133,6 +155,11 @@ class Controller extends CController
       echo '</div>';
       //$this->endWidget();
     }
+  }
+
+  public function getBodyCssClass()
+  {
+    return implode(' ', $this->bodyCssClasses);
   }
 	
   /**

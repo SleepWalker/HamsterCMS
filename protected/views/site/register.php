@@ -35,7 +35,8 @@ parseCFormElements($form, $model, $this);
 
 $form['enctype'] = 'multipart/form-data';
 $form['model'] = $model;
-$form['elements'][] = CHtml::hiddenField('backUrl', $_SERVER['HTTP_REFERER']);
+if(isset($_SERVER['HTTP_REFERER']))
+  $form['elements'][] = CHtml::hiddenField('backUrl', $_SERVER['HTTP_REFERER']);
 
 $form = new CForm($form);
 echo '<div class="form registerForm">';

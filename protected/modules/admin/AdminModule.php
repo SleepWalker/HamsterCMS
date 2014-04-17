@@ -9,8 +9,8 @@
  */
 class AdminModule extends CWebModule
 {
-  public $name;
-  public $assetsUrl;
+	public $name;
+	public $assetsUrl;
 	public function init()
 	{
 		// this method is called when the module is being created
@@ -20,45 +20,73 @@ class AdminModule extends CWebModule
 		$this->setImport(array(
 			'admin.models.*',
 			'admin.components.*',
-		));
+			));
 		
 		$this->assetsUrl = Yii::app()->getAssetManager()->publish(dirname(__FILE__).DIRECTORY_SEPARATOR.'assets',false,-1,YII_DEBUG);//Yii::getPathOfAlias('application.modules.admin.assets'));
-    //$this->registerScriptFile('admin.js');
-    //$this->registerCssFile('admin.css');
+		//$this->registerScriptFile('admin.js');
+		//$this->registerCssFile('admin.css');
 
-    // меняем имя сайта
-    Yii::app()->name = 'HamsterCMS';
+		// меняем имя сайта
+		Yii::app()->name = 'HamsterCMS';
 
-    // переопределяем страницу входа
-    Yii::app()->user->loginUrl = Yii::app()->createUrl('admin/login/index');
+		// переопределяем страницу входа
+		Yii::app()->user->loginUrl = Yii::app()->createUrl('admin/login/index');
 
-    // устанавливаем экшен для отобраения ошибок
-    Yii::app()->errorHandler->errorAction = 'admin/admin/error';
+		// устанавливаем экшен для отобраения ошибок
+		Yii::app()->errorHandler->errorAction = 'admin/admin/error';
 	}
 
 	public function beforeControllerAction($controller, $action)
 	{
 		if(parent::beforeControllerAction($controller, $action))
 		{
-		
-		  // this overwrites everything in the controller
-      $controller->adminAssetsUrl = $this->assetsUrl;
-      
-			// this method is called before any module controller action is performed
-			// you may place customized code here
+			
+			  // this overwrites everything in the controller
+			$controller->adminAssetsUrl = $this->assetsUrl;
+
+				// this method is called before any module controller action is performed
+				// you may place customized code here
 			return true;
 		}
 		else
 			return false;
 	}
-	
+
+	/**
+	 * Возвращает список идентификаторов лейаутов доступных для CMS
+	 * @return array идентификаторы
+	 */
+	public static function getLayoutIds()
+	{
+		$extension = '.php';
+		$layoutPathes = array(Yii::app()->getViewPath());
+		if(($theme=Yii::app()->getTheme())!==null)
+		{
+			// у нас используются темы
+			$layoutPathes[] = $theme->getViewPath();
+		}
+
+		$ids = array();
+		foreach ($layoutPathes as $curPath) 
+		{
+			$curPath .= DIRECTORY_SEPARATOR . 'layouts' . DIRECTORY_SEPARATOR;
+			foreach (glob($curPath . '*' . $extension) as $curFile) 
+			{
+				$id = basename($curFile, $extension);
+				$ids[$id] = $id;
+			}
+		}
+
+		return $ids;
+	}
+
 	public function registerScriptFile($fileName,$position=CClientScript::POS_END)
-  {
-    Yii::app()->getClientScript()->registerScriptFile($this->assetsUrl.'/js/'.$fileName,$position);
-  }
-  
-  public function registerCssFile($fileName)
-  {
-    Yii::app()->getClientScript()->registerCssFile($this->assetsUrl.'/css/'.$fileName);
-  }
+	{
+		Yii::app()->getClientScript()->registerScriptFile($this->assetsUrl.'/js/'.$fileName,$position);
+	}
+
+	public function registerCssFile($fileName)
+	{
+		Yii::app()->getClientScript()->registerCssFile($this->assetsUrl.'/css/'.$fileName);
+	}
 }

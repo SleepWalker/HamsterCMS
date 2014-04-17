@@ -197,53 +197,53 @@ class ShopController extends Controller
    */
 	protected function renderProdByCriteria($name)
 	{
-    $Shop = new Shop();
+		$Shop = new Shop();
 		// фильтруем как пост так и гет запросы
 		$filterData = (Yii::app()->request->isPostRequest) ? $_POST : $_GET;
 
-    $dataProvider = $Shop->filter($filterData);
-		
+		$dataProvider = $Shop->filter($filterData);
+
 		$dataProvider->criteria->with=array(
-      $name => array(
-        'condition'=>$name.'.'.$name.'_alias=:alias',
-        'params'=>array(':alias'=> $_GET['alias']),
-      ),
-    );
+			$name => array(
+				'condition'=>$name.'.'.$name.'_alias=:alias',
+				'params'=>array(':alias'=> $_GET['alias']),
+			),
+	    );
     
-    // POST запросами у нас отправляется фильтр через аякс
-    // в этом случае нам нужно вернуть только колличество результатов
-    if(Yii::app()->request->isPostRequest)
-    {
-      unset($filterData['ajax']); // так как в ответе мы будем генерировать ссылку с данными для фильтра, нам надо убрать элемент ajax
-      if ($dataProvider->totalItemCount)
-        echo "Найдено товаров: <b>" . $dataProvider->totalItemCount . "</b>. " . CHtml::link('Показать', 
-          preg_replace('/\?[^\?]*$/','',$_SERVER["REQUEST_URI"]).'?'.http_build_query($filterData));
-      else
-        echo "Нет подходящих товаров";
-      Yii::app()->end();
-    }
-    
-    $data = $dataProvider->getData();
-    $title = $data[0]->$name->{$name._name};
-    
-    switch($name)
-    {
-      case 'brand':
-        $breadcrumbs = array(
-			    'Бренды'=>'/shop/brand',
-			  );
-			break;
-			case 'cat':
-        $breadcrumbs = $data[0]->cat->parentBreadcrumbs;
-        // Виджет фильтра
-        $this->beginAside(array(
-          'id' => 'shopFilter',
-          'title' => 'Фильтр',
-        ));
-        $this->widget('shop.widgets.filter.Filter');
-        $this->endAside();
-			break;
-    }
+	    // POST запросами у нас отправляется фильтр через аякс
+	    // в этом случае нам нужно вернуть только колличество результатов
+	    if(Yii::app()->request->isPostRequest)
+	    {
+	      unset($filterData['ajax']); // так как в ответе мы будем генерировать ссылку с данными для фильтра, нам надо убрать элемент ajax
+	      if ($dataProvider->totalItemCount)
+	        echo "Найдено товаров: <b>" . $dataProvider->totalItemCount . "</b>. " . CHtml::link('Показать', 
+	          preg_replace('/\?[^\?]*$/','',$_SERVER["REQUEST_URI"]).'?'.http_build_query($filterData));
+	      else
+	        echo "Нет подходящих товаров";
+	      Yii::app()->end();
+	    }
+	    
+	    $data = $dataProvider->getData();
+	    $title = $data[0]->$name->{$name._name};
+	    
+	    switch($name)
+	    {
+	      case 'brand':
+	        $breadcrumbs = array(
+				    'Бренды'=>'/shop/brand',
+				  );
+				break;
+				case 'cat':
+	        $breadcrumbs = $data[0]->cat->parentBreadcrumbs;
+	        // Виджет фильтра
+	        $this->beginAside(array(
+	          'id' => 'shopFilter',
+	          'title' => 'Фильтр',
+	        ));
+	        $this->widget('shop.widgets.filter.Filter');
+	        $this->endAside();
+				break;
+	    }
     
 		$this->render('index',array(
 			'dataProvider'=>$dataProvider,

@@ -13,7 +13,6 @@ class PageController extends Controller
 	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
 	 * using two-column layout. See 'protected/views/layouts/column2.php'.
 	 */
-	public $layout='//layouts/column3';
 	private $_model;
 
 	/**
@@ -65,6 +64,8 @@ class PageController extends Controller
 
     $content = $model ? $model->content : $model;
 
+    $this->bodyCssClasses[2] = 'page' . (empty($path) ? 'Main' : ucfirst($path));
+
     $this->render($view,array(
       'model'=>$model,
       'content'=>$content,
@@ -99,16 +100,5 @@ class PageController extends Controller
       $this->_model=Page::model()->findByAttributes($param);
     }
     return $this->_model;
-  }
-
-  /**
-   * Отображает ошибку 404  
-   * 
-   * @access protected
-   * @return void
-   */
-  protected function pageNotFound()
-  {
-    throw new CHttpException(404,'Запрашиваемая страница не существует.');
   }
 }

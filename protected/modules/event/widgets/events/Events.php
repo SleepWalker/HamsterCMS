@@ -22,7 +22,7 @@ class Events extends CWidget
   // сколько товаров показывать (если так и останется false, то значение переопределится в init() )
   public $amount = false;
   
-  // вьюха для отображения товара
+  // вьюха для отображения ивента
   public $view = '_event';
   
   public function init()
@@ -38,7 +38,6 @@ class Events extends CWidget
     $this->renderEvents($dataProvider);
   }
   
-  // protected createProvider() {{{ 
   /**
    * Создает обьект CActiveDataProvider в зависимости от параметров, переданных виджету
    * 
@@ -54,9 +53,7 @@ class Events extends CWidget
       'pagination' => false,
     ));
   }
-  // }}}
-  
-  // protected renderEvents(dataProvider) {{{ 
+
   /**
    * renderEvents
    * 
@@ -75,5 +72,4 @@ class Events extends CWidget
       ));
     }
   }
-  // }}}
 }

@@ -54,11 +54,10 @@ class CartController extends Controller
 	**/
 	public function actionIndex()
 	{
-	  //если в сессии уже есть order и его элемент quantity - передаем его вьюхе, что бы выводилось актуальное колличество товаров
 	  $order = Yii::app()->session['order'];
     
-    $cart = $order['cart'];
-	  if(count($cart) == 0) $this->redirect('/');
+    $cart = isset($order['cart']) && count($order['cart']) > 0 ? $order['cart'] : false;
+    if(!$cart) $this->redirect('/');
 
 	  if(isset($order['summary']))
 	  { // юзер прошел все этапы  по оплате электронными деньгами, показываем ему последний

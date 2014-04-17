@@ -546,6 +546,39 @@ span.required {
   margin:10px 0;
 }
 
+.row-tabular
+{
+  overflow: hidden;
+  position: relative;
+  padding: 0 30px;
+}
+
+.row-tabular .row
+{
+  float: left;
+  margin: 0;
+  margin-right: 10px;
+}
+
+.row-tabular ~ .row-tabular label
+{
+  display: none;
+}
+
+.container-tabular .dnd_drager,
+.container-tabular .icon_delete
+{
+  margin: 5px;
+  position: absolute;
+  bottom: 0;
+  left: 5px;
+}
+
+.container-tabular .icon_delete
+{
+  left: auto;
+}
+
 div.form div.error label:first-child,
 div.form label.error,
 div.form span.error
@@ -644,7 +677,7 @@ label {
 
 .form label + textarea, 
 .form input[type=hidden] + span, /*списки чекбоксов и радио*/
-.form label + input {
+.form label ~ input {
   display:block;
 }
 
@@ -769,7 +802,7 @@ ul.shadow li, ul.shadow  ul.highlight ul li {
   width:10px;
   margin-left:5px;
   background:url('../images/icon_grippy.png') center center no-repeat;
-  cursor:pointer;
+  cursor: move;
 }
 
 td .dnd_drager {

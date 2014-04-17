@@ -37,9 +37,11 @@ class ContactForm extends CFormModel
 	{
 		return array(
 			// name, email, subject and body are required
-			array('name, email, subject, body, verifyCode', 'required'),
+			array('name, email, body, verifyCode', 'required'),
 			// email has to be a valid email address
 			array('email', 'email'),
+			array('body',  'length', 'min'=> 3000),
+			array('subject',  'length', 'min'=> 128),
 			// verifyCode needs to be entered correctly
 			array('verifyCode', 'captcha', 'allowEmpty'=>!CCaptcha::checkRequirements()),
 		);
@@ -90,7 +92,7 @@ class ContactForm extends CFormModel
 	 * Тема письма
 	 */
 	public function getSubject(){
-		return $this->subject;
+		return $this->subject.'[Обратная связь '.Yii::app()->params['shortName'] . ']';
 	}
 	
 	/**

@@ -1,0 +1,46 @@
+/**
+ * Стили для переключателя страниц (полезны для всех контент модулей)
+ */
+
+/* Pager */
+.pager {
+  line-height:8px;
+  margin-top:20px;
+  clear:both;
+}
+
+.pager ul, .pager li{
+  margin:0;
+  padding:0;
+}
+
+.pager ul {
+  display:inline-block;
+}
+
+.pager li{
+  list-style:none;
+  float:left;
+}
+
+.pager a {
+  text-decoration:none;
+  background:#1f1f1f;
+  border:1px #000 solid;
+  border-radius: 3px;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  margin:0 2px;
+  padding:3px;
+  color:#fff;
+  box-shadow: 0 0 5px rgba(0,0,0,.7);
+}
+
+.pager a:hover {
+  background:#3b3b3b;
+}
+
+.pager .selected a {
+  background:#eff2e0;
+  color:#1f1f1f;
+}

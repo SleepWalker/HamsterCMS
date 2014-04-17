@@ -48,17 +48,17 @@ class AdminAction extends HAdminAction
     if(isset($_GET['Order']))
       $orderModel->attributes=$_GET['Order'];
     
-    if(!$ciretria)
+    if(!$criteria)
     {
       // отображаем фильтр по статусу заказа
       $statusArr = $orderModel->orderStatus;
       $statusIsChecked = array(1=>1, 2, '', '');
-      if($_GET['Order']['statusArr'])
+      if(isset($_GET['Order']['statusArr']))
         $statusIsChecked = $_GET['Order']['statusArr'];
       $orderModel->statusArr = $statusIsChecked;
       
       ob_start();
-      echo CHtml::beginForm($this->curModuleUrl, 'GET');;
+      echo CHtml::beginForm($this->curModuleUrl, 'GET');
       echo 'Фильтр по статусу: ';
       foreach($statusArr as $statusId => $statusName)
       {

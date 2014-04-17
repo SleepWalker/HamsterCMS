@@ -3,6 +3,9 @@
  * Controller is the customized base controller class.
  * All controller classes for this application should extend from this base class.
  */
+
+use application\modules\admin\models\HArrayConfig as HArrayConfig;
+
 class HAdminController extends CController
 {
 	/**
@@ -149,9 +152,8 @@ class HAdminController extends CController
 	 */
 	public function getHamsterModules()
 	{
-		$file = Yii::getPathOfAlias('application.config') . '/hamsterModules.php';
-		if(!$this->_hamsterModules && file_exists($file))
-			$this->_hamsterModules = require($file);
+		if(!$this->_hamsterModules)
+			$this->_hamsterModules = $config = HArrayConfig::load()->hamsterModules;
 		return $this->_hamsterModules;
 	}
 	
@@ -245,7 +247,9 @@ class HAdminController extends CController
 					'content' => $this->renderPartial('update', $params, true, true),
 				);
 			
-			echo json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
+			header('application/json');
+			echo CJSON::encode($data);
+			//echo json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
 			Yii::app()->end();
 		}
 		else

@@ -3,10 +3,13 @@
  * AdminController class for admin module
  *
  * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @package    hamster.modules.admin.controllers.AdminController
+ * @package    hamster.modules.admin.controllers
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
+
+use application\modules\admin\models\HArrayConfig as HArrayConfig;
+
 class AdminController extends HAdminController
 { 
   /**
@@ -60,7 +63,7 @@ class AdminController extends HAdminController
       $filtersForm->filters=$_GET['FiltersForm'];
     }
          
-	  $logString = file_get_contents('protected/runtime/application.log');
+	  $logString = file_get_contents(Yii::getPathOfAlias('application.runtime.application') . '.log');
 	  // добавляем разделитель, по которому будем делить строку
 	  $logString = preg_replace('/^(\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2})/m', '--Separator--$0', $logString);
     // Добавляем еще один сепаратор, что бы отображалась и последняя запись в логе
@@ -97,7 +100,7 @@ class AdminController extends HAdminController
     $filePath = Yii::getPathOfAlias('application.runtime.backup').DIRECTORY_SEPARATOR;
       
     // Восстановление из бекапа
-    if($_GET['restore'])
+    if(isset($_GET['restore']) && $_GET['restore'])
     {
       $sqlFile = $filePath.$_GET['restore'];
       if(file_exists($sqlFile))
@@ -123,7 +126,7 @@ class AdminController extends HAdminController
     }
     
     // удаление бекапа
-    if($_GET['delete'])
+    if(isset($_GET['delete']) && $_GET['delete'])
     {
       if(file_exists($filePath.$_GET['delete']))
       {
@@ -135,7 +138,7 @@ class AdminController extends HAdminController
     
     if(Yii::app()->request->isPostRequest)
     {
-      if($_POST['flushDb'])
+      if(isset($_POST['flushDb']) && $_POST['flushDb'])
       {
         $dumper = new SDatabaseDumper;
         if($dumper->flushDb())
@@ -169,6 +172,7 @@ class AdminController extends HAdminController
     }
     
     $dataProvider=new CArrayDataProvider($fileListOfDirectory, array(
+      'keyField' => false,
       'pagination'=>array(
           'pageSize'=>20,
       ),
@@ -299,6 +303,9 @@ class AdminController extends HAdminController
   public function actionConfig()
   {
     $this->pageTitle = 'Настройки Hamster';
+
+    $config = HArrayConfig::load();
+
     $modulesMenu['/admin/config'] = 'Основные настройки';
     foreach($this->modulesInfo as $moduleId => $moduleInfo)
     {
@@ -310,9 +317,235 @@ class AdminController extends HAdminController
 
     if(isset($_GET['m']))
     {
-      $config = Config::load($_GET['m']);
+      $moduleId = $_GET['m'];
+
+    $schema = Yii::getPathOfAlias('application.modules.'.$moduleId.'.admin').'/configSchema.php';
+    if(file_exists($schema))
+      $schema = require($schema);
+
+      // TODO: module ROOT секция
+      $cformConfig = array(
+          'buttons'=>array(
+            'submit'=>array(
+              'type'=>'submit',
+              'label'=>'Сохранить',
+              'attributes' => array(
+                'class' => 'submit',
+                'id' => 'submit',
+              ),
+            )
+          ),
+          'elements' => array(
+            )
+          );
+
+
+      $localSchema = $schema;
+      unset($localSchema['hamster']);
+
+      // добавляем поля url и имя модуля, которые будут отображаться на сайте
+      if(!isset($localSchema['moduleName']))
+        $localSchema['moduleName'] = array( 
+            'label' => 'Название модуля',
+            'type' => 'text',
+            'default' => ucfirst($moduleId),
+          );
+
+      if(!isset($localSchema['moduleUrl']))
+        $localSchema['moduleUrl'] = array(
+            'label' => 'URI Адрес модуля',
+            'type' => 'text',
+            'default' => $moduleId,
+          );
+
+      if(!isset($schema['hamster']['admin']['routes']))
+        throw new CException("Модуль должен содержать информацию об используемых в нем путях ['hamster']['admin'['routes']");
+      $routes = $schema['hamster']['admin']['routes'];
+      $routesCformConfig = array(
+        'layout' => array(
+          'label' => 'Layout модуля',
+          'type' => 'dropdownlist',
+          'items' => AdminModule::getLayoutIds(),
+          ),
+        'alias' => array(
+          'label' => 'Псевдоним пути',
+          'type' => 'text',
+          ),
+        );
+      // TODO: tabeTitle
+      foreach($routes as $route => $params)
+      {
+        if(is_numeric($route)) // модуль задал только роуты, без дефолтных значений
+        {
+          $route = $params;
+          $params = array();
+        }
+        
+        $curConfig = $routesCformConfig;
+        $curConfig['alias']['default'] = isset($params['default']) ? $params['default'] : $route;
+
+        $localSchema['routes[' . $curConfig['alias']['default'] . '][layout]'] = $curConfig['layout'];
+        $localSchema['routes[' . $curConfig['alias']['default'] . '][alias]'] = $curConfig['alias'];
+      }
+      
+      $local = $config->{'get' . $moduleId . 'ParamsModel'}($localSchema);
+      
+      $cformConfig['elements']['local'] = array(
+        'type' => 'form',
+        'model' => $local,
+        'elements' => $local->cformConfig,
+        );
+
+      if(isset($schema['hamster']['global']) && count($schema['hamster']['global']))
+      {
+        $globalSchema = $schema['hamster']['global'];
+        $global = $config->{'getParamsModel'}($globalSchema);
+
+        $cformConfig['elements']['global'] = array(
+          'type' => 'form',
+          'model' => $global,
+          'elements' => $global->cformConfig,
+          );
+      }
+
+      $info = $config->{'get' . $moduleId . 'InfoModel'}(array(
+          'title' => array(
+            'label' => 'Название модуля в админ панели',
+            'default' => isset($schema['hamster']['admin']['title']) ? $schema['hamster']['admin']['title'] : $moduleId,
+            'type' => 'text',
+            ),
+        ));
+        
+      $cformConfig['elements']['admin'] = array(
+        'type' => 'form',
+        'model' => $info,
+        'elements' => $info->cformConfig,
+        );
+
+      $cform = new CForm($cformConfig);
+      
     }else{
-      $config = new Config(array(), 'admin');
+     // $config = new Config(array(), 'admin');
+      
+      // TODO: написать еще одну прослойку, которая будет принимать полный конфиг и хранить при себе все сгенерированные модели и потом уже выдавать CForm
+      /*
+      'global' => array(
+          'type' => 'form',
+          'model' => $global,
+          'elements' => $global->cformConfig,
+          ),
+          ЗАМЕНИТЬ НА:
+      'global' => array(
+          'type' => 'form',
+          'model' => $global, // <-- автоматически
+          'elements' => array(...),
+          ),
+      */
+      $root = $config->getRootModel(array(
+          'name' => array(
+            'type' => 'text',
+            'label' => 'Название сайта',
+            'default' => 'Another Hamster Site',
+          ),
+        ));
+
+      $params = $config->getParamsModel(array(
+        'defaultLayout' => array(
+          'label' => 'Шаблон по умолчанию',
+          'type' => 'dropdownlist',
+          'items' => AdminModule::getLayoutIds(),
+        ),
+        'shortName' => array(
+          'label' => 'Короткое имя сайта, которым будут подписываться, к примеру, письма от сайта',
+          'type' => 'text',
+        ),
+        'adminEmail'=> array(
+          'label' => 'Емейл администратора',
+          'type' => 'email',
+        ),
+        'noReplyEmail'=> array(
+          'label' => 'Емейл робота (Например: noreply@mysite.com)',
+          'type' => 'email',
+        ),
+        'i18n[enabled]'=>array(
+            'label' => 'Активировано',
+            'type' => 'checkbox',
+          ),
+        'i18n[languages]' => array(
+          'label' => 'Языки',
+          'type' => 'checkboxlist',
+          'items' => Hi18nBehavior::getLanguages(),
+        ),    
+      ));
+
+      $db = $config->getDbComponentModel(array(
+        'connectionString' => array(
+          'label' => 'Строка соединения с БД',
+          'type' => 'text',
+          'hint' => 'mysql:host=<b>ХОСТ_БД</b>;dbname=<b>ИМЯ_БД</b>',
+        ),
+        'username' => array(
+          'label' => 'Имя пользователя',
+          'type' => 'text',
+        ),
+        'password' => array(
+          'label' => 'Пароль',
+          'type' => 'password',
+        ),
+      ));
+
+      $cform = new CForm(array(
+        'buttons'=>array(
+          'submit'=>array(
+            'type'=>'submit',
+            'label'=>'Сохранить',
+            'attributes' => array(
+              'class' => 'submit',
+              'id' => 'submit',
+            ),
+          )
+        ),
+        'elements' => array(
+          'root' => array(
+            'type' => 'form',
+            'model' => $root,
+            'elements' => $root->cformConfig,
+            ),
+
+          'params' => array(
+            'type' => 'form',
+            'title' => 'Настройки глобальных параметров Hamster', 
+            'model' => $params,
+            'elements' => array(
+              'defaultLayout' => $params->cformConfig['defaultLayout'],
+              'shortName' => $params->cformConfig['shortName'],
+              'adminEmail' => $params->cformConfig['adminEmail'],
+              'noReplyEmail' => $params->cformConfig['noReplyEmail'],
+              'i18n' => array(
+                'type' => 'form',
+                'title' => 'Интернационализация',
+                'elements' => array(
+                  'i18n[enabled]' => $params->cformConfig['i18n[enabled]'],
+                  'i18n[languages]' => $params->cformConfig['i18n[languages]'],
+                  ),
+                ),
+              ),
+            ),
+          'components' => array(
+            'title' => 'Настройки компонентов Hamster',
+            'type' => 'form',
+            'elements' => array(
+              'db' => array(
+                'title' => 'Настройки базы данных',
+                'type' => 'form',
+                'model' => $db,
+                'elements' => $db->cformConfig,
+                ),
+              ),
+            ),
+          ),
+        ));
+        /*
       $config->addConfigFields(array(
         'name' => array(
           'type' => 'text',
@@ -386,32 +619,46 @@ class AdminController extends HAdminController
           'linkTo' => '$config["components"]',
         ),
       ));
+    */
     }
 
-    if($config)
+    if(Yii::app()->request->isPostRequest)
     {
-      if(Yii::app()->request->isPostRequest)
+      if($cform->submitted('submit') && $cform->validate())
       {
-        if($config->CForm->submitted('submit') && $config->CForm->validate())
+        $config->mergeConfigs();
+        // сохраняем роуты в параметры модуля в более удобном виде alias => route
+        $localConfig = $config->{'get' . $moduleId . 'Params'}();
+        if(isset($_GET['m']))
         {
-          if(!$config->save(false))
-            Yii::app()->user->setFlash('error','При сохранении конфигурации возникли ошибки');
-          else
-            Yii::app()->user->setFlash('success', 'Конфигурация модуля успешно обновлена.');
-          $this->refresh();
+          foreach($local->routes as $key => $params)
+          {
+            $localConfig['aliases'][$params['alias']] = array(
+              'route' => $key,
+              'layout' => $params['layout'],
+              );
+          }
         }
-      }
-      if(isset($_GET['m']))
-        $this->pageTitle = $newPageTitle = $config->adminConfig['title'];
+        $config->{'set' . $moduleId . 'Params'}($localConfig);
 
-      if($config->CForm)
-      {
-        echo $this->render('CFormUpdate', array(
-          'form' => $config->CForm,
-        ));
-      }else{
-        $this->renderText('У этого модуля нету настроек для редактирования');
+        if(!$config->save())
+          Yii::app()->user->setFlash('error','При сохранении конфигурации возникли ошибки');
+        else
+          Yii::app()->user->setFlash('success', 'Конфигурация модуля успешно обновлена.');
+        $this->refresh();
       }
+    }
+
+    if(isset($_GET['m']))
+      $this->pageTitle = $newPageTitle = $info->title;
+
+    if($cform)
+    {
+      echo $this->render('CFormUpdate', array(
+        'form' => $cform,
+      ));
+    }else{
+      $this->renderText('У этого модуля нету настроек для редактирования');
     }
   }
 

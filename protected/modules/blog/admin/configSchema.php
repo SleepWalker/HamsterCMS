@@ -36,6 +36,10 @@ return array(
           'blog_categorie',
         ),
       ),
+      'routes' => array(
+        'blog/index', //layout, title, alias
+        'blog/view',
+      ),
     ),
   ),
 );

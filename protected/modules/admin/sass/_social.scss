@@ -1,0 +1,197 @@
+/**
+ * Табы, переключающие формы комментариев, вид формы комментариев
+ *
+ * Для полной работы виджета необходимы стили:
+ * pager.scss
+ */
+ 
+$social-tabs: true;
+$social-comments: true;
+
+// Цвет кнопки отправки сообщений в чате
+$social-comments-button-background: $primary-color;
+
+// цвет табов
+$social-tabs-background: lighten($primary-color, 20%);
+
+/* Табы комментариев */
+@if $social-tabs {
+  .HTabsContainer 
+  {
+    clear:both;
+    margin: 30px 0;
+
+    menu 
+    {
+      margin:0;
+      padding:10px;
+      
+      a 
+      {
+        padding: 10px;
+        text-decoration:none;
+        -webkit-border-radius: 2px;
+        -moz-border-radius: 2px;
+        border-radius: 2px;
+        background: lighten($social-tabs-background, 20%);
+        
+        &.active 
+        {
+          color: #121212;
+          background: $social-tabs-background;
+        }
+      }
+    }
+    
+    
+    > section 
+    {
+      padding: 10px;
+      display:none;
+    }
+
+    section:first-of-type 
+    {
+      display:block;
+    }
+
+    time 
+    {
+      float:right;
+    }
+  }
+
+}
+
+/* Виджет комментариев */
+@if $social-comments {
+  .HCommentInternal
+  { 
+    textarea 
+    {
+      height: 56px;
+      padding: 5px 1%;
+      resize: vertical;
+      font-size: 11px;
+      width:98%;
+    }
+    
+    input 
+    {
+      margin: 10px 0;
+    }
+    
+    .block 
+    {
+      border:1px rgb(215,215,215) solid;
+      padding:1%;
+      margin: 8px 0;
+      background:#fff;
+    }
+    
+    .buttons 
+    {
+      span 
+      {
+        font-size:10px;
+        color:#888;
+        margin-left:10px;
+      }
+      
+      input 
+      {
+        border:1px #424242 solid;
+        background: $social-comments-button-background;
+        padding: 4px 14px;
+        cursor:pointer;
+        -webkit-border-radius: 2px;
+        -moz-border-radius: 2px;
+        border-radius: 2px;
+      }
+      
+      input:hover 
+      {
+        background: lighten($social-comments-button-background, 8%);
+      }
+    }
+  } 
+}
+
+
+#socialPieContainer
+{
+  $social-icons: sprite-map("social-buttons/*.png");
+  text-align:center;
+  
+  a
+  {
+    $cur-sprite: sprite-file($social-icons, tw);
+    width: image-width($cur-sprite);
+    height: image-height($cur-sprite);
+    background: sprite($social-icons, tw) no-repeat;
+    text-indent: -50000px;
+    margin: 5px;
+    position:relative;
+    top: -15px;
+    display:inline-block;
+
+    &:hover
+    {
+      background-position: sprite-position($social-icons, tw_hover);
+    }
+
+    &.vkButton
+    {
+      $cur-sprite: sprite-file($social-icons, vk);
+      width: image-width($cur-sprite);
+      background-position: sprite-position($social-icons, vk);
+      &:hover
+      {
+        background-position: sprite-position($social-icons, vk_hover);
+      }
+    }
+
+    &.fbButton
+    {
+      $cur-sprite: sprite-file($social-icons, fb);
+      width: image-width($cur-sprite);
+      background-position: sprite-position($social-icons, fb);
+      &:hover
+      {
+        background-position: sprite-position($social-icons, fb_hover);
+      }
+    }
+
+    &.gpButton
+    {
+      $cur-sprite: sprite-file($social-icons, gp);
+      width: image-width($cur-sprite);
+      background-position: sprite-position($social-icons, gp);
+      &:hover
+      {
+        background-position: sprite-position($social-icons, gp_hover);
+      }
+    }
+  }  
+}  
+
+
+#socialPie
+{
+  margin-left:-5px;
+  width: 160px;
+  height: 150px;
+}
+
+#socialPieTotal
+{
+  background: #fff;
+  @include border-radius(100px);
+  width: 35px;
+  height: 35px;
+  line-height: 35px;
+  margin-left: 60px;
+  margin-top: -92px;
+  position: relative;
+  float:left;
+}

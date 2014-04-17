@@ -18,24 +18,28 @@ $this->pageTitle = $model->name;
   </header>
 
 	<section>
+    <div class="eventLocation">
+      <p><strong>Где:</strong> <?php echo CHtml::encode($model->where) ?></p>
+      <p><strong>Начало:</strong> <?php echo $model->prettyStartDate ?></p>
+      <?php if($model->end_date != 0)
+      {
+        echo '<p><strong>Конец:</strong> ' . $model->prettyEndDate . '</p>';
+      }?>
+      <?php if(!empty($model->location)): ?>
+        <p><strong>Как добраться:</strong> <?php echo CHtml::encode($model->location) ?></p>
+      <?php endif; ?>
+      <p><strong>Добавить в календарь:</strong>
+      <a href="<?php echo $model->gCalUrl ?>" class="icon icon_gcal" title="Добавить в Google Calendar">Добавить в Google Calendar</a>
+      <a href="<?php echo Yii::app()->createUrl('event/event/ical', array('id' => $model->eventId));  ?>" class="icon icon_ical" title="iCalendar (*.ics)">iCalendar (*.ics)</a>
+      </p>
+    </div>
     <div id="mapContainer"></div>
     <?php echo $model->desc ?>
-    <p><strong>Где</strong>: <?php echo CHtml::encode($model->where) ?></p>
-    <p><strong>Начало</strong>: <?php echo $model->prettyStartDate ?></p>
-    <?php if($model->end_date)
-    {
-      echo '<p><strong>Конец</strong>: ' . $model->prettyEndDate . '</p>';
-    }?>
-    <p><strong>Как добраться</strong>: <?php echo CHtml::encode($model->location) ?></p>
-    <p><strong>Добавить в календарь</strong>: 
-    <a href="<?php echo $model->gCalUrl ?>" class="icon icon_gcal" title="Добавить в Google Calendar">Добавить в Google Calendar</a>
-    <a href="<?php echo Yii::app()->createUrl('event/event/ical', array('id' => $model->eventId));  ?>" class="icon icon_ical" title="iCalendar (*.ics)">iCalendar (*.ics)</a>
-    </p>
 	</section>
   <footer>
 <?php
 $this->widget('application.modules.sociality.widgets.HLike', array(
-  'imgSrc' => $model->src,
+  'imgSrc' => $model->mapSrc,
   'description' => $model->desc,
   'title' => $model->name,
 ));

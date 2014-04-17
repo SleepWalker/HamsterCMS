@@ -17,6 +17,9 @@ class HFileField extends CInputWidget
 
 	public function init()
 	{
+
+    list($this->name,$this->id)=$this->resolveNameId();
+
     $this->registerClienScript();
 	}
 
@@ -29,20 +32,19 @@ class HFileField extends CInputWidget
       if (!empty($model[$attribute]) && !is_array($model[$attribute]))
       {// Выводим картинку (только в случае если картинка одна, тоесть атрибут модели не содержит массив)
         $this->htmlOptions['style'] = 'display:none;';
-        echo '<div>';
-        echo CHtml::image($model->uploadsUrl . $model[$attribute], $attribute, array('id'=>$attribute.'_tag'));
-        echo CHtml::link(CHtml::image($this->controller->adminAssetsUrl.'/images/icon_delete.png','Удалить картинку'), '#', array('id'=>'renewImage'));
+        echo '<div class="renewImage">';
+        echo CHtml::image($model->src(), $attribute, array('id'=>$attribute.'_tag'));
+        echo CHtml::link('Удалить', '#', array('class' => 'icon_delete'));
         echo '</div>';
         Yii::app()->getClientScript()
-        ->registerScript('renewImage','jQuery("#renewImage").bind("click", function() {
-          $(this).remove();
-          $("#' . $attribute.'_tag").remove();
-          $("#yt' . get_class($model).'_'.$attribute . '").val("delete");
-          with($("#' . get_class($model).'_'.$attribute . '")) 
-          {
-            css({display:"block"});
-            after("Изображение окончательно удалится/изменится после отправки формы");
-          }
+        ->registerScript('renewImage','$(".renewImage .icon_delete").on("click", function() {
+          var $container = $(this).parent().parent();
+          $(this).parent().remove(); // удалили картинку и кнопку по которой был клик
+          $container.find("input[type=hidden]").val("delete");
+          $container.find("input[type=file]") 
+            .show()
+            .after("Изображение окончательно удалится/изменится после отправки формы")
+
           return false;
         });', CClientScript::POS_END);
       }
@@ -59,5 +61,7 @@ class HFileField extends CInputWidget
     $cs = Yii::app()->clientScript;
     $cs->registerCoreScript('jquery');
     $cs->registerScriptFile($this->assetsUrl . '/js/fileUploader.js', CClientScript::POS_END); 
+    $initJs = '$("#' . $this->id . '").fileUploader()';
+    $cs->registerScript(__CLASS__.'#'.$this->id, $initJs, CClientScript::POS_END);
 	}
 }

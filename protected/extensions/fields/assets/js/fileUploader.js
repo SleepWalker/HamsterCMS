@@ -1,7 +1,26 @@
-$(function(){
+(function($){
+	$.fn.fileUploader = function()
+	{
 	var d = document; 
 
-	$form = $('form#yw0');
+	$form = this.parents('form').eq(0);
+
+  // Отключаем обработку события отправки формы через AJAX
+  $form.parent().off('.ajaxSubmit');
+
+  var frame = createTransportFrame();
+  prepareForm($form);
+
+  $('body').on('click', '.fileList .icon_delete', function()
+  {
+  	$(this)
+  		.off()
+  		.parent()
+  			.html('<input type="hidden" name="delFile[]" value="' + $(this).attr('fname') + '" />')
+  			.hide();
+
+  	return false;
+  });
 
 /*******************
  *
@@ -13,13 +32,6 @@ $(function(){
 if (window.File && window.FileReader && window.FileList && window.Blob) 
 {
   // Great success! All the File APIs are supported.
-
-  $('body').on('click', '.filseList .icon_delete', function()
-  {
-  	$(this).parent().html('<input type="hidden" name="delFile[]" value="' + $(this).attr('fname') + '" />');
-  	$(this).parent().hide();
-  	return false;
-  });
   
   var curFileId = 0;
   
@@ -38,7 +50,7 @@ if (window.File && window.FileReader && window.FileList && window.Blob)
       // Создаем контейнер для текущего поля
       if (!document.getElementById('files_cont_' + id))
       {
-      	var ul = $('<ul class="filseList" id="files_cont_' + id + '"></ul>');
+      	var ul = $('<ul class="fileList" id="files_cont_' + id + '"></ul>');
       	ul.insertAfter(fileField);
       }
       else
@@ -107,7 +119,7 @@ function setFileFieldEv(fileField, id)
     // Создаем контейнер для текущего поля
     if (!document.getElementById('files_cont_' + id))
     {
-    	var ul = $('<ul class="filseList" id="files_cont_' + id + '"></ul>');
+    	var ul = $('<ul class="fileList" id="files_cont_' + id + '"></ul>');
     	ul.insertAfter(fileField);
     }
     else
@@ -170,12 +182,6 @@ function scaleInside(img, width, height)
   return {width: img.width / max * maxScaleSize, height: img.height / max * maxScaleSize};
 }
 
-  // Отключаем обработку события отправки формы через AJAX
-  $form.parent().off('submit.ajaxSubmit');
-
-  var frame = createTransportFrame();
-  prepareForm($form);
-
   /**
    * Готовит форму к iframe транспорту
    **/
@@ -184,7 +190,7 @@ function scaleInside(img, width, height)
    	$form.prop('target', frame.name);
 
     // вешаем обработчик на уровень выше, что бы он всегда срабатывал после валидации формы
-    $form.parent().on('submit', 'form#yw0', startLoad);
+    $form.on('submit', 'form', startLoad);
     
     
     $('#submit').prop('name', 'ajaxSubmit');
@@ -225,9 +231,11 @@ function scaleInside(img, width, height)
       	return;
       }
       
-      parseAnswer(JSONanswer);
+      // функция parseAnswer находится во вьюхе админки update
+      parseAnswer($form, JSONanswer);
     };
     
     return iframe;
   }
-});
+}
+})(jQuery);

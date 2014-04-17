@@ -128,7 +128,7 @@ class HLike extends CWidget
       <a href="https://twitter.com/share" class="twitter-share-button" data-count="<?php echo $size['twitter'][1]; ?>" data-size="<?php echo $size['twitter'][0]; ?>" data-via="">Tweet</a> <?php if($this->vertical) echo '<br />'; ?>
       <fb:like send="false" style="vertical-align: top;margin-top:1px;" layout="<?php echo $size['facebook']; ?>" show_faces="true"></fb:like><?php if($this->vertical) echo '<br />'; ?>
       <div class="g-plusone" data-size="<?php echo $size['google']; ?>"></div>
-      <div id="vklike"<?php if(!$this->vertical) echo 'style="display:inline-block;"'; ?>></div> 
+      <div id="vklike"<?php if(!$this->vertical) echo ' style="display:inline-block;"'; ?>></div> 
     </section>
 <?php
       $cs->registerScript(__CLASS__, "$.hvklike({type: '{$size['vk']}', height: 24});", CClientScript::POS_END);

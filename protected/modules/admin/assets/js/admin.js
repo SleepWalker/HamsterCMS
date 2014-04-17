@@ -156,6 +156,45 @@ function manageDd(obj) {
   }
 }
 
+/**
+ * Табличный ввод для update вьюхи
+ */
+$('.container-tabular').on('click', 'a', function() {
+  if($(this).hasClass('icon_delete'))
+  {
+    $(this).parent().hide(300, function() {$(this).remove()});
+    return false;
+  }
+  var nextIndex = $(this).data('model-count'),
+      $last = $(this).parent().find('.row-tabular').last(),
+      $newForm = $last.clone(),
+      replace = function(el, prop, start, end)
+      {
+        var $el = $(el);
+        if(!$el.is('['+prop+']'))
+          return;
+
+        if(!end) end = start;
+        var regExp = new RegExp('([\\[_])\\d+([\\]_])', 'g');
+        var replacement = $el.prop(prop).replace(regExp, '$1'+nextIndex+'$2');
+        $el.prop(prop, replacement);
+      }
+
+  $newForm.find('input, textarea, select, label').each(function() {
+    replace(this, 'name');
+    replace(this, 'id');
+    replace(this, 'for');
+    $(this).val('');
+  });
+
+  $newForm.find('.dnd_drager input').val(nextIndex);
+
+  $newForm.insertAfter($last);
+  $(this).data('model-count', ++nextIndex);
+
+  return false;
+});
+
 /***********************
 * Drag&Drop блоки, инициализация
 ***********************/

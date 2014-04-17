@@ -101,7 +101,7 @@ class Post extends CActiveRecord
 					'normal' => array(
 						'width'=>625,
 					),
-					'full' => array(
+					'original' => array(
 						'width'=>1024,
 					),
 					'thumb' => array(

@@ -26,8 +26,10 @@ class HTagBehavior extends CActiveRecordBehavior
 		$validators = $owner->getValidatorList();
 
 		// валидация тегов
+    /*
 		$validator = CValidator::createValidator('match', $owner, 'tags', array('pattern'=>'/^[a-zA-Zа-яА-Я0-9_\s,\.]+$/u'));
-		$validators->add($validator);
+    $validators->add($validator);
+     */
 		$validator = CValidator::createValidator('normalizeTags', $this, 'tags');
 		$validators->add($validator);
 

@@ -47,7 +47,7 @@ class UploadController extends HAdminController
     $callback = isset($_GET['callback']) ? $_GET['callback'] : (isset($_POST['callback']) ? $_POST['callback'] : false);
     
     if($id)
-      $image = Image::model()->findByPk($id); // TODO
+      $image = Image::model()->findByPk($id); // TODO редактирование
 
     if(!isset($image))
       $image = new Image;

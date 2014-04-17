@@ -12,8 +12,9 @@
 	text-decoration:none;
 }
 .markItUp  {
-	width:700px;
+	width:570px;
 	margin:5px 0 5px 0;
+	background:#EFFDFF;
 }
 .markItUpContainer  {
 	font:11px Verdana, Arial, Helvetica, sans-serif;
@@ -21,8 +22,8 @@
 .markItUpEditor {
 	font:12px 'Courier New', Courier, monospace;
 	padding:5px;
-	width:690px;
-	height:320px;
+	width:560px;
+	height:200px;
 	clear:both; display:block;
 	line-height:18px;
 	overflow:auto;
@@ -46,6 +47,12 @@
 	cursor:n-resize;
 }
 /***************************************************************************************/
+.markItUpHeader{    
+    width:560px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
 /* first row of buttons */
 .markItUpHeader ul li	{
 	list-style:none;
@@ -115,4 +122,53 @@
 .markItUpHeader ul ul a:hover  {
 	color:#FFF;
 	background-color:#000;
+}
+
+
+/**
+Загрузка изображений
+**/
+.markItUpWithImages
+{
+	position: relative;
+}
+
+.markItUpWithImages .markItUpEditor
+{
+	width: 80%;
+}
+
+.markItUpImagesContainer
+{
+	width: 19%;
+	position: absolute;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	background: rgba(0,0,0,0.7);
+	overflow: hidden;
+}
+
+.markItUpImagesContainer > div
+{
+	margin: 10px 5px;
+	padding-right: 5px;
+	cursor: pointer;
+	overflow: hidden;
+	border: 1px solid #878787;
+	border-radius: 5px;
+	background: #1F1F1F;
+}
+
+.markItUpImagesContainer > div:hover
+{
+	background: #5c5c5c;
+	border-color: #970000;
+}
+
+.markItUpImagesContainer img
+{
+	width: 100px;
+	float: left;
+	margin-right: 5px;
 }

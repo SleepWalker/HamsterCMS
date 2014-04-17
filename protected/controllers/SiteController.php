@@ -85,7 +85,7 @@ class SiteController extends Controller
 			 */
 				$message = new YiiMailMessage();
 				$message->addTo(Yii::app()->params['adminEmail']);
-				$message->from = array(Yii::app()->params['noReplyEmail'] => Yii::app()->params['shortName']);
+				$message->from = array($model->email => $model->name);
 				$message->view = $model->getView();
 				$message->setBody(array('data'=>$model), 'text/html');
 				$message->subject = $model->getSubject();
@@ -111,8 +111,8 @@ class SiteController extends Controller
 	  if(!Yii::app()->user->isGuest)
   	  $this->redirect();
   	  
-  	$renderType = ($_GET['ajax'])?'renderPartial':'render';
-  	if ($_GET['ajax'])
+  	$renderType = isset($_GET['ajax'])?'renderPartial':'render';
+  	if (isset($_GET['ajax']))
   	 Yii::app()->clientscript->scriptMap['jquery.js'] = Yii::app()->clientscript->scriptMap['jquery.min.js'] = false;  
 	   
 		$model=new LoginForm;

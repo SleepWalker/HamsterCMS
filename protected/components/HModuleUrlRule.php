@@ -104,11 +104,23 @@ class HModuleUrlRule extends CBaseUrlRule
     if (count($url))
     {
       $modules = Yii::app()->modules;
-      
+      $moduleUrls = array();
       foreach($modules as $moduleId => $moduleConfig)
       {
+        if(isset($moduleConfig['params']['aliases'][$pathInfo]['route'])) // Новый вариант роутинга. когда все пути задаются в админке
+          return $moduleId . '/' . $moduleConfig['params']['aliases'][$pathInfo]['route'];
+
+        // проверяем view url
+        $pathInfoWithId = preg_replace('/[^\/]+$/', '{id}', $pathInfo);
+        if(isset($moduleConfig['params']['aliases'][$pathInfoWithId]['route'])) // Новый вариант роутинга. когда все пути задаются в админке ({id} placeholder)
+        {
+          $_GET['id'] = end($url);
+          return $moduleId . '/' . $moduleConfig['params']['aliases'][$pathInfoWithId]['route'];
+        }
+
         // Массив с адресами всех модулей
-        $moduleUrls[$moduleId] = isset($moduleConfig['params']) && !empty($moduleConfig['params']['moduleUrl']) ? $moduleConfig['params']['moduleUrl'] : $moduleId;
+        if(!isset($moduleConfig['params']['aliases']))
+          $moduleUrls[$moduleId] = isset($moduleConfig['params']) && !empty($moduleConfig['params']['moduleUrl']) ? $moduleConfig['params']['moduleUrl'] : $moduleId;
       }
       
       if(!in_array($url[0], $moduleUrls)) return false; // нет такого модуля
@@ -125,7 +137,7 @@ class HModuleUrlRule extends CBaseUrlRule
       // можно пофиксить этот момент разве что с помощью ручного поиска в фс
       $classFile = ucfirst($url[1]).'Controller.php';
 
-      $moduleControllersDirectory = Yii::app()->basePath.DIRECTORY_SEPARATOR.'modules'.DIRECTORY_SEPARATOR.$moduleId.DIRECTORY_SEPARATOR.'controllers';
+      $moduleControllersDirectory = Yii::getPathOfAlias('application.modules.'.$moduleId.'.controllers');
 
       // проверяем есть ли в url название контроллера
       if(is_file($moduleControllersDirectory.DIRECTORY_SEPARATOR.$classFile))
@@ -134,7 +146,8 @@ class HModuleUrlRule extends CBaseUrlRule
         $controllerId = $url[1];
         $actionParts = array_slice($url, 2);
       }
-      else{
+      else
+      {
         $controllerId = $moduleId;
         $actionParts = array_slice($url, 1);
       }
@@ -146,8 +159,7 @@ class HModuleUrlRule extends CBaseUrlRule
 
       $controllerClass = ucfirst($controllerId).'Controller';
 
-      //работаем с {ModuleId}Controller
-
+      //работаем с {xxx}Controller
       if(!class_exists($controllerClass,false)) 
         Yii::import('application.modules.' . $moduleId . '.controllers.' . $controllerClass, true);
 

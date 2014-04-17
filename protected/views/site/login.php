@@ -6,8 +6,8 @@ $this->breadcrumbs=array(
 	'Вход',
 );
 
-echo '<div class="form loginForm' . (($_GET['ajax'])?' ajaxLoginForm':' normalLoginForm') . '">';
-if(!$_GET['ajax']) // для ajax формы входа нам не надо выводить заголовок
+echo '<div class="form loginForm' . (isset($_GET['ajax'])?' ajaxLoginForm':' normalLoginForm') . '">';
+if(!isset($_GET['ajax'])) // для ajax формы входа нам не надо выводить заголовок
   echo '<h1>Вход на сайт</h1>';
 ?>
 
@@ -35,7 +35,7 @@ if(!$_GET['ajax']) // для ajax формы входа нам не надо в�
 
 	<div class="row buttons">
 		<?php 
-		if($_GET['ajax'])
+		if(isset($_GET['ajax']))
     {
       // Отключаем jquery
       Yii::app()->clientscript->scriptMap['jquery.js'] = Yii::app()->clientscript->scriptMap['jquery.min.js'] = false; 
@@ -73,7 +73,8 @@ if(!$_GET['ajax']) // для ajax формы входа нам не надо в�
 	</div>
 
 <?php 
-echo CHtml::hiddenField('backUrl', $_SERVER['HTTP_REFERER']);
+if (isset($_SERVER['HTTP_REFERER']))
+  echo CHtml::hiddenField('backUrl', $_SERVER['HTTP_REFERER']);
 
 $this->endWidget(); ?>
 </div><!-- form -->
@@ -82,4 +83,4 @@ $this->endWidget(); ?>
 }
 ?>
 
-<?php $this->widget('ext.hoauth.HOAuthWidget'); ?>
+<?php $this->widget('ext.hoauth.widgets.HOAuth'); ?>

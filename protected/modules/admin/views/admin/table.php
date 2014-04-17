@@ -152,7 +152,7 @@ $defOpts = array(
   //'ajaxUpdate' => false,
 );
 
-if($buttCol)
+if(isset($buttCol))
   $defOpts['columns'][] = $buttCol;
 
 if(isset($preTable))

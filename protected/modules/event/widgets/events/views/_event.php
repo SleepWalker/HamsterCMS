@@ -4,7 +4,7 @@
     <p><?php echo strip_tags($data->desc); ?></p>
   <footer>
   <details><span>Где:</span> <?php echo $data->where ?>
-<a href="<?php echo $model->gCalUrl ?>" class="icon icon_gcal" title="Добавить в Google Calendar">Добавить в Google Calendar</a><a href="<?php echo Yii::app()->createUrl('event/event/ical', array($model->eventId));  ?>" class="icon icon_ical" title="iCalendar (*.ics)">iCalendar (*.ics)</a>
+<a href="<?php echo $data->gCalUrl ?>" class="icon icon_gcal" title="Добавить в Google Calendar">Добавить в Google Calendar</a><a href="<?php echo Yii::app()->createUrl('event/event/ical', array($data->eventId));  ?>" class="icon icon_ical" title="iCalendar (*.ics)">iCalendar (*.ics)</a>
 
 <time timestamp=""><span>Начало:</span> <?php echo $data->prettyStartDate ?></time></details>
   </footer>

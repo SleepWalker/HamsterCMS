@@ -29,6 +29,10 @@ return array(
           'event',
         ),
       ),
+      'routes' => array(
+        'event/index',
+        'event/view',
+        ),
     ),
   ),
 );

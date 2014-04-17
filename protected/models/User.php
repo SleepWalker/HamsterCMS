@@ -547,6 +547,7 @@ class User extends CActiveRecord
    */
   public function getRolesControll()
   {
+    $roles = '';
     foreach($this->roles as $role)
     {
       $roles .= '<div class="tagControll" data-roleid="' . $role->itemname . '" data-userid="' . $this->primaryKey . '">' . $role->l10edName . '<a href="" class="icon_delete roleRevoke"></a></div>';

@@ -5,6 +5,7 @@
  *
  * The followings are the available columns in table 'image':
  * @property string $name
+ * @property string $module_id
  * @property string $source
  *
  * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
@@ -14,6 +15,9 @@
  */
 class Image extends CActiveRecord
 {
+	//ALTER TABLE `image` ADD `module_id` VARCHAR( 32 ) NOT NULL AFTER `name`
+	// ALTER TABLE `image` ADD INDEX ( `module_id` )
+	// + Обновить sql файл
   
 	/**
 	 * Returns the static model of the specified AR class.
@@ -39,8 +43,8 @@ class Image extends CActiveRecord
 	public function rules()
 	{
 		return array(
-			array('name, source', 'required'),
-			array('name', 'length', 'max'=>40),
+			array('name, source, module_id', 'required'),
+			array('module_id', 'length', 'max'=>32),
 			array('source', 'length', 'max'=>256),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
@@ -54,13 +58,13 @@ class Image extends CActiveRecord
       'HIU'=>array(
         'class'=>'HIUBehavior',
         'fileAtt' => 'name',
-        'dirName' => 'imageuploads',
-        'fileFieldName' => 'file',
+        'dirName' => self::getAttachmentsPath($this->refererModuleId),
+        'fileFieldName' => 'uImage',
         'sizes'=>array(
           'normal' => array(
             'width'=>625,
           ),
-          'full' => array(
+          'original' => array(
             'width'=>1024,
           ),
           'thumb' => array(
@@ -81,6 +85,7 @@ class Image extends CActiveRecord
 		return array(
 			'name' => 'Name',
 			'source' => 'Uploaded From',
+			'uImage' => 'Изображение',
 		);
 	}
   
@@ -94,14 +99,33 @@ class Image extends CActiveRecord
       if($this->isNewRecord)
       {
         //uri страницы, с которой происходила загрузка
-        $this->source = str_replace($_SERVER['HTTP_HOST'], '',
-          substr($_SERVER['HTTP_REFERER'], 7)
-        );
+        $this->source = $this->referer;
+
+        $this->module_id = $this->refererModuleId;
       }
       return true;
     }
     else
       return false;
+	}
+
+	public function getRefererModuleId()
+	{
+		if(!$this->referer)
+			return 'admin';
+
+		$refererParts = explode('/', substr($this->referer, 1));
+		return $refererParts[1];
+	}
+
+	public function getReferer()
+	{
+		if(isset($_SERVER['HTTP_REFERER']))
+			return str_replace($_SERVER['HTTP_HOST'], '',
+	          substr($_SERVER['HTTP_REFERER'], 7)
+	        );
+		else
+			return null;
 	}
   
   /**
@@ -109,7 +133,15 @@ class Image extends CActiveRecord
    */
   public function getHtml()
   {
-    return CHtml::link($this->img('normal'), $this->src('full'));
+    return CHtml::link($this->img('normal'), $this->src('original'));
+  }
+
+  /**
+   * Возвращает путь к папке, где будут храниться загружаемые изображения
+   */
+  public static function getAttachmentsPath($moduleId = 'admin')
+  {
+  	return $moduleId . DIRECTORY_SEPARATOR . 'attachments';
   }
   
   /**
@@ -125,6 +157,16 @@ class Image extends CActiveRecord
       }
     }
   }
+  
+  /**
+	 * @return array типы полей для форм администрирования модуля
+	 */
+	public function getFieldTypes()
+	{
+		return array(
+			'uImage' => 'file',
+		);
+	}
 
 	/**
 	 * Retrieves a list of models based on the current search/filter conditions.
