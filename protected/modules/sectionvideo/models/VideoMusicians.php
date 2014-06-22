@@ -10,6 +10,7 @@
  * @property string $instrument_id
  * @property string $teacher_id
  * @property integer $class
+ * @property integer $sort_order
  *
  * The followings are the available model relations:
  * @property SectionVideo $video
@@ -35,6 +36,14 @@ class VideoMusicians extends \CActiveRecord
 	public function tableName()
 	{
 		return 'section_video_musicians';
+	}
+
+	public function defaultScope()
+	{
+		$alias = $this->getTableAlias(true, false);
+		return array(
+			'order' => $alias.'.sort_order ASC',
+		);
 	}
 
 	/**

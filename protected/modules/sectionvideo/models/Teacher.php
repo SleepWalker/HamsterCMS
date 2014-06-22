@@ -91,10 +91,19 @@ class Teacher extends \CActiveRecord
 		return trim(str_replace('  ', '', $name));
 	}
 
+	/**
+	 * @return короткое имя преподователя Фамили Имя Отчество -> Фамилия И. О.
+	 */
 	public function getShortName()
 	{
-		$name = $this->last_name . ' ' . $this->first_name . ' ' . $this->middle_name;
-		return trim(str_replace('  ', '', $name));
+		$parts = explode(' ', $this->fullName);
+		$parts[0] = $parts[0].' ';
+		if(isset($parts[1]))
+			$parts[1] = mb_substr($parts[1], 0, 1, 'UTF-8') . '.';
+		if(isset($parts[2]))
+			$parts[2] = mb_substr($parts[2], 0, 1, 'UTF-8') . '.';
+
+		return implode('', $parts);
 	}
 
 	public function getViewUrl()

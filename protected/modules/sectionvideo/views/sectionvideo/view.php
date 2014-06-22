@@ -47,7 +47,7 @@ $musicians = $model->musicians;
 					$html = $musician->name;
 
 					if(!empty($musician->class))
-						$html .= ', ' . $musician->class;
+						$html .= ', ' . $musician->class .' кл.';
 
 					if(!empty($musician->instrument))
 						$html .= " ({$musician->instrument})";

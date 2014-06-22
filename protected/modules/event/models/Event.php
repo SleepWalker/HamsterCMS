@@ -44,6 +44,14 @@ class Event extends CActiveRecord
 		return 'event';
 	}
 
+  public function defaultScope()
+  {
+    $alias = $this->getTableAlias(true, false);
+    return array(
+      'order' => $alias.'.start_date DESC',
+    );
+  }
+
 	/**
 	 * @return array validation rules for model attributes.
 	 */

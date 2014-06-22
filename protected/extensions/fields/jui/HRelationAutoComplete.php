@@ -87,7 +87,7 @@ class HRelationAutoComplete extends CJuiAutoComplete
 
 		$this->options['select'] = new CJavaScriptExpression('function (event, ui) {
 			$(this).val(ui.item.value);
-			$(this).closest("[type=hidden]").val(ui.item.id);
+			$(this).siblings("[type=hidden]").val(ui.item.id);
 
 			return false;
 		}');
@@ -95,8 +95,8 @@ class HRelationAutoComplete extends CJuiAutoComplete
 		$this->options['change'] = new CJavaScriptExpression('function(event,ui){
 			if(!ui.item)
 			{
-				$("#'.CHtml::activeId($this->model, $this->attribute).'").val("");
 				$(this).val("");
+				$(this).siblings("[type=hidden]").val("");
 			}
 		}');
 

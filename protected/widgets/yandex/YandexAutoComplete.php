@@ -58,7 +58,7 @@ class YandexAutoComplete extends CJuiAutoComplete {
     if(isset($this->latitudeAtt) && isset($this->longitudeAtt))
     {
       // Yandex Maps
-      Yii::app()->clientScript->registerScriptFile('http://api-maps.yandex.ru/2.0-stable/?load=package.standard&lang=' . Yii::app()->sourceLanguage, CClientScript::POS_HEAD);
+      Yii::app()->clientScript->registerScriptFile('http://api-maps.yandex.ru/2.0-stable/?load=package.standard&onload=yandexCallback&lang=' . Yii::app()->sourceLanguage, CClientScript::POS_HEAD);
       $latitudeName = CHtml::activeName($this->model,$this->latitudeAtt);
       $longitudeName = CHtml::activeName($this->model,$this->longitudeAtt);
       $latitudeId = CHtml::getIdByName($latitudeName);
@@ -112,8 +112,11 @@ class YandexAutoComplete extends CJuiAutoComplete {
         }, placemark.geometry);
         map.geoObjects.add(placemark);
       }';
+      // Инициализация
+      $initMap .= "\nwindow.yandexCallback = function() {";
       if(!empty($this->model[$this->latitudeAtt]) && !empty($this->model[$this->longitudeAtt]))
-        $initMap .= "\ninitMap({$this->model[$this->longitudeAtt]}, {$this->model[$this->latitudeAtt]});";
+        $initMap .= "initMap({$this->model[$this->longitudeAtt]}, {$this->model[$this->latitudeAtt]});";
+      $initMap .= "}";
       Yii::app()->getClientScript()->registerScript(__CLASS__ . 'initMap', $initMap); 
     }
     parent::run();

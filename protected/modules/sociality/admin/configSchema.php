@@ -25,6 +25,10 @@ return array(
           'comment_user',
         ),
       ),
+      'routes' => array(
+        // 'blog/index', //layout, title, alias
+        // 'blog/view',
+      ),
     ),
   ),
 );

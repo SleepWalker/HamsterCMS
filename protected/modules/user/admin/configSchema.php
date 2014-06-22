@@ -23,6 +23,10 @@ return array(
           'YiiSession',
         ),
       ),
+      'routes' => array(
+        // 'blog/index', //layout, title, alias
+        // 'blog/view',
+      ),
     ),
   ),
 );
