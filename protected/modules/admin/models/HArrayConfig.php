@@ -174,7 +174,7 @@ class HArrayConfig extends CComponent
 	 */
 	public function enableModule($moduleId, $autoSave = true)
 	{
-		$this->_hamsterModules['enabledModules'][$moduleId] = 'application.modules.' . $moduleId . '.admin.AdminAction';
+		$this->_hamsterModules['enabledModules'][$moduleId] = 'application.modules.' . $moduleId . '.admin.' . ucfirst($moduleId) . 'AdminController';
 
 		if($autoSave)
 			$this->save();

@@ -3,22 +3,13 @@
  * Admin action class for sociality module
  *
  * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @package    hamster.modules.sociality.admin.AdminAction
+ * @package    hamster.modules.sociality.admin.SocialityAdminController
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
  
-class AdminAction extends HAdminAction
+class SocialityAdminController extends HAdminController
 {
-  public function run()
-  {    
-    // import the module-level models and components
-		$this->module->setImport(array(
-			'sociality.models.*',
-			'sociality.components.*',
-		));
-  }
-  
   /**
 	 * @return меню для табов
 	 */

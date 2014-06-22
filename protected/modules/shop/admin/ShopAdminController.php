@@ -3,14 +3,16 @@
  * Admin action class for shop module
  *
  * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @package    Hamster.modules.shop.admin.AdminAction
+ * @package    Hamster.modules.shop.admin.ShopAdminController
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
-class AdminAction extends HAdminAction
+class ShopAdminController extends HAdminController
 {
-  public function run()
+  public function init()
   {    
+    parent::init();
+
     $assetsUrl = Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('application.modules.shop.assets').DIRECTORY_SEPARATOR,false,-1,YII_DEBUG);
     Yii::app()->getClientScript()->registerCssFile($assetsUrl.'/css/admin.shop.css');
   }
@@ -61,7 +63,7 @@ class AdminAction extends HAdminAction
     array(
       'ajax' => array(
         'type'=>'POST', //request type
-        'url'=>$this->actionPath, //url to call.
+        'url' => $this->createUrl(''), //url to call.
         'beforeSend' => 'startLoad',
         'complete' => 'stopLoad',
         'update'=>'#cat_id_update', //selector to update
@@ -303,7 +305,7 @@ class AdminAction extends HAdminAction
 	    var catId = $("#Shop_cat_id").val(); // Выбранная категория 
 	    // контейнер для выпадающих списков
 	    $("<div id=\"cat_id_update\"></div>").insertAfter($("#Shop_cat_id"));
-	    jQuery.ajax("' . $this->actionPath . 'ddd", {
+	    jQuery.ajax("' . $this->createUrl('ddd') . '", {
 	      type: "POST",
 	      data: {catId:catId},
 	      success: function (answer)
@@ -351,7 +353,7 @@ class AdminAction extends HAdminAction
 	    // Обновляем таблицу характеристик Char
 	    var renewChar = function(catId)
 	    {
-	      jQuery.ajax("' . $this->actionPath . 'chtbl", {
+	      jQuery.ajax("' . $this->createUrl('chtbl') . '", {
 	        type: "POST",
 	        data: {catId:catId, prodId: prodId},
 	        success: function (answer)
@@ -453,7 +455,7 @@ class AdminAction extends HAdminAction
     {
       $_GET = array_merge(Yii::app()->user->getState('shop.index.filter', array()), $_GET);
     }
-    $this->pageActions = '<a href="' . Yii::app()->createUrl('admin/admin/shop') . '/clearfs?redirect=' . $this->actionPath . '">Сбросить фильтры</a>';
+    $this->pageActions = '<a href="' . Yii::app()->createUrl('clearfs', array('redirect' => $this->createUrl('/'))) . '">Сбросить фильтры</a>';
     Yii::app()->user->setState('shop.index.filter', $_GET);
 
     if(isset($_GET['Shop']))

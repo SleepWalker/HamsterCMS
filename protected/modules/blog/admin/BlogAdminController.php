@@ -3,22 +3,13 @@
  * Admin action class for blog module
  *
  * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @package    blog.controllers.blog.AdminAction
+ * @package    blog.controllers.blog.BlogAdminController
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
  
-class AdminAction extends HAdminAction
-{
-  public function run()
-  {    
-    // import the module-level models and components
-		$this->module->setImport(array(
-			'blog.models.*',
-			'blog.components.*',
-		));
-  }
-  
+class BlogAdminController extends HAdminController
+{  
   /**
 	 * @return меню для табов
 	 */

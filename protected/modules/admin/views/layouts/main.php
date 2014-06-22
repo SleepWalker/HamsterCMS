@@ -36,7 +36,7 @@
   <?php 
     $modulesInfo = $this->modulesInfo;
     $enabledModules = $this->enabledModules;
-    $menuArray['Управление страницами'] = array('admin/admin/page');
+    $menuArray['Управление страницами'] = array('admin/page');
     if(count($modulesInfo))
       foreach($modulesInfo as $moduleId=>$moduleConfig)
       {
@@ -46,7 +46,7 @@
         // Определяем в какое меню пойдет модуль в зависимости 
         // от того, есть ли у него контент (контент-модуль)
         $menuVarName = isset($moduleConfig['internal']) ? 'extraMenuArray' : 'menuArray';
-        ${$menuVarName}[$moduleConfig['title']] = array('admin/admin/' . $moduleId);
+        ${$menuVarName}[$moduleConfig['title']] = array('admin/' . $moduleId);
       }
     Yii::app()->menuMap->render($menuArray, 'hamsterContentModules');
   ?>

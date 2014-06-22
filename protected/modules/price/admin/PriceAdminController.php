@@ -63,12 +63,12 @@
  *   );
  *
  * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @package    hamster.modules.price.admin.AdminAction
+ * @package    hamster.modules.price.admin.PriceAdminController
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
  
-class AdminAction extends HAdminAction
+class PriceAdminController extends HAdminController
 {
   //TODO: страница настройки колонок таблицы, которая будет выводиться на сайте
   //TODO: страница добавления настроек для конкретного прайса (нужно сказать юзеру, что сначала надо настроить колонки)
@@ -76,15 +76,6 @@ class AdminAction extends HAdminAction
    * @property string $runtimeDir путь к папке с файлами скриптов
    */
   public $runtimeDir;
-  
-  public function run()
-  {    
-    // import the module-level models and components
-		$this->module->setImport(array(
-			'price.models.*',
-			'price.components.*',
-		));
-  }
   
   /**
 	 * @return меню для табов

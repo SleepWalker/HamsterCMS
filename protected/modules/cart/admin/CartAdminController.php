@@ -3,18 +3,15 @@
  * Admin action class for cart module
  *
  * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @package    Hamster.modules.cart.admin.AdminAction
+ * @package    Hamster.modules.cart.admin.CartAdminController
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
-class AdminAction extends HAdminAction
+
+Yii::import('application.modules.shop.models.*'); // почему-то по другому не работает
+
+class CartAdminController extends HAdminController
 {
-  public function run()
-  {
-    Yii::import('application.modules.cart.models.*'); // почему-то по другому не работает
-    Yii::import('application.modules.shop.models.*'); // почему-то по другому не работает
-  }
-  
   /**
 	 * @return меню для табов
 	 */
@@ -58,7 +55,7 @@ class AdminAction extends HAdminAction
       $orderModel->statusArr = $statusIsChecked;
       
       ob_start();
-      echo CHtml::beginForm($this->curModuleUrl, 'GET');
+      echo CHtml::beginForm($this->createUrl(''), 'GET');
       echo 'Фильтр по статусу: ';
       foreach($statusArr as $statusId => $statusName)
       {
@@ -137,7 +134,7 @@ class AdminAction extends HAdminAction
           '(
           empty($data->user_id) ?
           CHtml::encode($data->client->first_name) . "<br />" . CHtml::encode($data->client->last_name)
-          : CHtml::link(CHtml::encode($data->user->first_name) . "<br />" . CHtml::encode($data->user->last_name), "'.$this->actionPath.'user/".$data->user_id, array("class"=>"ajaxInfo"))
+          : CHtml::link(CHtml::encode($data->user->first_name) . "<br />" . CHtml::encode($data->user->last_name), $this->createUrl("user", "id" => $data->user_id), array("class"=>"ajaxInfo"))
           
           )',
 			    'type'=>'raw',
@@ -171,7 +168,7 @@ class AdminAction extends HAdminAction
             array(
               "ajax" => array(
                 "type"=>"POST",
-                "url"=>"'.$this->actionPath.'status", 
+                "url"=>"'.$this->createUrl('status').'", 
                 "beforeSend" => "startLoad",
                 "complete" => "stopLoad",
                 "context" => "js:jQuery(\"#status_" . $data->id . "\")",
@@ -299,7 +296,7 @@ class AdminAction extends HAdminAction
     // это сделает за нас CForm
     $this->widget('zii.widgets.jui.CJuiAutoComplete', array(
       'name' => 'Shop_code',
-      'sourceUrl'=>$this->curModuleUrl . 'acprod',
+      'sourceUrl'=>$this->createUrl('acprod'),
       'themeUrl' => $this->adminAssetsUrl . '/css/jui',
       // additional javascript options for the autocomplete plugin
       'options'=>array(

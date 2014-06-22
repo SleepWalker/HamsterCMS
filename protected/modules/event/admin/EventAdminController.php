@@ -1,24 +1,15 @@
 <?php
 /**
- * Admin action class for blog module
+ * Admin action class for event module
  *
  * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @package    Hamster.modules.blog.admin.AdminAction
+ * @package    Hamster.modules.event.admin.EventAdminController
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
  
-class AdminAction extends HAdminAction
+class EventAdminController extends HAdminController
 {
-  public function run()
-  {    
-    // import the module-level models and components
-		$this->module->setImport(array(
-			'event.models.*',
-			'event.components.*',
-		));
-  }
-  
   /**
 	 * @return меню для табов
 	 */

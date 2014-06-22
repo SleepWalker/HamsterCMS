@@ -188,7 +188,7 @@ function parseCFormElements(&$form, $model, $params, $index = null)
 				'type' => 'zii.widgets.jui.CJuiAutoComplete',
 				'model'     => $model,
 				'attribute' => $fieldName,
-				'sourceUrl'=>$controller->curModuleUrl . 'ac'.$fieldName,
+				'sourceUrl' => $controller->createUrl('ac'.$fieldName),
 				// additional javascript options for the autocomplete plugin
 				'options'=> CMap::mergeArray(
 					array(

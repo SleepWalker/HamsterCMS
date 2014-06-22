@@ -90,7 +90,7 @@ echo CHtml::beginForm(); ?>
 </table>
 <?php 
 echo '<p>' . CHtml::errorSummary($model) . '</p><p>'.
-CHtml::ajaxSubmitButton('Сохранить', $this->actionPath.$this->crudid, array(
+CHtml::ajaxSubmitButton('Сохранить', $this->createUrl('', 'id' => $this->crudid), array(
   'data'=>'js:jQuery(this).parents("form").serialize()+"&ajaxSubmit=1"',
   'beforeSend' => 'startLoad',
   'complete' => 'stopLoad',

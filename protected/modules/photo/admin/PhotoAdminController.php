@@ -4,21 +4,12 @@
  *
  * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
  * @author     Evgeniy Pochekuev
- * @package    Hamster.modules.photo.admin.AdminAction
+ * @package    Hamster.modules.photo.admin.PhotoAdminController
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
-class AdminAction extends HAdminAction
-{
-  public function run()
-  {    
-    // import the module-level models and components
-		$this->module->setImport(array(
-			'photo.models.*',
-			'photo.components.*',
-		));
-  }
-  
+class PhotoAdminController extends HAdminController
+{  
   /**
 	 * @return меню для табов
 	 */
@@ -81,7 +72,7 @@ class AdminAction extends HAdminAction
       if($saved && $this->crud == 'create')
         $data = array(
           'action' => 'redirect',
-          'content' => $this->curModuleUrl . 'update/'.$model->id,
+          'content' => $this->createUrl('update', 'id' => $model->id),
         );
       else
         $data = array(
@@ -188,7 +179,7 @@ class AdminAction extends HAdminAction
       if($saved && $this->crud == 'create')
         $data = array(
           'action' => 'redirect',
-          'content' => $this->curModuleUrl . 'album/update/'.$model->id,
+          'content' => $this->createUrl('album/update', 'id' => $model->id),
         );
       else
         $data = array(

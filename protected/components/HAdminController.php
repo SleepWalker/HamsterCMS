@@ -30,10 +30,23 @@ class HAdminController extends CController
 	// массив с информацией о модулях
 	protected $_hamsterModules = array();
 	
-	public $actionId;
-	public $actionPath;     // путь к текущему действию (равен абсолютному пути из адреной строки браузера)
 	public $curModuleUrl;   // путь к index текущего модуля, к примеру /admin/shop
 	public $adminAssetsUrl;
+
+	public function init()
+	{
+		if(!isset($this->module) || !($this->module instanceof AdminModule)) {
+			throw new CException('Дети HAdminController должны запускаться из модуля admin');
+		}
+
+		if(preg_match('/\w+AdminController$/', get_class($this))) {
+	    	//импортим модели и компоненты
+			$this->module->setImport(array(
+				'application.modules.' . $this->id . '.models.*',
+				'application.modules.' . $this->id . '.components.*',
+	    	));
+		}
+	}
 
 	/**
 	 * Переопредиляем стандартный метод таким образом, что бы он искал вьюхи в следущем порядке:
@@ -101,20 +114,15 @@ class HAdminController extends CController
 	 */
 	public function getTabs() 
 	{
-		if($this->action instanceof CInlineAction)
-			$tabMap = $this->tabs();
+		if(method_exists($this->action, 'tabs'))
+			$tabMap = $this->action->tabs(); // экшен может переопределить табы, если это нужно
 		else
-			$tabMap = $this->action->tabs(); // для экшенов администрации модулей
+			$tabMap = $this->tabs();
 
 		$tabs = '';
 
 		foreach($tabMap as $path => $name) 
 		{
-			if($this->action instanceof CInlineAction)
-				$url = '/' . $this->module->id . '/' . $this->id . '/' . $path;
-			else
-				$url = '/' . $this->module->id . '/' . $this->action->id . '/' . $path;
-
 			if($path == '') $path = 'index';
 
 			if (is_array($name))
@@ -124,14 +132,14 @@ class HAdminController extends CController
 				switch($name['display']) 
 				{ // Определяем показывать ли этот таб
 				case 'whenActive':
-					if ($this->actionId != $path) $hide = 1;
+					if ($this->action->id != $path) $hide = 1;
 					break;
 				case 'index':
-					if(!($this->actionId == 'index' || $this->actionId == 'create' || $this->actionId == 'update'))
+					if(!($this->action->id == 'index' || $this->action->id == 'create' || $this->action->id == 'update'))
 						$hide = 1;
 					break;
 				default:
-					if (strpos($this->actionId, $name['display']) === false)  $hide = 1;
+					if (strpos($this->action->id, $name['display']) === false)  $hide = 1;
 					break;
 				}
 				if ($hide) continue;
@@ -139,9 +147,9 @@ class HAdminController extends CController
 			}
 
 
-			if ($this->actionId == $path || ($this->action->id == $path && is_a($this->action, 'CInlineAction'))) $this->pageTitle = $name;
+			if ($this->action->id == $path) $this->pageTitle = $name;
 
-			$tabs .= '<a href="' . $url . '">' . $name . '</a>';
+			$tabs .= '<a href="' . $this->createUrl($path) . '">' . $name . '</a>';
 		}
 		return $tabs;
 	}
@@ -259,5 +267,32 @@ class HAdminController extends CController
 			else
 				$this->render('update', $params);
 		}
+	}
+  
+	/**
+	* Возвращает id редактируемого материала
+	*/
+	public function getCrudid()
+	{
+		if (empty($_GET['id'])) return null;
+		return $_GET['id'];
+	}
+
+	/**
+	* Возвращает тип выполняемого crud действия
+	*/
+	public function getCrud()
+	{
+		if(YII_DEBUG)
+			throw new CException('HAdminController::getCrud - deparecated. use $this->action->id instead');
+			
+		$action = $_GET['action'];
+		$parts = explode('/' , $action);
+		if (strpos($action, 'create') !== false) $crud = 'create';
+		if (strpos($action, 'update') !== false) $crud = 'update';
+		if (strpos($action, 'delete') !== false) $crud = 'delete';
+		else $crud = array_pop($parts);
+
+		return $crud;
 	}
 }

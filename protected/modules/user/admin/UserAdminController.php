@@ -3,24 +3,20 @@
  * Admin action class for user module
  *
  * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @package    Hamster.modules.user.admin.AdminAction
+ * @package    Hamster.modules.user.admin.UserAdminController
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
  
-class AdminAction extends HAdminAction
+class UserAdminController extends HAdminController
 {
-
-  /**
-   * @property CDbAuthManager $am
-   */
-  public $am;
-
-  public function run()
-  {    
-    $this->am=Yii::app()->authManager;
+  public function actions() {
+    return array(
+      'hoauth' => array(
+        'class' => 'ext.hoauth.HOAuthAdminAction',
+        ),
+      );
   }
-  
   /**
 	 * @return меню для табов
 	 */
@@ -39,6 +35,7 @@ class AdminAction extends HAdminAction
         'display' => 'roles',
       ),
       'transfer' => 'Ожидающие переноса'.$transferCount,
+      'hoauth' => 'Вход через социальные сети',
     );
   }
   
@@ -219,7 +216,7 @@ class AdminAction extends HAdminAction
       if($saved && $this->crud == 'create')
         $data = array(
           'action' => 'redirect',
-          'content' => str_replace(array('update', 'create', 'delete'), 'update', $this->actionPath) . $model->primaryKey,
+          'content' => $this->createUrl('update', array('id' => $model->primaryKey)),
         );
       else
         $data = array(
@@ -237,8 +234,8 @@ class AdminAction extends HAdminAction
       $this->render('update',array(
 			  'model'=>$model,
 		  ));
-    
   }
+
   public function actionRolesCreate()
   {
     $this->actionRolesUpdate();
@@ -315,10 +312,10 @@ class AdminAction extends HAdminAction
 			'dataProvider'=> $activeProvider,
       'buttons' => array(
         'delete' => array(
-          'url'=>'"' . $this->actionPath . 'revoke/" . $data->primaryKey["userid"]',
+          'url' => 'array("revoke", "id" => $data->primaryKey["userid"])',
         ), 
         'ok' => array(
-          'url'=>'"' . $this->actionPath . 'assign/" . $data->primaryKey["userid"]',
+          'url' => 'array("assign", "id" => $data->primaryKey["userid"])',
         ),
       ),
 			'columns'=>array(
@@ -359,6 +356,11 @@ class AdminAction extends HAdminAction
       Yii::app()->user->setFlash('success', 'Пользователь <b>' . $model->name . '</b> успешно перемещен в группу "' . $model->data['chosenRole'] . '"');
 
     $this->redirect('/admin/user/transfer');
+  }
+
+  protected function getAm()
+  {
+    return Yii::app()->authManager;
   }
 
 	/**

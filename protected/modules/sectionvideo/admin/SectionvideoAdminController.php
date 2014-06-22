@@ -3,7 +3,7 @@
  * Admin action class for blog module
  *
  * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @package    hamster.modules.sectionvideo.admin.AdminAction
+ * @package    hamster.modules.sectionvideo.admin.SectionvideoAdminController
  * @copyright  Copyright &copy; 2013 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
@@ -15,16 +15,8 @@ use hamster\modules\sectionvideo\models\Musician as Musician;
 use hamster\modules\sectionvideo\models\Instrument as Instrument;
 Yii::import('application.modules.event.models.Event');
 use \Event;
-class AdminAction extends HAdminAction
+class SectionvideoAdminController extends HAdminController
 {
-	public function run()
-	{    
-		// import the module-level models and components
-		$this->module->setImport(array(
-			'sectionvideo.components.*',
-		));
-	}
-	
 	/**
 	 * @return меню для табов
 	 */

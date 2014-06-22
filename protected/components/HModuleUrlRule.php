@@ -27,8 +27,9 @@ class HModuleUrlRule extends CBaseUrlRule
 
     //exception for standard yii module 'Gii'
     if($routeParts[0] == 'gii') return false;
+    if($routeParts[0] == 'admin') return false;
     
-    if(count($routeParts) > 3 || count($routeParts) < 2) return; // если это случилось, значит где-то ошибка FIXME (в будущем можно будет логировать и убрать этот баг для оптимизации системы)
+    if(count($routeParts) > 3 || count($routeParts) < 2) return false; // если это случилось, значит где-то ошибка FIXME (в будущем можно будет логировать и убрать этот баг для оптимизации системы)
     if(count($routeParts) == 3)
     { 
       if($routeParts[0] == $routeParts[1]) // что-то на подобии admin/admin/action
@@ -125,6 +126,7 @@ class HModuleUrlRule extends CBaseUrlRule
       
       if(!in_array($url[0], $moduleUrls)) return false; // нет такого модуля
 
+
       $getModuleByUrl = array_flip($moduleUrls);
       $moduleId = $getModuleByUrl[$url[0]];
 
@@ -140,14 +142,11 @@ class HModuleUrlRule extends CBaseUrlRule
       $moduleControllersDirectory = Yii::getPathOfAlias('application.modules.'.$moduleId.'.controllers');
 
       // проверяем есть ли в url название контроллера
-      if(is_file($moduleControllersDirectory.DIRECTORY_SEPARATOR.$classFile))
-      {
+      if(is_file($moduleControllersDirectory.DIRECTORY_SEPARATOR.$classFile)) {
         // в запросе есть название контроллера!
         $controllerId = $url[1];
         $actionParts = array_slice($url, 2);
-      }
-      else
-      {
+      } else {
         $controllerId = $moduleId;
         $actionParts = array_slice($url, 1);
       }

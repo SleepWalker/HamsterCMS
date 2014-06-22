@@ -152,16 +152,17 @@ return
 					'site/<action:\w+>'=>'site/<action>',
 
 					'<controller:page|api>/<path:.*>'=>'<controller>/index',
+					// '<module:\w+>/<controller:\w+>/<action:\w+>/<id:\d+>'=>'<module>/<controller>/<action>',
 					
 					// правило для админки action (оно же название модуля)
-					'admin/<module:\w+>'=>'admin/admin/<module>',
+					// 'admin/<module:\w+>'=>'admin/admin/<module>',
 					// правило для админки crud и subaction только create|update|delete,
 					// но с возможностью использования буквенного crudid)
-					'admin/<module:\w+>/<action:\w*\/?(update|delete)>/<crudid:[^\/]+>' => 'admin/admin/<module>',
+					// 'admin/<module:\w+>/<action:\w*\/?(update|delete)>/<crudid:[^\/]+>' => 'admin/admin/<module>',
 					// правило для админки crud и subaction
-					'admin/<module:\w+>/<action:\w*\/?\w*>/<crudid:\d+>'=>'admin/admin/<module>',
+					// 'admin/<module:\w+>/<action:\w*\/?\w*>/<crudid:\d+>'=>'admin/admin/<module>',
 					// для всего кроме crud
-					'admin/<module:\w+>/<action:([^\/]+\/?)+>'=>'admin/admin/<module>',
+					// 'admin/<module:\w+>/<action:([^\/]+\/?)+>'=>'admin/admin/<module>',
 				),
 			),
 

@@ -15,12 +15,12 @@ class AdminController extends HAdminController
   /**
 	 * @return массив действий контроллера
 	 */
-	public function actions()
-  {
-    $enabledModules = $this->enabledModules;
-    $enabledModules['page'] = 'application.controllers.page.AdminAction';
-    return $enabledModules;
-  }
+	// public function actions()
+ //  {
+ //    $enabledModules = $this->enabledModules;
+ //    $enabledModules['page'] = 'application.controllers.page.AdminAction';
+ //    return $enabledModules;
+ //  }
   
   public function filters()
   {
@@ -202,6 +202,8 @@ class AdminController extends HAdminController
     if(!($action instanceof AdminAction))
       return;
 
+// DEPRECATED
+// TODO: удалить в будущем
     $path = implode('/', array(
       isset($_GET['module']) ? $_GET['module'] : '',
       isset($_GET['action']) ? $_GET['action'] : '',
@@ -234,67 +236,12 @@ class AdminController extends HAdminController
       unset($actionParts[count($actionParts)-1]);
       $actionId = implode($actionParts);
     }
-    
-    /*if(($ca=$this->createController($route))!==null)
-  {
-    list($controller,$actionID)=$ca;
-    $oldController=$this->_controller;
-    $this->_controller=$controller;
-    $controller->init();
-    $controller->run($actionID);
-    $this->_controller=$oldController;
-  }
-  
-  new $className($controllerID.$id,$owner===$this?null:$owner),
-						$this->parseActionParams($route),
-  */
-    
+
     $this->actionId = ($actionId == 'Index')?'index':implode('/', array_map('strtolower', $actionParts) );
     $this->curModuleUrl = '/' . $this->module->id . '/' . $this->action->id . '/';
     $this->actionPath = $this->curModuleUrl . ( ($this->actionId == 'index')?'':$this->actionId . '/'); // admin/{имя модуля, что администрируется}/{имя действия администрирования}
-
-    //импортим модели и компоненты
-		$this->module->setImport(array(
-			'application.modules.' . $this->action->id . '.models.*',
-			'application.modules.' . $this->action->id . '.components.*',
-    ));
     
-    
-    /*if($_GET['module'] == 'photo')
-    {
-      Yii::import($_GET['module'] . '.admin.adminController', true);
-      $controller = new AdminContro
-    }
-    else
-    {
-      $this->tabs = $this->getTabs();
-      return call_user_func( array($this->action, 'action' . $actionId) );
-    }*/
     return call_user_func( array($this->action, 'action' . $actionId) );
-  }
-  
-  /**
-	 * Возвращает id редактируемого материала
-	 */
-  public function getCrudid()
-  {
-    if (empty($_GET['crudid'])) return null;
-    return $_GET['crudid'];
-  }
-  
-  /**
-	 * Возвращает id редактируемого материала
-	 */
-  public function getCrud()
-  {
-    $action = $_GET['action'];
-    $parts = explode('/' , $action);
-    if (strpos($action, 'create') !== false) $crud = 'create';
-    if (strpos($action, 'update') !== false) $crud = 'update';
-    if (strpos($action, 'delete') !== false) $crud = 'delete';
-    else $crud = array_pop($parts);
-    
-    return $crud;
   }
   
   /**
@@ -359,7 +306,7 @@ class AdminController extends HAdminController
           );
 
       if(!isset($schema['hamster']['admin']['routes']))
-        throw new CException("Модуль должен содержать информацию об используемых в нем путях ['hamster']['admin'['routes']");
+        throw new CException("Модуль должен содержать информацию об используемых в нем путях ['hamster']['admin']['routes']");
       $routes = $schema['hamster']['admin']['routes'];
       $routesCformConfig = array(
         'layout' => array(
@@ -712,7 +659,7 @@ class AdminController extends HAdminController
             unset($adminConfig['title']);*/
 
           $modulesInfo[$moduleName] = $adminConfig;
-          // восстанавливаем версию БД (нам нужна та версия, котора сейчас реально установленна)
+          // восстанавливаем версию БД (нам нужна та версия, которая сейчас реально установленна)
           if(isset($oldModulesInfo[$moduleName]['db']['version']) && !empty($oldModulesInfo[$moduleName]['db']['version']))
             $modulesInfo[$moduleName]['db']['version'] = $oldModulesInfo[$moduleName]['db']['version'];
 
@@ -720,20 +667,21 @@ class AdminController extends HAdminController
           if(isset($oldModulesInfo[$moduleName]['title']) && !empty($oldModulesInfo[$moduleName]['title']))
             $modulesInfo[$moduleName]['title'] = $oldModulesInfo[$moduleName]['title'];
           
-          if(file_exists($modulePath.'/admin/AdminAction.php'))
-            $adminActions[$moduleName] = 'application.modules.' . $moduleName . '.admin.AdminAction';
+          $className = ucfirst($moduleName) . 'AdminController';
+          if(file_exists($modulePath.'/admin/'.$className.'.php'))
+            $enabledModules[$moduleName] = 'application.modules.' . $moduleName . '.admin.' . $className;
         }
       }else{
-        // оудаляем информацию о модуле, если его нету в фс
+        // поудаляем информацию о модуле, если его нету в фс
         unset($enabledModules[$moduleName], $hamsterModules['config']['modules'][$moduleName]); 
       }
     }
-    
+
     $hamsterModules['modulesInfo'] = $modulesInfo;
     $hamsterModules['enabledModules'] = $enabledModules;
 
     $hamsterModules = "<?php\n\nreturn " . var_export($hamsterModules, true) . ";";
-    
+
     file_put_contents(Yii::getPathOfAlias('application.config') . '/hamsterModules.php', $hamsterModules);
     
     // Обновим статус модуля в конфиге (FIXME: честно говоря грубый способ... но пока так)
@@ -760,8 +708,9 @@ class AdminController extends HAdminController
         unset($enabledModules[$moduleName]);
       }else{
         // включаем модуль
-        if(file_exists($moduleAdminPath.'/AdminAction.php'))
-          $enabledModules[$moduleName] = 'application.modules.' . $moduleName . '.admin.AdminAction';
+        $className = ucfirst($moduleName) . 'AdminController';
+        if(file_exists($moduleAdminPath.'/'.$className.'.php'))
+          $enabledModules[$moduleName] = 'application.modules.' . $moduleName . '.admin.' . $className;
 
         // проверем базу данных
         $this->testDb($moduleName);

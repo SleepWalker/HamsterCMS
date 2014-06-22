@@ -3,17 +3,12 @@
  * Admin action file for page controller
  *
  * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @package    Hamster.controllers.page.AdminAction
+ * @package    Hamster.controllers.page.PageAdminController
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
-class AdminAction extends HAdminAction
+class PageAdminController extends HAdminController
 {
-  public function run()
-  {
-
-  }
-  
   /**
 	 * @return меню для табов
 	 */

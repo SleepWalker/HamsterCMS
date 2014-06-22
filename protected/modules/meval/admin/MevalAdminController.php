@@ -3,12 +3,12 @@
  * Admin action class for meval module
  *
  * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @package    Hamster.modules.meval.admin.AdminAction
+ * @package    Hamster.modules.meval.admin.MevalAdminController
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
  
-class AdminAction extends HAdminAction
+class MevalAdminController extends HAdminController
 {
   public $scriptAlias; // alias к папке с скриптами
 
@@ -17,13 +17,9 @@ class AdminAction extends HAdminAction
    */
   public $runtimeDir;
 
-  public function run()
+  public function init()
   {    
-    // import the module-level models and components
-		$this->module->setImport(array(
-			'meval.models.*',
-			'meval.components.*',
-		));
+    parent::init();
     
     $this->scriptAlias = Yii::app()->modules['meval']['params']['scriptsAlias'];
     $this->runtimeDir = Yii::getPathOfAlias($this->scriptAlias . '.runtime');

@@ -12,7 +12,7 @@ foreach ($models as $model) {
   $tree[ $model[$attId] ][0] = '<li sindex="' . $model[ $attSindex ] . '" id="row_' . $model[ $attId ] . '">';
   
   foreach($attributes as $k => $att)
-    $tree[ $model[$attId] ][0] .= $model[$att] . (($k)?' - ':'') . renderIcons($this->actionPath, $model[$attId], $model);
+    $tree[ $model[$attId] ][0] .= $model[$att] . (($k)?' - ':'') . renderIcons($this, $model[$attId], $model);
   $tree[ $model[$attId] ][0] .= '</li>';
   
   if($model[$attParent] == 0)
@@ -40,7 +40,7 @@ if(isset($tree))
   echo '<p><i>Нет категорий</i></p>';
 }
 
-echo '<p>' . CHtml::link( CHtml::button('Добавить категорию') , $this->actionPath.'create', array ('id'=>'addButton')) . '</p>';
+echo '<p>' . CHtml::link( CHtml::button('Добавить категорию') , $this->createUrl('create'), array ('id'=>'addButton')) . '</p>';
   
 /***********************
 * #catTreeParse - строит дерево из массива
@@ -62,14 +62,14 @@ function catTreeParse($tree, $level = -1) {
 /***********************
 * Выводит иконки действий
 ***********************/
-function renderIcons($urlPrefix, $id, $model) {
+function renderIcons($controller, $id, $model) {
   return CHtml::ajaxLink('', $urlPrefix.'delete/'.$id, array(
     'beforeSend' => new CJavaScriptExpression('function() {return confirm("Вы действительно хотите удалить категорию?")}'),
     'complete' => new CJavaScriptExpression('function() {location.reload()}'),
   ), array('class'=>'icon_delete', 'id'=>'delete'.$id, 'type'=>'post'))
-        .CHtml::link('', $urlPrefix.'charshema/'.$id, array('class'=>'icon_table', 'id'=>'table'.$id))
-        .CHtml::link('', $urlPrefix.'update/'.$id, array('class'=>'icon_edit', 'id'=>'update'.$id))
-        .CHtml::link('', $urlPrefix.'create/'.$id, array('class'=>'icon_add', 'id'=>'create'.$id))
+        .CHtml::link('', $controller->createUrl('charshema', array('id' => $id), array('class'=>'icon_table', 'id'=>'table'.$id))
+        .CHtml::link('', $controller->createUrl('update', array('id' => $id), array('class'=>'icon_edit', 'id'=>'update'.$id))
+        .CHtml::link('', $controller->createUrl('create', array('id' => $id), array('class'=>'icon_add', 'id'=>'create'.$id))
         .CHtml::link('', $model->viewUrl, array('class'=>'icon_view', 'target'=>'_blank'))
   ;
 }

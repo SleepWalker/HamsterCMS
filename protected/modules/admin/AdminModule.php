@@ -7,86 +7,129 @@
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
+
+use application\modules\admin\models\HArrayConfig as HArrayConfig;
+
 class AdminModule extends CWebModule
 {
-	public $name;
-	public $assetsUrl;
-	public function init()
-	{
-		// this method is called when the module is being created
-		// you may place code here to customize the module or the application
+    public $name;
+    public $assetsUrl;
 
-		// import the module-level models and components
-		$this->setImport(array(
-			'admin.models.*',
-			'admin.components.*',
-			));
-		
-		$this->assetsUrl = Yii::app()->getAssetManager()->publish(dirname(__FILE__).DIRECTORY_SEPARATOR.'assets',false,-1,YII_DEBUG);//Yii::getPathOfAlias('application.modules.admin.assets'));
-		//$this->registerScriptFile('admin.js');
-		//$this->registerCssFile('admin.css');
+    // массив с информацией о модулях
+    protected $_hamsterModules = array();
 
-		// меняем имя сайта
-		Yii::app()->name = 'HamsterCMS';
+    public function init()
+    {
+        // this method is called when the module is being created
+        // you may place code here to customize the module or the application
+        
+        // import the module-level models and components
+        $this->setImport(array(
+            'admin.models.*',
+            'admin.components.*',
+            ));
 
-		// переопределяем страницу входа
-		Yii::app()->user->loginUrl = Yii::app()->createUrl('admin/login/index');
+        $this->assetsUrl = Yii::app()->getAssetManager()->publish(dirname(__FILE__).DIRECTORY_SEPARATOR.'assets',false,-1,YII_DEBUG);//Yii::getPathOfAlias('application.modules.admin.assets'));
+        //$this->registerScriptFile('admin.js');
+        //$this->registerCssFile('admin.css');
 
-		// устанавливаем экшен для отобраения ошибок
-		Yii::app()->errorHandler->errorAction = 'admin/admin/error';
-	}
+        // меняем имя сайта
+        Yii::app()->name = 'HamsterCMS';
 
-	public function beforeControllerAction($controller, $action)
-	{
-		if(parent::beforeControllerAction($controller, $action))
-		{
-			
-			  // this overwrites everything in the controller
-			$controller->adminAssetsUrl = $this->assetsUrl;
+        // переопределяем страницу входа
+        Yii::app()->user->loginUrl = Yii::app()->createUrl('admin/login/index');
 
-				// this method is called before any module controller action is performed
-				// you may place customized code here
-			return true;
-		}
-		else
-			return false;
-	}
+        // устанавливаем экшен для отобраения ошибок
+        Yii::app()->errorHandler->errorAction = 'admin/admin/error';
 
-	/**
-	 * Возвращает список идентификаторов лейаутов доступных для CMS
-	 * @return array идентификаторы
-	 */
-	public static function getLayoutIds()
-	{
-		$extension = '.php';
-		$layoutPathes = array(Yii::app()->getViewPath());
-		if(($theme=Yii::app()->getTheme())!==null)
-		{
-			// у нас используются темы
-			$layoutPathes[] = $theme->getViewPath();
-		}
+        $this->controllerMap = $this->getControllerMap();
+    }
 
-		$ids = array();
-		foreach ($layoutPathes as $curPath) 
-		{
-			$curPath .= DIRECTORY_SEPARATOR . 'layouts' . DIRECTORY_SEPARATOR;
-			foreach (glob($curPath . '*' . $extension) as $curFile) 
-			{
-				$id = basename($curFile, $extension);
-				$ids[$id] = $id;
-			}
-		}
+    public function beforeControllerAction($controller, $action)
+    {
+        if(parent::beforeControllerAction($controller, $action))
+        {
+            
+              // this overwrites everything in the controller
+            $controller->adminAssetsUrl = $this->assetsUrl;
 
-		return $ids;
-	}
+                // this method is called before any module controller action is performed
+                // you may place customized code here
+            return true;
+        }
+        else
+            return false;
+    }
 
-	public function registerScriptFile($fileName,$position=CClientScript::POS_END)
-	{
-		Yii::app()->getClientScript()->registerScriptFile($this->assetsUrl.'/js/'.$fileName,$position);
-	}
+    /**
+     * Возвращает список идентификаторов лейаутов доступных для CMS
+     * @return array идентификаторы
+     */
+    public static function getLayoutIds()
+    {
+        $extension = '.php';
+        $layoutPathes = array(Yii::app()->getViewPath());
+        if(($theme=Yii::app()->getTheme())!==null)
+        {
+            // у нас используются темы
+            $layoutPathes[] = $theme->getViewPath();
+        }
 
-	public function registerCssFile($fileName)
-	{
-		Yii::app()->getClientScript()->registerCssFile($this->assetsUrl.'/css/'.$fileName);
-	}
+        $ids = array();
+        foreach ($layoutPathes as $curPath) 
+        {
+            $curPath .= DIRECTORY_SEPARATOR . 'layouts' . DIRECTORY_SEPARATOR;
+            foreach (glob($curPath . '*' . $extension) as $curFile) 
+            {
+                $id = basename($curFile, $extension);
+                $ids[$id] = $id;
+            }
+        }
+
+        return $ids;
+    }
+
+    public function getControllerMap()
+    {
+        $enabledModules = $this->enabledModules;
+        $enabledModules['page'] = 'application.controllers.page.PageAdminController';
+        return $enabledModules;
+    }
+    
+    /**
+     * Загружает настройки модулей Hamster
+     * @return array массив с настройками
+     */
+    public function getHamsterModules()
+    {
+        if(!$this->_hamsterModules)
+            $this->_hamsterModules = $config = HArrayConfig::load()->hamsterModules;
+        return $this->_hamsterModules;
+    }
+    
+    /**
+     * @return array массив с информацией о модулях
+     */
+    public function getModulesInfo()
+    {
+        return  isset($this->hamsterModules['modulesInfo']) && is_array($this->hamsterModules['modulesInfo']) ? $this->hamsterModules['modulesInfo'] : array();
+    }
+    
+    /**
+     * @return array массив с информацией об активных модулях
+     */
+    public function getEnabledModules()
+    {
+        return isset($this->hamsterModules['enabledModules']) && is_array($this->hamsterModules['enabledModules']) ? $this->hamsterModules['enabledModules'] : array();
+    }
+
+    public function registerScriptFile($fileName,$position=CClientScript::POS_END)
+    {
+        Yii::app()->getClientScript()->registerScriptFile($this->assetsUrl.'/js/'.$fileName,$position);
+    }
+
+    public function registerCssFile($fileName)
+    {
+        Yii::app()->getClientScript()->registerCssFile($this->assetsUrl.'/css/'.$fileName);
+    }
 }
