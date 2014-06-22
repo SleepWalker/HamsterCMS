@@ -42,6 +42,8 @@ class Controller extends CController
     if(!empty(Yii::app()->params['defaultLayout']))
       $this->layout = '//layouts/' . Yii::app()->params['defaultLayout'];
 
+    Yii::setPathOfAlias('theme', Yii::app()->theme->basePath);
+
     // Определяем текущий роут, что бы по нему определить лейаут
     if($this->module)
     {
