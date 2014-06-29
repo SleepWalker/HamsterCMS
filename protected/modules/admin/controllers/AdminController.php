@@ -627,6 +627,7 @@ class AdminController extends HAdminController
    */
   public function actionModuleDiscover()
   {
+    // TODO: убрать отсюда либо в модуль админа, либо в модель Config
     $path = Yii::getPathOfAlias('application.modules');
     $dirs = scandir($path); 
     

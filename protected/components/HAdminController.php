@@ -189,33 +189,31 @@ class HAdminController extends CController
 	 */
 	protected function clearTmp()
 	{
-		$this->destroyDir(Yii::getPathOfAlias('webroot.assets'));
+		// TODO: убрать отсюда. либо в модуль админа, либо в какой-то глобальный класс, аля Hamster
+		$this->destroyDir(Yii::getPathOfAlias('webroot.assets'), false);
 		Yii::app()->cache->flush();
 	}
 	
 	/**
 	 * Полностью удаляет содержимое $dir
-	 * @params string $dir путь к директории
+	 * @param string $dir путь к директории
+	 * @param boolean $removeParent если true, то так же будет удалена директория $dir
+	 * @see CFileHelper::removeDirectory()
 	 */
-	protected function destroyDir($dir) 
+	protected function destroyDir($dir, $removeParent = true) 
 	{
-		if(!preg_match('%/$%', $dir)) $dir .= '/';
-		$mydir = opendir($dir);
-		
-		while(false !== ($file = readdir($mydir))) {
-			if($file != "." && $file != "..") {
-				//chmod($dir.$file, 0777);
-				if(is_dir($dir.$file)) {
-					chdir('.');
-					$this->destroyDir($dir.$file.'/');
-					rmdir($dir.$file) or DIE("couldn't delete $dir$file<br />");
-				}
-				else
-					unlink($dir.$file) or DIE("couldn't delete $dir$file<br />");
-			}
+		$items=glob($directory.DIRECTORY_SEPARATOR.'{,.}*',GLOB_MARK | GLOB_BRACE);
+		foreach($items as $item)
+		{
+			if(basename($item)=='.' || basename($item)=='..')
+				continue;
+			if(substr($item,-1)==DIRECTORY_SEPARATOR)
+				self::removeDirectory($item);
+			else
+				unlink($item);
 		}
-
-		closedir($mydir);
+		if(is_dir($directory) && $removeParent)
+			rmdir($directory);
 	}
 
 	/**

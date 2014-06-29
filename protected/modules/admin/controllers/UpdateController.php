@@ -142,7 +142,7 @@ class UpdateController extends HAdminController
 				{
 					$fileToDelete = $rootDir . $file;
 					if(is_dir($fileToDelete))
-						$this->destroyDir($fileToDelete, true);
+						$this->destroyDir($fileToDelete);
 					elseif(file_exists($fileToDelete))
 						$status = $status && unlink($fileToDelete);
 				}
@@ -486,21 +486,5 @@ class UpdateController extends HAdminController
 		if(!isset($this->_dirMap))
 			$this->_dirMap = Yii::app()->cache->get('dirMap');
 		return $this->_dirMap;
-	}
-
-	/**
-	 * Полностью удаляет содержимое $dir
-	 *
-	 * @access protected
-	 * @params string $dir путь к директории
-	 * @params boolean $removeParent если true, то так же будет удалена директория $dir
-	 * @return void
-	 */
-	protected function destroyDir($dir, $removeParent = false) 
-	{
-		parent::destroyDir($dir);
-
-		if($removeParent)
-			rmdir($dir);
 	}
 }
