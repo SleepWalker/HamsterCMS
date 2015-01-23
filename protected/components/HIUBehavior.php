@@ -1,7 +1,7 @@
 <?php
 /**
  * HIUBehavior поведение, добавляющее моделям возможность загружать изображения
- * 
+ *
  * @uses CActiveRecordBehavior
  * @package hamster.modules.admin.components.HIUBehavior
  * @version $id$
@@ -32,7 +32,7 @@ class HIUBehavior extends CActiveRecordBehavior
 	 * TODO
 	 */
 	public $multiple = false;
-	
+
 	// настройки качества изображений
 	public $quality = array(
 		'png' => 7,
@@ -74,8 +74,8 @@ class HIUBehavior extends CActiveRecordBehavior
 	public $forceExt = false;
 
 	/**
-	 * Добавляет модели валидатор для поля с изображением 
-	 * @param model $owner 
+	 * Добавляет модели валидатор для поля с изображением
+	 * @param model $owner
 	 */
 	public function attach($owner) {
 		parent::attach($owner);
@@ -119,7 +119,7 @@ class HIUBehavior extends CActiveRecordBehavior
 
 			if($id == 'original')
 				$size['prefix'] = '';
-			else 
+			else
 			$size['prefix'] = $id;
 
 			if(!isset($size['height']))
@@ -137,7 +137,7 @@ class HIUBehavior extends CActiveRecordBehavior
 	{
 		$model = $event->sender;
 
-		if($this->_oldFilePath == $model->{$this->fileAtt} || empty($model->{$this->fileAtt})) 
+		if($this->_oldFilePath == $model->{$this->fileAtt} || empty($model->{$this->fileAtt}))
 		{
 			$model->{$this->fileAtt} = null;
 			$this->generateFileName($model);
@@ -155,9 +155,9 @@ class HIUBehavior extends CActiveRecordBehavior
 	}
 
 	/**
-	 * После сохранения присваиваем полю uImage ссылку на актуальное изображение  
-	 * 
-	 * @param CEvent $event 
+	 * После сохранения присваиваем полю uImage ссылку на актуальное изображение
+	 *
+	 * @param CEvent $event
 	 * @access public
 	 * @return void
 	 */
@@ -169,9 +169,9 @@ class HIUBehavior extends CActiveRecordBehavior
 	}
 
 	/**
-	 * Заполняем поле uImage адресом текущего изображения  
-	 * 
-	 * @param CEvent $event 
+	 * Заполняем поле uImage адресом текущего изображения
+	 *
+	 * @param CEvent $event
 	 * @access public
 	 * @return void
 	 */
@@ -184,9 +184,9 @@ class HIUBehavior extends CActiveRecordBehavior
 			print_r($put);exit;
 		}
 	}
-	
+
 	/**
-	 * Удаляем картинки, загруженные с моделью 
+	 * Удаляем картинки, загруженные с моделью
 	 */
 	public function afterDelete($event)
 	{
@@ -202,7 +202,7 @@ class HIUBehavior extends CActiveRecordBehavior
 	 * @param string $attribute имя атрибута в котором хранится название файла картинки
 	 */
 	protected function processUpload($model, $attribute)
-	{ 
+	{
 		$model->uImage = $this->getUploadedFile();
 
 		// попробуем удалить старое изображение, если в запросе присутствуют соответствующие флаги
@@ -216,10 +216,10 @@ class HIUBehavior extends CActiveRecordBehavior
 			// Юзер не производил загрузки новой картинки
 			return;
 
-		
+
 		$wideImage = $this->loadImage($model->uImage->tempName);
 		//$initialWidth = $wideImage->getWidth();
-		
+
 		//if($initialWidth <= $this->sizes['normal']['width']) // изображение меньше максимальной ширины
 		//  unset($this->sizes['original']);
 
@@ -235,7 +235,7 @@ class HIUBehavior extends CActiveRecordBehavior
 
 	/**
 	 * Создает изображение заданного размера $size.
-	 * 
+	 *
 	 * @param mixed $size псевдоним размера или массив с настройками размера
 	 * @param mixed $filePath путь к файлу картинки-исходника или обьект WideImage
 	 * @access protected
@@ -288,8 +288,8 @@ class HIUBehavior extends CActiveRecordBehavior
 	}
 
 	/**
-	 * Возвращает качество изображения в зависимости от его расширения  
-	 * 
+	 * Возвращает качество изображения в зависимости от его расширения
+	 *
 	 * @param mixed $fileName имя файла
 	 * @access protected
 	 * @return string
@@ -302,7 +302,7 @@ class HIUBehavior extends CActiveRecordBehavior
 
 	/**
 	 * Возвращает имя файла картинки или генерирует новое (если юзер загрузил картинку)
-	 * 
+	 *
 	 * @see {@link generateFileName}
 	 * @access public
 	 * @return string имя файла картинки
@@ -313,13 +313,13 @@ class HIUBehavior extends CActiveRecordBehavior
 
 		if(empty($fileName) && !$this->generateFileName($this->owner))
 			return null;
-			
+
 		return basename($this->owner->{$this->fileAtt});
 	}
 
 	/**
 	 * Возвращает имя файла с относительным путем (например 2013/09/fileName.ext) картинки или генерирует новые (если юзер загрузил картинку)
-	 * 
+	 *
 	 * @see {@link generateFileName}
 	 * @access public
 	 * @return string имя файла картинки
@@ -330,13 +330,13 @@ class HIUBehavior extends CActiveRecordBehavior
 
 		if(empty($fileRelPath) && !$this->generateFileName($this->owner))
 			return null;
-			
+
 		return $this->owner->{$this->fileAtt};
 	}
 
 	/**
 	 * Генерирует уникальное имя файла для картинки с учетом заданных в настройках расширений
-	 * 
+	 *
 	 * @param CActiveRecord $model
 	 * @access protected
 	 * @return string имя файла
@@ -359,9 +359,9 @@ class HIUBehavior extends CActiveRecordBehavior
 			}
 
 
-			$folder = $this->dirName.DIRECTORY_SEPARATOR.date('Y').DIRECTORY_SEPARATOR.date('m').DIRECTORY_SEPARATOR; 
-			
-			if (!file_exists($this->uploadPath.DIRECTORY_SEPARATOR.$folder) && 
+			$folder = $this->dirName.DIRECTORY_SEPARATOR.date('Y').DIRECTORY_SEPARATOR.date('m').DIRECTORY_SEPARATOR;
+
+			if (!file_exists($this->uploadPath.DIRECTORY_SEPARATOR.$folder) &&
 				!is_dir($this->uploadPath.DIRECTORY_SEPARATOR.$folder)){
 				mkdir($this->uploadPath.DIRECTORY_SEPARATOR.$folder,0777,true);
 			}
@@ -370,7 +370,7 @@ class HIUBehavior extends CActiveRecordBehavior
 
 			$return = $model->{$this->fileAtt};
 		}
-		
+
 		return $return;
 	}
 
@@ -379,7 +379,7 @@ class HIUBehavior extends CActiveRecordBehavior
 	 */
 	protected function getUploadedFile()
 	{
-		$uImage=CUploadedFile::getInstance($this->owner, $this->fileFieldName);  
+		$uImage=CUploadedFile::getInstance($this->owner, $this->fileFieldName);
 		if(!$uImage)
 			$uImage=CUploadedFile::getInstanceByName($this->fileFieldName);
 
@@ -387,8 +387,8 @@ class HIUBehavior extends CActiveRecordBehavior
 	}
 
 	/**
-	 * Удаляет изображение и все его копии (превьюшки и т.д.) из фс по его имени  
-	 * 
+	 * Удаляет изображение и все его копии (превьюшки и т.д.) из фс по его имени
+	 *
 	 * @param string $fileRelPath относительный путь файла
 	 * @access protected
 	 * @return void
@@ -409,7 +409,7 @@ class HIUBehavior extends CActiveRecordBehavior
 
 	/**
 	 * Возвращает html код изображения по его размеру
-	 * 
+	 *
 	 * @param string $size имя элемента из массива {@link $sizes}
 	 * @param string $alt alt аттрибут для тега img
 	 * @param array $htmlOptions массив дополнительных настроек для CHtml::image()
@@ -445,7 +445,7 @@ class HIUBehavior extends CActiveRecordBehavior
 
 	/**
 	 * Возвращает адрес картинки по ее размеру
-	 * 
+	 *
 	 * @param string $size имя элемента из массива {@link $sizes}
 	 * @see $sizes
 	 * @access public
@@ -487,7 +487,7 @@ class HIUBehavior extends CActiveRecordBehavior
 		$size = $this->sizes[$size];
 		return array('width' => $size['width'], 'height' => $size['height']);
 	}
-	
+
 	/**
 	 *  @return путь к папке для загрузки файлов
 	 */
@@ -499,7 +499,7 @@ class HIUBehavior extends CActiveRecordBehavior
 
 		return $dir;
 	}
-	
+
 	/**
 	 *  @return uri папки с картинками
 	 */
@@ -517,15 +517,15 @@ class HIUBehavior extends CActiveRecordBehavior
 	}
 
 	/**
-	 * Возвращает экземпляр обьекта WideImage для изображения $imagePath  
-	 * 
+	 * Возвращает экземпляр обьекта WideImage для изображения $imagePath
+	 *
 	 * @param mixed $imagePath
 	 * @access protected
 	 * @return void
 	 */
 	protected function loadImage($imagePath)
 	{
-		Yii::import('application.vendors.wideImage.WideImage');
+		Yii::import('application.vendor.wideImage.WideImage');
 		return WideImage::load($imagePath);
 	}
 }

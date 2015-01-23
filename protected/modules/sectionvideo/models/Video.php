@@ -92,7 +92,7 @@ class Video extends \CActiveRecord
 				),
 		);
 	}
-  
+
 	/**
 	 *  Обновляем даты
 	 *  Генерируем HTML код видеоплеера и заполняем поле превьюшки видео ролика через YouTube API
@@ -104,7 +104,7 @@ class Video extends \CActiveRecord
 			if($this->isNewRecord)
 				$this->date_create = new \CDbExpression('NOW()');
 
-			
+
 			$entry = self::getYtVideoEntry($this->video_url);
 			$this->thumbnail = self::getYtVideoThumbnail($entry);
 
@@ -118,8 +118,8 @@ class Video extends \CActiveRecord
     {
         return array(
 			'order'=>'date_create DESC',
-        );      
- 
+        );
+
     }
 
 	/**
@@ -215,7 +215,7 @@ class Video extends \CActiveRecord
 	{
 		$videoId = self::getYtVideoId($url);
 
-		Yii::import('application.vendors.*');
+		Yii::import('application.vendor.*');
 		require_once 'Zend/Loader.php';
 
 		\Zend_Loader::loadClass('Zend_Gdata_YouTube');
@@ -228,14 +228,14 @@ class Video extends \CActiveRecord
 	}
 
 	/**
-	 * Возвращает id видеоролика с youtube. URL 
+	 * Возвращает id видеоролика с youtube. URL
 	 * @param string $url url видеоролика (например: http://www.youtube.com/watch?v=EB4ljWxG5P4)
 	 * @return string video id
 	 */
 	public static function getYtVideoId($url)
 	{
 		parse_str(parse_url($url, PHP_URL_QUERY), $params);
-		
+
 		return $params['v'];
 	}
 
@@ -292,7 +292,7 @@ class Video extends \CActiveRecord
 		$types = self::getTypesList();
 		return isset($types[$this->type]) ? $types[$this->type] : '';
 	}
-  
+
 	/**
 	 * @return array типы полей для форм администрирования модуля
 	 */

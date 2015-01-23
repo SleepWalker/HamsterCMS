@@ -1,6 +1,6 @@
 <?php
 /**
- * Event module main controller file 
+ * Event module main controller file
  *
  * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
  * @package    event.controllers.EventController
@@ -36,10 +36,10 @@ class EventController extends Controller
 			),
 		);
 	}
-  
+
   /**
 	 * Lists all models.
-	 */ 
+	 */
 	public function actionIndex()
 	{
     $dataProvider = new CActiveDataProvider('Event', array(
@@ -49,7 +49,7 @@ class EventController extends Controller
 			'dataProvider'=>$dataProvider,
 		));
 	}
-  
+
   /**
 	 * Displays a particular model.
 	 * @param integer $id the ID of the model to be displayed
@@ -60,17 +60,17 @@ class EventController extends Controller
 			'model'=>$this->loadModel($id),
 		));
 	}
-  
+
   /**
 	 * Генерирует и отправляет файл iCalendar для встречи с $id
 	 * @param integer $id встречи
 	 */
   public function actionIcal($id)
   {
-    Yii::import('application.vendors.iCalcreator.*');
+    Yii::import('application.vendor.iCalcreator.*');
     require_once 'iCalcreator.class.php';
     $event = $this->loadModel($id);
-    
+
     $config    = array(
       "unique_id" => $event->eventId . "@" . $_SERVER['SERVER_NAME'] ,
       'filename' => 'event'.$event->eventId.'_' . $_SERVER['SERVER_NAME'] . '.ics',
@@ -93,7 +93,7 @@ class EventController extends Controller
     $vevent->setProperty( "X-WR-RELCALID", $uuid );
     $vevent->setProperty( "X-WR-TIMEZONE", "Europe/Ukraine" );
     $vcalendar->sort();
-    
+
     $utf8Encode = FALSE;
     if( isset( $_SERVER["HTTP_ACCEPT_ENCODING"] ) &&
       ( FALSE !== strpos( strtolower( $_SERVER["HTTP_ACCEPT_ENCODING"] ), "gzip" )))
@@ -102,7 +102,7 @@ class EventController extends Controller
       $gzip     = FALSE;
     $vcalendar->returnCalendar($utf8Encode, $gzip);
   }
-  
+
   /**
 	 * Returns the data model based on the primary key given in the GET variable.
 	 * If the data model is not found, an HTTP exception will be raised.

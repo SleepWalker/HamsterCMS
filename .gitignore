@@ -11,4 +11,4 @@ Thumbs.db
 .*.swp
 .*.swo
 *~
-protected/vendors/composer/vendor
+protected/vendor/composer/vendor

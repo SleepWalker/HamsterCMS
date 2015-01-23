@@ -42,7 +42,7 @@ class Shop extends CActiveRecord
   public $photo;
   public $prId; // id Продукта (по прайсу)
   public $uImage; // поле загрузки изображения
-  
+
   /**
    *  Переменные специально для поиска и фильтрации с помощью search()
    */
@@ -55,7 +55,7 @@ class Shop extends CActiveRecord
   public $date_add_to;
   public $date_edit_from;
   public $date_edit_to;
-  
+
   /**
    *  Поля для установки цены с помощью слайдера (в виджете фильтра)
    */
@@ -64,19 +64,19 @@ class Shop extends CActiveRecord
   protected $_minmax;
   protected $min;
   protected $max;
-  
+
   // Дириктория для загрузки изображений и превьюшек
   public static $uploadsUrl = '/uploads/shop/';
   //public $char; //характеристики текущего товара
-  
+
   const STATUS_AVAIBLE=1;
   const STATUS_PUBLISHED=1; // на всякий случай, может где-то пропустил
   const STATUS_PREORDER=2;
   const STATUS_UNAVAIBLE=3;
   const STATUS_OUT_OF_PRODUCTION=4;
   const STATUS_DRAFT=5;
-  
-  
+
+
   protected $_statusNames = array(
     self::STATUS_DRAFT => '<span class="status_draft">Черновик</span>',
     self::STATUS_AVAIBLE => '<span class="status_avaible">Есть в наличии</span>',
@@ -84,7 +84,7 @@ class Shop extends CActiveRecord
     self::STATUS_PREORDER => '<span class="status_preorder" style="color:#19b6b8;">Под заказ</span>',
     self::STATUS_OUT_OF_PRODUCTION => '<span class="status_outOfProduction">Снят с производства</span>',
   );
-  
+
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @param string $className active record class name.
@@ -163,7 +163,7 @@ class Shop extends CActiveRecord
 			'rVoteCount' => array(self::STAT, 'Rating', 'prod_id'), //T!: убрать строку
 		);
 	}
-	
+
 	public function scopes()
   {
     return array(
@@ -178,7 +178,7 @@ class Shop extends CActiveRecord
       ),
     );
   }
-  
+
   /**
    *  Проверяет уникальность идентификатора продукта
    *  а так же соответствию формату, заданному в настройках модуля
@@ -202,16 +202,16 @@ class Shop extends CActiveRecord
         // проверим длину prId
         $maxLength = Yii::app()->modules['shop']['params']['codeLength'];
         if($codeFormat == 'supplierPreffix')
-          $maxLength -= 2; 
+          $maxLength -= 2;
         if(strlen($this->prId) > $maxLength)
           $this->addError($attribute, 'Слишком длинный код');
       }
     }
   }
-  
+
   /**
    *  Генерирует конечный code товара из id поставщика и prId товара у поставщика
-   * 
+   *
    *  @param integer $prId code Товара
    *  @param integer $supplier_id id поставщика
    *
@@ -266,7 +266,7 @@ class Shop extends CActiveRecord
 			'priceMax' => 'До',
 		);
 	}
-	
+
 	/**
 	 * @return array типы полей для форм администрирования модуля
 	 */
@@ -297,7 +297,7 @@ class Shop extends CActiveRecord
 			    'style'=>'display:none;',
 			    //'disabled'=>'disabled'
 			  )
-			), 
+			),
 			'waranty' => 'text',
       'model_code' => 'text',
 			'price' => 'text',
@@ -317,7 +317,7 @@ class Shop extends CActiveRecord
 			'description' => 'textarea',
 		);
 	}
-	
+
 	protected function showImages()
 	{
 	  $str = '<ul class="filseList">';
@@ -328,7 +328,7 @@ class Shop extends CActiveRecord
 	  $str .= '</ul>';
 	  return $str;
 	}
-	
+
 	/**
    * Возвращает текстовое представление статуса
    */
@@ -336,7 +336,7 @@ class Shop extends CActiveRecord
 	{
 	  return $this->_statusNames[$this->status];
 	}
-	
+
 	/*
 	*  используется для фильтра в CGridView, а так же при добавлении товара
 	*/
@@ -349,7 +349,7 @@ class Shop extends CActiveRecord
       self::STATUS_OUT_OF_PRODUCTION => 'Снят с производства',
     );
   }
-  
+
   /**
    *  Выводит виджет с рейтингом
    */
@@ -362,7 +362,7 @@ class Shop extends CActiveRecord
     ));
     echo '<span style="vertical-align: 3px;">(' . $this->votesCount . ')</span>';
   }
-  
+
   /**
    *  @return string количество проголосовавших юзеров
    */
@@ -371,10 +371,10 @@ class Shop extends CActiveRecord
     $rating[0] = 0;
     if($this->rating)
       $rating = explode('.', (string)$this->rating);
-    
+
     return $rating[0];
   }
-  
+
   /**
    *  @return string рейтинг
    */
@@ -383,7 +383,7 @@ class Shop extends CActiveRecord
     $rating = explode('.', (string)$this->rating);
     return $rating[1]/100;
   }
-  
+
   /**
    *  Возвращает максимальное/минимальное значение характеристики в зависимости от $minmax
    *  $minmax может принимать значения min или max
@@ -402,17 +402,17 @@ class Shop extends CActiveRecord
     }
     return (float)$this->_minmax->$minmax;
   }
-  
+
   public function getMinPriceVal()
   {
     return $this->range('min');
   }
-  
+
   public function getMaxPriceVal()
   {
     return $this->range('max');
   }
-		
+
 	/**
    * Возвращает url страницы материала
    */
@@ -420,7 +420,7 @@ class Shop extends CActiveRecord
   {
     return Yii::app()->createUrl('shop/' . $this->page_alias);
   }
-  
+
   /**
    * Возвращает uri загрузки файлов
    */
@@ -428,11 +428,11 @@ class Shop extends CActiveRecord
   {
     return self::$uploadsUrl;
   }
-  
+
   /**
 	 *  Расшифровываем данные поля extra
 	 */
-	protected function afterFind() 
+	protected function afterFind()
 	{
 	  $extra = unserialize($this->shop_extra);
 	  $this->waranty = $extra['waranty'];
@@ -444,7 +444,7 @@ class Shop extends CActiveRecord
 
     // Форматирование кода в зависимости от формата, указанного в админке
     $codeFormat = Yii::app()->modules['shop']['params']['codeFormat'];
-    if($codeFormat == 'supplierPreffix' || $codeFormat == 'zerofill') 
+    if($codeFormat == 'supplierPreffix' || $codeFormat == 'zerofill')
       $this->prId = $this->code = sprintf("%'0" . Yii::app()->modules['shop']['params']['codeLength'] . "s", $this->code);
 
       if($codeFormat == 'supplierPreffix')
@@ -452,7 +452,7 @@ class Shop extends CActiveRecord
 
     if(!is_array($this->photo)) $this->photo = array();
 	}
-	
+
 	/**
 	 *  Сериализуем shop_extra
 	 *  Обновляем даты
@@ -469,7 +469,7 @@ class Shop extends CActiveRecord
       }
       else
         $this->edit_date=new CDbExpression('NOW()');
-        
+
       $extra['waranty'] = $this->waranty;
       $extra['model_code'] = $this->model_code;
       $extra['review'] = $this->review;
@@ -483,7 +483,7 @@ class Shop extends CActiveRecord
     else
       return false;
   }
-  
+
   /**
 	 * Для надежности транслитерируем поле product_alias
 	 */
@@ -497,13 +497,13 @@ class Shop extends CActiveRecord
     else
       return false;
 	}
-	
+
 	protected function afterConstruct()
 	{
 	  if($this->isNewRecord)
         $this->photo = array();
 	}
-	
+
 	/**
    *  @param string $name имя файла картинки
    *  @param integer $thumb ширина в пикселях превьюшки
@@ -518,16 +518,16 @@ class Shop extends CActiveRecord
 	    if(!is_file($uploadPath . $thumb . DIRECTORY_SEPARATOR . $name)) // Создаем превьюшку
 	    {
 	      if(!is_file($uploadPath . $name)) return; // Не существует даже оргинала картинки / прерываем
-	      
+
 	      if(!is_dir($uploadPath . $thumb)) // создаем директорию для картинок
 	        mkdir($uploadPath . $thumb, 0777);
-	  
-	      Yii::import('application.vendors.wideImage.WideImage'); // Библиотека управления изображениями
-	  	
+
+	      Yii::import('application.vendor.wideImage.WideImage'); // Библиотека управления изображениями
+
 	      $sourcePath = pathinfo($name);
 	      $wideImage = WideImage::load($uploadPath .  $name);
 	      $white = $wideImage->allocateColor(255, 255, 255);
-	      
+
 	      // тут не учтены не квадратные разрешения
 	      $wideImage->resize($thumb, $thumb)->resizeCanvas($thumb, $thumb, 'center', 'center', $white)->saveToFile($uploadPath . $thumb . DIRECTORY_SEPARATOR . $sourcePath['filename'].'.jpg', 75);
 	    }
@@ -536,7 +536,7 @@ class Shop extends CActiveRecord
 	    $src = Shop::$uploadsUrl .  $name;
 	  return $src;
 	}
-  
+
   /**
    *  @return ссылку на картинку первой превьюшки
    */
@@ -544,7 +544,7 @@ class Shop extends CActiveRecord
   {
     return Shop::imgSrc($this->photo[0], $thumbWidth);
   }
-	
+
 	/**
 	*  Возвращает код img картинки по ее индексу
 	**/
@@ -554,7 +554,7 @@ class Shop extends CActiveRecord
 	  if ($index === false) $index = key($this->photo);
 	  return CHtml::image(Shop::imgSrc($this->photo[$index], $thumbWidth), $this->product_name, array('width' => ($thumbWidth ? $thumbWidth : '')));
 	}
-  
+
 
 	/**
 	 * Retrieves a list of models based on the current search/filter conditions.
@@ -585,7 +585,7 @@ class Shop extends CActiveRecord
 		$criteria->compare($alias . '.product_name',$this->product_name,true);
 		$criteria->compare($alias . '.rating',$this->rating,true);
 		$criteria->compare($alias . '.status',$this->status);
-		
+
 		// Критерии для фильтрации по related таблицам
 		$criteria->compare( 'user.' . User::first_name, $this->user_search, true );
 		$criteria->compare( 'brand.brand_name', $this->brand_search, true );
@@ -647,18 +647,18 @@ class Shop extends CActiveRecord
     // фильтруем по характеристикам
     if(isset($filterData['CF']) || isset($filterData['CNF']))
       $this->getCharSubQuery($filterData, $criteria);
-    
+
     // фильтруем по бренду
     if(isset($filterData['BF']))
       $criteria->compare('brand_id', $filterData['BF']);
-    
+
     // фильтруем по диапазону цены
 	  if(isset($filterData['Shop']))
 	    $criteria->addBetweenCondition('CAST( ' . $alias . '.price AS DECIMAL )', $filterData['Shop']['priceMin'], $filterData['Shop']['priceMax'], 'AND');
-		
+
 	  $dataProvider=new CActiveDataProvider(Shop::model(), array(
       'criteria'=>$criteria,
-      'sort'=>array( 
+      'sort'=>array(
         // определяем сортировку, что бы сверху были товары, которые есть в наличии, а так же самые популярные из них
         'defaultOrder'=>$alias . '.`status` ASC, ' . $alias . '.`rating` DESC, ' . $alias . '.`add_date` DESC',
         'attributes' => array(
@@ -681,12 +681,12 @@ class Shop extends CActiveRecord
   }
 
   /**
-   * Метод генерирует SELECT запрос, который вернет prod_id товаров, 
+   * Метод генерирует SELECT запрос, который вернет prod_id товаров,
    * у которых присутствуют все выбранные пользователем характеристики
    * Далее присоединяет этот подзапрос (если он не пустой) к основному запросу $criteria
-   * 
+   *
    * @param array $filterData массив с данными фильтра (элементы CF и CNF)
-   * @param CDbCriteria $criteria 
+   * @param CDbCriteria $criteria
    * @access protected
    * @return void
    */
@@ -702,17 +702,17 @@ class Shop extends CActiveRecord
 
     if (isset($filterData['CF']))
     {
-      // для типов множественного выбора (checkbox в админке). 
+      // для типов множественного выбора (checkbox в админке).
       if (is_array($filterData['CF']['m']))
       {
-        // тут подразумевается, что пользователь ставя галочки расчитывает получить товары, 
+        // тут подразумевается, что пользователь ставя галочки расчитывает получить товары,
         // в которых присутствует не менее одного из выбранных им вариантов
         // (к примеру цвет, размер, диагональ экрана, обьем оперативной памяти и т.д.)
         foreach($filterData['CF']['m'] as $likeId => $likeArr)
         {
           // добавляем в массив в котором хранятся все id характеристик характеристик,
           // которые обязаны присутствовать у товара
-          $ids[] = $likeId; 
+          $ids[] = $likeId;
           foreach($likeArr as $likeValue)
           {
             $charCriteria->compare('CONCAT("; ", char.char_value, ";")', '; ' . $likeValue . ';', true , 'OR');
@@ -724,10 +724,10 @@ class Shop extends CActiveRecord
       // нам надо, что бы эти условия сравнивались между собой через AND, потому мы добавляем их в $criteria первыми
       foreach($filterData['CF'] as $id => $value)
       {
-        // выбирая одну из характеристик данного типа пользователю нужно получить товар, 
+        // выбирая одну из характеристик данного типа пользователю нужно получить товар,
         // в котором обязательно присутствует выбранная им опция (потому мы добавляем id характеристики в массив $ids)
         // В конце концов мы должны получить count($ids) характеристик, которые обязаны присутствовать у товара
-        // оператор OR используется потому, что на данном этапе мы выбираем все 
+        // оператор OR используется потому, что на данном этапе мы выбираем все
         // характеристики из shop_char с помощью подзапроса.
         if($id == 'm') continue; // пропускаем элемент с характеристиками с множественным выбором
         $charCriteria->compare('char.char_value', $value, false , 'OR');
@@ -742,7 +742,7 @@ class Shop extends CActiveRecord
         // проверяем граничные значения
         // если значения фильтра совпадают с граничными значениями - не фильтруем по текущей характеристике
         $charMinMax = Char::setId($id);
-        //T!: Char::setId($id)->minValue использовать, когда данные будут кешироваться          
+        //T!: Char::setId($id)->minValue использовать, когда данные будут кешироваться
         if ($value[0] == $charMinMax->minValue && $value[1] == $charMinMax->maxValue) continue;
         $charCriteria->addBetweenCondition('CAST( char.char_value AS DECIMAL )', $value[0], $value[1], 'OR');
         $ids[] = $id;

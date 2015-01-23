@@ -21,10 +21,10 @@ return
 		'sourceLanguage'=>'ru',
 		'charset'=>'UTF-8',
 		'theme' => 'default',
-		
+
 		// preloading 'log' component
 		'preload'=>array('log'),
-	
+
 		// autoloading model and component classes
 		'import'=>array(
 			'application.models.*',
@@ -39,15 +39,15 @@ return
 								'param1'=>value1,
 										'param2'=>value2,
 										),*/
-		
+
 		// gzip сжатие
 		/*'onBeginRequest'=>create_function('$event', 'return ob_start("ob_gzhandler");'),
 		'onEndRequest'=>create_function('$event', 'return ob_end_flush();'),*/
-	
-		'modules'=>array( 		
-			'admin',	
+
+		'modules'=>array(
+			'admin',
 		),
-	
+
 		// application components
 		'components'=>array(
 			'request'=>array(
@@ -64,7 +64,7 @@ return
 				//'initSQLs'=>array("set time_zone='+00:00';"),
 			),
 			'menuMap'=>array(
-				'class'=>'HMenuMap', 
+				'class'=>'HMenuMap',
 			),
 			'user'=>array(
 				// enable cookie-based authentication
@@ -111,7 +111,7 @@ return
 				'class'         => 'ext.yii-pdf.EYiiPdf',
 				'params'        => array(
 					'mpdf'     => array(
-						'librarySourcePath' => 'application.vendors.mpdf.*',
+						'librarySourcePath' => 'application.vendor.mpdf.*',
 						'constants'         => array(
 							'_MPDF_TEMP_PATH' => Yii::getPathOfAlias('application.runtime'),
 						),
@@ -153,7 +153,7 @@ return
 
 					'<controller:page|api>/<path:.*>'=>'<controller>/index',
 					// '<module:\w+>/<controller:\w+>/<action:\w+>/<id:\d+>'=>'<module>/<controller>/<action>',
-					
+
 					// правило для админки action (оно же название модуля)
 					// 'admin/<module:\w+>'=>'admin/admin/<module>',
 					// правило для админки crud и subaction только create|update|delete,
@@ -172,22 +172,22 @@ return
 				'class' => 'NLSClientScript',
 				//'excludePattern' => '/\.tpl/i', //js regexp, files with matching paths won't be filtered is set to other than 'null'
 				//'includePattern' => '/\.php/', //js regexp, only files with matching paths will be filtered if set to other than 'null'
-		 
+
 				'mergeJs' => false, //def:true
 				// 'compressMergedJs' => false, //def:false
-		 
+
 				'mergeCss' => false, //def:true
 				// 'compressMergedCss' => false, //def:false
-		 
+
 				// 'mergeJsExcludePattern' => '/edit_area/', //won't merge js files with matching names
-		 
+
 				// 'mergeIfXhr' => true, //def:false, if true->attempts to merge the js files even if the request was xhr (if all other merging conditions are satisfied)
-		 
+
 				// 'serverBaseUrl' => 'http://localhost', //can be optionally set here
 				// 'mergeAbove' => 1, //def:1, only "more than this value" files will be merged,
 				// 'curlTimeOut' => 10, //def:10, see curl_setopt() doc
 				// 'curlConnectionTimeOut' => 10, //def:10, see curl_setopt() doc
-		 
+
 				// 'appVersion'=>1.0 //if set, it will be appended to the urls of the merged scripts/css
 			),
 
@@ -196,12 +196,12 @@ return
 				'connectionID'=>'db',
 				'defaultRoles' => array('guest', 'user'),
 			),
-			
+
 			'errorHandler'=>array(
 			 // use 'site/error' action to display errors
 					'errorAction'=>'site/error',
 			),
-			
+
 			'log'=>array(
 				'class'=>'CLogRouter',
 				'routes'=>array(
@@ -225,24 +225,13 @@ return
 							'prefixUser' => false,
 							'logUser' => false,
 							'logVars'=>array(
-								'_GET', 
-								'_POST', 
-								array('_SERVER', 'REQUEST_URI'), 
+								'_GET',
+								'_POST',
+								array('_SERVER', 'REQUEST_URI'),
 								array('_SERVER', 'REMOTE_ADDR'),
 							),
 						),
 					),
-					/*array(
-						'class'=>'CFileLogRoute',
-						'levels'=>'info',
-						'logFile' => 'info.log',
-					),*/
-					// uncomment the following to show log messages on web pages
-					/*
-					array(
-						'class'=>'CWebLogRoute',
-					),
-					*/
 				),
 			),
 		),

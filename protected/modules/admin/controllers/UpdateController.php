@@ -9,8 +9,8 @@
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
-class UpdateController extends HAdminController 
-{ 
+class UpdateController extends HAdminController
+{
 
 	/**
 	 * @vararray $dirMap хранит карту с директориями цмс и их хешами
@@ -50,7 +50,7 @@ class UpdateController extends HAdminController
 	/**
 	 * @return меню для табов
 	 */
-	public function tabs() 
+	public function tabs()
 	{
 		$updateList = $this->dbUpdateList; // модули к обновлению
 		$updateCount = $updateList ? ' (<b style="text-decoration: blink;color:orange;">' . count($updateList) . '</b>)' : '';
@@ -61,7 +61,7 @@ class UpdateController extends HAdminController
 			'download' => 'Загрузка модулей',
 		);
 	}
-	
+
 	public function actionIndex()
 	{
 		$enModsIds = array_keys($this->enabledModules);
@@ -70,7 +70,7 @@ class UpdateController extends HAdminController
 			'application.controllers',
 			'application.extensions',
 			'application.models',
-			'application.vendors',
+			'application.vendor',
 			'application.views',
 			'application.widgets',
 		);
@@ -83,7 +83,7 @@ class UpdateController extends HAdminController
 		$deleteList = array(); // файлы к удалению
 		$updateList = array(); // файлы к обновлению
 		$ignoreList = array(); // файлы, которыe будут игнорироваться
-		
+
 		// массив с файлами, которые будут игнорироваться (не должны автоматически обновлятся)
 		$tmpIgnoreList = Yii::getPathOfAlias('application.config') . '/updateIgnoreList.php';
 		if(is_file($tmpIgnoreList))
@@ -108,10 +108,10 @@ class UpdateController extends HAdminController
 			$updateList = array_merge($updateList,
 			 array_diff(
 				 $ans[$alias]['hashList'],
-				 $arr['hashList'] 
+				 $arr['hashList']
 			 ));
 		}
-		
+
 		// удаляем из $updateList файлы, которые присутствуют в $ignoreList
 		foreach($ignoreList as $file)
 			unset($updateList[$file]);
@@ -125,7 +125,7 @@ class UpdateController extends HAdminController
 	Игнорируются:
 	<?php echo implode("\n", $ignoreList); ?>
 <?php
-		$logMessage = ob_get_clean(); 
+		$logMessage = ob_get_clean();
 
 		if(isset($_POST['update']))
 		{
@@ -135,7 +135,7 @@ class UpdateController extends HAdminController
 			// загружаем обновления
 			if(count($updateList))
 				$status = $status && $this->getUpdates(array_keys($updateList));
-			
+
 			// удаляем старые файлы
 			if(count($deleteList))
 				foreach($deleteList as $file)
@@ -172,8 +172,8 @@ class UpdateController extends HAdminController
 	}
 
 	/**
-	 * Экшен отвечающий за обновление баз данных модулей  
-	 * 
+	 * Экшен отвечающий за обновление баз данных модулей
+	 *
 	 * @access public
 	 * @return void
 	 */
@@ -186,7 +186,7 @@ class UpdateController extends HAdminController
 	К обновлению:
 	<?php echo implode("\n", array_keys($updateList)); ?>
 <?php
-		$logMessage = ob_get_clean(); 
+		$logMessage = ob_get_clean();
 
 		if(isset($_POST['update']))
 		{
@@ -214,8 +214,8 @@ class UpdateController extends HAdminController
 	}
 
 	/**
-	 * Список модулей, которым необходимо обновление БД  
-	 * 
+	 * Список модулей, которым необходимо обновление БД
+	 *
 	 * @access protected
 	 * @return array
 	 */
@@ -235,11 +235,11 @@ class UpdateController extends HAdminController
 				$this->refresh();
 				Yii::app()->end();
 			}
-			
+
 			$oldV = (string)$this->modulesInfo[$moduleId]['db']['version'];
 			if($newV != $oldV)
 				$updateList[$this->modulesInfo[$moduleId]['title']] = array(
-					'moduleId' => $moduleId, 
+					'moduleId' => $moduleId,
 					'newV' => $newV,
 					'oldV' => $oldV,
 				);
@@ -250,7 +250,7 @@ class UpdateController extends HAdminController
 
 	/**
 	 * Позволяет загружать модули, которых еще нету в цмс с сервера обновлений hamster
-	 * 
+	 *
 	 * @access public
 	 * @return void
 	 */
@@ -294,34 +294,34 @@ class UpdateController extends HAdminController
 
 	/**
 	 * Запускает обновление базы данных для конкретного модуля
-	 * 
+	 *
 	 * @param array $updateInfo массив в котором находятся три элемента - moduleId, oldV, newV
 	 * @access protected
 	 * @return boolean true если обновление прошло успешно
 	 */
 	protected function runDBUpdate($updateInfo)
 	{
-		return 
+		return
 			HUpdateDb::instance($updateInfo['moduleId'])
 			->runUpdates($updateInfo['oldV'], $updateInfo['newV']);
 	}
 
 	/**
 	 * Возвращает массив в котором находится структура директорий цмс в формате,
-	 * удобном для проверки актуальности файлов 
-	 * 
+	 * удобном для проверки актуальности файлов
+	 *
 	 * @param mixed $alias alias директории, для которой будет строиться массив
 	 * @param array $ignoreList массив с путями к файлам, которые надо игнорировать при обновлении
 	 * @access protected
 	 * @return array массив с путями и их хэшами
 	 */
-	protected function hashDir($alias) 
+	protected function hashDir($alias)
 	{
 		// возвращаем значение из карты (в случае если она уже закеширована)
 		if(is_array($this->dirMap[$alias])) return $this->dirMap[$alias];
 
 		$dir = Yii::getPathOfAlias($alias);
-		
+
 		$pathList = $hashList = array();
 
 		if(is_dir($dir))
@@ -337,11 +337,11 @@ class UpdateController extends HAdminController
 
 				// Игнорим .. и .
 				if($file->getBasename() == '.' || $file->getBasename() == '..')
-					continue; 
+					continue;
 
 				$pathList[] = $path;
 				if ($file->isFile()) {
-					$hashList[$path] = md5_file((string)$file); 
+					$hashList[$path] = md5_file((string)$file);
 				}
 			}
 		}
@@ -352,16 +352,16 @@ class UpdateController extends HAdminController
 	}
 
 	/**
-	 * Инициализирует запрос к серверу обновлений и возвращает 
-	 * массив со структурой директорий эталона. 
-	 * 
+	 * Инициализирует запрос к серверу обновлений и возвращает
+	 * массив со структурой директорий эталона.
+	 *
 	 * @access protected
 	 * @return array массив для сравнения с массивом полученным от {@link hashDir}
 	 */
 	protected function getUpdatesHashList()
 	{
 		$curl = curl_init();
-		
+
 		curl_setopt_array($curl, array(
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_URL => 'http://www.update.hamstercms.com/',
@@ -385,17 +385,17 @@ class UpdateController extends HAdminController
 
 	/**
 	 * Производит запрос на загрузку модулей к серверу обновлений
-	 * 
+	 *
 	 * @param array $moduleList
 	 * @access protected
-	 * @return boolean возвращает true, если в случае успешного обновления файлов CMS 
+	 * @return boolean возвращает true, если в случае успешного обновления файлов CMS
 	 */
 	protected function getModules(array $moduleList, $password)
 	{
 		$curl = curl_init();
 		$saveTo = Yii::getPathOfAlias('application.runtime') . DIRECTORY_SEPARATOR . 'update.zip';
 		$extractTo = Yii::getPathOfAlias('application');
-		
+
 		curl_setopt_array($curl, array(
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_URL => 'http://www.update.hamstercms.com/',
@@ -430,18 +430,18 @@ class UpdateController extends HAdminController
 	}
 
 	/**
-	 * Производит запрос файлов обновлений к серверу обновлений  
-	 * 
+	 * Производит запрос файлов обновлений к серверу обновлений
+	 *
 	 * @param array $fileList массив с путями файлов, которые нужно обновить
 	 * @access protected
-	 * @return boolean возвращает true, если в случае успешного обновления файлов CMS 
+	 * @return boolean возвращает true, если в случае успешного обновления файлов CMS
 	 */
 	protected function getUpdates(array $fileList)
 	{
 		$curl = curl_init();
 		$saveTo = Yii::getPathOfAlias('application.runtime') . DIRECTORY_SEPARATOR . 'update.zip';
 		$extractTo = Yii::getPathOfAlias('application');
-		
+
 		curl_setopt_array($curl, array(
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_URL => 'http://www.update.hamstercms.com/',
@@ -477,7 +477,7 @@ class UpdateController extends HAdminController
 	/**
 	 * Возвращает закэшированный массив с картой директорий полученных
 	 * от {@link hashDir}, если он есть. Иначе вернется пустой массив
-	 * 
+	 *
 	 * @access public
 	 * @return array массив с картой директорий полученных от {@link hashDir}
 	 */

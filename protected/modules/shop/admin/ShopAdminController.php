@@ -10,13 +10,13 @@
 class ShopAdminController extends HAdminController
 {
   public function init()
-  {    
+  {
     parent::init();
 
     $assetsUrl = Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('application.modules.shop.assets').DIRECTORY_SEPARATOR,false,-1,YII_DEBUG);
     Yii::app()->getClientScript()->registerCssFile($assetsUrl.'/css/admin.shop.css');
   }
-  
+
   /**
 	 * @return меню для табов
 	 */
@@ -56,7 +56,7 @@ class ShopAdminController extends HAdminController
       ),
     );
   }
-  
+
   public function renderDepDropDown($catId, $ddArr)
   {
     return CHtml::dropDownList('cat_id_'.$catId, $catId, $ddArr,
@@ -73,7 +73,7 @@ class ShopAdminController extends HAdminController
       'empty' => '--Выберите категорию--',
     ));
   }
-  
+
   /**
 	 * Генерирует зависимые выпадающийе списки для выбора категории
 	 */
@@ -82,25 +82,25 @@ class ShopAdminController extends HAdminController
     if(Yii::app()->request->isPostRequest)
     {
       $tree = Categorie::model()->getDDTree($_POST['catId']);
-      
+
       // Рендерим зависимые выпадающие списки
       foreach($tree as $treeLevel)
         $output = $this->renderDepDropDown($treeLevel['id'], $treeLevel['items']) . '<p/>' . $output;
-        
+
       // Отключаем jquery
-      Yii::app()->clientscript->scriptMap['jquery.js'] = Yii::app()->clientscript->scriptMap['jquery.min.js'] = false; 
-      
+      Yii::app()->clientscript->scriptMap['jquery.js'] = Yii::app()->clientscript->scriptMap['jquery.min.js'] = false;
+
       // Рендерим скрипты
       Yii::app()->getClientScript()->render($output);
       echo $output;
     }
   }
-  
+
   public function actionCreateDdd()
   {
     $this->actionUpdateDdd();
   }
-  
+
   /**
 	 * Генерирует таблицу с характеристиками в зависимости от ID категории
 	 */
@@ -110,7 +110,7 @@ class ShopAdminController extends HAdminController
     {
       // Добываем id родителей текущей категории
       $catIds = Categorie::model()->getParentsCatIds((int)$_POST['catId'], array((int)$_POST['catId']));
-      
+
       $criteria = new CDbCriteria;
 
       $criteria->addInCondition('cat_id', $catIds);
@@ -140,14 +140,14 @@ class ShopAdminController extends HAdminController
   /**
 	 * Создает или редактирует модель
 	 */
-  public function actionUpdate() 
+  public function actionUpdate()
   {
     $uploadPath = $_SERVER['DOCUMENT_ROOT'].Shop::$uploadsUrl;
     if(($dir = Yii::getPathOfAlias('webroot.uploads')) && !is_writable($dir))
       throw new CException("Нужны права на запись в директорию '$dir'");
 	  if(!is_dir($uploadPath)) // создаем директорию для картинок
 	    mkdir($uploadPath, 0777, true);
-	    
+
     //JS для обработки зависимых выпадающих списков выбора категории и подгрузки полей характеристик
     $this->registerFormUpdScript();
 
@@ -155,7 +155,7 @@ class ShopAdminController extends HAdminController
       $model=Shop::model()->findByPk($this->crudid);
     else
       $model = new Shop;
-    
+
     // AJAX валидация
 		if(isset($_POST['ajax']))
 		{
@@ -166,10 +166,10 @@ class ShopAdminController extends HAdminController
         if(isset($_POST['Char']))
         {
           $charShemas = CharShema::model()->findAllByAttributes(array('char_id'=>array_keys($_POST['Char'])));
-          
+
           foreach($charShemas as $charShema)
             $charShemaById[$charShema->char_id] = $charShema;
-          
+
           foreach($_POST['Char'] as $charId => $charData)
           {
             if(!$charShemaById[$charId]->isRequired) continue; // не обязатльные категории пропускаем
@@ -189,41 +189,41 @@ class ShopAdminController extends HAdminController
 		{
 
 			$model->attributes=$_POST['Shop'];
-			
-			//$oldImage = $model->brand_logo; // сохраняем старую картинку, которую, возможно, надо будет удалить в случае успешной валидации формы	
-      
-      //if ($_POST['Brand']['uImage'] == 'delete') $model->brand_logo = ''; // Удаляем инфу о файле из БД, так как файл помечен на удаление, а нового в замен нету.
-			$model->uImage=CUploadedFile::getInstances($model,'uImage');	
 
-      if ($model->validate()) 
+			//$oldImage = $model->brand_logo; // сохраняем старую картинку, которую, возможно, надо будет удалить в случае успешной валидации формы
+
+      //if ($_POST['Brand']['uImage'] == 'delete') $model->brand_logo = ''; // Удаляем инфу о файле из БД, так как файл помечен на удаление, а нового в замен нету.
+			$model->uImage=CUploadedFile::getInstances($model,'uImage');
+
+      if ($model->validate())
       {//throw new CHttpException(404,'Ошибка валидации');
-        
+
         // Проверяем не удалили ли какие-то из уже загруженных файлов
         if (is_array($_POST['delFile']))
 		      foreach($model->photo as $i=>$imgName)
 		        if(in_array($imgName, $_POST['delFile'])) // Файл помечен на удаление. Удаляем его
-		          if(file_exists($uploadPath.$imgName)) 
+		          if(file_exists($uploadPath.$imgName))
 		          {
 		            unlink($uploadPath.$imgName);
 		            unset($model->photo[$i]);
 		          }
-			
+
 			  if ($model->uImage) // Если были загружены изображения
-			  {			  
+			  {
 			    foreach($model->uImage as $img)
 			    {
 			      // Если файл помечен был помечен на удаление. Не обрабатываем его.
 			      if(is_array($_POST['delFile']) && in_array($img->getName(), $_POST['delFile'])) continue;
-			      
+
 				    //$sourcePath = pathinfo($img->getName());//.$sourcePath['extension'];
 				    $fileName = $model->page_alias.'_'.uniqid().'.jpg';
-				
-				    
+
+
 		      	//$file - путь и имя, куда сохранится картинка без изменений
 				    $file = $uploadPath.$fileName;
-				
+
 				    // Ресайзим загруженное изображение
-				    Yii::import('application.vendors.wideImage.WideImage');
+				    Yii::import('application.vendor.wideImage.WideImage');
 				    $wideImage = WideImage::load($img->tempName);
             $white = $wideImage->allocateColor(255, 255, 255);
             $wideImage->resize(600, 500)->resizeCanvas(600, 500, 'center', 'center', $white);
@@ -236,39 +236,39 @@ class ShopAdminController extends HAdminController
               $watermark = WideImage::load($watermarkPath);
               $wideImage = $wideImage->merge($watermark, 'right - 30', 'bottom - 30');
             }
-            
+
             $wideImage->saveToFile($file, 75);
-				    
+
 				    $model->photo[] = $fileName; // Сохраняем инфу о файле в бд
 				  }
 			  }
-			
+
 			  if($model->save(false))
 			  {
-			    // Обрабатываем поля характеристик		
-			    if($_POST['Char'])	
+			    // Обрабатываем поля характеристик
+			    if($_POST['Char'])
 			    {
   			    foreach($_POST['Char'] as $charId => $charData)
   			    {
-              if(empty($charData['char_value'])) 
+              if(empty($charData['char_value']))
               {
                 // пустые характеристики удаляем из пост массива (потом их удалит и из бд)
                 unset($_POST['Char'][$charId]);
-                continue; 
+                continue;
               }
   			      $charModel = Char::model()->findByAttributes(array('char_id'=>$charId, 'prod_id'=>$model->id));
   			      if(!$charModel) $charModel = new Char();
   			      $charModel->prod_id = $model->id;
   			      $charModel->char_id = $charId;
-  			      
+
   			      /*if(is_array($charValue)) $charValue = implode('; ', $charValue);*/
   			      $charModel->char_value = $charData['char_value'];
-  			      
+
   			      // сейвим все поочереди
   			      if(!$charModel->save())
-  			        throw new CHttpException(404,'Ошибка при сохранении');    
+  			        throw new CHttpException(404,'Ошибка при сохранении');
   			    }
-  			    
+
   		      // Зачищаем старые характеристики (только в случае редактирования)
   		      if ($this->crudid && count($_POST['Char']))
               Char::model()->deleteAllByAttributes(array(
@@ -282,18 +282,18 @@ class ShopAdminController extends HAdminController
 			//else
 			//  throw new CHttpException(404,'Ошибка при сохранении');
 		}
-		
+
     $this->renderForm($model);
   }
-  
+
   /**
 	 * Перенаправляет обработку запроса на действие Update
 	 */
-  public function actionCreate() 
+  public function actionCreate()
   {
     $this->actionUpdate();
   }
-  
+
   /**
 	 * JS для обработки зависимых выпадающих списков,
 	 * выбора категории и подгрузки полей характеристик
@@ -302,7 +302,7 @@ class ShopAdminController extends HAdminController
   {
     $prodId = ($this->crudid)?$this->crudid:'0';
     $catUpdInitJs = '
-	    var catId = $("#Shop_cat_id").val(); // Выбранная категория 
+	    var catId = $("#Shop_cat_id").val(); // Выбранная категория
 	    // контейнер для выпадающих списков
 	    $("<div id=\"cat_id_update\"></div>").insertAfter($("#Shop_cat_id"));
 	    jQuery.ajax("' . $this->createUrl('ddd') . '", {
@@ -313,16 +313,16 @@ class ShopAdminController extends HAdminController
 	        $("#cat_id_update").html(answer);
 	      }
 	    });
-	    
+
 	    var prodId = "' . $prodId . '";
-	    
+
 	    var renewRelatedRows = function(charIds, show, isSelect)
 	    {
 	      show = (show)?"show":"hide";
 	      if(isSelect != undefined) // для селектов
 	      {
   	      for (i in charIds)
-            for (j in charIds[i]) 
+            for (j in charIds[i])
             {
               if (isSelect == i) continue; // пропускаем итерацию, в которой находится активные характеристики
               $("#char_update .char"+charIds[i][j]).hide();
@@ -331,7 +331,7 @@ class ShopAdminController extends HAdminController
           charIds = charIds[isSelect]; // выбрали массив, соответствующий активному пункту выпадающего списка
           show = "show";
         }
-        for (j in charIds) 
+        for (j in charIds)
         {
           $("#char_update .char"+charIds[j])[show]();
           if(show == "hide")
@@ -340,7 +340,7 @@ class ShopAdminController extends HAdminController
           }
         }
 	    };
-      
+
       // Очищаем значения в форме
       function clearValues(obj)
       {
@@ -349,7 +349,7 @@ class ShopAdminController extends HAdminController
         .val("");
         obj.find("input:checked").removeProp("checked");
       }
-	    
+
 	    // Обновляем таблицу характеристик Char
 	    var renewChar = function(catId)
 	    {
@@ -377,7 +377,7 @@ class ShopAdminController extends HAdminController
 	              renewRelatedRows(charIds[selectedIndex], $(this).is(":checked"));
 	            }
 	            else
-	            { 
+	            {
 	              $(this).change(function() {
           	      var selectedIndex = $(this)[0].selectedIndex - 1;console.log(selectedIndex);
                   renewRelatedRows(charIds, null, selectedIndex);
@@ -391,7 +391,7 @@ class ShopAdminController extends HAdminController
 	      });
 	    };
       renewChar(catId);
-      
+
       // Обработчик события валидации для полей характеристик
 	    $("body").on("afterValidate", function(event, form, data, hasError) {
         var hasErrors = false; // индикатор наличия ошибок при валидации
@@ -402,7 +402,7 @@ class ShopAdminController extends HAdminController
         {
           // проверяем, является ли этот атрибут полем значения категории
           // так же добавляем в условие проверку на видимость строки таблицы
-          // (нужно в случае зависимых характеристик. 
+          // (нужно в случае зависимых характеристик.
           // те, которые не видимые - не должны быть заполненными, не зависимо от их типа
           // эта фильтрация происходит только на стороне клиента, тоесть в данном случае мы игнорим сообщения от сервера о незаполненном поле, если оно скрытое)
           if(att.indexOf("char_value") != -1 && $("#"+att+"_em_").parents("tr").is(":visible"))
@@ -413,11 +413,11 @@ class ShopAdminController extends HAdminController
             $("#"+att+"_em_").parents(".row").removeClass("success").addClass("error");
           }
         }
-        
+
         return hasErrors;
       });
-	    
-	    
+
+
 	    // Задаем событие, которое будет устанавливать значение в input с cat_id
 	    // Задаем событие, которое будет обновлять таблицу Char при смене категории
 	    $("form").on("change", "form .catDepDropDown", function()
@@ -431,7 +431,7 @@ class ShopAdminController extends HAdminController
 
   /**
    * Очищает State фильтра (тоесть сбрасывает все сохраненные фильтры) и обновляет страницу
-   * 
+   *
    * @access public
    * @return void
    */
@@ -440,11 +440,11 @@ class ShopAdminController extends HAdminController
     Yii::app()->user->setState('shop.index.filter', null);
     $this->redirect($_GET['redirect']);
   }
-  
+
   /**
    *  Выводит таблицу всех товаров
    */
-  public function actionIndex() 
+  public function actionIndex()
   {
     // TODO: $this->filterWithState('Shop');
     $model=new Shop('search');
@@ -468,22 +468,22 @@ class ShopAdminController extends HAdminController
 			),
 			'columns'=>array(
 			  'code',
-			  array(            
+			  array(
             'name'=>'photo',
             'value'=>'count($data->photo) ? $data->img(45) : ""',
             'type'=>'raw',
             'filter'=>'',
         ),
-        'product_name', 
-        array(            
+        'product_name',
+        array(
             'name'=>'cat_search',
             'value' => '$data->cat->cat_name',
         ),
-        array(            
+        array(
             'name'=>'brand_search',
             'value' => '$data->brand->brand_name',
         ),
-        array(            
+        array(
             'name'=>'price',
             /*'type'=>'raw',
             'value' => 'CHtml::activeTextField($data, "price", array("size"=>7, "style"=>"width:auto"), array("ajax" => array(
@@ -492,18 +492,18 @@ class ShopAdminController extends HAdminController
               )))',*/
             'filter'=>'',
         ),
-        array(            
+        array(
             'name'=>'status',
             'type'=>'raw',
             'value' => '$data->statusName',
             'filter'=> Shop::getStatusNames(),
         ),
         'rating',
-        array(            
+        array(
             'name'=>'user_search',
             'value' => '$data->user->first_name',
         ),
-        array(            
+        array(
             'name'=>'supplier_search',
             'value' => '$data->supplier->name',
             'filter' => Supplier::model()->suppliersList,
@@ -512,20 +512,20 @@ class ShopAdminController extends HAdminController
         // http://www.yiiframework.com/wiki/318/using-cjuidatepicker-for-cgridview-filter/
         // http://www.yiiframework.com/wiki/345/how-to-filter-cgridview-with-from-date-and-to-date-datepicker/
         // http://www.yiiframework.com/forum/index.php/topic/20941-filter-date-range-on-cgridview-toolbar/
-        array(            
+        array(
             'name'=>'add_date',
             'type' => 'datetime',
             'filter' => $this->widget('zii.widgets.jui.CJuiDatePicker', array(
-              'model'=> $model, 
-              'attribute'=>'date_add_from', 
+              'model'=> $model,
+              'attribute'=>'date_add_from',
               'language' => Yii::app()->language,
               /*'htmlOptions' => array(
                 'id' => 'datepicker_for_due_date',
                 'size' => '10',
               ),*/
               'htmlOptions' => array('class'=>'reinstallDatePicker'),
-              'defaultOptions' => array(  
-                'showOn' => 'focus', 
+              'defaultOptions' => array(
+                'showOn' => 'focus',
                 'showOtherMonths' => true,
                 'selectOtherMonths' => true,
                 'changeMonth' => true,
@@ -537,25 +537,25 @@ class ShopAdminController extends HAdminController
             ), true)
             .
             $this->widget('zii.widgets.jui.CJuiDatePicker', array(
-              'model'=> $model, 
-              'attribute'=>'date_add_to', 
+              'model'=> $model,
+              'attribute'=>'date_add_to',
               'language' => Yii::app()->language,
               'htmlOptions' => array('class'=>'reinstallDatePicker'),
             ), true),
         ),
-        array(            
+        array(
             'name'=>'edit_date',
             'type' => 'datetime',
             'filter' => $this->widget('zii.widgets.jui.CJuiDatePicker', array(
-              'model'=> $model, 
-              'attribute'=>'date_edit_from', 
+              'model'=> $model,
+              'attribute'=>'date_edit_from',
               'language' => Yii::app()->language,
               'htmlOptions' => array('class'=>'reinstallDatePicker'),
             ), true)
             .
             $this->widget('zii.widgets.jui.CJuiDatePicker', array(
-              'model'=> $model, 
-              'attribute'=>'date_edit_to', 
+              'model'=> $model,
+              'attribute'=>'date_edit_to',
               'language' => Yii::app()->language,
               'htmlOptions' => array('class'=>'reinstallDatePicker'),
             ), true),
@@ -578,8 +578,8 @@ class ShopAdminController extends HAdminController
 		}
 		else
 			throw new CHttpException(400,'Не правильный запрос. Пожалуйста не повторяйте этот запрос еще раз.');
-	}  
-	
+	}
+
 	/**
 	 * Выводит список брендов
 	 */
@@ -595,7 +595,7 @@ class ShopAdminController extends HAdminController
 			'dataProvider'=>$dataProvider,
 			'columns'=>array(
 			  'brand_name',
-        array(           
+        array(
           'name'=>'brand_logo',
           'value'=>'CHtml::image(Brand::$uploadsUrl . $data->brand_logo, $data->brand_name, array("style"=>"width:50px;"))',
           'type'=>'html',
@@ -603,7 +603,7 @@ class ShopAdminController extends HAdminController
       ),
 		));
 	}
-	
+
 	/**
 	 * Создает или редактирует бренд
 	 */
@@ -612,12 +612,12 @@ class ShopAdminController extends HAdminController
 	  $uploadPath = $_SERVER['DOCUMENT_ROOT'].Brand::$uploadsUrl;
 	  if(!is_dir($uploadPath)) // создаем директорию для картинок
 	    mkdir($uploadPath, 0777, true);
-	    
+
 	  if (!empty($this->crudid))
       $model=Brand::model()->findByPk($this->crudid);
     else
       $model = new Brand;
-    
+
     // AJAX валидация
 		if(isset($_POST['ajax']))
 		{
@@ -628,12 +628,12 @@ class ShopAdminController extends HAdminController
 		if(isset($_POST['Brand']))
 		{
 			$model->attributes=$_POST['Brand'];
-			
-			$oldImage = $model->brand_logo; // сохраняем старую картинку, которую, возможно, надо будет удалить в случае успешной валидации формы	
-      
+
+			$oldImage = $model->brand_logo; // сохраняем старую картинку, которую, возможно, надо будет удалить в случае успешной валидации формы
+
       if ($_POST['Brand']['uImage'] == 'delete') $model->brand_logo = ''; // Удаляем инфу о файле из БД, так как файл помечен на удаление, а нового в замен нету.
-			$model->uImage=CUploadedFile::getInstance($model,'uImage');		
-			
+			$model->uImage=CUploadedFile::getInstance($model,'uImage');
+
 			if ($model->uImage)
 			{
 				$sourcePath = pathinfo($model->uImage->getName());
@@ -641,28 +641,28 @@ class ShopAdminController extends HAdminController
 				$model->brand_logo = $fileName;
 			}
 
-			if($model->save()) 
+			if($model->save())
 			{ //throw new CHttpException(400,'Не правильный запрос. Пожалуйста не повторяйте этот запрос еще раз.');
 			  // Удаляем старое изображение
 			  if($oldImage != '' && file_exists($uploadPath.$oldImage) && ($fileName != '' || $model->brand_logo == '')) unlink($uploadPath.$oldImage);
-			  
-			//Если поле загрузки файла не было пустым, то          
+
+			//Если поле загрузки файла не было пустым, то
 				if ($model->uImage)
-				{				  				
+				{
 					$file = $uploadPath.$fileName; //Переменной $file присвоить путь, куда сохранится картинка без изменений
 					//$model->uImage->saveAs($file);
-					
+
 					// Ресайзим загруженное изображение
-					Yii::import('application.vendors.wideImage.WideImage');
+					Yii::import('application.vendor.wideImage.WideImage');
 					WideImage::load($model->uImage->tempName)->resize(100, 100)->resizeCanvas(100, 100, 'center', 'center')->saveToFile($file, 9);
         }
       }
       else
 			  throw new CHttpException(404,'Ошибка при сохранении');
 		}
-		
+
 		$model->uImage = $model->brand_logo;
-		
+
 		if($_POST['ajaxIframe'])
     {
       $data = array(
@@ -671,22 +671,22 @@ class ShopAdminController extends HAdminController
 	                     'model'=>$model,
                      ), true),
       );
-      
+
       echo json_encode($data, JSON_HEX_TAG);
       Yii::app()->end();
     }
-		
+
 		if(!$_POST['ajaxSubmit'])
       $this->render('update',array(
 			  'model'=>$model,
 		  ));
 	}
-	
+
 	public function actionBrandCreate()
 	{
 	  $this->actionBrandUpdate();
 	}
-	
+
 	/**
 	 * Удаление бренда
 	 */
@@ -703,8 +703,8 @@ class ShopAdminController extends HAdminController
 	  }
 		else
 			throw new CHttpException(400,'Не правильный запрос. Пожалуйста не повторяйте этот запрос еще раз.');
-	}  
-	
+	}
+
 	/**
 	 * Выводит список категорий
 	 */
@@ -723,7 +723,7 @@ class ShopAdminController extends HAdminController
 			),
 		));
 	}
-	
+
 	/**
 	 * Создает или редактирует категорию
 	 */
@@ -732,12 +732,12 @@ class ShopAdminController extends HAdminController
 	  $uploadPath = $_SERVER['DOCUMENT_ROOT'].Categorie::$uploadsUrl;
 	  if(!is_dir($uploadPath)) // создаем директорию для картинок
 	    mkdir($uploadPath, 0777, true);
-	    
+
 	  if (!empty($this->crudid) && $this->crud == 'update')
       $model=Categorie::model()->findByPk($this->crudid);
     else
       $model = new Categorie;
-    
+
     // AJAX валидация
 		if(isset($_POST['ajax']))
 		{
@@ -748,19 +748,19 @@ class ShopAdminController extends HAdminController
 		if(isset($_POST['Categorie']))
 		{
 			$model->attributes=$_POST['Categorie'];
-			
+
 			if ($this->crud == 'create')
 			{
 			  if (!empty($this->crudid)) // Если задан id, значит это форма добавления подкатегории
 			    $model->cat_parent = $this->crudid;
 			}
-			  
+
 			if(empty($model->cat_parent)) $model->cat_parent = 0; // Если родитель пустой, значит это категория верхнего уровня
-			
-			$oldImage = $model->cat_logo; // сохраняем старую картинку, которую, возможно, надо будет удалить в случае успешной валидации формы	
-      
+
+			$oldImage = $model->cat_logo; // сохраняем старую картинку, которую, возможно, надо будет удалить в случае успешной валидации формы
+
       if ($_POST['Categorie']['uImage'] == 'delete') $model->cat_logo = ''; // Удаляем инфу о файле из БД, так как файл помечен на удаление, а нового в замен нету.
-			$model->uImage=CUploadedFile::getInstance($model,'uImage');		
+			$model->uImage=CUploadedFile::getInstance($model,'uImage');
 			if ($model->uImage)
 			{
 				$sourcePath = pathinfo($model->uImage->getName());
@@ -768,24 +768,24 @@ class ShopAdminController extends HAdminController
 				$model->cat_logo = $fileName;
 			}
 
-			if(($valid = $model->save()) == true) { 
+			if(($valid = $model->save()) == true) {
 			  // Удаляем старое изображение
 			  if($oldImage != '' && file_exists($uploadPath.$oldImage) && ($fileName != '' || $model->cat_logo == '')) unlink($uploadPath.$oldImage);
-			  
-			//Если поле загрузки файла не было пустым, то          
-				if ($model->uImage){				  				
+
+			//Если поле загрузки файла не было пустым, то
+				if ($model->uImage){
 					$file = $uploadPath.$fileName; //Переменной $file присвоить путь, куда сохранится картинка без изменений
 					//$model->uImage->saveAs($file);
-					
+
 					// Ресайзим загруженное изображение
-					Yii::import('application.vendors.wideImage.WideImage');
+					Yii::import('application.vendor.wideImage.WideImage');
 					WideImage::load($model->uImage->tempName)->resize(100, 100)->resizeCanvas(100, 100, 'center', 'center')->saveToFile($file, 9);
         }
       }
 		}
-		
+
 		$model->uImage = $model->cat_logo;
-		
+
 		if($_POST['ajaxIframe'])
     {
       $data = array(
@@ -798,11 +798,11 @@ class ShopAdminController extends HAdminController
       //обновляем страницу
       if($valid)
         $data['content'] .= '<script> location.reload() </script>';
-      
+
       echo json_encode($data, JSON_HEX_TAG);
       Yii::app()->end();
     }
-    
+
 		if(!$_POST['ajaxSubmit'])
       $this->renderPartial('update',array(
 			  'model'=>$model,
@@ -812,7 +812,7 @@ class ShopAdminController extends HAdminController
 	{
 	  $this->actionCategorieUpdate();
 	}
-	
+
 	/**
 	 * Удаление категории
 	 */
@@ -829,15 +829,15 @@ class ShopAdminController extends HAdminController
 	  }
 		else
 			throw new CHttpException(400,'Не правильный запрос. Пожалуйста не повторяйте этот запрос еще раз.');
-	}  	
-	
+	}
+
 	/**
 	 * Управление набором характеристик
 	 */
 	public function actionCategorieCharshema()
 	{
 	  if(empty($this->crudid)) return false;
-	  
+
 	  $parentIds = Categorie::model()->getParentsCatIds($this->crudid);
 	  if(count($parentIds))
 	  {
@@ -846,19 +846,19 @@ class ShopAdminController extends HAdminController
 	      $pCatCSchema = CharShema::model()->findAllByCat($pCatId);
         foreach($pCatCSchema as $pCatChar)
         {
-          if(empty($header)) 
+          if(empty($header))
             $header = '<h1>Родительские характеристики</h1>';
           $header .= $pCatChar->char_name.'; ';
         }
 	    }
 	  }
-	  
+
 	  $models = CharShema::model()->findAllByCat($this->crudid);
     // пересчитываем все модели в массив char_id=>charModel
     foreach($models as $modelItem)
       $modelByCharId[$modelItem->char_id] = $modelItem;
-    
-	  if(!count($models)) 
+
+	  if(!count($models))
 	    $models = array(new CharShema);
 	  $valid = true;
 	  if(isset($_POST['CharShema']))
@@ -885,12 +885,12 @@ class ShopAdminController extends HAdminController
       }
       if(!$valid)
         Yii::trace('Ошибка при редактировании схемы характеристик', 'CharShemaEdit');
-            
+
       if(is_array($models4render))
         $models = $models4render;
-      
+
       // Отключаем jquery для ajax Ответов
-      Yii::app()->clientscript->scriptMap['jquery.js'] = Yii::app()->clientscript->scriptMap['jquery.min.js'] = false; 
+      Yii::app()->clientscript->scriptMap['jquery.js'] = Yii::app()->clientscript->scriptMap['jquery.min.js'] = false;
       $data = array(
           'action' => 'renewForm',
           /*'content' => $this->renderPartial('shop.views.admin.batchUpdate',array(
@@ -903,19 +903,19 @@ class ShopAdminController extends HAdminController
               'pk'=> 'char_id',
            ), true, true),*/
         );
-        
+
         echo json_encode($data, JSON_HEX_TAG);
         Yii::app()->end();
 	  }
-	  
-	  
+
+
 	  if(!$_POST['ajaxSubmit'])
       $this->render('shop.views.admin.batchUpdate',array(
         'model'=>$models,
 		    'header'=>$header,
 	    ));
   }
-	
+
 	/**
 	 * Меняет родителя категории
 	 */
@@ -928,7 +928,7 @@ class ShopAdminController extends HAdminController
 	    $model->save();
 	  }
 	}
-	
+
 	/**
 	 * Меняет порядок отображения категорий
 	 */
@@ -940,12 +940,12 @@ class ShopAdminController extends HAdminController
       $sindexOld = $_GET['sindexold'];  // старый индекс перемещенного элемента
       $sindexNew = $_GET['sindexnew'];  // новый индекс перемеещенного элемента
       $id = $_GET['id'];
-      
-      $delta = $sindexOld - $sindexNew;      
+
+      $delta = $sindexOld - $sindexNew;
       $delta = ($delta < 0)?'-1':'+1';
       $smin = min($sindexOld, $sindexNew);
-      $smax = max($sindexOld, $sindexNew);// throw new CHttpException(400,$smin.' '.$smax);exit();   
-      
+      $smax = max($sindexOld, $sindexNew);// throw new CHttpException(400,$smin.' '.$smax);exit();
+
       if($delta < 0 && $smin == 0) $smin = 1; // предотвращаем ухождение sindex в минуса
 
       Yii::app()->db->createCommand()
@@ -959,7 +959,7 @@ class ShopAdminController extends HAdminController
         ), 'cat_id=:id', array(':id'=>$id));
 	  }
 	}
-	
+
 	/**
 	 * Выводит список поставщиков
 	 */
@@ -969,7 +969,7 @@ class ShopAdminController extends HAdminController
     $model->unsetAttributes();
     if(isset($_GET['Supplier']))
             $model->attributes=$_GET['Supplier'];
-	  
+
 		$this->render('table',array(
 			'dataProvider'=> $model->search(),
 			'options' => array(
@@ -977,11 +977,11 @@ class ShopAdminController extends HAdminController
 			),
 			'columns'=>array(
 			  'code',
-        'name', 
+        'name',
       ),
 		));
 	}
-	
+
 	/**
 	 * Добавление/редактирование поставщиков
 	 */
@@ -991,7 +991,7 @@ class ShopAdminController extends HAdminController
       $model=Supplier::model()->findByPk($this->crudid);
     else
       $model = new Supplier;
-    
+
     // AJAX валидация
 		if(isset($_POST['ajax']))
 		{
@@ -1002,22 +1002,22 @@ class ShopAdminController extends HAdminController
 		if(isset($_POST['Supplier']))
 		{
 			$model->attributes=$_POST['Supplier'];
-			
+
 
 			if(!$model->save())
 			  throw new CHttpException(404,'Ошибка при сохранении');
 		}
-		
-		
+
+
 		if(!$_POST['ajaxSubmit'])
       $this->render('update',array(
 			  'model'=>$model,
 		  ));
 	}
-	
+
 	function actionSuppliersCreate()
 	{
 	  $this->actionSuppliersUpdate();
 	}
-} 
+}
 ?>

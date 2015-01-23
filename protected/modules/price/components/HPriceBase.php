@@ -21,7 +21,7 @@ class HPriceBase extends CComponent
 
   /**
    * @property string $startRow номер строки с которой начинается прайс
-   */  
+   */
   public $startRow;
 
   /**
@@ -46,7 +46,7 @@ class HPriceBase extends CComponent
 
   /**
    * Подгружает настройки прайсов, создает новый обьект прайсов и заполняет его информацией
-   * 
+   *
    * @param string $file путь к файлу с прайсом
    * @param string $priceSchema идентификатор элемента массива настроек для парсинга прайсов, если не передать этот параметр, то вместо идентификатора будет взято имя файла
    * @static
@@ -72,7 +72,7 @@ class HPriceBase extends CComponent
 
   /**
    * Возвращает массив настроек
-   * 
+   *
    * @static
    * @access public
    * @return string массив настроек или ошибку, в случае, если файл не найден
@@ -97,7 +97,7 @@ class HPriceBase extends CComponent
    */
   public static function getPricePath()
   {
-    $filePath = Yii::getPathOfAlias('webroot') . self::getPriceUrl();  
+    $filePath = Yii::getPathOfAlias('webroot') . self::getPriceUrl();
     if(!is_dir($filePath))
       mkdir($filePath);
 
@@ -113,10 +113,10 @@ class HPriceBase extends CComponent
   {
     return DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'price';
   }
-  
+
   /**
-   * Выводит содержимое файла с прайсами  
-   * 
+   * Выводит содержимое файла с прайсами
+   *
    * @access public
    * @return HPriceBase
    */
@@ -134,9 +134,9 @@ class HPriceBase extends CComponent
 
   /**
    * Парсит файл прайсов
-   * 
+   *
    * @access public
-   * @return массив со строками прайса начиная со {@link $startRow} 
+   * @return массив со строками прайса начиная со {@link $startRow}
    */
   public function getPrice()
   {
@@ -159,23 +159,23 @@ class HPriceBase extends CComponent
 
   /**
    * Парсит файл прайсов в формате *.csv
-   * 
+   *
    * @access protected
    * @return void
    */
   protected function parseCsv()
   {
       $r = 0;
-      if (($handle = fopen($this->file, "r")) !== FALSE) 
+      if (($handle = fopen($this->file, "r")) !== FALSE)
       {
-        while (($data = fgetcsv($handle)) !== FALSE) 
+        while (($data = fgetcsv($handle)) !== FALSE)
         {
           if($r >= $this->startRow)
-            for ($c=0; $c < count($data); $c++) 
+            for ($c=0; $c < count($data); $c++)
             {
               $cellVal = trim($data[$c]);
               // если это цена - конвертим ее в float
-              $this->_price[$r][$c] = preg_match('/^\d+([\.\,]\d+)?$/', $cellVal) 
+              $this->_price[$r][$c] = preg_match('/^\d+([\.\,]\d+)?$/', $cellVal)
                 ? (float)round(str_replace(',', '.', $cellVal), 2)
                 : $cellVal;
             }
@@ -187,13 +187,13 @@ class HPriceBase extends CComponent
 
   /**
    * Парсит файл прайсов в форматах MS Excel
-   * 
+   *
    * @access protected
    * @return void
    */
   protected function parseExcel()
   {
-    Yii::app()->controller->beginWidget('application.vendors.phpexcel.YPHPExcel');
+    Yii::app()->controller->beginWidget('application.vendor.phpexcel.YPHPExcel');
 
     $inputFileName = $this->file;
 
@@ -202,34 +202,34 @@ class HPriceBase extends CComponent
 
     $inputFileType = PHPExcel_IOFactory::identify($inputFileName);
 
-    //  Create a new Reader of the type defined in $inputFileType 
-    $objReader = PHPExcel_IOFactory::createReader($inputFileType); 
+    //  Create a new Reader of the type defined in $inputFileType
+    $objReader = PHPExcel_IOFactory::createReader($inputFileType);
 
-    //  Define how many rows we want to read for each "chunk" 
+    //  Define how many rows we want to read for each "chunk"
     // чем больше частичка - тем быстрее выполняется скрипт, но тем больше оперативки он жрет
-    $chunkSize = 2048; 
-    // Create a new Instance of our Read Filter  
-    $chunkFilter = new chunkReadFilter(); 
+    $chunkSize = 2048;
+    // Create a new Instance of our Read Filter
+    $chunkFilter = new chunkReadFilter();
 
-    // Tell the Reader that we want to use the Read Filter 
-    //$objReader->setReadFilter($chunkFilter); 
+    // Tell the Reader that we want to use the Read Filter
+    //$objReader->setReadFilter($chunkFilter);
 
     $totalRows = count(file($inputFileName));
     $r = 0;
-    //  Loop to read our worksheet in "chunk size" blocks 
+    //  Loop to read our worksheet in "chunk size" blocks
     for ($startRow = 0; $startRow <= $totalRows; $startRow += $chunkSize)
     {
-      //  Tell the Read Filter which rows we want this iteration 
+      //  Tell the Read Filter which rows we want this iteration
       $chunkFilter->setRows($startRow, $chunkSize);
-      //  Load only the rows that match our filter  
-      $objPHPExcel = $objReader->load($inputFileName); 
-      //    Do some processing here 
+      //  Load only the rows that match our filter
+      $objPHPExcel = $objReader->load($inputFileName);
+      //    Do some processing here
       $objWorksheet = $objPHPExcel->getActiveSheet();
 
       $tableArr = array();
-      foreach ($objWorksheet->getRowIterator() as $row) 
+      foreach ($objWorksheet->getRowIterator() as $row)
       {
-        if($r < $this->startRow) 
+        if($r < $this->startRow)
         {
           $r++;
           continue;
@@ -241,7 +241,7 @@ class HPriceBase extends CComponent
         // that are set will be
         // iterated.
         $c = 0;
-        foreach ($cellIterator as $cell) 
+        foreach ($cellIterator as $cell)
         {
           $cellVal = trim($cell->getCalculatedValue());
           // если это цена - конвертим ее в float
@@ -258,9 +258,9 @@ class HPriceBase extends CComponent
 
   /**
    * Импортирует прайсы в базу данных
-   * Перед импортом производится парсинг прайса исходя из 
+   * Перед импортом производится парсинг прайса исходя из
    * настроек для конкретного файла в priceConfig.php
-   * 
+   *
    * @access public
    * @return HPriceBase
    */
@@ -285,9 +285,9 @@ class HPriceBase extends CComponent
           {
             // категория на всю строку
             // режим, когда категория находится в строке перед блоком относящихся к ней позиций
-            if( 
-              empty($data[$this->columns['code']]) || 
-              empty($data[$this->columns['price']]) || 
+            if(
+              empty($data[$this->columns['code']]) ||
+              empty($data[$this->columns['price']]) ||
               empty($data[$this->columns['name']])
             )
             {
@@ -343,8 +343,8 @@ class HPriceBase extends CComponent
   /**
    * Производит запросы в базу данных используя данные из массива,
    * полученного в результате парсинка в {@link HPriceBase::import}
-   * 
-   * @param array $array 
+   *
+   * @param array $array
    * @access protected
    * @return HPriceBase
    */
@@ -405,7 +405,7 @@ class HPriceBase extends CComponent
         '{updateValues}' => $updateValues,
         '{code}' => $item['code'],
       ));
-      
+
       // обьединяем инсерты по 150 штук за запрос
       if(count($insertValues) == 150)
       {
@@ -446,7 +446,7 @@ class HPriceBase extends CComponent
         $catTockens['{' . $catId . $cat->name . '}'] = $cat->primaryKey;
       }
     }
-    
+
     // Подставляем вместо токенов реальные id категорий
     $sqls = strtr($sqls, $catTockens);
 
@@ -457,8 +457,8 @@ class HPriceBase extends CComponent
 
   /**
    * Метод, восстанавливающий таблицы из дампа в случае,
-   * если на этапе активации скрипта их не окажется 
-   * 
+   * если на этапе активации скрипта их не окажется
+   *
    * @access public
    * @return void
    */
@@ -477,7 +477,7 @@ class HPriceBase extends CComponent
 
   /**
    * Очищает БД от старых таблиц и создает вместо них новые на основе текущего конфига.
-   * 
+   *
    * @static
    * @access public
    * @return void

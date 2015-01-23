@@ -18,9 +18,8 @@
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
- 
-Yii::import('application.vendors.*');
-require_once('alphaID.inc.php');
+
+require_once(Yii::getPathOfAlias('application.vendor') . '/alphaID.inc.php');
 
 class Event extends CActiveRecord
 {
@@ -97,7 +96,7 @@ class Event extends CActiveRecord
       'location' => 'Как добраться',
 		);
 	}
-  
+
   /**
 	 * @return array типы полей для форм администрирования модуля
 	 */
@@ -114,7 +113,7 @@ class Event extends CActiveRecord
       'latitude' => 'hidden',
 		);
 	}
-  
+
   /**
    *  Заполняет {@link $eventId} необходимым id
    */
@@ -123,7 +122,7 @@ class Event extends CActiveRecord
     parent::afterFind();
     $this->eventId=alphaID($this->id, false, 4);
   }
-  
+
   /**
    * Исчет мероприятие по его коду
    * @param string $id код мероприятия
@@ -162,7 +161,7 @@ class Event extends CActiveRecord
   /**
    * @return string ссылку на изображение куска карты яндекса
    */
-  public function getMapSrc($params = array()) 
+  public function getMapSrc($params = array())
   {
     $params = CMap::mergeArray(array(
       'width' => 200,
@@ -179,7 +178,7 @@ class Event extends CActiveRecord
     );
     return 'http://static-maps.yandex.ru/1.x/?'.http_build_query($query);
   }
-  
+
   /**
    * @return string Html код кнопки "добавить в гуглокалендарь"
    */
@@ -191,11 +190,11 @@ class Event extends CActiveRecord
     $datetime = new DateTime($this->start_date);
     $datetime->setTimezone($utc0);
     $this->start_date = $datetime->format('Y-m-d H:i:s');
-    
+
     $datetime = new DateTime($this->end_date);
     $datetime->setTimezone($utc0);
     $this->end_date = $datetime->format('Y-m-d H:i:s');
-    
+
     $dates = date('Ymd\THis\Z',strtotime($this->start_date)) . '/' . date('Ymd\THis\Z',strtotime($this->end_date));
     $params = array(
       'action' => 'TEMPLATE',
@@ -209,7 +208,7 @@ class Event extends CActiveRecord
     );
     return 'http://www.google.com/calendar/event?'.http_build_query($params);
   }
-  
+
   /**
    * Возвращает url страницы материала
    */
