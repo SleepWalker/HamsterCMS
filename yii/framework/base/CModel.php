@@ -301,7 +301,6 @@ abstract class CModel extends CComponent implements IteratorAggregate, ArrayAcce
 	 */
 	public function isAttributeRequired($attribute)
 	{
-		CHtml::resolveName($this,$attribute); // filtering [a][b]attribute
 		foreach($this->getValidators($attribute) as $validator)
 		{
 			if($validator instanceof CRequiredValidator)
@@ -318,7 +317,6 @@ abstract class CModel extends CComponent implements IteratorAggregate, ArrayAcce
 	 */
 	public function isAttributeSafe($attribute)
 	{
-		CHtml::resolveName($this,$attribute); // filtering [a][b]attribute
 		$attributes=$this->getSafeAttributeNames();
 		return in_array($attribute,$attributes);
 	}
@@ -332,7 +330,6 @@ abstract class CModel extends CComponent implements IteratorAggregate, ArrayAcce
 	 */
 	public function getAttributeLabel($attribute)
 	{
-		CHtml::resolveName($this,$attribute); // filtering [a][b]attribute
 		$labels=$this->attributeLabels();
 		if(isset($labels[$attribute]))
 			return $labels[$attribute];

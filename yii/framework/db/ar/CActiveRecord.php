@@ -596,7 +596,6 @@ abstract class CActiveRecord extends CModel
 	 */
 	public function getAttributeLabel($attribute)
 	{
-		CHtml::resolveName($this,$attribute); // filtering [a][b]attribute
 		$labels=$this->attributeLabels();
 		if(isset($labels[$attribute]))
 			return $labels[$attribute];
