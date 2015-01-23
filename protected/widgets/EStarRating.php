@@ -1,1 +1,0 @@
-/home/sleepwalker/hamstercms/Yii.Hamster.Source/protected/extensions/EStarRating.php
