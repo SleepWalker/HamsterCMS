@@ -1,0 +1,14 @@
+{
+    "name": "hamstercms",
+    "description": "Hamster CMS",
+    "authors": [
+        {
+            "name": "SleepWalker",
+            "email": "dev@udf.su"
+        }
+    ],
+
+    "require": {
+        "yiisoft/yii": "1.1.*"
+    }
+}
