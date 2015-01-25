@@ -81,16 +81,6 @@ array(
                 'dryRun' => YII_DEBUG, // when true the mail will not be sended
             ),
         ),
-        'viewRenderer' => array(
-            'class' => 'application.extensions.EMustache.EMustacheViewRenderer',
-            /*
-        'mustacheOptions' => array(
-        'helpers' => array(
-        'pageTitle' => 'phpexpr:function() {return Yii::app()->controller->pageTitle;}',
-        ),
-        ),
-         */
-        ),
         'widgetFactory' => array(
             'class' => 'EWidgetFactory',
             'widgets' => array(

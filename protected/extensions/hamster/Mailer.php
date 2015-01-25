@@ -81,6 +81,7 @@ class Mailer extends \CApplicationComponent
 
     protected function renderMessage($view, $data)
     {
+        $oldRenderer = \Yii::app()->getViewRenderer();
         $mdRenderer = \Yii::createComponent(array(
             'class' => '\ext\hamster\MdViewRenderer',
         ));
@@ -88,7 +89,7 @@ class Mailer extends \CApplicationComponent
 
         $output = \Yii::app()->controller->renderPartial($view, $data, true);
 
-        \Yii::app()->setComponent('viewRenderer', null);
+        \Yii::app()->setComponent('viewRenderer', $oldRenderer);
 
         return $output;
     }
