@@ -70,14 +70,16 @@ array(
             'allowAutoLogin' => true,
         ),
         'mail' => array(
-            'class' => 'ext.yii-mail.YiiMail',
-            'transportType' => 'php',
-            // убрираем ошибки при отправке писем на некоторых хостах (отвечает за формат 4 параметра функции mail)
-            // (по умолчанию это '-f%s', тоесть на выходе имеем '-fmailFrom@site.com')
-            // на некоторых хостах пхп не может на прямую передавать параметры серверу
-            'transportOptions' => false,
-            'logging' => true,
-            'dryRun' => YII_DEBUG, // when true the mail will not be sended
+            'class' => '\ext\hamster\Mailer',
+            'mailerConfig' => array(
+                'transportType' => 'php',
+                // убрираем ошибки при отправке писем на некоторых хостах (отвечает за формат 4 параметра функции mail)
+                // (по умолчанию это '-f%s', тоесть на выходе имеем '-fmailFrom@site.com')
+                // на некоторых хостах пхп не может на прямую передавать параметры серверу
+                'transportOptions' => false,
+                'logging' => true,
+                'dryRun' => YII_DEBUG, // when true the mail will not be sended
+            ),
         ),
         'viewRenderer' => array(
             'class' => 'application.extensions.EMustache.EMustacheViewRenderer',
