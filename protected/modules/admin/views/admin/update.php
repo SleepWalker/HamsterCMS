@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * Обеспечивает автоматическую генирацию html форм для админки
  *
@@ -63,9 +63,9 @@ function parseCFormElements(&$form, $model, $params, $index = null)
 		), $params);
 	$controller = $params['controller'];
 	foreach ($model->fieldTypes as $fieldName => $fieldType)
-	{ 
+	{
 		$fieldParams = array();
-		
+
 		// форма на основе другой related (One-One или One-Many) модели
 		if($fieldType == 'form' || $fieldType == 'hasManyForm')
 		{
@@ -78,7 +78,7 @@ function parseCFormElements(&$form, $model, $params, $index = null)
 			}
 
 			$relForms = array();
-			foreach ($relModels as $i => $relModel) 
+			foreach ($relModels as $i => $relModel)
 			{
 				$relForm = array();
 				parseCFormElements($relForm, $relModel, CMap::mergeArray($params, array('inline' => true)), $isTabular ? $i : null);
@@ -116,14 +116,14 @@ function parseCFormElements(&$form, $model, $params, $index = null)
 
 			continue;
 		}
-		
+
 		if(is_array($fieldType))
 		{
 			$fieldParams = $fieldType; // настройки поля, к примеру items для dropdownlist
 			unset($fieldParams[0]);
 			$fieldType = isset($fieldType['type']) ? $fieldType['type'] : $fieldType[0];
 		}
-		
+
 		$fieldParams['type'] = $fieldType;
 
 		$fieldHasJs = isset($fieldParams['js']) && is_a($fieldParams['js'], 'CJavaScriptExpression');
@@ -140,7 +140,7 @@ function parseCFormElements(&$form, $model, $params, $index = null)
 			else
 				continue;
 		}
-		
+
 		if ($fieldType == 'translit' || $fieldType == 'translitUrl')
 		{
 			$controller->widget('application.widgets.translit.TranslitWidget', array(
@@ -150,7 +150,7 @@ function parseCFormElements(&$form, $model, $params, $index = null)
 			));
 			$fieldParams['type'] = 'text';
 		}
-		
+
 		if (in_array($fieldType, array('autocomplete', 'tags')))
 		{
 			$additionaryOptions = array();
@@ -198,7 +198,7 @@ function parseCFormElements(&$form, $model, $params, $index = null)
 				),
 			);
 		}
-		
+
 		// Textarea более маленького размера и без использования виджета redactorJs
 		if ($fieldType == 'textareaTiny')
 		{
@@ -218,7 +218,7 @@ function parseCFormElements(&$form, $model, $params, $index = null)
 					)
 				);
 		}
-		
+
 		// datetime picker
 		if ($fieldType == 'datetime')
 		{
@@ -236,9 +236,9 @@ function parseCFormElements(&$form, $model, $params, $index = null)
 				),
 			);
 		}
-		
+
 		// autocomplete field for yandexMap
-		if($fieldType == 'yandexAutoComplete') 
+		if($fieldType == 'yandexAutoComplete')
 		{
 			$fieldParams = array(
 				'type' => 'application.widgets.yandex.YandexAutoComplete',
@@ -259,7 +259,7 @@ function parseCFormElements(&$form, $model, $params, $index = null)
 				'type' => 'ext.fields.HFileField',
 			);
 		}
-		
+
 		if ($fieldType == 'textarea') // запускаем виз. редактор
 		{
 			$fieldParams = array(
@@ -278,7 +278,7 @@ function parseCFormElements(&$form, $model, $params, $index = null)
 				'attribute' => $fieldName,
 			);
 		}
-		
+
 		// html строка
 		if(strpos($fieldType, "html:") === 0)
 		{
@@ -292,7 +292,7 @@ function parseCFormElements(&$form, $model, $params, $index = null)
 			$fieldName = "[$index]".$fieldName;
 
 		$form['elements'][$fieldName] = $fieldParams;
-			
+
 		if(!$params['inline'])
 			$form['elements'][] = '<p>';
 	}
@@ -345,5 +345,5 @@ function parseAnswer($form, answer)
 <?php
 $formJs = ob_get_clean();
 
-Yii::app()->getClientScript()->registerScript('formJs', $formJs); 
+Yii::app()->getClientScript()->registerScript('formJs', $formJs);
 ?>

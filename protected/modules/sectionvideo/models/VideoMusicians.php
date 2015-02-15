@@ -100,7 +100,7 @@ class VideoMusicians extends \CActiveRecord
 			'class' => 'Класс ученика',
 		);
 	}
-  
+
 	/**
 	 * @return array типы полей для форм администрирования модуля
 	 */

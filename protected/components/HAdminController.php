@@ -259,7 +259,7 @@ class HAdminController extends CController
 
         if (Yii::app()->request->isPostRequest) {
             // если модель сохранена и это было действие добавления, переадресовываем на страницу редактирования этого же материала
-            if (!$model->hasErrors() && (method_exists($this, 'getCrud') && $this->action->crud == 'create')) {
+            if (!$model->hasErrors() && $this->action->id == 'create') {
                 $data = array(
                     'action' => 'redirect',
                     'content' => $this->curModuleUrl . 'update/' . $model->id,

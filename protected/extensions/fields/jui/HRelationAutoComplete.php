@@ -1,7 +1,7 @@
 <?php
 /**
  * Widget to display jui auto complete field that searches by related model to fill it's id
- * 
+ *
  * @author Sviatoslav <dev@udf.su>
  * @version 1.0
  * @package JuiAutoDepComplete
@@ -25,16 +25,16 @@ class HRelationAutoComplete extends CJuiAutoComplete
 	{
 		if(!isset($_POST['modelName']) && !isset($_POST['attribute']) && !isset($_POST['searchBy']))
 			throw new CHttpException(404, 'Wrong Request');
-			
+
 		$criteria = new CDbCriteria();
-		foreach ($_POST['searchBy'] as $attribute) 
+		foreach ($_POST['searchBy'] as $attribute)
 		{
 			$criteria->compare($attribute, $_GET['term'], true, 'OR');
 		}
 
 		$models = $_POST['modelName']::model()->findAll($criteria);
 		$data = array();
-		foreach ($models as $model) 
+		foreach ($models as $model)
 		{
 			array_push($data, array(
 				'id' => $model->primaryKey,
@@ -79,10 +79,10 @@ class HRelationAutoComplete extends CJuiAutoComplete
 		if(!isset($this->searchAttributes))
 			$this->searchAttributes = $this->relationAttribute;
 		if(!is_array($this->searchAttributes))
-			$this->searchAttributes =  preg_split('/ ?, ?/', $this->searchAttributes); 
+			$this->searchAttributes =  preg_split('/ ?, ?/', $this->searchAttributes);
 
 		list($name,$id)=$this->resolveNameID();
-			
+
 		echo CHtml::activeHiddenField($this->model, $this->attribute);
 
 		$this->options['select'] = new CJavaScriptExpression('function (event, ui) {
@@ -122,7 +122,7 @@ class HRelationAutoComplete extends CJuiAutoComplete
 		}');
 		$this->model = null;
 		$this->attribute = null;
-		
+
 
 		list($name,$id)=$this->resolveNameID();
 		if(isset($this->htmlOptions['id']))
