@@ -22,14 +22,14 @@ class AdminModule extends CWebModule
     {
         // this method is called when the module is being created
         // you may place code here to customize the module or the application
-        
+
         // import the module-level models and components
         $this->setImport(array(
             'admin.models.*',
             'admin.components.*',
-            ));
+        ));
 
-        $this->assetsUrl = Yii::app()->getAssetManager()->publish(dirname(__FILE__).DIRECTORY_SEPARATOR.'assets',false,-1,YII_DEBUG);//Yii::getPathOfAlias('application.modules.admin.assets'));
+        $this->assetsUrl = Yii::app()->getAssetManager()->publish(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'assets', false, -1, YII_DEBUG); //Yii::getPathOfAlias('application.modules.admin.assets'));
         //$this->registerScriptFile('admin.js');
         //$this->registerCssFile('admin.css');
 
@@ -47,18 +47,18 @@ class AdminModule extends CWebModule
 
     public function beforeControllerAction($controller, $action)
     {
-        if(parent::beforeControllerAction($controller, $action))
-        {
-            
-              // this overwrites everything in the controller
+        if (parent::beforeControllerAction($controller, $action)) {
+
+            // this overwrites everything in the controller
             $controller->adminAssetsUrl = $this->assetsUrl;
 
-                // this method is called before any module controller action is performed
-                // you may place customized code here
+            // this method is called before any module controller action is performed
+            // you may place customized code here
             return true;
-        }
-        else
+        } else {
             return false;
+        }
+
     }
 
     /**
@@ -69,18 +69,15 @@ class AdminModule extends CWebModule
     {
         $extension = '.php';
         $layoutPathes = array(Yii::app()->getViewPath());
-        if(($theme=Yii::app()->getTheme())!==null)
-        {
+        if (($theme = Yii::app()->getTheme()) !== null) {
             // у нас используются темы
             $layoutPathes[] = $theme->getViewPath();
         }
 
         $ids = array();
-        foreach ($layoutPathes as $curPath) 
-        {
+        foreach ($layoutPathes as $curPath) {
             $curPath .= DIRECTORY_SEPARATOR . 'layouts' . DIRECTORY_SEPARATOR;
-            foreach (glob($curPath . '*' . $extension) as $curFile) 
-            {
+            foreach (glob($curPath . '*' . $extension) as $curFile) {
                 $id = basename($curFile, $extension);
                 $ids[$id] = $id;
             }
@@ -95,26 +92,28 @@ class AdminModule extends CWebModule
         $enabledModules['page'] = 'application.controllers.page.PageAdminController';
         return $enabledModules;
     }
-    
+
     /**
      * Загружает настройки модулей Hamster
      * @return array массив с настройками
      */
     public function getHamsterModules()
     {
-        if(!$this->_hamsterModules)
+        if (!$this->_hamsterModules) {
             $this->_hamsterModules = $config = HArrayConfig::load()->hamsterModules;
+        }
+
         return $this->_hamsterModules;
     }
-    
+
     /**
      * @return array массив с информацией о модулях
      */
     public function getModulesInfo()
     {
-        return  isset($this->hamsterModules['modulesInfo']) && is_array($this->hamsterModules['modulesInfo']) ? $this->hamsterModules['modulesInfo'] : array();
+        return isset($this->hamsterModules['modulesInfo']) && is_array($this->hamsterModules['modulesInfo']) ? $this->hamsterModules['modulesInfo'] : array();
     }
-    
+
     /**
      * @return array массив с информацией об активных модулях
      */
@@ -123,13 +122,13 @@ class AdminModule extends CWebModule
         return isset($this->hamsterModules['enabledModules']) && is_array($this->hamsterModules['enabledModules']) ? $this->hamsterModules['enabledModules'] : array();
     }
 
-    public function registerScriptFile($fileName,$position=CClientScript::POS_END)
+    public function registerScriptFile($fileName, $position = CClientScript::POS_END)
     {
-        Yii::app()->getClientScript()->registerScriptFile($this->assetsUrl.'/js/'.$fileName,$position);
+        Yii::app()->getClientScript()->registerScriptFile($this->assetsUrl . '/js/' . $fileName, $position);
     }
 
     public function registerCssFile($fileName)
     {
-        Yii::app()->getClientScript()->registerCssFile($this->assetsUrl.'/css/'.$fileName);
+        Yii::app()->getClientScript()->registerCssFile($this->assetsUrl . '/css/' . $fileName);
     }
 }
