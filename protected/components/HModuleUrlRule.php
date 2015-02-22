@@ -34,9 +34,14 @@ class HModuleUrlRule extends CBaseUrlRule
             return false;
         }
 
+        if (empty($route)) {
+            // ссылка на главную
+            return '';
+        }
+
         if (count($routeParts) > 3 || count($routeParts) < 2) {
             // если это случилось, значит где-то ошибка FIXME (в будущем можно будет логировать и убрать этот баг для оптимизации системы)
-            $message = get_class($this)."::createUrl(): Wrong params number";
+            $message = get_class($this)."::createUrl(): Wrong params number (".implode(', ', $routeParts).")";
             Yii::log($message, CLogger::LEVEL_ERROR);
             throw new CException($message);
         }

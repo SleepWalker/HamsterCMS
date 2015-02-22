@@ -1,7 +1,7 @@
 <?php
 /**
  * HRatingBehavior поведение, добавляющее функционал рейтинга в модель
- * 
+ *
  * @uses CActiveRecordBehavior
  * @package hamster.components.HRatingBehavior
  * @version $id$
@@ -15,7 +15,7 @@ class HRatingBehavior extends CActiveRecordBehavior
 {
   public $attribute = 'rating';
 
-  public function attach($owner) 
+  public function attach($owner)
   {
     parent::attach($owner);
 
@@ -24,11 +24,11 @@ class HRatingBehavior extends CActiveRecordBehavior
 
     // устанавливаем таблицу для текущего запроса
     Rating::$sessionTable = $this->getRatingTableName();
-  }  
+  }
 
   /**
-   * Добавляет голос за текущую модель  
-   * 
+   * Добавляет голос за текущую модель
+   *
    * @param mixed $value оценка модели
    * @access public
    * @return void
@@ -50,11 +50,11 @@ class HRatingBehavior extends CActiveRecordBehavior
         );
         $ratingModel->save();
       }
-      catch(CDbException $e) 
+      catch(CDbException $e)
       {
         echo CJSON::encode( array (
-          'status'=>'fail', 
-          'answer'=>'Вы уже голосовали за этот продукт!',                                 
+          'status'=>'fail',
+          'answer'=>'Вы уже голосовали за этот продукт!',
         ) );
         return;
       }
@@ -67,12 +67,12 @@ class HRatingBehavior extends CActiveRecordBehavior
       $this->owner->rating = (float)$rating;
       if($this->owner->save())
         echo CJSON::encode( array (
-          'status'=>'success', 
-          'answer'=>'Спасибо, ваш голос учтен!',                                 
+          'status'=>'success',
+          'answer'=>'Спасибо, ваш голос учтен!',
         ) );
     }
   }
-  
+
   /**
    *  Выводит виджет с рейтингом
    */
@@ -95,7 +95,7 @@ class HRatingBehavior extends CActiveRecordBehavior
 
     $params = CMap::mergeArray($defaults, $params);
 
-    Yii::app()->controller->widget('application.widgets.EStarRating', $params);
+    Yii::app()->controller->widget('ext.EStarRating', $params);
 
     if($showTotalVotes)
       echo '<span style="vertical-align: 3px;">(' . $this->votesCount . ')</span>';
@@ -107,7 +107,7 @@ class HRatingBehavior extends CActiveRecordBehavior
 <meta itemprop="ratingCount" content="<?php echo $this->votesCount; ?>"></span></span>
 <?php
   }
-  
+
   /**
    *  @return string количество проголосовавших юзеров
    */
@@ -116,10 +116,10 @@ class HRatingBehavior extends CActiveRecordBehavior
     $rating[0] = 0;
     if($this->rating)
       $rating = explode('.', (string)$this->rating);
-    
+
     return $rating[0];
   }
-  
+
   /**
    *  @return string рейтинг
    */
@@ -130,8 +130,8 @@ class HRatingBehavior extends CActiveRecordBehavior
   }
 
   /**
-   * Возвращает название таблицы в которой будет хранится подробная информация о каждом голосе  
-   * 
+   * Возвращает название таблицы в которой будет хранится подробная информация о каждом голосе
+   *
    * @access public
    * @return void
    */
@@ -141,8 +141,8 @@ class HRatingBehavior extends CActiveRecordBehavior
   }
 
   /**
-   * Сокращение для получения текущего рейтинга модели  
-   * 
+   * Сокращение для получения текущего рейтинга модели
+   *
    * @access protected
    * @return void
    */
@@ -233,7 +233,7 @@ class Rating extends CActiveRecord
 
   /**
    * преобразовывает ip юзера из бд из int в строку
-   * 
+   *
    * @access protected
    * @return void
    */
@@ -311,7 +311,7 @@ class Rating extends CActiveRecord
 	}
 
 	/**
-	 * creates table for holding provider bindings	
+	 * creates table for holding provider bindings
 	 */
 	protected static function createDbTable()
 	{
