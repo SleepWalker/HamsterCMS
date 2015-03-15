@@ -1,83 +1,50 @@
 <?php
 /*
 $this->breadcrumbs=array(
-	$this->module->params->moduleName=>array('index'),
-	$model->title,
+    $this->module->params->moduleName=>array('index'),
+    $model->title,
 );
 */
 $this->pageTitle = (!empty($model->caption) ? $model->caption . ' - ' : '') . (!empty($model->composition) ? $model->composition . ' - ' : '') . $this->module->params->moduleName;
 $model->htmlEncode();
-$musicians = $model->musicians;
 ?>
-<article class="videoEntryFull">
-	<header>
-		<?php echo $model->videoCode; ?>
-	</header>
-	<section class="videoContent">
-		<div class="videoCaption">
-			<h1><?php echo $model->caption ?></h1>
-			<?php if($model->composition): ?>
-				<b><?php echo $model->composition ?></b>
-			<?php endif; ?>
-		</div>
-		<aside>
-			<?php if(count($musicians) == 1 && $musicians[0]->teacher): ?>
-				<p>Педагог: <br /><?= CHtml::link($musicians[0]->teacher->shortName, $musicians[0]->teacher->viewUrl) ?></p>
-			<?php endif; ?>
-			<p>Мероприятие: <br /><?= $model->eventLink ?></p>
-			<p><?= $model->ratingWidget() ?></p>
-			<section role="tags" class="tags">
-				<?php
-				foreach($model->tagsArr as $tag)
-				{
-					echo CHtml::link($tag, $model->tagViewUrl($tag));
-				}
-				?>
-			</section>
-		</aside>
-		<div class="videoDescription">		
-			<?php 
-			if(count($musicians) > 1)
-			{
-				?>
-				<p><b>Исполняют:</b></p>
-				<ul>
-				<?php
-				foreach ($musicians as $musician) {
-					$html = $musician->name;
 
-					if(!empty($musician->class))
-						$html .= ', ' . $musician->class .' кл.';
+<div class="column-layout">
+    <div class="column">
+        <?php
+        $this->renderPartial('theme.views.viewWidgets.sectionvideo.full', array(
+            'data' => $model,
+        ));
+        ?>
 
-					if(!empty($musician->instrument))
-						$html .= " ({$musician->instrument})";
+        <div class="comments" id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'estrocksection'; // required: replace example with your forum shortname
 
-					if(!empty($musician->teacher))
-						$html .= '<br /><small>Преподователь: '.CHtml::link($musician->teacher->fullName, $musician->teacher->viewUrl).'</small>';
-					?>
-					<li><?php echo $html ?></li>
-					<?php
-				}
-				?>
-				</ul>
-				<?php
-			}
-			$this->beginWidget('CMarkdown', array('purifyOutput'=>true));
-			echo $model->description;
-			$this->endWidget('CMarkdown');
-			?>
-		</div>
-	</section>
-	<footer>
-		<?php
-		$this->widget('application.modules.sociality.widgets.HLike', array(
-			'imgSrc' => $model->thumbnail,
-			'description' => $model->description,
-			'title' => $model->caption . ': ' . $model->composition,
-			));
-		$this->widget('application.modules.sociality.widgets.HComment', array(
-			'model' => $model,
-			));
-			?>
-	</footer>
-</article>
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+    </div>
+    <div class="column">
+        <aside class="related-videos">
+            <div class="related-videos__clip">
+                <?php $this->widget('hamster.widgets.view.SimpleListView', array(
+                    'model' => 'hamster\modules\sectionvideo\models\Video',
+                    'amount' => 6,
+                    'view' => 'small',
+                )); ?>
+            </div>
+            <div class="related-videos__scrollbar scrollbar">
+            </div>
+        </aside>
+    </div>
+</div>
+
+<?= $model->ratingWidget() ?>

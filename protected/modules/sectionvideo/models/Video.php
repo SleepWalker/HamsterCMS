@@ -160,12 +160,93 @@ class Video extends \CActiveRecord
 	 */
 	public function getCaption()
 	{
-		if(empty($this->title))
-		{
+		if(empty($this->title)) {
 			$musicians = $this->musicians;
 			return count($musicians) == 1 ? $musicians[0]->musician->name : null;
-		}else
+		} else {
 			return $this->title;
+		}
+	}
+
+	/**
+	 * @return integer кол-во просмотров на youtube
+	 */
+	public function getViews()
+	{
+		$cacheId = $this->video_url.'#views';
+		if (($views = \Yii::app()->cache->get($cacheId)) === false) {
+			$video = $this->getGoogleYoutubeVideo();
+			$views = $video['statistics']['viewCount'];
+			\Yii::app()->cache->set($cacheId, $views);
+		}
+
+		return $views;
+	}
+
+	/**
+	 * @return integer рейтинг (кол-во лайков на youtube)
+	 */
+	public function getLikes()
+	{
+		// TODO: пускай эти лайки смешиваются с yt лайками
+		$cacheId = $this->video_url.'#likes';
+		if (($likes = \Yii::app()->cache->get($cacheId)) === false) {
+			$video = $this->getGoogleYoutubeVideo();
+			$likes = $video['statistics']['likeCount'];
+			\Yii::app()->cache->set($cacheId, $likes);
+		}
+
+		return $likes;
+	}
+
+	public function ratingWidget()
+	{
+		?>
+        <div class="sharing-rocks">
+            <div class="this-rocks">
+                <span class="this-rocks__counter"><?= $this->likes ?></span>
+                <span class="this-rocks__icon"></span>
+            </div>
+        </div>
+        <?php
+	}
+
+    protected function getGoogleYoutubeVideo()
+    {
+        $youtube = new \Google_Service_YouTube($this->getGoogleClient());
+
+        $listResponse = $youtube->videos->listVideos("statistics", array('id' => self::getYtVideoId($this->video_url)));
+
+        if (empty($listResponse)) {
+            throw new \CException(get_class($this)."::getThumbnails(): No data for specified video, probably wrong id");
+        }
+
+        return $listResponse[0];
+    }
+
+    protected function getGoogleClient()
+    {
+        $client = new \Google_Client();
+        $client->setApplicationName("estrocksection.kiev.ua");
+        $client->setDeveloperKey("AIzaSyD7QiC2AO4PUtiMRN9i5SfZOAhZLvSnGzw");
+
+        return $client;
+    }
+
+	/**
+	 * @param  string $size размер изображения. Доступные размеры: full, list, grid
+	 * @return string url изображения
+	 */
+	public function getImageSrc($size = null)
+	{
+		$cacheId = $this->video_url.'#src';
+		if (($src = \Yii::app()->cache->get($cacheId)) === false) {
+			$videoImage = new \sectionvideo\components\VideoImage(self::getYtVideoId($this->video_url));
+			$src = $videoImage->get($size);
+			\Yii::app()->cache->set($cacheId, $src);
+		}
+
+		return $src;
 	}
 
 	/**
@@ -259,10 +340,10 @@ class Video extends \CActiveRecord
 	/**
 	 * Вовзращает ссылку на ивент, если он есть в базе данных
 	 */
-	public function getEventLink()
+	public function getEventUrl()
 	{
 		$event = Event::model()->findByAttributes(array('name' => $this->event));
-		return $event ? CHtml::link($event->name, $event->viewUrl) : '<span class="nonExistendEvent">' . $this->event . '</span>';
+		return $event ? $event->viewUrl : null;
 	}
 
 	/**

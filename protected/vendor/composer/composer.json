@@ -13,6 +13,8 @@
         "yiisoft/yii": "1.1.*",
         "nlac/nlsclientscript": "~7.0.0@beta",
         "sleepwalker/hoauth": "1.2.*",
-        "zhuravljov/yii2-debug": "*"
+        "zhuravljov/yii2-debug": "*",
+        "google/apiclient": "~1.1",
+        "eventviva/php-image-resize": "~1.2"
     }
 }

@@ -23,25 +23,25 @@ class SimpleListView extends CWidget
     // сколько товаров показывать (если так и останется false, то значение переопределится в init() )
     public $amount = false;
     public $offset = -1;
+    public $criteria = array();
 
     // вьюха для отображения ивента
     public $view = '_simpleView';
 
     public $model = false;
 
-    private static $__viewPaths;
+    private static $_viewPaths;
+    protected $_models;
 
     public function init()
     {
-        if (!$this->model) {
-            throw new CException("No model name or instance provided. See SimpleListView::model");
+        if (!$this->model && !isset($this->_models)) {
+            throw new CException("No models or model name or instance provided. See SimpleListView::model");
         }
 
         if (is_string($this->model) && ($pos = strrpos($this->model, '.')) !== false) {
             $className = substr($this->model, $pos + 1);
-            if (!class_exists($className, false))
-            // пробуем ипортировать модель
-            {
+            if (!class_exists($className, false)) {
                 Yii::import($this->model);
             }
 
@@ -56,26 +56,41 @@ class SimpleListView extends CWidget
 
     public function run()
     {
-        $dataProvider = $this->createProvider();
+        $models = $this->getModels();
 
-        $this->renderItems($dataProvider);
+        $this->renderItems($models);
     }
 
     /**
      * Создает обьект CActiveDataProvider в зависимости от параметров, переданных виджету
      *
      * @access protected
-     * @return CActiveDataProvider
+     * @return array
      */
-    protected function createProvider()
+    protected function getModels()
     {
-        return new CActiveDataProvider($this->model, array(
-            'criteria' => array(
-                'limit' => $this->amount,
-                'offset' => $this->offset,
-            ),
-            'pagination' => false,
-        ));
+        if (isset($this->_models)) {
+            return $this->_models;
+        }
+
+        $model = $this->model;
+
+        if (is_string($model)) {
+            $model = call_user_func($model . '::model');
+        }
+
+        $criteria = new CDbCriteria();
+        $criteria->limit = $this->amount;
+        $criteria->offset = $this->offset;
+
+        $criteria->mergeWith($this->criteria);
+
+        return $model->findAll($criteria);
+    }
+
+    protected function setModels($models) {
+        $this->model = get_class($models[0]);
+        $this->_models = $models;
     }
 
     /**
@@ -85,15 +100,14 @@ class SimpleListView extends CWidget
      * @access protected
      * @return void
      */
-    protected function renderItems($dataProvider)
+    protected function renderItems($models)
     {
-        $items = $dataProvider->data;
-        foreach ($items as $index => $item) {
+        foreach ($models as $index => $model) {
             $this->render($this->view, array(
                 'cols' => $this->cols,
                 'rows' => $this->rows,
                 'index' => $index,
-                'data' => $item,
+                'data' => $model,
             ));
         }
     }
@@ -111,22 +125,22 @@ class SimpleListView extends CWidget
         $modelName = is_string($this->model) ? $this->model : get_class($this->model);
         $key = $className . $modelName;
         $scope = $checkTheme ? 'theme' : 'local';
-        if (isset(self::$__viewPaths[$key][$scope])) {
-            return self::$__viewPaths[$key][$scope];
+        if (isset(self::$_viewPaths[$key][$scope])) {
+            return self::$_viewPaths[$key][$scope];
         } else {
             $class = new ReflectionClass($modelName);
             $moduleId = basename(dirname(dirname($class->getFileName())));
 
             if ($checkTheme && ($theme = Yii::app()->getTheme()) !== null) {
-                $path = $theme->getViewPath() . DIRECTORY_SEPARATOR . 'viewWidgets' . DIRECTORY_SEPARATOR . $moduleId;
-                if (is_dir($path) && is_file($path . DIRECTORY_SEPARATOR . $this->view . '.php')) {
-                    return self::$__viewPaths[$key]['theme'] = $path;
+                $path = $theme->getViewPath() . '/viewWidgets/' . $moduleId;
+                if (is_dir($path) && is_file($path . '/' . $this->view . '.php')) {
+                    return self::$_viewPaths[$key]['theme'] = $path;
                 }
 
             }
 
             $class = new ReflectionClass($this->model);
-            return self::$__viewPaths[$key]['local'] = dirname(dirname($class->getFileName())) . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'viewWidgets';
+            return self::$_viewPaths[$key]['local'] = dirname(dirname($class->getFileName())) . '/views/viewWidgets';
         }
     }
 }
