@@ -10,4 +10,8 @@
 
 class ContestModule extends CWebModule
 {
+    public function getAdminEmail()
+    {
+        return isset($this->params['adminEmail']) ? $this->params['adminEmail'] : Yii::app()->params['adminEmail'];
+    }
 }

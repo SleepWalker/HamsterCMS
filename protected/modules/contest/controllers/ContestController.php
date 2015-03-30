@@ -45,7 +45,6 @@ class ContestController extends Controller
     protected function processModel($model)
     {
         if ($this->postData) {
-
             if ($this->postData['type'] == 'group') {
                 $model->scenario = 'group';
             }
@@ -87,7 +86,7 @@ class ContestController extends Controller
 
         if (!empty(Yii::app()->params['adminEmail'])) {
             Yii::app()->mail->send(array(
-                'to' => Yii::app()->params['adminEmail'],
+                'to' => $this->module->getAdminEmail(),
                 'subject' => 'Новая заявка на участие в конкурсе',
                 'view' => 'admin_new_request',
                 'viewData' => $model->attributes,
