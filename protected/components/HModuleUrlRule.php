@@ -47,8 +47,8 @@ class HModuleUrlRule extends CBaseUrlRule
         }
 
         if (count($routeParts) == 3) {
-            if ($routeParts[0] == $routeParts[1]) // что-то на подобии admin/admin/action
-            {
+            if ($routeParts[0] == $routeParts[1]) {
+                // что-то на подобии admin/admin/action
                 unset($routeParts[0]); // удлаяем повторяющуюся часть из url
                 $routeParts = array_values($routeParts);
             }
@@ -60,8 +60,8 @@ class HModuleUrlRule extends CBaseUrlRule
 
         }
 
-        if (isset($routeParts[1]) && $routeParts[1] == 'view') // если это действие actionview - убираем его из url
-        {
+        if (isset($routeParts[1]) && $routeParts[1] == 'view') {
+            // если это действие actionview - убираем его из url
             unset($routeParts[1]); // удлаяем view часть из url
             // Присоединяем к урл ид модели
             $urlExtra[] = array_shift($params);
@@ -128,15 +128,15 @@ class HModuleUrlRule extends CBaseUrlRule
             $modules = Yii::app()->modules;
             $moduleUrls = array();
             foreach ($modules as $moduleId => $moduleConfig) {
-                if (isset($moduleConfig['params']['aliases'][$pathInfo]['route'])) // Новый вариант роутинга. когда все пути задаются в админке
-                {
+                if (isset($moduleConfig['params']['aliases'][$pathInfo]['route'])) {
+                    // Новый вариант роутинга. когда все пути задаются в админке
                     return $moduleId . '/' . $moduleConfig['params']['aliases'][$pathInfo]['route'];
                 }
 
                 // проверяем view url
                 $pathInfoWithId = preg_replace('/[^\/]+$/', '{id}', $pathInfo);
-                if (isset($moduleConfig['params']['aliases'][$pathInfoWithId]['route'])) // Новый вариант роутинга. когда все пути задаются в админке ({id} placeholder)
-                {
+                if (isset($moduleConfig['params']['aliases'][$pathInfoWithId]['route'])) {
+                    // Новый вариант роутинга. когда все пути задаются в админке ({id} placeholder)
                     $_GET['id'] = end($url);
                     return $moduleId . '/' . $moduleConfig['params']['aliases'][$pathInfoWithId]['route'];
                 }
@@ -149,16 +149,21 @@ class HModuleUrlRule extends CBaseUrlRule
             }
 
             if (!in_array($url[0], $moduleUrls)) {
+                // нет такого модуля
                 return false;
             }
-            // нет такого модуля
 
             $getModuleByUrl = array_flip($moduleUrls);
             $moduleId = $getModuleByUrl[$url[0]];
+            $module = \Yii::app()->getModule($moduleId);
+
+            if (!$module) {
+                throw new \CException('Wrong url format');
+            }
 
             $route[] = $moduleId; // модуль
-            if (!isset($url[1])) // index действия для случаев, когда у контроллера и модуля одинаковый id (admin/admin/index)
-            {
+            if (!isset($url[1])) {
+                // index действия для случаев, когда у контроллера и модуля одинаковый id (admin/admin/index)
                 return $moduleId . '/' . $moduleId . '/index';
             }
 
@@ -184,11 +189,15 @@ class HModuleUrlRule extends CBaseUrlRule
                 return implode('/', $route);
             }
 
-            $controllerClass = ucfirst($controllerId) . 'Controller';
-
             //работаем с {xxx}Controller
-            if (!class_exists($controllerClass, false)) {
-                Yii::import('application.modules.' . $moduleId . '.controllers.' . $controllerClass, true);
+            if (isset($module->controllerMap[$controllerId])) {
+                $controllerClass = $module->controllerMap[$controllerId];
+            } else {
+                $controllerClass = ucfirst($controllerId) . 'Controller';
+
+                if (!class_exists($controllerClass, false)) {
+                    Yii::import('application.modules.' . $moduleId . '.controllers.' . $controllerClass, true);
+                }
             }
 
             // запускаем цикл, который будет искать методы в контроллере обьединяя части урл
@@ -230,10 +239,10 @@ class HModuleUrlRule extends CBaseUrlRule
      * @param string $controllerClass
      * @param string $actionId
      * @param array $urlParts
-     * @access public
+     * @access private
      * @return void
      */
-    public function parseActionParams($controllerClass, $actionId, $urlParts)
+    private function parseActionParams($controllerClass, $actionId, $urlParts)
     {
         $urlParts = array_map('strtolower', $urlParts);
         $urlParts = array_values($urlParts);
@@ -265,8 +274,10 @@ class HModuleUrlRule extends CBaseUrlRule
                 $pattern = '/^' . strtr($template, $tr) . '$/u';
 
                 if (YII_DEBUG && @preg_match($pattern, 'test') === false) {
-                    throw new CException(Yii::t('yii', 'The URL pattern "{pattern}" for action "{action}" is not a valid regular expression.',
-                        array('{action}' => $actionId, '{pattern}' => $pattern)));
+                    throw new CException(Yii::t('yii', 'The URL pattern "{pattern}" for action "{action}" is not a valid regular expression.', array(
+                        '{action}' => $actionId,
+                        '{pattern}' => $pattern,
+                    )));
                 }
 
                 // =========================
@@ -294,7 +305,7 @@ class HModuleUrlRule extends CBaseUrlRule
      * @param string $actionId идентификатор экшена
      * @return array $actionParams массив обьектов с информацией о параметрах метода действия
      */
-    public function getActionParams($controllerClass, $actionId)
+    private function getActionParams($controllerClass, $actionId)
     {
         $methodName = 'action' . $actionId;
         $method = new ReflectionMethod($controllerClass, $methodName);
@@ -306,17 +317,22 @@ class HModuleUrlRule extends CBaseUrlRule
         return $actionParams;
     }
 
-    public function getActionParamsByRoute($route)
+    private function getActionParamsByRoute($route)
     {
+        // TODO: как-то не очень разумно инклюдить контроллеры для парсинга параметров урлов. нужно это переписать
         $route = explode('/', $route);
-        try
-        {
-            if (count($route) == 3) // модули
-            {
-                $controllerClass = Yii::import('application.modules.' . $route[0] . '.controllers.' . ucfirst($route[1]) . 'Controller', true);
-                $actionId = $route[2];
-            } elseif (count($route) == 2) // Обычные контроллеры
-            {
+        try {
+            if (count($route) == 3) {
+                // модули
+                list($moduleId, $controllerId, $actionId) = $route;
+                $module = \Yii::app()->getModule($moduleId);
+                if ($module && isset($module->controllerMap[$controllerId])) {
+                    $controllerClass = $module->controllerMap[$controllerId];
+                } else {
+                    $controllerClass = Yii::import('application.modules.' . $moduleId . '.controllers.' . ucfirst($controllerId) . 'Controller', true);
+                }
+            } elseif (count($route) == 2) {
+                // Обычные контроллеры
                 $controllerClass = Yii::import('application.controllers.' . ucfirst($route[0]) . 'Controller', true);
                 $actionId = $route[1];
             }
