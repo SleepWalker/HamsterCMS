@@ -10,6 +10,10 @@
 
 class ContestModule extends CWebModule
 {
+    public $controllerMap = array(
+        'contest' => '\contest\controllers\ContestController',
+    );
+
     public function getAdminEmail()
     {
         return isset($this->params['adminEmail']) ? $this->params['adminEmail'] : Yii::app()->params['adminEmail'];

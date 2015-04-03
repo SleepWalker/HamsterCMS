@@ -3,12 +3,13 @@
  * This controller allows to apply into the contest
  *
  * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @package    contest.controllers
  * @copyright  Copyright &copy; 2015 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
 
-class ContestController extends Controller
+namespace contest\controllers;
+
+class ContestController extends \Controller
 {
     const FLASH_APPLY = 'contest.apply.success';
 
@@ -16,10 +17,10 @@ class ContestController extends Controller
     {
         $this->pageTitle = 'Заявка на участие в конкурсе';
 
-        $model = new \contest\models\Request();
+        $model = new \contest\models\view\Request();
 
         if ($this->processModel($model)) {
-            Yii::app()->user->setFlash(self::FLASH_APPLY, true);
+            \Yii::app()->user->setFlash(self::FLASH_APPLY, true);
             $this->redirect('success');
         }
 
@@ -30,7 +31,7 @@ class ContestController extends Controller
 
     public function actionSuccess()
     {
-        if (Yii::app()->user->getFlash(self::FLASH_APPLY)) {
+        if (\Yii::app()->user->getFlash(self::FLASH_APPLY)) {
             $this->render('success');
         } else {
             $this->redirect('apply');
@@ -42,18 +43,19 @@ class ContestController extends Controller
         $this->render('rules');
     }
 
-    protected function processModel($model)
+    protected function processModel(\contest\models\view\Request $model)
     {
+        // TODO: minimum one email
         if ($this->postData) {
             if ($this->postData['type'] == 'group') {
                 $model->scenario = 'group';
             }
 
 
-            if (Yii::app()->request->isAjaxRequest && isset($_POST['ajaxValidation'])) {
-                echo CActiveForm::validate($model);
+            if (\Yii::app()->request->isAjaxRequest && \Yii::app()->request->getPost('ajaxValidation')) {
+                echo \CActiveForm::validate($model);
 
-                Yii::app()->end();
+                \Yii::app()->end();
             }
 
             $model->attributes = $this->postData;
@@ -70,14 +72,14 @@ class ContestController extends Controller
 
     protected function getPostData()
     {
-        $modelName = CHtml::modelName('\contest\models\Request');
+        $modelName = \CHtml::modelName('\contest\models\Request');
 
-        return isset($_POST[$modelName]) ? $_POST[$modelName] : false;
+        return \Yii::app()->request->getPost($modelName);
     }
 
     protected function sendNotifications($model)
     {
-        Yii::app()->mail->send(array(
+        \Yii::app()->mail->send(array(
             'to' => $model->email,
             'subject' => 'Заявка на участие в конкурсе',
             'view' => 'user_new_request',
@@ -85,7 +87,7 @@ class ContestController extends Controller
         ));
 
         if (!empty(Yii::app()->params['adminEmail'])) {
-            Yii::app()->mail->send(array(
+            \Yii::app()->mail->send(array(
                 'to' => $this->module->getAdminEmail(),
                 'subject' => 'Новая заявка на участие в конкурсе',
                 'view' => 'admin_new_request',
