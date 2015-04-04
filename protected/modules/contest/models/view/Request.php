@@ -10,8 +10,8 @@ namespace contest\models\view;
 class Request extends \CFormModel
 {
     public $type = 'solo';
+    public $format = 0;
     public $name;
-    public $format;
     public $demos;
 
     /**
@@ -20,6 +20,7 @@ class Request extends \CFormModel
     public function rules()
     {
         return array(
+            array('format, name, compositions, musicians', 'required'),
             array('name', 'length', 'max' => 64),
             array('type', 'in', 'range' => array('solo', 'group')),
             array('demos, format', 'safe'),
@@ -32,6 +33,9 @@ class Request extends \CFormModel
             'name' => 'Название группы',
             'demos' => 'Ссылки на демо записи',
             'type' => 'Номинация',
+            'format' => 'Формат номера',
+            'compositions' => 'Исполняемые композиции',
+            'musicians' => 'Исполнитель(-ли)',
         );
     }
 

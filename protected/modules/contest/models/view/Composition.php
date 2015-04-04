@@ -27,7 +27,7 @@ class Composition extends \CFormModel
         return array(
             'author' => 'Автор',
             'title' => 'Название',
-            'duration' => 'Время исполнения, мин',
+            'duration' => 'Время, мин',
         );
     }
 }
