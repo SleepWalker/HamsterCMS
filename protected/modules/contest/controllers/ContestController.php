@@ -118,9 +118,10 @@ class ContestController extends \Controller
             }
         }
 
-        if (!empty($this->module->getAdminEmail())) {
+        $adminEmail = $this->module->getAdminEmail();
+        if (!empty($adminEmail)) {
             \Yii::app()->mail->send(array(
-                'to' => $this->module->getAdminEmail(),
+                'to' => $adminEmail,
                 'subject' => 'Новая заявка на участие в конкурсе',
                 'view' => 'admin_new_request',
                 'viewData' => $model->attributes,

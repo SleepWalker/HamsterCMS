@@ -25,7 +25,7 @@ class Request extends \CFormModel
     const FORMAT_CONCERTMASTER = 3;
 
     const TYPE_GROUP = 'group';
-    const TYPE_SOLO = 'solog';
+    const TYPE_SOLO = 'solo';
 
     /**
      * @return array validation rules for model attributes.
