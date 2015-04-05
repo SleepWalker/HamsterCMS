@@ -10,7 +10,7 @@
 
 Yii::import('application.modules.shop.models.*'); // почему-то по другому не работает
 
-class CartAdminController extends HAdminController
+class CartAdminController extends \admin\components\HAdminController
 {
   /**
 	 * @return меню для табов
@@ -22,11 +22,11 @@ class CartAdminController extends HAdminController
       'create'  => 'Оформить заказ',
     );
   }
-  
+
   /**
 	 * Выводит список заказов
 	 */
-  public function actionIndex($criteria = false, $render = 'render', $id = 'orderIndex') 
+  public function actionIndex($criteria = false, $render = 'render', $id = 'orderIndex')
   {
     // Диалоговые окошки для просмотра чеков
 		$this->widget('application.widgets.juiajaxdialog.AjaxDialogWidget', array(
@@ -39,12 +39,12 @@ class CartAdminController extends HAdminController
         'title'=>'Информация о заказе',
       )
     ));
-    
+
     $orderModel = new Order('search');
     $orderModel->unsetAttributes();
     if(isset($_GET['Order']))
       $orderModel->attributes=$_GET['Order'];
-    
+
     if(!$criteria)
     {
       // отображаем фильтр по статусу заказа
@@ -53,7 +53,7 @@ class CartAdminController extends HAdminController
       if(isset($_GET['Order']['statusArr']))
         $statusIsChecked = $_GET['Order']['statusArr'];
       $orderModel->statusArr = $statusIsChecked;
-      
+
       ob_start();
       echo CHtml::beginForm($this->createUrl(''), 'GET');
       echo 'Фильтр по статусу: ';
@@ -62,7 +62,7 @@ class CartAdminController extends HAdminController
         echo '<span class="status_' . $statusId . '">' . CHtml::checkBox('Order[statusArr][' . $statusId . ']', $statusIsChecked[$statusId], array(
           'onchange'=>'this.form.submit();',
           'value'=>$statusId,
-        )) . 
+        )) .
         CHtml::label($statusName, 'Order_statusArr_' . $statusId) . '</span>';
       }
       echo CHtml::endForm();
@@ -74,16 +74,16 @@ class CartAdminController extends HAdminController
       <?php
       $statusFilter = ob_get_clean();
     }
-    
+
     $dataProvider = $orderModel->search();
-    
+
     if ($criteria)
       $dataProvider->criteria->mergeWith($criteria);
-      
+
 		$this->{$render}('table',array(
 			'dataProvider'=>$dataProvider,
       'buttons' => array(
-        'print', 
+        'print',
         'more' => array(
           'visible' => '!empty($data->comment)',
           'options'=>array(
@@ -100,7 +100,7 @@ class CartAdminController extends HAdminController
 			  array(
 			    'name'=>'Товары',
 			    'value'=>'
-			      call_user_func(function() use ($data) 
+			      call_user_func(function() use ($data)
             {
               // Создаем список превьюшек картинок
               $str = "";
@@ -109,14 +109,14 @@ class CartAdminController extends HAdminController
                 $str .= "<div class=\"quantity\">" . $check->prod->img(45) . "<span>" . $check->quantity . "</span></div>";
               }
               return $str;
-            })            			    
+            })
 			    ',
 			    'type'=>'raw',
 			  ),
 			  array(
 			    'name'=>'Цена заказа, грн',
 			    'value'=>'
-			      call_user_func(function() use ($data) 
+			      call_user_func(function() use ($data)
             {
               $str = 0;
               foreach($data->check as $check)
@@ -124,7 +124,7 @@ class CartAdminController extends HAdminController
                 $str += $check->price*$check->quantity;
               }
               return CHtml::link(number_format($str, 2, ",", " "), "/'.$this->module->id.'/cart/check/".$data->id, array("class"=>"ajaxInfo"));
-            })            			    
+            })
 			    ',
 			    'type'=>'raw',
 			  ),
@@ -135,7 +135,7 @@ class CartAdminController extends HAdminController
           empty($data->user_id) ?
           CHtml::encode($data->client->first_name) . "<br />" . CHtml::encode($data->client->last_name)
           : CHtml::link(CHtml::encode($data->user->first_name) . "<br />" . CHtml::encode($data->user->last_name), $this->createUrl("user", "id" => $data->user_id), array("class"=>"ajaxInfo"))
-          
+
           )',
 			    'type'=>'raw',
 			  ),
@@ -151,14 +151,14 @@ class CartAdminController extends HAdminController
           'header'=>'Контакты',
           'value'=>'"<span class=\"status_" . ( $data->user->is_active ? "3" : (empty($data->user_id) ? "4" : "1")) . "\">" . (empty($data->user_id) ? CHtml::encode($data->client->email) : CHtml::encode($data->user->email) ) . "</span><br />" . CHtml::encode($data->address->telephone)
            . ($data->address->fullAddress ? "<br />" . $data->address->fullAddress : "") . "<br />" . $data->ip',
-           'type'=>'raw',			  
-			  ), 
+           'type'=>'raw',
+			  ),
         array(
           'name'=>'operator_id',
           'value'=>'$data->operator->first_name',
         ),
         array(
-          'name' => 'date', 
+          'name' => 'date',
           'type' => 'datetime',
         ),
         array(
@@ -168,7 +168,7 @@ class CartAdminController extends HAdminController
             array(
               "ajax" => array(
                 "type"=>"POST",
-                "url"=>"'.$this->createUrl('status').'", 
+                "url"=>"'.$this->createUrl('status').'",
                 "beforeSend" => "startLoad",
                 "complete" => "stopLoad",
                 "context" => "js:jQuery(\"#status_" . $data->id . "\")",
@@ -176,26 +176,26 @@ class CartAdminController extends HAdminController
                 "data"=>"js:\"status=\"+$(this).val()+\"&id=".$data->id."\"",
               ),
               "disabled" => $data->status > 2,
-            )); 
+            ));
 			    ',
 			    'type'=>'raw',
 			    'cssClassExpression' => '"status_". $data->status',
-			  ), 
+			  ),
       ),
 		));
-  }   
-  
+  }
+
   /**
    *  Доп информация по заказу (выводит комментарий оператора)
    */
-  public function actionMore() 
+  public function actionMore()
   {
     $model = Order::model()->findByPk($this->crudid);
     echo '<h1>' . $model->getAttributeLabel('comment') . '</h1><pre>' . CHtml::encode($model->comment) . '</pre>';
-    
+
     Yii::app()->end();
   }
-  
+
   /**
    *  Оформить заказ
    */
@@ -217,18 +217,18 @@ class CartAdminController extends HAdminController
       // и еще пустышки для address
       $_POST['Order']['address_id'] = $_POST['Order']['user_id'] = 1;
     }
-      
+
     $form = new CForm('cart.views.admin.addForm');
     $form['order']->model = new Order;
     $form['address']->model = new OrderAddress;
     $form['client']->model = new Client;
     $form['check']->model = new OrderCheck;
-    
+
     $order = &$form['order']->model;
     $address = &$form['address']->model;
     $client = &$form['client']->model;
-    $check = &$form['check']->model;    
-    
+    $check = &$form['check']->model;
+
     if(isset($_POST['ajax']))
     {
       $arr2Validate = array(
@@ -237,15 +237,15 @@ class CartAdminController extends HAdminController
         $client,
         $check,
       );
-        
+
       echo CActiveForm::validate($arr2Validate);
       Yii::app()->end();
     }
-    
+
     if($form->submitted('submit') && $form->validate())
     {
       $transaction = Yii::app()->db->beginTransaction();
-      try 
+      try
       {
         $address->user_id = new CDbExpression('NULL');
         if($address->save(false))
@@ -275,7 +275,7 @@ class CartAdminController extends HAdminController
               throw new Exception('Не удалось сохранить чек');
 
             $transaction->commit();
-            
+
             // все успешно
             Yii::app()->user->setFlash('success', "Заказ оформлен успешно");
             $this->refresh();
@@ -290,7 +290,7 @@ class CartAdminController extends HAdminController
         $this->refresh();
       }
     }
-    
+
     // Вторым параметром передаем (captureOutput) true.
     // таким образом мы запустим инициализацию скриптов, но текстовое поле писать не будем,
     // это сделает за нас CForm
@@ -332,7 +332,7 @@ class CartAdminController extends HAdminController
                   span.html(val);
                   $(this).parent().find(".quantity").val(val);
                 }
-                
+
                 return false;
               })
             )
@@ -345,7 +345,7 @@ class CartAdminController extends HAdminController
                 var val = span.text()*1+1;
                 span.html(val);
                 $(this).parent().find(".quantity").val(val);
-                
+
                 return false;
               })
             )
@@ -359,7 +359,7 @@ class CartAdminController extends HAdminController
             // поля формы
             .append(\'<input type="hidden" name="OrderCheck[\'+ui.item.value*1+\']" value="1" class="quantity" />\')
             ;
-            
+
             //а также можно задереть противные красные надписи валидатора
             $("#Shop_code").siblings().removeClass("error").removeClass("errorMessage");
 
@@ -367,8 +367,8 @@ class CartAdminController extends HAdminController
           }',
       ),
     ), true);
-    
-    
+
+
     $js = '
 		$("#Shop_code").data( "autocomplete" )._renderItem = function( ul, item ) {
 			return $( "<li></li>" )
@@ -377,14 +377,14 @@ class CartAdminController extends HAdminController
 				.appendTo( ul );
 		};';
     Yii::app()->getClientScript()->registerScript(__CLASS__.'#shopProdAutoComplete', $js);
-    
+
     $check->prod_id = '';
-    
+
     $this->render('CFormUpdate', array(
       'form' => $form,
     ));
   }
-  
+
   /**
    *  Product suggestion for autocomplete
    *  @return array JSON array for jQuery UI AutoComplete
@@ -409,7 +409,7 @@ class CartAdminController extends HAdminController
           'value' => $item->code,
         );
       }
-      
+
       header('Content-type: application/json');
       echo CJSON::encode($itemsArr);
     }
@@ -426,8 +426,8 @@ class CartAdminController extends HAdminController
 		  $model->status = $_POST['status'];
 		  $model->save();
 		}
-	}  
-	
+	}
+
 	/**
 	 * Выдает более подробную информацию о продуктах в заказе
 	 */
@@ -440,7 +440,7 @@ class CartAdminController extends HAdminController
         'sort' => array('defaultOrder' => 'price DESC'),
 	    )
 	  );
-	  	  
+
 		$this->renderPartial('table',array(
 			'dataProvider'=>$dataProvider,
 			'buttons'=>array('view'),
@@ -466,32 +466,32 @@ class CartAdminController extends HAdminController
         ),
 			),
 		), false, true);
-	}  
-	  
+	}
+
 	/**
 	* Выдает информацию о всех заказах юзера
 	*/
 	public function actionUser()
 	{
 	  $this->actionIndex(array(
-      'condition'=>'user_id='.$this->crudId,	  
+      'condition'=>'user_id='.$this->crudId,
 	  ), 'renderPartial', 'orderUser');
-	}  
-  
+	}
+
   /**
    *  Возвращает pdf документ для распечатки бумажки "Подтверждение получения заказа"
    */
   function actionPrint()
   {
     $id = $this->crudId;
-    
+
     $order = Order::model()->findByPk($id);
-    
+
     $mpdf = Yii::app()->ePdf->mpdf();
     // ищим файлы с лого (либо тема, либо в вьюхах модуля)
     $viewPathSuffix = '/cart/admin/check/';
     if(!(
-      ($theme=Yii::app()->getTheme())!==null 
+      ($theme=Yii::app()->getTheme())!==null
       && is_file($logoPath=$theme->viewPath . $viewPathSuffix . 'logo.png')!==false
       && is_file($logoGrayscalePath=$theme->viewPath . $viewPathSuffix . 'logo_grayscale.png')!==false)
       )

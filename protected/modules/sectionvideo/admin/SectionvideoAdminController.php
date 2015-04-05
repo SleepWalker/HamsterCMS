@@ -7,7 +7,7 @@
  * @copyright  Copyright &copy; 2013 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
- 
+
 use hamster\modules\sectionvideo\models\Video as Video;
 use hamster\modules\sectionvideo\models\VideoMusicians as VideoMusicians;
 use hamster\modules\sectionvideo\models\Teacher as Teacher;
@@ -15,7 +15,7 @@ use hamster\modules\sectionvideo\models\Musician as Musician;
 use hamster\modules\sectionvideo\models\Instrument as Instrument;
 Yii::import('application.modules.event.models.Event');
 use \Event;
-class SectionvideoAdminController extends HAdminController
+class SectionvideoAdminController extends \admin\components\HAdminController
 {
 	/**
 	 * @return меню для табов
@@ -33,11 +33,11 @@ class SectionvideoAdminController extends HAdminController
 			),
 		);
 	}
-	
+
 	/**
 	 * Создает или редактирует модель
 	 */
-	public function actionUpdate() 
+	public function actionUpdate()
 	{
 		if ($this->crudid)
 			$model = Video::model()->findByPk($this->crudid);
@@ -48,7 +48,7 @@ class SectionvideoAdminController extends HAdminController
 
 		$modelName = CHtml::modelName($model);
 		$vmModelName = CHtml::modelName($musicians[0]);
-		
+
 		// TODO: Ajax валидация related полей
 		// AJAX валидация
 		if(isset($_POST['ajax']))
@@ -60,7 +60,7 @@ class SectionvideoAdminController extends HAdminController
 		if(isset($_POST[$modelName]))
 		{
 			$model->attributes=$_POST[$modelName];
-			
+
 			$transaction = Yii::app()->db->beginTransaction();
 			try
 			{
@@ -71,7 +71,7 @@ class SectionvideoAdminController extends HAdminController
 				if(isset($_POST['sortOrder'][$vmModelName]))
 				{
 					$recentlyAddedIds = array(); // id добавленных в этой транзакции внешних связей
-					foreach ($_POST['sortOrder'][$vmModelName] as $oid => $postId) 
+					foreach ($_POST['sortOrder'][$vmModelName] as $oid => $postId)
 					{
 						$data = $_POST[$vmModelName][$postId];
 
@@ -169,25 +169,25 @@ class SectionvideoAdminController extends HAdminController
 			'VideoMusicians' => $musicians,
 			));
 	}
-	
+
 	/**
 	 * Перенаправляет обработку запроса на действие Update
 	 */
-	public function actionCreate() 
+	public function actionCreate()
 	{
 		$this->actionUpdate();
 	}
-	
+
 	/**
 	 *  Выводит таблицу всех товаров
 	 */
-	public function actionIndex() 
+	public function actionIndex()
 	{
 		$model=new Video('search');
 		$model->unsetAttributes();
 		if(isset($_GET['Video']))
 			$model->attributes=$_GET['Video'];
-			
+
 		$tags = $model->tagModel()->findAll();
 		$tagsMenu = array();
 		foreach($tags as $tag)
@@ -195,14 +195,14 @@ class SectionvideoAdminController extends HAdminController
 			array_push($tagsMenu, $tag->name);
 		}
 		$this->aside = CMap::mergeArray($this->aside, array('Теги' => $tagsMenu));
-		
+
 		$this->render('table',array(
 			'dataProvider'=> $model->search(),
 			'options' => array(
 			 'filter'=>$model,
 			),
 			'columns'=>array(
-				array(            
+				array(
 						'name'=>'image',
 						'value'=>'Chtml::image($data->thumbnail, $data->caption, array("width" => 100))',
 						'type'=>'raw',
@@ -210,18 +210,18 @@ class SectionvideoAdminController extends HAdminController
 				),
 				'caption',
 				/*
-				array(            
+				array(
 						'name'=>'cat_id',
 						'value' => '$data->cat->name',
 						'filter'=> Categorie::model()->catsList,
 				),
-				array(            
+				array(
 						'name'=>'status',
 						'type'=>'raw',
 						'value' => '$data->statusName',
 						'filter'=> Post::getStatusNames(),
 				),
-				array(            
+				array(
 						'name'=>'user_search',
 						'value' => '$data->user->first_name',
 				),
@@ -229,15 +229,15 @@ class SectionvideoAdminController extends HAdminController
 				// http://www.yiiframework.com/wiki/318/using-cjuidatepicker-for-cgridview-filter/
 				// http://www.yiiframework.com/wiki/345/how-to-filter-cgridview-with-from-date-and-to-date-datepicker/
 				// http://www.yiiframework.com/forum/index.php/topic/20941-filter-date-range-on-cgridview-toolbar/
-				array(            
+				array(
 						'name'=>'add_date',
 						'type' => 'datetime',
 						'filter' => $this->widget('zii.widgets.jui.CJuiDatePicker', array(
-							'model'=> $model, 
-							'attribute'=>'date_add_from', 
+							'model'=> $model,
+							'attribute'=>'date_add_from',
 							'language' => 'ru',
-							'defaultOptions' => array(  
-								'showOn' => 'focus', 
+							'defaultOptions' => array(
+								'showOn' => 'focus',
 								'showOtherMonths' => true,
 								'selectOtherMonths' => true,
 								'changeMonth' => true,
@@ -249,23 +249,23 @@ class SectionvideoAdminController extends HAdminController
 						), true)
 						.
 						$this->widget('zii.widgets.jui.CJuiDatePicker', array(
-							'model'=> $model, 
-							'attribute'=>'date_add_to', 
+							'model'=> $model,
+							'attribute'=>'date_add_to',
 							'language' => 'ru',
 						), true),
 				),
-				array(            
+				array(
 						'name'=>'edit_date',
 						'type' => 'datetime',
 						'filter' => $this->widget('zii.widgets.jui.CJuiDatePicker', array(
-							'model'=> $model, 
-							'attribute'=>'date_edit_from', 
+							'model'=> $model,
+							'attribute'=>'date_edit_from',
 							'language' => 'ru',
 						), true)
 						.
 						$this->widget('zii.widgets.jui.CJuiDatePicker', array(
-							'model'=> $model, 
-							'attribute'=>'date_edit_to', 
+							'model'=> $model,
+							'attribute'=>'date_edit_to',
 							'language' => 'ru',
 						), true),
 				),
@@ -288,14 +288,14 @@ class SectionvideoAdminController extends HAdminController
 		}
 		else
 			throw new CHttpException(400,'Не правильный запрос. Пожалуйста не повторяйте этот запрос еще раз.');
-	} 
+	}
 
 	public function actionHrac()
 	{
 		Yii::import('ext.fields.jui.HRelationAutoComplete');
 		HRelationAutoComplete::executeAction();
 	}
-	
+
 	/**
 	 *  @return array JSON массив с тегами для jQuery UI AutoComplete
 	 */
@@ -306,7 +306,7 @@ class SectionvideoAdminController extends HAdminController
 		header('application/json');
 		echo CJSON::encode($tagsArr);
 	}
-	
+
 	/**
 	 *  @return array JSON массив с тегами для jQuery UI AutoComplete
 	 */
@@ -320,7 +320,7 @@ class SectionvideoAdminController extends HAdminController
 			),
 		));
 
-		foreach ($events as &$event) 
+		foreach ($events as &$event)
 		{
 			$event = array(
 				'id' => $event->primaryKey,
@@ -332,5 +332,5 @@ class SectionvideoAdminController extends HAdminController
 		header('application/json');
 		echo CJSON::encode($events);
 	}
-} 
+}
 ?>

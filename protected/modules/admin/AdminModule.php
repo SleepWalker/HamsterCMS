@@ -8,12 +8,16 @@
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
 
+namespace admin;
+
 use application\modules\admin\models\HArrayConfig as HArrayConfig;
 
-class AdminModule extends CWebModule
+class AdminModule extends \CWebModule
 {
     public $name;
     public $assetsUrl;
+
+    public $controllerNamespace = '\admin\controllers';
 
     public function init()
     {
@@ -32,18 +36,18 @@ class AdminModule extends CWebModule
             ],
         ]);
 
-        $this->assetsUrl = Yii::app()->getAssetManager()->publish(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'assets', false, -1, YII_DEBUG); //Yii::getPathOfAlias('application.modules.admin.assets'));
+        $this->assetsUrl = \Yii::app()->getAssetManager()->publish(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'assets', false, -1, YII_DEBUG); //Yii::getPathOfAlias('application.modules.admin.assets'));
         //$this->registerScriptFile('admin.js');
         //$this->registerCssFile('admin.css');
 
         // меняем имя сайта
-        Yii::app()->name = 'HamsterCMS';
+        \Yii::app()->name = 'HamsterCMS';
 
         // переопределяем страницу входа
-        Yii::app()->user->loginUrl = Yii::app()->createUrl('admin/login/index');
+        \Yii::app()->user->loginUrl = \Yii::app()->createUrl('admin/login/index');
 
         // устанавливаем экшен для отобраения ошибок
-        Yii::app()->errorHandler->errorAction = 'admin/admin/error';
+        \Yii::app()->errorHandler->errorAction = 'admin/admin/error';
 
         $this->controllerMap = $this->getControllerMap();
     }
@@ -70,8 +74,8 @@ class AdminModule extends CWebModule
     public static function getLayoutIds()
     {
         $extension = '.php';
-        $layoutPathes = array(Yii::app()->getViewPath());
-        if (($theme = Yii::app()->getTheme()) !== null) {
+        $layoutPathes = array(\Yii::app()->getViewPath());
+        if (($theme = \Yii::app()->getTheme()) !== null) {
             // у нас используются темы
             $layoutPathes[] = $theme->getViewPath();
         }
@@ -120,13 +124,13 @@ class AdminModule extends CWebModule
         return $this->moduleManager->getEnabledModules();
     }
 
-    public function registerScriptFile($fileName, $position = CClientScript::POS_END)
+    public function registerScriptFile($fileName, $position = \CClientScript::POS_END)
     {
-        Yii::app()->getClientScript()->registerScriptFile($this->assetsUrl . '/js/' . $fileName, $position);
+        \Yii::app()->getClientScript()->registerScriptFile($this->assetsUrl . '/js/' . $fileName, $position);
     }
 
     public function registerCssFile($fileName)
     {
-        Yii::app()->getClientScript()->registerCssFile($this->assetsUrl . '/css/' . $fileName);
+        \Yii::app()->getClientScript()->registerCssFile($this->assetsUrl . '/css/' . $fileName);
     }
 }

@@ -7,8 +7,8 @@
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
- 
-class UserAdminController extends HAdminController
+
+class UserAdminController extends \admin\components\HAdminController
 {
   public function actions() {
     return array(
@@ -39,11 +39,11 @@ class UserAdminController extends HAdminController
       'hoauth' => 'Вход через социальные сети',
     );
   }
-  
+
   /**
    *  Выводит таблицу всех товаров
    */
-  public function actionIndex() 
+  public function actionIndex()
   {
     $model = new User('search');
 
@@ -145,7 +145,7 @@ class UserAdminController extends HAdminController
 
   /**
    * Присваивает роль пользователю (страница со списком пользователей)
-   * 
+   *
    * @access public
    * @return void
    */
@@ -157,7 +157,7 @@ class UserAdminController extends HAdminController
 
   /**
    * Снимает роль с пользователя (страница со списком пользователей)
-   * 
+   *
    * @access public
    * @return void
    */
@@ -168,14 +168,14 @@ class UserAdminController extends HAdminController
 
   /**
    * Страница со списком ролей.
-   * 
+   *
    * @access public
    * @return void
    */
   public function actionRoles()
   {
     $model=new AuthItem('search');
-	  
+
 		$this->render('table',array(
 			'dataProvider'=> $model->search(),
 			'columns'=>array(
@@ -226,11 +226,11 @@ class UserAdminController extends HAdminController
                          'model'=>$model,
                        ), true, true),
         );
-      
+
       echo json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
       Yii::app()->end();
     }
-		
+
 		if(!$_POST['ajaxSubmit'])
       $this->render('update',array(
 			  'model'=>$model,
@@ -286,7 +286,7 @@ class UserAdminController extends HAdminController
           'content' => '<script> location.reload() </script>',
         );
       }
-      else 
+      else
         $data = array(
           'action' => 'renewForm',
           'content' => $this->renderPartial('update',array(
@@ -314,7 +314,7 @@ class UserAdminController extends HAdminController
       'buttons' => array(
         'delete' => array(
           'url' => 'array("revoke", "id" => $data->primaryKey["userid"])',
-        ), 
+        ),
         'ok' => array(
           'url' => 'array("assign", "id" => $data->primaryKey["userid"])',
         ),
@@ -332,8 +332,8 @@ class UserAdminController extends HAdminController
   }
 
   /**
-   * Отклонение перемещения пользователя в выбранную им при регистрации роль  
-   * 
+   * Отклонение перемещения пользователя в выбранную им при регистрации роль
+   *
    * @access public
    * @return void
    */
@@ -343,8 +343,8 @@ class UserAdminController extends HAdminController
   }
 
   /**
-   * Подтверждение перемещения пользователя в выбранную им при регистрации роль 
-   * 
+   * Подтверждение перемещения пользователя в выбранную им при регистрации роль
+   *
    * @param boolean $assign если true пользователь будет перемещен в выбранную им роль
    * @access public
    * @return void
@@ -378,6 +378,6 @@ class UserAdminController extends HAdminController
 	  }
 		else
 			throw new CHttpException(400,'Не правильный запрос. Пожалуйста не повторяйте этот запрос еще раз.');
-	} 
-} 
+	}
+}
 ?>

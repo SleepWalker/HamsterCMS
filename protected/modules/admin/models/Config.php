@@ -39,7 +39,7 @@ class Config extends CFormModel
   protected $_attValsDef = array();
   // id модуля для которого строится модель
   protected $_moduleId;
-  
+
 	/**
 	 * @return array validation rules for model attributes.
 	 */
@@ -58,12 +58,12 @@ class Config extends CFormModel
 	{
 		return $this->_attLabels;
 	}
-  
+
   /**
    * @param string $moduleId название модуля, для которого будет генерироваться модель конфига
    * @param string $scenario name of the scenario that this model is used in. See {@link CModel::scenario} on how scenario is used by models.
    */
-  public function __construct(array $config, $moduleId, $scenario='') 
+  public function __construct(array $config, $moduleId, $scenario='')
   {
     if(empty($moduleId))
       throw new CException('moduleId не может быть пустой строкой');
@@ -82,7 +82,7 @@ class Config extends CFormModel
     $this->_configSchema = $config;
     parent::__construct($scenario);
   }
-  
+
   /**
    * Статический метод, который проверяет существует у модуля $moduleId конфиг и создает для него модель
    * @param string $moduleId название модуля, для которого будет генерироваться модель конфига
@@ -96,7 +96,7 @@ class Config extends CFormModel
     else
       return null; // у этого модуля нету конфига
   }
-  
+
   /**
    * Парсит конфиг и заполняет модель информацией
    */
@@ -108,19 +108,19 @@ class Config extends CFormModel
       if($name == 'hamster') continue;
       $this->hamsterConfigSchema($name, $params);
     }
-    
+
     // парсим настройки hamster, где находится секция для глобальных параметров
     if(isset($this->_configSchema['hamster']['global']))
       foreach($this->_configSchema['hamster']['global'] as $name => $params)
       {
         $this->hamsterConfigSchema($name, $params, true);
       }
-      
+
     // добавим в массив с настройками еще параметры, которые передаются модулю
     // TODO: Обязательно написать об этом (['hamtser']['options'] == конфиг модуля) в будущей документации, бо я сам чуть не забыл о такой возможности
     if(isset($this->_configSchema['hamster']['options']))
       $this->_curModConfig['config']['modules'][$this->moduleId] = CMap::mergeArray($this->_curModConfig['config']['modules'][$this->moduleId], $this->_configSchema['hamster']['options']);
-    
+
     if($this->moduleId != 'admin') //все настройки для админки генерируются из AdminController
     {
       // добавляем поля из области admin
@@ -173,12 +173,12 @@ class Config extends CFormModel
         'layout' => array(
           'label' => 'Layout модуля',
           'type' => 'dropdownlist',
-          'items' => AdminModule::getLayoutIds(),
+          'items' => \admin\AdminModule::getLayoutIds(),
         )
       ));
     }
   }
-  
+
   /**
    * Adds new field or fields in config
    *
@@ -224,7 +224,7 @@ class Config extends CFormModel
    * @param bool $return если - true, то функция вернет обработанные данные, вместо того, что бы добавлять их в {@link _CFormConfig}
    */
   protected function att2CFormConfig($name, $params, $return = false)
-  {  
+  {
     // добавляем аттрибут в модель, что бы можно было получить доступ к текущему полю конфига
     if(!$return) $this->setModelAttribute($name, $params);
 
@@ -242,7 +242,7 @@ class Config extends CFormModel
           $subAttName = $subParams['type'] != 'fieldset' ? $curAttName . '[' . $subName . ']' : $subName;
           $elements[$subAttName] = $this->att2CFormConfig($subAttName, $subParams, $curAttName);
         }
-        
+
         $CFormArr = array(
           'type' => 'form',
           'title' => $params['title'],
@@ -250,9 +250,9 @@ class Config extends CFormModel
           'model' => $this,
         );
 
-        if(!$return) 
+        if(!$return)
           $this->_CFormConfig[$name] = $CFormArr;
-  
+
         return $CFormArr;
       break;
       case 'number':
@@ -273,7 +273,7 @@ class Config extends CFormModel
 
     // на данном этапе в массиве $params должны оставаться только параметры для CForm
     $CFormArr = $params;
-        
+
     if($return)
       return $CFormArr;
     else
@@ -282,21 +282,21 @@ class Config extends CFormModel
 
   /**
    * Добавляет в модель новый аттрибут
-   * 
-   * @param string $name 
-   * @param array $params 
+   *
+   * @param string $name
+   * @param array $params
    * @access public
    * @return void
    */
   public function setModelAttribute($name, $params = false)
   {
     $this->_attributes[] = $name;
-    
+
     if(!empty($params['label']))
     {
       $this->_attLabels[$name] = $params['label'];
     }
-    
+
     // обработка вложенных формы (type='fieldset')
     // здесь нам нужно рекурсивно собрать все значения по умолчанию
     if($params['type'] == 'fieldset')
@@ -321,7 +321,7 @@ class Config extends CFormModel
       $this->_attValsDef[$name] = $params['default'];
     }
   }
-  
+
   /**
    * Инициализирует массив с значениями по умолчанию и с текущими значениями аттрибутов, а также масив, который потом будет сейвится в конфиг
    *
@@ -330,7 +330,7 @@ class Config extends CFormModel
    * @param bool $linkTo определяет к какому полю в конфиге будет привязываться аттрибут. Можно передать global, что бы привязать к глобальным параметрам или переменную
    */
   protected function hamsterConfigSchema($name, $params, $linkTo = false)
-  {  
+  {
     if($params['type'] == '') throw new CException("У параметра $name не указан обязательный параметр type");
 
     // Добавляем поле в конфиг CForm
@@ -342,7 +342,7 @@ class Config extends CFormModel
     $attVal = &$this->_attVals[$name];
 
     if($linkTo == 'global') // вяжем к глобальным параметрам Yii
-    { 
+    {
       $this->_curModConfig['config']['params'][$name] = &$attVal;
     } elseif($linkTo) { // вяжем еще куда-то
       /*FIXME: if(strpos($linkTo, 'params') == 9 && 0)
@@ -366,9 +366,9 @@ class Config extends CFormModel
   }
 
   /**
-   * Переопределяем стандартную функцию, что бы она расспознавала аттрибуты-массивы 
-   * 
-   * @param mixed $attribute 
+   * Переопределяем стандартную функцию, что бы она расспознавала аттрибуты-массивы
+   *
+   * @param mixed $attribute
    * @access public
    * @return void
    */
@@ -378,7 +378,7 @@ class Config extends CFormModel
       $attribute = substr($attribute, 0, $pos);
     return parent::isAttributeSafe($attribute);
   }
-  
+
   /**
    * Переопределяем магический метод __get Yii, что бы можно было обращаться к свойствам, указанным в {@link _configSchema}
    * @param string $name the property name or the event name
@@ -402,20 +402,20 @@ class Config extends CFormModel
     else
       return parent::__get($name);
   }
-  
+
   /**
    * Переопределяем магический метод __set Yii, что бы можно было менять свойства, указанным в {@link _configSchema}
    * @param string $name the property name or the event name
    * @return mixed
    */
-  public function __set($name,$value) 
+  public function __set($name,$value)
   {
     if(in_array($name, $this->_attributes))
       $this->_attVals[$name] = $value;
     else
       return parent::__set($name,$value);
   }
-  
+
   /**
    * @return array массив с настройками для елемента 'elements' класса CForm
    */
@@ -425,7 +425,7 @@ class Config extends CFormModel
     $this->mergeConfigs();
 
     if(!$this->_CForm && $this->_CFormConfig)
-    {      
+    {
       $this->_CForm = new CForm(array(
         'buttons'=>array(
           'submit'=>array(
@@ -443,7 +443,7 @@ class Config extends CFormModel
     }
     return $this->_CForm;
   }
-  
+
   /**
    * Сохраняет модель
    *
@@ -458,7 +458,7 @@ class Config extends CFormModel
 
     // сливаем конфиги
     $this->mergeConfigs();
-    
+
     // загружаем файл с настройками hamster и обьединяем их с массивом настроек, за исключением некоторых элементов
     $hamsterConfig = require(Yii::getPathOfAlias('application.modules.admin.config').'/main.php');
     if(is_array($this->_hamsterModules['config']))
@@ -472,7 +472,7 @@ class Config extends CFormModel
       else
         $hamsterConfig['modules'][] = $moduleId;
     }
-      
+
     // активируем админский модуль по дефолту
     $hamsterConfig['modules'][] = 'admin';
 
@@ -481,20 +481,20 @@ class Config extends CFormModel
 if(isset($_SERVER['REQUEST_URI']))
   $GLOBALS['_REQUEST_URI'] = $_SERVER['REQUEST_URI'];
 if(isset($_SERVER['REMOTE_ADDR']))
-  $GLOBALS['_REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];  
+  $GLOBALS['_REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];
 
 Yii::setPathOfAlias('hamster', dirname(dirname(__FILE__)));
     <?php
     $configHeader = ob_get_clean();
 
     $hamsterConfigStr = "<?php\n\n" . $configHeader . "\n\nreturn " . var_export($hamsterConfig, true) . ";";
-    
+
     //FIXME тут есть пару костылей... для тех случаев, когда надо включать в экспорт php выражения
     //FIXME надо бы придумать более адекватное добавление переменных ГЛОБАЛ
     // удаляем последствия var_export, которая подобавляла индексы к массивам
     $hamsterConfigStr = preg_replace('/[0-9]+ => /', '', $hamsterConfigStr);
-    $hamsterConfigStr = preg_replace("/'phpexpr\:([^']+)'/", '$1', $hamsterConfigStr);    
-    
+    $hamsterConfigStr = preg_replace("/'phpexpr\:([^']+)'/", '$1', $hamsterConfigStr);
+
     $hamsterModulesStr = "<?php\n\nreturn " . var_export($this->_hamsterModules, true) . ";";
 
     return (file_put_contents(Yii::getPathOfAlias('application.config') . '/hamster.php', $hamsterConfigStr) !== false)
@@ -503,7 +503,7 @@ Yii::setPathOfAlias('hamster', dirname(dirname(__FILE__)));
 
   /**
    * Заполняет массивы актуальными данными из уже существующих конфигов
-   * 
+   *
    * @access protected
    * @return void
    */
@@ -518,7 +518,7 @@ Yii::setPathOfAlias('hamster', dirname(dirname(__FILE__)));
       $this->_hamsterModules = CMap::mergeArray($this->_curModConfig, $hamsterModules);
 
       // сохраним в эту переменную изначальную версию элемента конфига params
-      // это нужно для того, что бы пофиксить баг оверврайта полностью всех глобальных параметров при сохранении основных настроек цмс (это из-за того, что там linkTo => '$config["params"]'. 
+      // это нужно для того, что бы пофиксить баг оверврайта полностью всех глобальных параметров при сохранении основных настроек цмс (это из-за того, что там linkTo => '$config["params"]'.
       // То есть при отправке формы ее данные заменят полностью все глобальные параметры, а нам этого не надо
       $this->_isMerged = isset($hamsterModules['config']['params']) && is_array($hamsterModules['config']['params']) ? $hamsterModules['config']['params'] : true;
     }
@@ -534,7 +534,7 @@ Yii::setPathOfAlias('hamster', dirname(dirname(__FILE__)));
       }
     }
   }
-  
+
   /**
    * Загружает настройки модулей Hamster
    * @return array массив с настройками
@@ -545,14 +545,14 @@ Yii::setPathOfAlias('hamster', dirname(dirname(__FILE__)));
 
     return file_exists($file) ? require($file) : array();
   }
-  
+
   public function getHamsterModules()
   {
     if(!$this->_hamsterModules)
       $this->_hamsterModules = self::hamsterModules();
     return $this->_hamsterModules;
   }
-  
+
   /**
    * @return array массив с информацией о модулях
    */
@@ -560,7 +560,7 @@ Yii::setPathOfAlias('hamster', dirname(dirname(__FILE__)));
   {
     return  is_array($this->hamsterModules['modulesInfo']) ? $this->hamsterModules['modulesInfo'] : array();
   }
-  
+
   /**
    * @return array массив с информацией об активных модулях
    */
@@ -568,7 +568,7 @@ Yii::setPathOfAlias('hamster', dirname(dirname(__FILE__)));
   {
     return is_array($this->hamsterModules['enabledModules']) ? $this->hamsterModules['enabledModules'] : array();
   }
-  
+
   /**
    * @return string id модуля, для которого построена модель
    */
@@ -579,7 +579,7 @@ Yii::setPathOfAlias('hamster', dirname(dirname(__FILE__)));
 
   /**
    * Возвращает массив конфигурации с информацией для админ панели
-   * 
+   *
    * @access public
    * @return array
    */
@@ -594,7 +594,7 @@ Yii::setPathOfAlias('hamster', dirname(dirname(__FILE__)));
     $this->hamsterModules;
     $this->_hamsterModules['modulesInfo'][$this->moduleId]['db']['version'] = $v;
   }
-    
+
   /**
    *  @return bool маркер, говорящий, новая ли это запись
    */
@@ -602,7 +602,7 @@ Yii::setPathOfAlias('hamster', dirname(dirname(__FILE__)));
   {
     return false;
   }
-  
+
   /**
 	 * Сохраняем загруженное изображение и заполняем модель оставшимися данными
 	 */
@@ -612,7 +612,7 @@ Yii::setPathOfAlias('hamster', dirname(dirname(__FILE__)));
     {
       if($this->isNewRecord)
       {
-        
+
       }
       return true;
     }

@@ -7,8 +7,8 @@
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
- 
-class EventAdminController extends HAdminController
+
+class EventAdminController extends \admin\components\HAdminController
 {
   /**
 	 * @return меню для табов
@@ -26,19 +26,19 @@ class EventAdminController extends HAdminController
       ),
     );
   }
-  
-  
+
+
 
   /**
 	 * Создает или редактирует модель
 	 */
-  public function actionUpdate() 
-  {	  
+  public function actionUpdate()
+  {
     if ($this->crudid)
       $model=Event::model()->findByPk($this->crudid);
     else
       $model = new Event;
-    
+
     // AJAX валидация
 		if(isset($_POST['ajax']))
 		{
@@ -50,25 +50,25 @@ class EventAdminController extends HAdminController
 		{
 
 			$model->attributes=$_POST['Event'];
-      
+
       $model->save();
 		}
 
     $this->renderForm($model);
   }
-  
+
   /**
 	 * Перенаправляет обработку запроса на действие Update
 	 */
-  public function actionCreate() 
+  public function actionCreate()
   {
     $this->actionUpdate();
   }
-  
+
   /**
    *  Выводит таблицу всех товаров
    */
-  public function actionIndex() 
+  public function actionIndex()
   {
 		$this->render('table', array(
 			'dataProvider'=> new CActiveDataProvider('Event'),
@@ -98,7 +98,7 @@ class EventAdminController extends HAdminController
     if(!Yii::app()->request->isPostRequest || !Event::model()->deleteByPk($this->crudid))
 			throw new CHttpException(400,'Не правильный запрос. Пожалуйста не повторяйте этот запрос еще раз.');
     Yii:app()->end();
-	} 
+	}
 
   /**
    *  @return array JSON массив для jQuery UI AutoComplete
@@ -112,5 +112,5 @@ class EventAdminController extends HAdminController
     });
     echo '[' . implode(', ', $tagsArr) . ']';
   }
-} 
+}
 ?>

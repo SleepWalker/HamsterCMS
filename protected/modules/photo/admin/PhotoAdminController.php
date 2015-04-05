@@ -8,8 +8,8 @@
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
-class PhotoAdminController extends HAdminController
-{  
+class PhotoAdminController extends \admin\components\HAdminController
+{
   /**
 	 * @return меню для табов
 	 */
@@ -41,7 +41,7 @@ class PhotoAdminController extends HAdminController
 	 * If creation is successful, the browser will be redirected to the 'update' page.
 	 */
 	public function actionUpdate()
-	{      
+	{
 		if ($this->crudid)
       $model=Photo::model()->findByPk($this->crudid);
     else
@@ -53,19 +53,19 @@ class PhotoAdminController extends HAdminController
       echo CActiveForm::validate($model);
 			Yii::app()->end();
 		}
-    
+
     if(isset($_POST['Photo']))
 		{
 			$model->attributes=$_POST['Photo'];
-      
-			if($model->save()) 
-			{ 		
+
+			if($model->save())
+			{
         $saved = true;
       }
 		}
-    
+
     $model->uImage = $model->photo;
-    
+
     if($_POST['ajaxIframe'] || $_POST['ajaxSubmit'])
     {
       // если модель сохранена и это было действие добавления, переадресовываем на страницу редактирования этого же материала
@@ -81,7 +81,7 @@ class PhotoAdminController extends HAdminController
                          'model'=>$model,
                        ), true, true),
         );
-      
+
       echo json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
       Yii::app()->end();
     }
@@ -129,7 +129,7 @@ class PhotoAdminController extends HAdminController
 			 'filter'=>$model,
 			),
       'columns'=>array(
-			  array(            
+			  array(
             'name'=>'photo',
             'value'=>'$data->img("thumb")',
             'type'=>'raw',
@@ -145,7 +145,7 @@ class PhotoAdminController extends HAdminController
       ),
 		));
 	}
-  
+
 	/**
 	 * Creates/updates a new model.
 	 * If creation is successful, the browser will be redirected to the 'update' page.
@@ -167,12 +167,12 @@ class PhotoAdminController extends HAdminController
 		if(isset($_POST['Album']))
 		{
 			$model->attributes=$_POST['Album'];
-      if ($model->save()) 
-      {      
+      if ($model->save())
+      {
         $saved = true;
 			}
 		}
-    
+
     if($_POST['ajaxIframe'] || $_POST['ajaxSubmit'])
     {
       // если модель сохранена и это было действие добавления, переадресовываем на страницу редактирования этого же материала
@@ -238,7 +238,7 @@ class PhotoAdminController extends HAdminController
       'columns'=>array(
 			  'id',
         'name',
-			  /*array(            
+			  /*array(
             'name'=>'photo',
             'value'=>'count($data->photo) ? $data->img(45) : ""',
             'type'=>'raw',

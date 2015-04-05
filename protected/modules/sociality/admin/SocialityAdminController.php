@@ -7,8 +7,8 @@
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
- 
-class SocialityAdminController extends HAdminController
+
+class SocialityAdminController extends \admin\components\HAdminController
 {
   /**
 	 * @return меню для табов
@@ -18,11 +18,11 @@ class SocialityAdminController extends HAdminController
       ''  => 'Все комментарии',
     );
   }
-  
+
   /**
    *  Выводит таблицу всех комментариев
    */
-  public function actionIndex() 
+  public function actionIndex()
   {
     // TODO: сортировка по дате
     // TODO: нормальное отображение имени модели
@@ -31,7 +31,7 @@ class SocialityAdminController extends HAdminController
     $model->unsetAttributes();
     if(isset($_GET['Comment']))
       $model->attributes=$_GET['Comment'];
-	  
+
       ob_start();
       ?>
         <p>Цвета emailов: <span class="status_3">Email подтвержден</span>
@@ -59,13 +59,13 @@ class SocialityAdminController extends HAdminController
           'type' => 'raw',
         ),
         'ip',
-        /*array(            
+        /*array(
             'name'=>'status',
             'type'=>'raw',
             'value' => '$data->statusName',
             'filter'=> Post::getStatusNames(),
           ),
-        array(            
+        array(
             'name'=>'user_search',
             'value' => '$data->user->first_name',
           ),*/
@@ -73,16 +73,16 @@ class SocialityAdminController extends HAdminController
         // http://www.yiiframework.com/wiki/318/using-cjuidatepicker-for-cgridview-filter/
         // http://www.yiiframework.com/wiki/345/how-to-filter-cgridview-with-from-date-and-to-date-datepicker/
         // http://www.yiiframework.com/forum/index.php/topic/20941-filter-date-range-on-cgridview-toolbar/
-        /*array(            
+        /*array(
             'name'=>'add_date',
             'value' => 'str_replace(" ", "<br />", Yii::app()->dateFormatter->formatDateTime($data->add_date))',
             'type' => 'raw',
             'filter' => $this->widget('zii.widgets.jui.CJuiDatePicker', array(
-              'model'=> $model, 
-              'attribute'=>'date_add_from', 
+              'model'=> $model,
+              'attribute'=>'date_add_from',
               'language' => 'ru',
-              'defaultOptions' => array(  
-                'showOn' => 'focus', 
+              'defaultOptions' => array(
+                'showOn' => 'focus',
                 'showOtherMonths' => true,
                 'selectOtherMonths' => true,
                 'changeMonth' => true,
@@ -94,8 +94,8 @@ class SocialityAdminController extends HAdminController
             ), true)
             .
             $this->widget('zii.widgets.jui.CJuiDatePicker', array(
-              'model'=> $model, 
-              'attribute'=>'date_add_to', 
+              'model'=> $model,
+              'attribute'=>'date_add_to',
               'language' => 'ru',
             ), true),
           ),*/
@@ -117,6 +117,6 @@ class SocialityAdminController extends HAdminController
 	  }
 		else
 			throw new CHttpException(400,'Не правильный запрос. Пожалуйста не повторяйте этот запрос еще раз.');
-	} 
-} 
+	}
+}
 ?>

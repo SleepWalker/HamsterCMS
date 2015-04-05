@@ -25,25 +25,26 @@
 <div id="menu1" class="ddmenu">
   <?php
     Yii::app()->menuMap->render(array(
-      'Бекап' => array('admin/admin/backup'),
-      'Логи' => array('admin/admin/logs'),
-      'Настройки Hamster' => array('admin/admin/config'),
-      'Обновление Hamster' => array('admin/admin/update'),), 'hamsterConfig');
+      'Бекап' => array('/admin/backup'),
+      'Логи' => array('/admin/logs'),
+      'Настройки Hamster' => array('/admin/config'),
+      'Обновление Hamster' => array('/admin/update'),
+    ), 'hamsterConfig');
   ?>
 </div>
 
 <div id="menu4" class="ddmenu">
-  <?php 
+  <?php
     $modulesInfo = $this->modulesInfo;
     $enabledModules = $this->enabledModules;
     $menuArray['Управление страницами'] = array('admin/page');
     if(count($modulesInfo))
       foreach($modulesInfo as $moduleId=>$moduleConfig)
       {
-        if(!array_key_exists($moduleId, $enabledModules)) 
-          continue; // модуль выключен 
+        if(!array_key_exists($moduleId, $enabledModules))
+          continue; // модуль выключен
 
-        // Определяем в какое меню пойдет модуль в зависимости 
+        // Определяем в какое меню пойдет модуль в зависимости
         // от того, есть ли у него контент (контент-модуль)
         $menuVarName = isset($moduleConfig['internal']) ? 'extraMenuArray' : 'menuArray';
         ${$menuVarName}[$moduleConfig['title']] = array('admin/' . $moduleId);

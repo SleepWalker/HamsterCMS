@@ -195,7 +195,9 @@ class HModuleUrlRule extends CBaseUrlRule
             } else {
                 $controllerClass = ucfirst($controllerId) . 'Controller';
 
-                if (!class_exists($controllerClass, false)) {
+                if (isset($module->controllerNamespace)) {
+                    $controllerClass = $module->controllerNamespace . '\\' . $controllerClass;
+                } elseif (!class_exists($controllerClass, false)) {
                     Yii::import('application.modules.' . $moduleId . '.controllers.' . $controllerClass, true);
                 }
             }

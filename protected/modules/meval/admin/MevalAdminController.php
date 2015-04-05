@@ -7,8 +7,8 @@
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
- 
-class MevalAdminController extends HAdminController
+
+class MevalAdminController extends \admin\components\HAdminController
 {
   public $scriptAlias; // alias к папке с скриптами
 
@@ -18,15 +18,15 @@ class MevalAdminController extends HAdminController
   public $runtimeDir;
 
   public function init()
-  {    
+  {
     parent::init();
-    
+
     $this->scriptAlias = Yii::app()->modules['meval']['params']['scriptsAlias'];
     $this->runtimeDir = Yii::getPathOfAlias($this->scriptAlias . '.runtime');
     if(!is_dir($this->runtimeDir))
       mkdir($this->runtimeDir);
   }
-  
+
   /**
 	 * @return меню для табов
 	 */
@@ -39,11 +39,11 @@ class MevalAdminController extends HAdminController
       ),
     );
   }
-  
+
   /**
    *  Выводит таблицу с загруженными в папку {@link $scriptAlias} скриптами
    */
-  public function actionIndex() 
+  public function actionIndex()
   {
 		// список файлов в директории
 	  $fileListOfDirectory = array();
@@ -58,7 +58,7 @@ class MevalAdminController extends HAdminController
           ));
         }
       }
-    
+
     $dataProvider=new CArrayDataProvider($fileListOfDirectory, array(
       'pagination'=>array(
           'pageSize'=>20,
@@ -72,7 +72,7 @@ class MevalAdminController extends HAdminController
         )
       ),
     ));
-    
+
     $this->render('table', array(
       'dataProvider'=>$dataProvider,
       'buttons' => array(
@@ -89,7 +89,7 @@ class MevalAdminController extends HAdminController
       ),
     ));
   }
-  
+
   public function actionRun()
   {
     // Защита от мастира
@@ -105,5 +105,5 @@ class MevalAdminController extends HAdminController
     require(Yii::getPathOfAlias($this->scriptAlias) . '/' . $this->crud . '.php');
     $this->renderText(ob_get_clean());
   }
-} 
+}
 ?>
