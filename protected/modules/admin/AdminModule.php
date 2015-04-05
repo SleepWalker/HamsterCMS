@@ -15,9 +15,6 @@ class AdminModule extends CWebModule
     public $name;
     public $assetsUrl;
 
-    // массив с информацией о модулях
-    protected $_hamsterModules = array();
-
     public function init()
     {
         // this method is called when the module is being created
@@ -28,6 +25,12 @@ class AdminModule extends CWebModule
             'admin.models.*',
             'admin.components.*',
         ));
+
+        $this->setComponents([
+            'moduleManager' => [
+                'class' => '\admin\components\HModuleManager',
+            ],
+        ]);
 
         $this->assetsUrl = Yii::app()->getAssetManager()->publish(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'assets', false, -1, YII_DEBUG); //Yii::getPathOfAlias('application.modules.admin.assets'));
         //$this->registerScriptFile('admin.js');
@@ -48,7 +51,6 @@ class AdminModule extends CWebModule
     public function beforeControllerAction($controller, $action)
     {
         if (parent::beforeControllerAction($controller, $action)) {
-
             // this overwrites everything in the controller
             $controller->adminAssetsUrl = $this->assetsUrl;
 
@@ -99,11 +101,7 @@ class AdminModule extends CWebModule
      */
     public function getHamsterModules()
     {
-        if (!$this->_hamsterModules) {
-            $this->_hamsterModules = $config = HArrayConfig::load()->hamsterModules;
-        }
-
-        return $this->_hamsterModules;
+        return $this->moduleManager->getHamsterModules();
     }
 
     /**
@@ -111,7 +109,7 @@ class AdminModule extends CWebModule
      */
     public function getModulesInfo()
     {
-        return isset($this->hamsterModules['modulesInfo']) && is_array($this->hamsterModules['modulesInfo']) ? $this->hamsterModules['modulesInfo'] : array();
+        return $this->moduleManager->getModulesInfo();
     }
 
     /**
@@ -119,7 +117,7 @@ class AdminModule extends CWebModule
      */
     public function getEnabledModules()
     {
-        return isset($this->hamsterModules['enabledModules']) && is_array($this->hamsterModules['enabledModules']) ? $this->hamsterModules['enabledModules'] : array();
+        return $this->moduleManager->getEnabledModules();
     }
 
     public function registerScriptFile($fileName, $position = CClientScript::POS_END)

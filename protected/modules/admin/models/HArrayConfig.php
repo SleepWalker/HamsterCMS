@@ -8,8 +8,7 @@
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
 
-// TODO: Более обьяснение в шапке класса
-namespace application\modules\admin\models;
+namespace admin\models;
 
 use \CComponent;
 use \CFormModel;

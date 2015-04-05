@@ -8,7 +8,7 @@
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
 
-use application\modules\admin\models\HArrayConfig as HArrayConfig;
+use \admin\models\HArrayConfig as HArrayConfig;
 
 class AdminController extends HAdminController
 {
@@ -262,8 +262,8 @@ class AdminController extends HAdminController
             );
             // TODO: tabeTitle
             foreach ($routes as $route => $params) {
-                if (is_numeric($route)) // модуль задал только роуты, без дефолтных значений
-                {
+                if (is_numeric($route)) {
+                    // модуль задал только роуты, без дефолтных значений
                     $route = $params;
                     $params = array();
                 }
@@ -564,73 +564,9 @@ class AdminController extends HAdminController
      */
     public function actionModuleDiscover()
     {
-        // TODO: убрать отсюда либо в модуль админа, либо в модель Config
-        $path = Yii::getPathOfAlias('application.modules');
-        $dirs = scandir($path);
+        $this->module->moduleManager->discoverModules();
 
-        // здесь мы начинаем все сначала, что бы удалялись те модули, которых больше нету в файловой системе
-        $modulesInfo = array();
-
-        // старая, сохраненная инфа о модулях
-        $oldModulesInfo = $this->modulesInfo;
-        $enabledModules = $this->enabledModules;
-        $hamsterModules = $this->hamsterModules;
-
-        // добавляем к массиву директорий те модули, которые уже есть в modulesInfo.php
-        // это обеспечит нам удаление модулей из конфига, если была удалена их папка, а в конфиге инфа осталась
-        $dirs = array_merge($dirs, array_keys($oldModulesInfo), array_keys($enabledModules));
-        $dirs = array_unique($dirs);
-
-        foreach ($dirs as $moduleName) {
-            if (in_array($moduleName, array('.', '..'))) {
-                continue;
-            }
-
-
-            if (is_dir($path . '/' . $moduleName)) {
-                $moduleNameForConfig = $moduleName; // FIXME: временно, для обновления конфига
-                $modulePath = Yii::getPathOfAlias('application.modules.' . $moduleName);
-                if (is_dir($modulePath . '/admin')) {
-                    $adminConfig = Config::load($moduleName)->adminConfig;
-                    /*if($modulesInfo[$moduleName]['title'] == '')
-                    $modulesInfo[$moduleName]['title'] = $adminConfig['title'];
-                    else
-                    unset($adminConfig['title']);*/
-
-                    $modulesInfo[$moduleName] = $adminConfig;
-                    // восстанавливаем версию БД (нам нужна та версия, которая сейчас реально установленна)
-                    if (isset($oldModulesInfo[$moduleName]['db']['version']) && !empty($oldModulesInfo[$moduleName]['db']['version'])) {
-                        $modulesInfo[$moduleName]['db']['version'] = $oldModulesInfo[$moduleName]['db']['version'];
-                    }
-
-                    // восстанавливаем старое имя (на случай, если его менял юзер)
-                    if (isset($oldModulesInfo[$moduleName]['title']) && !empty($oldModulesInfo[$moduleName]['title'])) {
-                        $modulesInfo[$moduleName]['title'] = $oldModulesInfo[$moduleName]['title'];
-                    }
-
-                    $className = ucfirst($moduleName) . 'AdminController';
-                    if (file_exists($modulePath . '/admin/' . $className . '.php')) {
-                        $enabledModules[$moduleName] = 'application.modules.' . $moduleName . '.admin.' . $className;
-                    }
-
-                }
-            } else {
-                // поудаляем информацию о модуле, если его нету в фс
-                unset($enabledModules[$moduleName], $hamsterModules['config']['modules'][$moduleName]);
-            }
-        }
-
-        $hamsterModules['modulesInfo'] = $modulesInfo;
-        $hamsterModules['enabledModules'] = $enabledModules;
-
-        $hamsterModules = "<?php\n\nreturn " . var_export($hamsterModules, true) . ";";
-
-        file_put_contents(Yii::getPathOfAlias('application.config') . '/hamsterModules.php', $hamsterModules);
-
-        // Обновим статус модуля в конфиге (FIXME: честно говоря грубый способ... но пока так)
-        Config::load($moduleName)->save(false);
-
-        Yii::app()->user->setFlash('success', 'Список доступных модулей успешно обновлен. Добавлено модулей: ' . count($modulesInfo));
+        Yii::app()->user->setFlash('success', 'Список доступных модулей успешно обновлен. Добавлено модулей: ' . count($this->modulesInfo));
         $this->redirect('/admin/config');
     }
 
@@ -639,79 +575,18 @@ class AdminController extends HAdminController
      */
     public function actionSwitchModule()
     {
-        $enabledModules = $this->enabledModules;
-        $moduleName = $_GET['m'];
-        $redirectParams = '';
+        $moduleName = \Yii::app()->request->getParam('m');
         if ($moduleName) {
-            $moduleAdminPath = Yii::getPathOfAlias('application.modules.' . $moduleName . '.admin');
-            if (array_key_exists($moduleName, $enabledModules)) {
-                // выключаем модуль
-                unset($enabledModules[$moduleName]);
-            } else {
-                // включаем модуль
-                $className = ucfirst($moduleName) . 'AdminController';
-                if (file_exists($moduleAdminPath . '/' . $className . '.php')) {
-                    $enabledModules[$moduleName] = 'application.modules.' . $moduleName . '.admin.' . $className;
-                }
+            $moduleManager = $this->module->moduleManager;
 
-                // проверем базу данных
-                $this->testDb($moduleName);
+            $moduleManager->switchModule($moduleName);
 
+            $redirectParams = '';
+            if ($moduleManager->isModuleEnabled($moduleName)) {
                 $redirectParams = '?m=' . $moduleName;
             }
 
-            $hamsterModules = $this->hamsterModules;
-            $hamsterModules['enabledModules'] = $enabledModules;
-
-            $configStr = "<?php\n\nreturn " . var_export($hamsterModules, true) . ";";
-            file_put_contents(Yii::getPathOfAlias('application.config') . '/hamsterModules.php', $configStr);
-
-            // Обновим статус модуля в конфиге (FIXME: честно говоря грубый способ... но пока так)
-            Config::load($moduleName)->save(false);
-
             $this->redirect('/admin/config' . $redirectParams);
-        }
-    }
-
-    /**
-     * Метод, восстанавливающий таблицы из дампа в случае,
-     * если на этапе активации модуля их не окажется
-     *
-     * @param mixed $moduleId id модуля, которому принадлежит модель
-     * @access public
-     * @return void
-     */
-    protected function testDb($moduleId)
-    {
-        $tables = Config::load($moduleId)->adminConfig['db']['tables'];
-        if (!isset($tables)) {
-            return;
-        }
-
-        // проверяем, есть ли все таблицы у модуля
-        try {
-            $db = Yii::app()->db;
-            foreach ($tables as $tableName) {
-                // запускаем sql комманды
-                $db->createCommand('SHOW CREATE TABLE `' . $tableName . '`')->execute();
-            }
-        } catch (CDbException $e) {
-            // одной из таблиц нету - запускаем sql создания таблицы
-            if ($moduleId) {
-                $path = Yii::getPathOfAlias('application.modules.' . $moduleId . '.admin') . '/schema.mysql.sql';
-            } elseif ($moduleId == 'admin') {
-                $path = Yii::getPathOfAlias('application.modules.' . $moduleId . '.admin') . '/' . strtolower($className) . '.schema.mysql.sql';
-            } else {
-                $path = Yii::getPathOfAlias('application.models._schema') . '/' . strtolower($className) . '.schema.mysql.sql';
-            }
-
-            if (is_file($path)) {
-                // создаем таблицу в БД
-                $sql = file_get_contents($path);
-                $db->createCommand($sql)->execute();
-                // Пишем в лог
-                Yii::log('Создание таблиц для модуля ' . $moduleId, 'info', 'hamster.moduleSwitcher');
-            }
         }
     }
 

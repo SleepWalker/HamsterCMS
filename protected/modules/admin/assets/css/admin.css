@@ -279,9 +279,9 @@ height: 40px;
  *
  ******************/
 
-.infoFlashBlock, 
-.failFlashBlock, 
-.successFlashBlock, 
+.infoFlashBlock,
+.failFlashBlock,
+.successFlashBlock,
 .errorFlashBlock,
 .contextMenu,
 .tagControll {
@@ -324,7 +324,7 @@ height: 40px;
   color: #afff48;
 }
 
-.tagControll, 
+.tagControll,
 .contextMenu {
   padding: 0 5px;
   vertical-align: top;
@@ -651,7 +651,7 @@ textarea,
 
 
 .markItUp
-{ 
+{
   width: 90% !important;
 }
 
@@ -675,7 +675,7 @@ label {
   padding-right:5px;
 }
 
-.form label + textarea, 
+.form label + textarea,
 .form input[type=hidden] + span, /*списки чекбоксов и радио*/
 .form label ~ input {
   display:block;
@@ -700,10 +700,10 @@ input[type = submit], input[type = button] {
 }
 
 
-form > input[type = submit], 
-form > input[type = button], 
-.form > input[type = submit], 
-.form > input[type = button] 
+form > input[type = submit],
+form > input[type = button],
+.form > input[type = submit],
+.form > input[type = button]
 {
   display:block;
   margin: 10px 0;
@@ -715,7 +715,7 @@ input[type = radio], input[type = checkbox] {
 
 .field_group {
   border-radius: 3px;
-  -moz-border-radius: 3px; 
+  -moz-border-radius: 3px;
   border: solid 1px #878787;
   padding:10px;
   background:#111;
@@ -766,7 +766,7 @@ input[type = radio], input[type = checkbox] {
 }
 
 #dnd li.dnd_block:hover {
-  border:1px #ccc solid;	
+  border:1px #ccc solid;
 }
 
 #dnd, #dnd li, #dnd ul {
@@ -1194,7 +1194,7 @@ ul.filseList canvas {
   width:45px;
   height:45px;
   padding:0 10px 10px 0;
-  position:relative;  
+  position:relative;
 }
 
 .quantity span {
@@ -1275,20 +1275,38 @@ ul.filseList canvas {
  */
 .switchOn,
 .switchOff {
-  display:inline-block;
-  width: 4px;
-  height: 4px;
+  position: relative;
+  top: -2px;
+
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.switchOn:before,
+.switchOff:before {
+  content: '';
+  display: inline-block;
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  width: 5px;
+  height: 5px;
+  margin-top: -2.5px;
+  margin-left: -2.5px;
+
+
   border-radius: 2px;
   background: green;
   box-shadow: 0 0 5px 2px green;
-  margin-left:-5px;
-  margin-bottom:2px;
-  margin-right:2px;
-  text-indent: -50000px;
-  cursor:pointer;
 }
 
-.switchOff {
+.switchOff:before {
   background: red;
   box-shadow: 0 0 5px 2px red;
 }

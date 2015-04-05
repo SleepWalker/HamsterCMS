@@ -4,9 +4,11 @@
  * All controller classes for this application should extend from this base class.
  */
 
+namespace admin\components;
+
 use application\modules\admin\models\HArrayConfig as HArrayConfig;
 
-class HAdminController extends CController
+class HAdminController extends \CController
 {
     /**
      * @property string the default layout for the controller view. Defaults to '//layouts/column1',
@@ -27,16 +29,13 @@ class HAdminController extends CController
      */
     public $pageActions;
 
-    // массив с информацией о модулях
-    protected $_hamsterModules = array();
-
     public $curModuleUrl; // путь к index текущего модуля, к примеру /admin/shop
     public $adminAssetsUrl;
 
     public function init()
     {
-        if (!isset($this->module) || !($this->module instanceof AdminModule)) {
-            throw new CException('Дети HAdminController должны запускаться из модуля admin');
+        if (!isset($this->module) || !($this->module instanceof \admin\AdminModule)) {
+            throw new \CException('Дети HAdminController должны запускаться из модуля admin');
         }
 
         if (preg_match('/\w+AdminController$/', get_class($this))) {
@@ -65,14 +64,14 @@ class HAdminController extends CController
     public function getViewFile($viewName)
     {
         if (!($viewFile = parent::getViewFile($viewName))) {
-            $basePath = Yii::app()->getViewPath();
-            if ($this->action instanceof AdminAction) {
+            $basePath = \Yii::app()->getViewPath();
+            if ($this->action instanceof \AdminAction) {
                 // попробуем поискать в admin вьюхах текущего модуля
                 // @property $this->action->id id текущего модуля, админ часть которого активна.
-                $moduleViewPath = Yii::getPathOfAlias('application.modules.' . $this->action->id) . '/views';
+                $moduleViewPath = \Yii::getPathOfAlias('application.modules.' . $this->action->id) . '/views';
                 $viewPath = $moduleViewPath . '/admin';
 
-                $themeBasePath = Yii::app()->getTheme()->getViewPath();
+                $themeBasePath = \Yii::app()->getTheme()->getViewPath();
                 $themeModuleViewPath = $themeBasePath . '/' . $this->action->id;
                 $themeViewPath = $themeModuleViewPath . '/admin';
 
@@ -111,9 +110,8 @@ class HAdminController extends CController
     {
         if (method_exists($this->action, 'tabs')) {
             $tabMap = $this->action->tabs();
-        }
-        // экшен может переопределить табы, если это нужно
-        else {
+        } else {
+            // экшен может переопределить табы, если это нужно
             $tabMap = $this->tabs();
         }
 
@@ -170,11 +168,7 @@ class HAdminController extends CController
      */
     public function getHamsterModules()
     {
-        if (!$this->_hamsterModules) {
-            $this->_hamsterModules = $config = HArrayConfig::load()->hamsterModules;
-        }
-
-        return $this->_hamsterModules;
+        return $this->module->getHamsterModules();
     }
 
     /**
@@ -182,7 +176,7 @@ class HAdminController extends CController
      */
     public function getModulesInfo()
     {
-        return isset($this->hamsterModules['modulesInfo']) && is_array($this->hamsterModules['modulesInfo']) ? $this->hamsterModules['modulesInfo'] : array();
+        return $this->module->getModulesInfo();
     }
 
     /**
@@ -190,7 +184,7 @@ class HAdminController extends CController
      */
     public function getEnabledModules()
     {
-        return isset($this->hamsterModules['enabledModules']) && is_array($this->hamsterModules['enabledModules']) ? $this->hamsterModules['enabledModules'] : array();
+        return $this->module->getEnabledModules();
     }
 
     /**
@@ -202,8 +196,8 @@ class HAdminController extends CController
     protected function clearTmp()
     {
         // TODO: убрать отсюда. либо в модуль админа, либо в какой-то глобальный класс, аля Hamster
-        $this->destroyDir(Yii::getPathOfAlias('webroot.assets'), false);
-        Yii::app()->cache->flush();
+        $this->destroyDir(\Yii::getPathOfAlias('webroot.assets'), false);
+        \Yii::app()->cache->flush();
     }
 
     /**
@@ -240,8 +234,8 @@ class HAdminController extends CController
      */
     public function renderPartial($view, $data = null, $return = false, $processOutput = false)
     {
-        if (isset($_POST['ajaxIframe']) || isset($_POST['ajaxSubmit']) || Yii::app()->request->isAjaxRequest) {
-            Yii::app()->clientscript->scriptMap['jquery.js'] = Yii::app()->clientscript->scriptMap['jquery.min.js'] = false;
+        if (isset($_POST['ajaxIframe']) || isset($_POST['ajaxSubmit']) || \Yii::app()->request->isAjaxRequest) {
+            \Yii::app()->clientscript->scriptMap['jquery.js'] = \Yii::app()->clientscript->scriptMap['jquery.min.js'] = false;
         }
 
         return parent::renderPartial($view, $data, $return, $processOutput);
@@ -255,9 +249,9 @@ class HAdminController extends CController
      */
     public function renderForm($model, $params = array())
     {
-        $params = CMAp::mergeArray(array('model' => $model), $params);
+        $params = \CMAp::mergeArray(array('model' => $model), $params);
 
-        if (Yii::app()->request->isPostRequest) {
+        if (\Yii::app()->request->isPostRequest) {
             // если модель сохранена и это было действие добавления, переадресовываем на страницу редактирования этого же материала
             if (!$model->hasErrors() && $this->action->id == 'create') {
                 $data = array(
@@ -272,11 +266,11 @@ class HAdminController extends CController
             }
 
             header('application/json');
-            echo CJSON::encode($data);
+            echo \CJSON::encode($data);
             //echo json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
-            Yii::app()->end();
+            \Yii::app()->end();
         } else {
-            if (isset($_POST['ajaxIframe']) || isset($_POST['ajaxSubmit']) || Yii::app()->request->isAjaxRequest) {
+            if (isset($_POST['ajaxIframe']) || isset($_POST['ajaxSubmit']) || \Yii::app()->request->isAjaxRequest) {
                 $this->renderPartial('update', $params, false, true);
             } else {
                 $this->render('update', $params);
@@ -303,7 +297,7 @@ class HAdminController extends CController
     public function getCrud()
     {
         if (YII_DEBUG) {
-            throw new CException('HAdminController::getCrud - deparecated. use $this->action->id instead');
+            throw new \CException(__CLASS__.'::getCrud - deparecated. use $this->action->id instead');
         }
 
         $action = $_GET['action'];

@@ -1,0 +1,14 @@
+{
+    "name": "sleepwalker/yii-module-migration",
+    "description": "The tool for supporting automatic module db migration",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "SleepWalker",
+            "email": "dev@udf.su"
+        }
+    ],
+    "require": {
+
+    }
+}
