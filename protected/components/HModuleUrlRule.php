@@ -309,8 +309,8 @@ class HModuleUrlRule extends CBaseUrlRule
      */
     private function getActionParams($controllerClass, $actionId)
     {
-        $methodName = 'action' . $actionId;
-        $method = new ReflectionMethod($controllerClass, $methodName);
+        $methodName = 'action' . ucfirst($actionId);
+        $method = new \ReflectionMethod($controllerClass, $methodName);
         $actionParams = null;
         if ($method->getNumberOfParameters() > 0) {
             $actionParams = $method->getParameters();
@@ -328,10 +328,13 @@ class HModuleUrlRule extends CBaseUrlRule
                 // модули
                 list($moduleId, $controllerId, $actionId) = $route;
                 $module = \Yii::app()->getModule($moduleId);
+                $controllerClass = ucfirst($controllerId) . 'Controller';
                 if ($module && isset($module->controllerMap[$controllerId])) {
                     $controllerClass = $module->controllerMap[$controllerId];
+                } elseif ($module && isset($module->controllerNamespace)) {
+                    $controllerClass = $module->controllerNamespace . '\\' . $controllerClass;
                 } else {
-                    $controllerClass = Yii::import('application.modules.' . $moduleId . '.controllers.' . ucfirst($controllerId) . 'Controller', true);
+                    $controllerClass = Yii::import('application.modules.' . $moduleId . '.controllers.' . $controllerClass, true);
                 }
             } elseif (count($route) == 2) {
                 // Обычные контроллеры
