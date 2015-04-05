@@ -4,20 +4,20 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "dfb53cd96fddb2b60164bec40656e7a0",
+    "hash": "724da222c101934a99c1b1754dc3d5d5",
     "packages": [
         {
             "name": "eventviva/php-image-resize",
-            "version": "1.2.3",
+            "version": "1.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/eventviva/php-image-resize.git",
-                "reference": "8a1773b26d4c95908c6acfbc759b32754edfcc78"
+                "reference": "bd99be79a3b0b2fa42371cee5027d5b773fc4b66"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/eventviva/php-image-resize/zipball/8a1773b26d4c95908c6acfbc759b32754edfcc78",
-                "reference": "8a1773b26d4c95908c6acfbc759b32754edfcc78",
+                "url": "https://api.github.com/repos/eventviva/php-image-resize/zipball/bd99be79a3b0b2fa42371cee5027d5b773fc4b66",
+                "reference": "bd99be79a3b0b2fa42371cee5027d5b773fc4b66",
                 "shasum": ""
             },
             "require": {
@@ -48,7 +48,7 @@
                 "resize",
                 "scale"
             ],
-            "time": "2014-08-25 14:45:02"
+            "time": "2015-03-24 07:04:14"
         },
         {
             "name": "google/apiclient",
@@ -94,16 +94,16 @@
         },
         {
             "name": "nlac/nlsclientscript",
-            "version": "7.0.0-beta5",
+            "version": "7.0.0-beta6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nlac/nlsclientscript.git",
-                "reference": "02fca882f61344e941c4ab4fa9c384472b67f859"
+                "reference": "b9f85b60463f5382eccf194b849a998b81c82476"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nlac/nlsclientscript/zipball/02fca882f61344e941c4ab4fa9c384472b67f859",
-                "reference": "02fca882f61344e941c4ab4fa9c384472b67f859",
+                "url": "https://api.github.com/repos/nlac/nlsclientscript/zipball/b9f85b60463f5382eccf194b849a998b81c82476",
+                "reference": "b9f85b60463f5382eccf194b849a998b81c82476",
                 "shasum": ""
             },
             "require": {
@@ -138,7 +138,7 @@
                 "reload",
                 "yii"
             ],
-            "time": "2015-01-14 22:38:21"
+            "time": "2015-03-28 17:10:17"
         },
         {
             "name": "sleepwalker/hoauth",
@@ -342,7 +342,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=5.3.0"
+        "php": ">=5.4.0"
     },
     "platform-dev": []
 }
