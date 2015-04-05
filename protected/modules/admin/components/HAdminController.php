@@ -96,7 +96,7 @@ class HAdminController extends \CController
      * @access public
      * @return array
      */
-    public function tabs()
+    protected function tabs()
     {
         return array();
     }
@@ -109,57 +109,13 @@ class HAdminController extends \CController
     public function getTabs()
     {
         if (method_exists($this->action, 'tabs')) {
+            // экшен может переопределить табы, если это нужно
             $tabMap = $this->action->tabs();
         } else {
-            // экшен может переопределить табы, если это нужно
             $tabMap = $this->tabs();
         }
 
-        $tabs = '';
-
-        foreach ($tabMap as $path => $name) {
-            if ($path == '') {
-                $path = 'index';
-            }
-
-            if (is_array($name)) {
-                $hide = 0;
-
-                switch ($name['display']) {
-                    // Определяем показывать ли этот таб
-                    case 'whenActive':
-                        if ($this->action->id != $path) {
-                            $hide = 1;
-                        }
-
-                        break;
-                    case 'index':
-                        if (!($this->action->id == 'index' || $this->action->id == 'create' || $this->action->id == 'update')) {
-                            $hide = 1;
-                        }
-
-                        break;
-                    default:
-                        if (strpos($this->action->id, $name['display']) === false) {
-                            $hide = 1;
-                        }
-
-                        break;
-                }
-                if ($hide) {
-                    continue;
-                }
-
-                $name = $name['name'];
-            }
-
-            if ($this->action->id == $path) {
-                $this->pageTitle = $name;
-            }
-
-            $tabs .= '<a href="' . $this->createUrl($path) . '">' . $name . '</a>';
-        }
-        return $tabs;
+        return $tabMap;
     }
 
     /**

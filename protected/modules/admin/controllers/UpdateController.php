@@ -14,6 +14,7 @@ namespace admin\controllers;
 
 class UpdateController extends \admin\components\HAdminController
 {
+    public $defaultAction = 'db';
 
     /**
      * @vararray $dirMap хранит карту с директориями цмс и их хешами
@@ -59,13 +60,13 @@ class UpdateController extends \admin\components\HAdminController
         $updateCount = $updateList ? ' (<b style="text-decoration: blink;color:orange;">' . count($updateList) . '</b>)' : '';
 
         return array(
-            ''  => 'Обновление ФС',
+            'fs'  => 'Обновление ФС',
             'db'  => 'Обновление БД'.$updateCount,
             'download' => 'Загрузка модулей',
         );
     }
 
-    public function actionIndex()
+    public function actionFs()
     {
         $enModsIds = array_keys($this->enabledModules);
         $aliases = array(
