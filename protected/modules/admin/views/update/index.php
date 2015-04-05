@@ -1,10 +1,10 @@
   <p><b style="color:red">Внимание!</b> функция автообновления расчитана на использование разработчиками. Нажимая на кнопку "Запустить обновление" вы берете всю ответственность за возможные последствия на себя</p>
 
-<?php 
+<?php
 // =========== Страница обновления бд
 if($this->action->id == 'db') { ?>
   <p><b style="color:purple">К обновлению:</b> <br>
-  <?php echo implode('<br>', $updateList); 
+  <?php echo implode('<br>', $updateList);
 
 $this->pageTitle = Yii::app()->name . ' - Обновление базы данных';
 }
@@ -16,10 +16,10 @@ if($this->action->id == 'index') { ?>
   <p><b style="color:green">К обновлению:</b> <br>
   <?php echo implode('<br>', array_keys($updateList)); ?>
   <p><b style="color:purple">Игнорируются:</b> <br>
-  <?php echo implode('<br>', $ignoreList); 
+  <?php echo implode('<br>', $ignoreList);
 
 $this->pageTitle = Yii::app()->name . ' - Обновление';
 }
-    echo '<br><br>' . CHtml::beginForm() . 
+    echo '<br><br>' . CHtml::beginForm() .
     CHtml::submitButton('Запустить обновление', array('name'=>'update')) .
     CHtml::endForm();

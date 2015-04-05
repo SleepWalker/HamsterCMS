@@ -79,8 +79,9 @@ class UpdateController extends \admin\components\HAdminController
             'application.widgets',
         );
         $enModsIds[] = 'admin';
-        foreach($enModsIds as $enModId)
+        foreach ($enModsIds as $enModId) {
             $aliases[] = 'application.modules.' . $enModId;
+        }
 
         $ans = $this->updatesHashList;
 
@@ -90,35 +91,43 @@ class UpdateController extends \admin\components\HAdminController
 
         // массив с файлами, которые будут игнорироваться (не должны автоматически обновлятся)
         $tmpIgnoreList = \Yii::getPathOfAlias('application.config') . '/updateIgnoreList.php';
-        if(is_file($tmpIgnoreList))
-        {
+        if (is_file($tmpIgnoreList)) {
             $tmpIgnoreList = require($tmpIgnoreList);
-            foreach($tmpIgnoreList as $alias => $files)
-            {
+            foreach ($tmpIgnoreList as $alias => $files) {
                 $pref = str_replace(\Yii::getPathOfAlias('application'), '', \Yii::getPathOfAlias('application.'.$alias));
-                foreach($files as $file)
-                {
+                foreach ($files as $file) {
                     $ignoreList[] = $pref . '/' . $file;
                 }
             }
         }
         unset($tmpIgnoreList);
 
-        foreach($aliases as $alias)
-        {
+        foreach ($aliases as $alias) {
             $arr = $this->hashDir($alias, $ignoreList);
-            if(!is_array($ans[$alias])) continue; // нету такого алиаса
-            $deleteList = array_merge($deleteList, array_diff($arr['pathList'], $ans[$alias]['pathList'], $ignoreList));
-            $updateList = array_merge($updateList,
-             array_diff(
-                 $ans[$alias]['hashList'],
-                 $arr['hashList']
-             ));
+            if (!is_array($ans[$alias])) {
+                continue; // нету такого алиаса
+            }
+            $deleteList = array_merge(
+                $deleteList,
+                array_diff(
+                    $arr['pathList'],
+                    $ans[$alias]['pathList'],
+                    $ignoreList
+                )
+            );
+            $updateList = array_merge(
+                $updateList,
+                array_diff(
+                    $ans[$alias]['hashList'],
+                    $arr['hashList']
+                )
+            );
         }
 
         // удаляем из $updateList файлы, которые присутствуют в $ignoreList
-        foreach($ignoreList as $file)
+        foreach ($ignoreList as $file) {
             unset($updateList[$file]);
+        }
 
         ob_start();
 ?>
@@ -131,25 +140,26 @@ class UpdateController extends \admin\components\HAdminController
 <?php
         $logMessage = ob_get_clean();
 
-        if(isset($_POST['update']))
-        {
+        if (isset($_POST['update'])) {
             $status = true;
             $rootDir = \Yii::getPathOfAlias('application');
 
             // загружаем обновления
-            if(count($updateList))
+            if (count($updateList)) {
                 $status = $status && $this->getUpdates(array_keys($updateList));
+            }
 
             // удаляем старые файлы
-            if(count($deleteList))
-                foreach($deleteList as $file)
-                {
+            if (count($deleteList)) {
+                foreach ($deleteList as $file) {
                     $fileToDelete = $rootDir . $file;
-                    if(is_dir($fileToDelete))
+                    if (is_dir($fileToDelete)) {
                         $this->destroyDir($fileToDelete);
-                    elseif(file_exists($fileToDelete))
+                    } elseif (file_exists($fileToDelete)) {
                         $status = $status && unlink($fileToDelete);
+                    }
                 }
+            }
 
             // чистим assets и кэш
             $this->clearTmp();
@@ -160,10 +170,11 @@ class UpdateController extends \admin\components\HAdminController
             // Пишем в лог
             Yii::log($logMessage, 'info', 'hamster.update');
 
-            if($status == TRUE)
+            if ($status == true) {
                 \Yii::app()->user->setFlash('success', 'Успешное обновление');
-            else
+            } else {
                 \Yii::app()->user->setFlash('fail', 'Во время обновления произошли ошибки');
+            }
 
             $this->refresh();
         }
@@ -183,37 +194,41 @@ class UpdateController extends \admin\components\HAdminController
      */
     public function actionDb()
     {
-        $updateList = $this->dbUpdateList; // модули к обновлению
+        $updateList = $this->getDbUpdateList(); // модули к обновлению
 
         ob_start();
 ?>
     К обновлению:
-    <?php echo implode("\n", array_keys($updateList)); ?>
-<?php
+    <?= implode("\n", array_keys($updateList)); ?>
+    <?php
         $logMessage = ob_get_clean();
 
-        if(isset($_POST['update']))
-        {
+        if (\Yii::app()->request->getPost('update')) {
             $status = true;
-            // TODO: атвобекап что бы можно было откатиться
-            foreach($updateList as $updateInfo)
-            {
+            // TODO: автобекап что бы можно было откатиться
+            foreach ($updateList as $updateInfo) {
                 $status = $status && $this->runDBUpdate($updateInfo);
             }
 
             // Пишем в лог
             \Yii::log($logMessage, 'info', 'hamster.update.db');
 
-            if($status === TRUE)
+            if ($status === true) {
                 \Yii::app()->user->setFlash('success', 'Успешное обновление');
-            else
+            } else {
                 \Yii::app()->user->setFlash('fail', 'Во время обновления произошли ошибки');
+            }
 
             $this->refresh();
         }
 
+        $viewUpdateList = [];
+        foreach ($updateList as $moduleName => $updateInfo) {
+            $viewUpdateList[] = $moduleName . " ({$updateInfo['moduleId']}: {$updateInfo['oldV']} -> {$updateInfo['newV']})";
+        }
+
         $this->render('index', array(
-            'updateList' => array_keys($updateList),
+            'updateList' => $viewUpdateList,
         ));
     }
 
@@ -226,27 +241,26 @@ class UpdateController extends \admin\components\HAdminController
     protected function getDbUpdateList()
     {
         $updateList = array(); // модули к обновлению
-        foreach(array_keys($this->enabledModules) as $moduleId)
-        {
+        foreach (array_keys($this->enabledModules) as $moduleId) {
             $config = \Config::load($moduleId); // конфиг, в котором лежит актуальная версия бд
-            if(!$config) continue;
+            if (!$config) {
+                continue;
+            }
 
             $config = $config->adminConfig;
             $newV = (string)$config['db']['version'];
-            if(!isset($this->modulesInfo[$moduleId]['db']['version']))
-            {
+            if (!isset($this->modulesInfo[$moduleId]['db']['version'])) {
                 \Yii::app()->user->setFlash('error', 'Ошибка в конфигурации модуля '.$moduleId.'. Отсутствует информация о базе данных');
-                $this->refresh();
-                \Yii::app()->end();
             }
 
             $oldV = (string)$this->modulesInfo[$moduleId]['db']['version'];
-            if($newV != $oldV)
+            if ($newV != $oldV) {
                 $updateList[$this->modulesInfo[$moduleId]['title']] = array(
                     'moduleId' => $moduleId,
                     'newV' => $newV,
                     'oldV' => $oldV,
                 );
+            }
         }
 
         return $updateList;
@@ -260,8 +274,7 @@ class UpdateController extends \admin\components\HAdminController
      */
     public function actionDownload()
     {
-        if(isset($_POST['moduleList']))
-        {
+        if (isset($_POST['moduleList'])) {
             $this->getModules($_POST['moduleList'], $_POST['password']);
             \Yii::app()->user->setFlash('success', 'Успешная загрузка новых модулей');
 
@@ -277,7 +290,7 @@ class UpdateController extends \admin\components\HAdminController
             \CHtml::endForm() . '</div>';
 ?>
         <script>
-        $.ajax('http://<?php if(YII_DEBUG) echo 'www.'; ?>update.hamstercms.com?action=getModuleList',{
+        $.ajax('http://<?php if (YII_DEBUG) echo 'www.'; ?>update.hamstercms.com?action=getModuleList',{
                 dataType: 'jsonp',
                     success: function(data) {
                         var $container = $('#moduleList');
@@ -305,9 +318,8 @@ class UpdateController extends \admin\components\HAdminController
      */
     protected function runDBUpdate($updateInfo)
     {
-        return
-            \HUpdateDb::instance($updateInfo['moduleId'])
-            ->runUpdates($updateInfo['oldV'], $updateInfo['newV']);
+        return \HUpdateDb::instance($updateInfo['moduleId'])
+                           ->runUpdates((string) $updateInfo['oldV'], (string) $updateInfo['newV']);
     }
 
     /**
@@ -322,26 +334,32 @@ class UpdateController extends \admin\components\HAdminController
     protected function hashDir($alias)
     {
         // возвращаем значение из карты (в случае если она уже закеширована)
-        if(is_array($this->dirMap[$alias])) return $this->dirMap[$alias];
+        if (is_array($this->dirMap[$alias])) {
+            return $this->dirMap[$alias];
+        }
 
         $dir = \Yii::getPathOfAlias($alias);
 
         $pathList = $hashList = array();
 
-        if(is_dir($dir))
-        {
-            $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir),
-                \RecursiveIteratorIterator::CHILD_FIRST);
+        if (is_dir($dir)) {
+            $iterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($dir),
+                \RecursiveIteratorIterator::CHILD_FIRST
+            );
             $root = \Yii::getPathOfAlias('application');
             foreach ($iterator as $file) {
                 //if(substr($file->getBasename(), 0, 1) == '.' && $file->getBasename() != '.htaccess') continue; // пропускаем скрыте файлы (линукс)
                 // пропускаем папки runtime, так как в них будет хранится инфа, которая зависит от конкретного сайта
-                if($file->getBasename() == 'runtime') continue;
+                if ($file->getBasename() == 'runtime') {
+                    continue;
+                }
                 $path = str_replace($root, '', (string)$file);
 
                 // Игнорим .. и .
-                if($file->getBasename() == '.' || $file->getBasename() == '..')
+                if ($file->getBasename() == '.' || $file->getBasename() == '..') {
                     continue;
+                }
 
                 $pathList[] = $path;
                 if ($file->isFile()) {
@@ -364,24 +382,14 @@ class UpdateController extends \admin\components\HAdminController
      */
     protected function getUpdatesHashList()
     {
-        $curl = curl_init();
-
-        curl_setopt_array($curl, array(
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_URL => 'http://www.update.hamstercms.com/',
-            CURLOPT_USERAGENT => 'Hamster Updater',
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => array(
+        try {
+            $ans = $this->requestFromUpdateServer([
                 'action' => 'getFileList',
-            ),
-        ));
-
-        if(!($ans = curl_exec($curl))) {
+            ]);
+        } catch (\Exception $e) {
             \Yii::app()->user->setFlash('error', 'Сервер обновлений не доступен');
             $this->refresh();
         }
-
-        curl_close($curl);
 
         return unserialize($ans);
     }
@@ -395,40 +403,20 @@ class UpdateController extends \admin\components\HAdminController
      */
     protected function getModules(array $moduleList, $password)
     {
-        $curl = curl_init();
         $saveTo = \Yii::getPathOfAlias('application.runtime') . DIRECTORY_SEPARATOR . 'update.zip';
-        $extractTo = \Yii::getPathOfAlias('application');
 
-        curl_setopt_array($curl, array(
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_URL => 'http://www.update.hamstercms.com/',
-            CURLOPT_USERAGENT => 'Hamster Updater',
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => array(
+        try {
+            $this->downloadPackage([
                 'action' => 'getModules',
                 'moduleList' => serialize($moduleList),
                 'password' => $password,
-            ),
-        ));
-
-        if(!($data = curl_exec($curl))) {
+            ], $saveTo);
+        } catch (\Exception $e) {
             \Yii::app()->user->setFlash('error', 'Не правильный пароль или сервер обновлений недоступен');
             $this->refresh();
         }
 
-        curl_close($curl);
-
-        file_put_contents($saveTo, $data);
-
-        $zip = new \ZipArchive;
-        if ($zip->open($saveTo) === TRUE) {
-            if($zip->extractTo($extractTo) === FALSE) return false;
-            $zip->close();
-            unlink($saveTo);
-            return true;
-        } else {
-            return false;
-        }
+        $this->doSourceUpdate($saveTo);
     }
 
     /**
@@ -440,38 +428,94 @@ class UpdateController extends \admin\components\HAdminController
      */
     protected function getUpdates(array $fileList)
     {
-        $curl = curl_init();
         $saveTo = \Yii::getPathOfAlias('application.runtime') . DIRECTORY_SEPARATOR . 'update.zip';
-        $extractTo = \Yii::getPathOfAlias('application');
 
-        curl_setopt_array($curl, array(
+        try {
+            $this->downloadPackage([
+                'action' => 'getUpdates',
+                'fileList' => serialize($fileList),
+            ], $saveTo);
+        } catch (\Exception $e) {
+            \Yii::app()->user->setFlash('error', 'Сервер обновлений недоступен');
+            $this->refresh();
+        }
+
+        $this->doSourceUpdate($saveTo);
+    }
+
+    /**
+     * @param  array  $data        post data for update server api
+     * @param  string $destination where to save downloaded file
+     * @throws Exception IF can't get data from update server
+     * @return void
+     */
+    private function downloadPackage(array $data, $destination)
+    {
+        $data = $this->requestFromUpdateServer($data);
+
+        file_put_contents($to, $data);
+    }
+
+
+    /**
+     * @param  array  $data        post data for update server api
+     * @throws Exception IF can't get data from update server
+     * @return string $data
+     */
+    private function requestFromUpdateServer(array $data)
+    {
+        $curl = curl_init();
+
+        curl_setopt_array($curl, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_URL => 'http://www.update.hamstercms.com/',
             CURLOPT_USERAGENT => 'Hamster Updater',
             CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => array(
-                'action' => 'getUpdates',
-                'fileList' => serialize($fileList),
-            ),
-        ));
+            CURLOPT_POSTFIELDS => $data,
+        ]);
 
-        if(!($data = curl_exec($curl))) {
-            \Yii::app()->user->setFlash('error', 'Во время загрузки обновлений произошла ошибка');
-            $this->refresh();
-        }
-
+        $data = curl_exec($curl);
         curl_close($curl);
 
-        file_put_contents($saveTo, $data);
+        if (!$data) {
+            throw new \Exception("Can't download data from update server");
+        }
 
+        return $data;
+    }
+
+    /**
+     * @param  string $source path to zip archive with source update
+     * @throws Exception IF can't extract archive
+     * @return void
+     */
+    private function doSourceUpdate($source)
+    {
+        $destination = \Yii::getPathOfAlias('application');
+
+        try {
+            $this->extractZip($source, $destination);
+            unlink($source);
+        } catch (\Exception $e) {
+            throw new \Exception("Can't extract zip file: $source", 0, $e);
+        }
+    }
+
+    /**
+     * @throws Exception IF can't extract archive
+     * @return void
+     */
+    private function extractZip($source, $destination)
+    {
         $zip = new \ZipArchive;
-        if ($zip->open($saveTo) === TRUE) {
-            if($zip->extractTo($extractTo) === FALSE) return false;
+        if ($zip->open($source) === true) {
+            if ($zip->extractTo($destination) === false) {
+                throw new \Exception("Can't extract an archive");
+            }
+
             $zip->close();
-            unlink($saveTo);
-            return true;
         } else {
-            return false;
+            throw new \Exception("Can't open zip file: $source");
         }
     }
 
@@ -484,8 +528,9 @@ class UpdateController extends \admin\components\HAdminController
      */
     public function getDirMap()
     {
-        if(!isset($this->_dirMap))
+        if (!isset($this->_dirMap)) {
             $this->_dirMap = \Yii::app()->cache->get('dirMap');
+        }
         return $this->_dirMap;
     }
 }
