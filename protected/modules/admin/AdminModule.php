@@ -95,7 +95,6 @@ class AdminModule extends \CWebModule
     public function getControllerMap()
     {
         $enabledModules = $this->enabledModules;
-        $enabledModules['page'] = 'application.controllers.page.PageAdminController';
         return $enabledModules;
     }
 

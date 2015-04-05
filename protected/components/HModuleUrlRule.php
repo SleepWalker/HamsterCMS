@@ -9,7 +9,10 @@
  * @author Sviatoslav Danylenko <mybox@udf.su>
  * @license PGPLv3 ({@link http://www.gnu.org/licenses/gpl-3.0.html})
  */
-class HModuleUrlRule extends CBaseUrlRule
+
+namespace application\components;
+
+class HModuleUrlRule extends \CBaseUrlRule
 {
     public $connectionID = 'db';
 
@@ -42,8 +45,8 @@ class HModuleUrlRule extends CBaseUrlRule
         if (count($routeParts) > 3 || count($routeParts) < 2) {
             // если это случилось, значит где-то ошибка FIXME (в будущем можно будет логировать и убрать этот баг для оптимизации системы)
             $message = get_class($this)."::createUrl(): Wrong params number (".implode(', ', $routeParts).")";
-            Yii::log($message, CLogger::LEVEL_ERROR);
-            throw new CException($message);
+            \Yii::log($message, \CLogger::LEVEL_ERROR);
+            throw new \CException($message);
         }
 
         if (count($routeParts) == 3) {
@@ -54,8 +57,8 @@ class HModuleUrlRule extends CBaseUrlRule
             }
 
             // узнаем, изменен ли у модуля не стандартный url
-            if (isset(Yii::app()->modules[$routeParts[0]]['params']['moduleUrl'])) {
-                $routeParts[0] = Yii::app()->modules[$routeParts[0]]['params']['moduleUrl'];
+            if (isset(\Yii::app()->modules[$routeParts[0]]['params']['moduleUrl'])) {
+                $routeParts[0] = \Yii::app()->modules[$routeParts[0]]['params']['moduleUrl'];
             }
 
         }
@@ -96,9 +99,9 @@ class HModuleUrlRule extends CBaseUrlRule
         //дополнительные параметры-частички url которые пишутся через слеш
         $url .= count($params) ? '?' . http_build_query($params) : '';
 
-        if (Yii::app()->params['i18n']['enabled'] == true) {
-            $language = isset(Yii::app()->request->cookies['myLang']) ? Yii::app()->request->cookies['myLang']->value : '';
-            if ($language != Yii::app()->sourceLanguage) {
+        if (\Yii::app()->params['i18n']['enabled'] == true) {
+            $language = isset(\Yii::app()->request->cookies['myLang']) ? \Yii::app()->request->cookies['myLang']->value : '';
+            if ($language != \Yii::app()->sourceLanguage) {
                 $url = $language . '/' . $url;
             }
 
@@ -125,7 +128,7 @@ class HModuleUrlRule extends CBaseUrlRule
         }
 
         if (count($url)) {
-            $modules = Yii::app()->modules;
+            $modules = \Yii::app()->modules;
             $moduleUrls = array();
             foreach ($modules as $moduleId => $moduleConfig) {
                 if (isset($moduleConfig['params']['aliases'][$pathInfo]['route'])) {
@@ -171,7 +174,7 @@ class HModuleUrlRule extends CBaseUrlRule
             // можно пофиксить этот момент разве что с помощью ручного поиска в фс
             $classFile = ucfirst($url[1]) . 'Controller.php';
 
-            $moduleControllersDirectory = Yii::getPathOfAlias('application.modules.' . $moduleId . '.controllers');
+            $moduleControllersDirectory = \Yii::getPathOfAlias('application.modules.' . $moduleId . '.controllers');
 
             // проверяем есть ли в url название контроллера
             if (is_file($moduleControllersDirectory . DIRECTORY_SEPARATOR . $classFile)) {
@@ -198,7 +201,7 @@ class HModuleUrlRule extends CBaseUrlRule
                 if (isset($module->controllerNamespace)) {
                     $controllerClass = $module->controllerNamespace . '\\' . $controllerClass;
                 } elseif (!class_exists($controllerClass, false)) {
-                    Yii::import('application.modules.' . $moduleId . '.controllers.' . $controllerClass, true);
+                    \Yii::import('application.modules.' . $moduleId . '.controllers.' . $controllerClass, true);
                 }
             }
 
@@ -276,7 +279,7 @@ class HModuleUrlRule extends CBaseUrlRule
                 $pattern = '/^' . strtr($template, $tr) . '$/u';
 
                 if (YII_DEBUG && @preg_match($pattern, 'test') === false) {
-                    throw new CException(Yii::t('yii', 'The URL pattern "{pattern}" for action "{action}" is not a valid regular expression.', array(
+                    throw new \CException(\Yii::t('yii', 'The URL pattern "{pattern}" for action "{action}" is not a valid regular expression.', array(
                         '{action}' => $actionId,
                         '{pattern}' => $pattern,
                     )));
@@ -334,16 +337,16 @@ class HModuleUrlRule extends CBaseUrlRule
                 } elseif ($module && isset($module->controllerNamespace)) {
                     $controllerClass = $module->controllerNamespace . '\\' . $controllerClass;
                 } else {
-                    $controllerClass = Yii::import('application.modules.' . $moduleId . '.controllers.' . $controllerClass, true);
+                    $controllerClass = \Yii::import('application.modules.' . $moduleId . '.controllers.' . $controllerClass, true);
                 }
             } elseif (count($route) == 2) {
                 // Обычные контроллеры
-                $controllerClass = Yii::import('application.controllers.' . ucfirst($route[0]) . 'Controller', true);
+                $controllerClass = \Yii::import('application.controllers.' . ucfirst($route[0]) . 'Controller', true);
                 $actionId = $route[1];
             }
 
             return $this->getActionParams($controllerClass, $actionId);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return false;
         }
     }

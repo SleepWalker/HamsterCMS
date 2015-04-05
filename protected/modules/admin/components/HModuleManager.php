@@ -82,10 +82,11 @@ class HModuleManager extends \CApplicationComponent
             unset($enabledModules[$moduleId]);
         } else {
             // включаем модуль
-            $moduleAdminPath = \Yii::getPathOfAlias('application.modules.' . $moduleId . '.admin');
+            $moduleDirAlias = 'application.modules.' . $moduleId . '.admin';
+            $moduleAdminPath = \Yii::getPathOfAlias($moduleDirAlias);
             $className = ucfirst($moduleId) . 'AdminController';
             if (file_exists($moduleAdminPath . '/' . $className . '.php')) {
-                $enabledModules[$moduleId] = 'application.modules.' . $moduleId . '.admin.' . $className;
+                $enabledModules[$moduleId] = $moduleDirAlias . '.' . $className;
                 $this->testDb($moduleId);
             } else {
                 throw new \Exception("Не могу найти админ контроллер модуля $moduleId");

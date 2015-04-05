@@ -137,11 +137,11 @@ array(
             'rules' => array(
                 // Правило url для модулей
                 array(
-                    'class' => 'application.components.HModuleUrlRule',
+                    'class' => '\application\components\HModuleUrlRule',
                 ),
                 'site/<action:\w+>' => 'site/<action>',
 
-                '<controller:page|api>/<path:.*>' => '<controller>/index',
+                '<controller:api>/<path:.*>' => '<controller>/index',
                 // '<module:\w+>/<controller:\w+>/<action:\w+>/<id:\d+>'=>'<module>/<controller>/<action>',
 
                 // правило для админки action (оно же название модуля)
@@ -211,5 +211,5 @@ array(
             'class' => 'application.vendor.composer.vendor.zhuravljov.yii2-debug.Yii2Debug',
         ),
     ),
-    'defaultController' => 'page',
+    'defaultController' => 'page/page',
 );

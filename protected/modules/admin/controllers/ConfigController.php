@@ -43,7 +43,7 @@ class ConfigController extends \admin\components\HAdminController
         foreach ($this->modulesInfo as $moduleId => $moduleInfo) {
             $isEnabled = isset($this->enabledModules[$moduleId]);
             $onoffLabel = array('switchOff', 'switchOn');
-            $modulesMenu['/admin/config?m=' . $moduleId] = '<b onclick="location.href=\'/admin/switchmodule?m=' . $moduleId . '\'; return false;" class="' . $onoffLabel[$isEnabled] . '"></b> ' . $moduleInfo['title'];
+            $modulesMenu['/admin/config?m=' . $moduleId] = '<b onclick="location.href=\'/admin/config/switchmodule?m=' . $moduleId . '\'; return false;" class="' . $onoffLabel[$isEnabled] . '"></b> ' . $moduleInfo['title'];
         }
         $this->aside['Доступные модули<a href="/admin/config/modulediscover" class="icon_refresh"></a><a href="/admin/config/clearTmp" class="icon_delete"></a>'] = $modulesMenu;
 
