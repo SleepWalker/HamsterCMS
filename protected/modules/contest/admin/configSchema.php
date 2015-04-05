@@ -18,14 +18,17 @@ return array(
             'title' => 'Конкурсы',
             'description' => 'Модуль для управления конкурсами',
             'db' => array(
-                'version' => '1.0',
+                'version' => '1.2.0',
                 'tables' => array(
                     'contest_request',
+                    'contest_musician',
+                    'contest_composition',
                 ),
             ),
             'routes' => array(
-                // 'sectionvideo/index',
-                // 'sectionvideo/view',
+                'contest/apply',
+                'contest/rules',
+                'contest/success',
             ),
         ),
     ),

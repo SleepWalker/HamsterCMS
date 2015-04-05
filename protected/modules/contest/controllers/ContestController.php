@@ -45,22 +45,32 @@ class ContestController extends \Controller
 
     protected function processModel(\contest\models\view\Request $model)
     {
-        // TODO: minimum one email
         if ($this->postData) {
-            if ($this->postData['type'] == 'group') {
+            if ($this->postData['type'] == \contest\models\view\Request::TYPE_GROUP) {
                 $model->scenario = 'group';
+            } else {
+                $model->scenario = 'solo';
             }
 
+            $this->feedModels($model);
 
             if (\Yii::app()->request->isAjaxRequest && \Yii::app()->request->getPost('ajaxValidation')) {
-                echo \CActiveForm::validate($model);
+                echo \CActiveForm::validate(array_merge(
+                    [$model],
+                    $model->musicians,
+                    $model->compositions
+                ), null, false);
 
                 \Yii::app()->end();
             }
 
-            $model->attributes = $this->postData;
-
-            if ($model->save()) {
+            if ($model->validate()) {
+                try {
+                    \contest\crud\RequestCrud::save($model);
+                } catch (\Exception $e) {
+                    \Yii::app()->user->setFlash('error', 'Во время обработки заявки возникли не предвиденные ошибки. Пожалуйста попробуйте еще раз или свяжитесь с нами.');
+                    $this->refresh();
+                }
                 $this->sendNotifications($model);
 
                 return true;
@@ -72,21 +82,43 @@ class ContestController extends \Controller
 
     protected function getPostData()
     {
-        $modelName = \CHtml::modelName('\contest\models\Request');
+        $modelName = \CHtml::modelName('\contest\models\view\Request');
 
         return \Yii::app()->request->getPost($modelName);
     }
 
+    private function feedModels($model)
+    {
+        $model->attributes = \Yii::app()->request->getPost(\CHtml::modelName($model), []);
+
+        $compositionsData = \Yii::app()->request->getPost(\CHtml::modelName($model->compositions[0]), []);
+        $compositions = $model->compositions;
+        foreach ($compositionsData as $index => $compositionData) {
+            $compositions[$index]->attributes = $compositionData;
+        }
+
+        $musiciansData = \Yii::app()->request->getPost(\CHtml::modelName($model->musicians[0]), []);
+        $musicians = $model->musicians;
+        foreach ($musiciansData as $index => $musicianData) {
+            $musicians[$index]->attributes = $musicianData;
+        }
+    }
+
     protected function sendNotifications($model)
     {
-        \Yii::app()->mail->send(array(
-            'to' => $model->email,
-            'subject' => 'Заявка на участие в конкурсе',
-            'view' => 'user_new_request',
-            'viewData' => $model->attributes,
-        ));
+        // TODO: move into domain model
+        foreach ($model->musicians as $musician) {
+            if (!empty($musician->email)) {
+                \Yii::app()->mail->send(array(
+                    'to' => $musician->email,
+                    'subject' => 'Заявка на участие в конкурсе',
+                    'view' => 'user_new_request',
+                    'viewData' => $musician->attributes,
+                ));
+            }
+        }
 
-        if (!empty(Yii::app()->params['adminEmail'])) {
+        if (!empty($this->module->getAdminEmail())) {
             \Yii::app()->mail->send(array(
                 'to' => $this->module->getAdminEmail(),
                 'subject' => 'Новая заявка на участие в конкурсе',

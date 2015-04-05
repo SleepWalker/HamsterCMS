@@ -10,9 +10,22 @@ namespace contest\models\view;
 class Request extends \CFormModel
 {
     public $type = 'solo';
-    public $format = 0;
+    public $format = self::FORMAT_SOLO;
     public $name;
     public $demos;
+
+    private $_musicians;
+    private $_compositions;
+
+    const MAX_COMPOSITIONS = 2;
+    const MAX_MUSICIANS = 7;
+
+    const FORMAT_SOLO = 1;
+    const FORMAT_MINUS = 2;
+    const FORMAT_CONCERTMASTER = 3;
+
+    const TYPE_GROUP = 'group';
+    const TYPE_SOLO = 'solog';
 
     /**
      * @return array validation rules for model attributes.
@@ -20,11 +33,100 @@ class Request extends \CFormModel
     public function rules()
     {
         return array(
-            array('format, name, compositions, musicians', 'required'),
+            array('compositions, musicians', 'required'),
+            array('name', 'required', 'except' => 'solo'),
+            array('format', 'required', 'except' => 'group'),
             array('name', 'length', 'max' => 64),
-            array('type', 'in', 'range' => array('solo', 'group')),
-            array('demos, format', 'safe'),
+            array('type', 'in', 'range' => array(self::TYPE_SOLO, self::TYPE_GROUP)),
+            array('demos', 'safe'),
+            array('format', 'numerical', 'integerOnly' => true),
+
+            array('musicians', 'musiciansValidator'),
+            array('compositions', 'compositionsValidator'),
         );
+    }
+
+    public function musiciansValidator($attribute, $params = [])
+    {
+        $hasContacts = false;
+        $validCount = 0;
+        foreach ($this->musicians as $musician) {
+            if (!empty($musician->email)) {
+                $hasContacts = true;
+            }
+
+            // валидируем только тем модели, которые заполнялись юзером
+            if (!$musician->isEmpty() && $musician->validate()) {
+                $validCount++;
+            }
+        }
+
+        if ($validCount === 0) {
+            return $this->addError('musicians', 'Укажите информацию хотя бы об одном музыканте');
+        }
+
+        if ($this->getScenario() == 'group' && $validCount < 2) {
+            return $this->addError('musicians', 'В группе должно быть хотя бы два участника');
+        }
+
+        if (!$hasContacts) {
+            return $this->addError('musicians', 'Пожалуйста, укажите email хоть одного музыканта');
+        }
+    }
+
+    public function compositionsValidator($attribute, $params = [])
+    {
+        $valid = true;
+        foreach ($this->compositions as $composition) {
+            $valid = $composition->validate() && $valid;
+        }
+
+        if (!$valid) {
+            $this->addError('compositions', 'Пожалуйста, укажите обе композиции');
+        }
+    }
+
+    /**
+     * @return array list for radio button/dropdown list
+     */
+    public function getFormatsList()
+    {
+        return [
+            self::FORMAT_SOLO => 'Сольное исполнение (без сопровождения)',
+            self::FORMAT_MINUS => 'Сольное исполнение под минус',
+            self::FORMAT_CONCERTMASTER => 'Сольное исполнение с концертмейстером',
+        ];
+    }
+
+    /**
+     * Returns a value indicating whether there is any validation error.
+     * @param string $attribute attribute name. Use null to check all attributes.
+     * @return boolean whether there is any error.
+     */
+    public function hasErrors($attribute = null)
+    {
+        if (!$attribute && $this->childrenHasErrors()) {
+            return true;
+        }
+
+        return parent::hasErrors($attribute);
+    }
+
+    /**
+     * Проверяет есть ли ошибки в под моделях этой модели
+     * @return boolean
+     */
+    private function childrenHasErrors()
+    {
+        $children = array_merge($this->musicians, $this->compositions);
+
+        foreach ($children as $child) {
+            if ($child->hasErrors()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function attributeLabels()
@@ -41,15 +143,27 @@ class Request extends \CFormModel
 
     public function getMusicians()
     {
-        $musician = new \contest\models\view\Musician();
-        $musicians = [$musician, $musician, $musician, $musician, $musician, $musician, $musician];
-        return $musicians;
+        if (!isset($this->_musicians)) {
+            $musicians = [];
+            for ($i = 0; $i < self::MAX_MUSICIANS; $i++) {
+                $musicians[] = new Musician();
+            }
+            $this->_musicians = $musicians;
+        }
+
+        return $this->_musicians;
     }
 
     public function getCompositions()
     {
-        $composition = new \contest\models\view\Composition();
-        $compositions = [$composition, $composition];
-        return $compositions;
+        if (!isset($this->_compositions)) {
+            $compositions = [];
+            for ($i = 0; $i < self::MAX_COMPOSITIONS; $i++) {
+                $compositions[] = new Composition();
+            }
+            $this->_compositions = $compositions;
+        }
+
+        return $this->_compositions;
     }
 }

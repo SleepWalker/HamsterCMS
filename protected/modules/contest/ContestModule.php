@@ -10,9 +10,7 @@
 
 class ContestModule extends CWebModule
 {
-    public $controllerMap = array(
-        'contest' => '\contest\controllers\ContestController',
-    );
+    public $controllerNamespace = '\contest\controllers';
 
     public function getAdminEmail()
     {

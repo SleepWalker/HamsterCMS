@@ -21,6 +21,17 @@ class Musician extends \CFormModel
     public $class;
     public $teacher;
 
+    public function isEmpty()
+    {
+        $empty = true;
+
+        foreach ($this->attributeNames() as $attribute) {
+            $empty = $empty && empty($this->$attribute);
+        }
+
+        return $empty;
+    }
+
     public function rules()
     {
         return array(

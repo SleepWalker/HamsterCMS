@@ -16,6 +16,9 @@ abstract class Crud extends \CComponent
         }
     }
 
+    /**
+     * @return string model class name (with namespace if any)
+     */
     abstract public function getCrudModel();
 
     protected function throwValidationError($model)

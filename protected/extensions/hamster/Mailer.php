@@ -22,7 +22,7 @@ class Mailer extends \CApplicationComponent
      */
     public $mailerConfig = array();
 
-    protected $_mailer;
+    private $_mailer;
 
     public function send($params)
     {
@@ -37,7 +37,7 @@ class Mailer extends \CApplicationComponent
         return $this->getMailer()->send($m);
     }
 
-    protected function normalizeParams($params)
+    private function normalizeParams($params)
     {
         return \CMap::mergeArray(array(
             'from' => \Yii::app()->params['noReplyEmail'],
@@ -46,19 +46,28 @@ class Mailer extends \CApplicationComponent
         ), $params);
     }
 
-    protected function composeEmail($params)
+    private function composeEmail($params)
     {
         $m = new \YiiMailMessage();
-        $m->addTo($params['to']);
         $m->from = $params['from'];
         $m->subject = strip_tags($params['subject']);
+        $this->addTo($m, $params);
         $this->addAttachments($m, $params);
         $this->setMessage($m, $params);
 
         return $m;
     }
 
-    protected function addAttachments($m, $params)
+    private function addTo($m, $params)
+    {
+        $to = is_array($params['to']) ? $params['to'] : [$params['to']];
+
+        foreach ($to as $email) {
+            $m->addTo($email);
+        }
+    }
+
+    private function addAttachments($m, $params)
     {
         foreach ($params['attachments'] as $file) {
             $swiftAttachment = \Swift_Attachment::fromPath($file);
@@ -66,7 +75,7 @@ class Mailer extends \CApplicationComponent
         }
     }
 
-    protected function setMessage($m, $params)
+    private function setMessage($m, $params)
     {
         if (isset($params['view'])) {
             $message = $this->renderMessage($params['view'], $params['viewData']);
@@ -79,7 +88,7 @@ class Mailer extends \CApplicationComponent
         $m->setBody($message, 'text/html');
     }
 
-    protected function renderMessage($view, $data)
+    private function renderMessage($view, $data)
     {
         $oldRenderer = \Yii::app()->getViewRenderer();
         $mdRenderer = \Yii::createComponent(array(
@@ -94,7 +103,7 @@ class Mailer extends \CApplicationComponent
         return $output;
     }
 
-    protected function getMailer()
+    private function getMailer()
     {
         if (!isset($this->_mailer)) {
             $this->_mailer = \Yii::createComponent(\CMap::mergeArray(array(

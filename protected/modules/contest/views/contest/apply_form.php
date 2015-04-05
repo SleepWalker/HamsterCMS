@@ -35,15 +35,9 @@
             $group[selected == "group" ? "show" : "hide"]();
         }).change();
 
-        $(".js-addable").children().each(function(index) {
-            if (index) {
-                $(this).hide();
-            }
-        });
-
         $(".js-add-row").click(function(event) {
             event.preventDefault();
-            var $hidden = $(".js-addable").children().filter(":hidden");
+            var $hidden = $(".js-addable").filter(":hidden");
             $hidden.eq(0).show();
             if ($hidden.length == 1) {
                 $(this).hide();
@@ -62,11 +56,9 @@
 <div class="form__row js-solo-only">
     <?= $form->labelEx($model, 'format'); ?>
     <div class="form__row__right">
-        <?= $form->radioButtonList($model, 'format', array(
-            'Сольное исполнение (без сопровождения)',
-            'Сольное исполнение под минус',
-            'Сольное исполнение с концертмейстером',
-        ), array('class' => 'form__input')); ?>
+        <?= $form->radioButtonList($model, 'format', $model->getFormatsList(), array(
+            'class' => 'form__input',
+        )); ?>
         <?= $form->error($model, 'format'); ?>
     </div>
     <p class="note">В случае исполнения с концертмейстером, укажите информацию о нем в форме "Исполнитель(-ли)"</p>
@@ -76,15 +68,16 @@
     <div class="form__row__left">
         <?= $form->labelEx($model, 'musicians'); ?>
         <p>
-            <button class="button js-add-row">Добавить</button>
+            <button class="button js-add-row" type="button">Добавить</button>
         </p>
     </div>
 
-    <div class="form__row__right--push js-addable">
+    <div class="form__row__right--push">
         <?php
         foreach ($model->musicians as $index => $musician) {
+            $isHidden = $index && $musician->isEmpty() && !$musician->hasErrors();
             ?>
-            <div class="form__row">
+            <div class="form__row js-addable"<?php if ($isHidden) echo ' style="display: none;"'; ?>>
                 <div class="form__row__small">
                     <?= $form->textField($musician, "[$index]first_name", array(
                         'class' => 'form__input',
@@ -171,6 +164,7 @@
             <?php
         }
         ?>
+        <?= $form->error($model, 'musicians'); ?>
     </div>
 </div>
 
@@ -183,29 +177,28 @@
         <?php
         foreach ($model->compositions as $index => $composition) {
             ?>
-                <div class="form__row">
-                    <?= $form->textField($composition, "[$index]author", array(
-                        'class' => 'form__input',
-                        'style' => 'width: 40%;',
-                        'placeholder' => $composition->getAttributeLabel('author'),
-                    )); ?>
-                    <?= $form->textField($composition, "[$index]title", array(
-                        'class' => 'form__input',
-                        'style' => 'width: 40%;',
-                        'placeholder' => $composition->getAttributeLabel('title'),
-                    )); ?>
-                    <?= $form->textField($composition, "[$index]duration", array(
-                        'class' => 'form__input',
-                        'style' => 'width: 19%;',
-                        'placeholder' => $composition->getAttributeLabel('duration'),
-                    )); ?>
-                    <?= $form->error($composition, "[$index]author"); ?>
-                    <?= $form->error($composition, "[$index]title"); ?>
-                    <?= $form->error($composition, "[$index]duration"); ?>
-                </div>
+            <div class="form__row">
+                <?= $form->textField($composition, "[$index]author", array(
+                    'class' => 'form__input',
+                    'style' => 'width: 40%;',
+                    'placeholder' => $composition->getAttributeLabel('author'),
+                )); ?>
+                <?= $form->textField($composition, "[$index]title", array(
+                    'class' => 'form__input',
+                    'style' => 'width: 40%;',
+                    'placeholder' => $composition->getAttributeLabel('title'),
+                )); ?>
+                <?= $form->textField($composition, "[$index]duration", array(
+                    'class' => 'form__input',
+                    'style' => 'width: 19%;',
+                    'placeholder' => $composition->getAttributeLabel('duration'),
+                )); ?>
+                <?= $form->error($composition, "[$index]duration"); ?>
+            </div>
             <?php
         }
         ?>
+        <?= $form->error($model, 'compositions'); ?>
     </div>
 </div>
 

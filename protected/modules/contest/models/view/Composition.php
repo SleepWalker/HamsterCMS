@@ -16,9 +16,9 @@ class Composition extends \CFormModel
     public function rules()
     {
         return array(
-            array('author, title, duration', 'required'),
+            array('author, title, duration', 'required', 'message' => false),
 
-            array('duration', 'numerical', 'integerOnly' => true, 'max' => 15),
+            array('duration', 'numerical', 'integerOnly' => true, 'max' => 15, 'message' => 'Время должно быть числом'),
         );
     }
 
