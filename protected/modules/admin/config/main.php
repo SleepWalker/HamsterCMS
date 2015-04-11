@@ -53,6 +53,9 @@ array(
             //'enableCsrfValidation'=>true,
             //'csrfTokenName' => 'csrf',
         ),
+        'format' => [
+            'class' => 'CLocalizedFormatter',
+        ],
         'db' => array(
             'enableParamLogging' => true, // логирует SQL вместе с привязанными параметрами
             'charset' => 'utf8',

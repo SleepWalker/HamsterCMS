@@ -15,7 +15,7 @@
  *    ),
  *  ),
  *  ...
- *  
+ *
  *
  * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
  * @package    hamster.modules.admin.views.admin.table
@@ -23,150 +23,150 @@
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
 //$pageSize=Yii::app()->user->getState('pageSize',Yii::app()->params['defaultPageSize']);
-if(!isset($buttons)) 
-  $buttons = array('update', 'delete', 'view');
-  
-if(!isset($options)) 
-  $options = array();
-  
-if(isset($disableButtons) && $disableButtons) 
-  $buttons = array();
-else
-{
-  $updateButton = array(  
-    'update'=>array(
-      //'label'=>'...',     // text label of the button
-      'url' => 'array("update", "id" => $data->primaryKey)', // a PHP expression for generating the URL of the button
-      'imageUrl'=> $this->adminAssetsUrl . '/images/icon_edit.png',  // image URL of the button. If not set or false, a text link is used
-      //'options'=>array(), // HTML options for the button tag
-      //'click'=>'...',     // a JS function to be invoked when the button is clicked
-      //'visible'=>'',   // a PHP expression for determining whether the button is visible
-    )
-  );
-  
-  $deleteButton = array(
-    'delete'=>array(
-      'imageUrl'=> $this->adminAssetsUrl . '/images/icon_delete.png',
-      'url' => 'array("delete", "id" => $data->primaryKey)',
-    )
-  );
-  
-  $printButton = array(
-    'print'=>array(
-      'imageUrl'=> $this->adminAssetsUrl . '/images/icon_print.png',
-      'url' => 'array("print", "id" => $data->primaryKey)',
-    )
-  );
-  
-  $viewButton = array(
-    'view'=>array(
-      'url'=>'method_exists($data, "getViewUrl") ? $data->viewUrl : ""',
-      'options'=>array(
-        'target'=>'_blank',
-      ),
-      'imageUrl'=> $this->adminAssetsUrl . '/images/icon_view.png',
-      'visible'=>'method_exists($data, "getViewUrl")',
-    )
-  );
-  
-  $moreButton = array(
-    'more'=>array(
-      'url' => 'array("more", "id" => $data->primaryKey)',
-      'imageUrl'=> $this->adminAssetsUrl . '/images/icon_table.png',
-    )
-  );
+if (!isset($buttons)) {
+    $buttons = array('update', 'delete', 'view');
+}
 
-  $okButton = array(
-    'ok'=>array(
-      'url' => 'array("confirm", "id" => $data->primaryKey)',
-      'imageUrl'=> $this->adminAssetsUrl . '/images/icon_ok.png',
-    )
-  );
-  
-  $buttArr = array();
-  $buttCol = array(
-    'class'=>'CButtonColumn',
-  );
-  
-  $buttCol['template'] = '';
-  foreach($buttons as $buttonName => $button)
-  {
-    $curButtonSettings = array();
-    if(is_array($button))
-    {
-      $curButtonSettings[$buttonName] = $button;
-      if(is_array(${$buttonName . 'Button'}))
-      {
-        $curButtonSettings[$buttonName] = array_merge(
-          ${$buttonName . 'Button'}[$buttonName],
-          $curButtonSettings[$buttonName]
-        );
-      }
-      $button = $buttonName;
-    }else
-      $curButtonSettings = ${$button . 'Button'};
-    
-    $buttArr = array_merge(
-      $buttArr,
-      $curButtonSettings
+if (!isset($options)) {
+    $options = array();
+}
+
+if (isset($disableButtons) && $disableButtons) {
+    $buttons = array();
+} else {
+    $updateButton = array(
+        'update' => array(
+            //'label'=>'...',     // text label of the button
+            'url' => 'array("update", "id" => $data->primaryKey)', // a PHP expression for generating the URL of the button
+            'imageUrl' => $this->adminAssetsUrl . '/images/icon_edit.png', // image URL of the button. If not set or false, a text link is used
+            //'options'=>array(), // HTML options for the button tag
+            //'click'=>'...',     // a JS function to be invoked when the button is clicked
+            //'visible'=>'',   // a PHP expression for determining whether the button is visible
+        ),
     );
-    $buttCol['template'] .= '{' . $button . '}';
-  }
-  
-  $buttCol['buttons'] = $buttArr;
+
+    $deleteButton = array(
+        'delete' => array(
+            'imageUrl' => $this->adminAssetsUrl . '/images/icon_delete.png',
+            'url' => 'array("delete", "id" => $data->primaryKey)',
+        ),
+    );
+
+    $printButton = array(
+        'print' => array(
+            'imageUrl' => $this->adminAssetsUrl . '/images/icon_print.png',
+            'url' => 'array("print", "id" => $data->primaryKey)',
+        ),
+    );
+
+    $viewButton = array(
+        'view' => array(
+            'url' => 'method_exists($data, "getViewUrl") ? $data->viewUrl : ""',
+            'options' => array(
+                'target' => '_blank',
+            ),
+            'imageUrl' => $this->adminAssetsUrl . '/images/icon_view.png',
+            'visible' => 'method_exists($data, "getViewUrl")',
+        ),
+    );
+
+    $moreButton = array(
+        'more' => array(
+            'url' => 'array("more", "id" => $data->primaryKey)',
+            'imageUrl' => $this->adminAssetsUrl . '/images/icon_table.png',
+        ),
+    );
+
+    $okButton = array(
+        'ok' => array(
+            'url' => 'array("confirm", "id" => $data->primaryKey)',
+            'imageUrl' => $this->adminAssetsUrl . '/images/icon_ok.png',
+        ),
+    );
+
+    $buttArr = array();
+    $buttCol = array(
+        'class' => 'CButtonColumn',
+    );
+
+    $buttCol['template'] = '';
+    foreach ($buttons as $buttonName => $button) {
+        $curButtonSettings = array();
+        if (is_array($button)) {
+            $curButtonSettings[$buttonName] = $button;
+            if (is_array(${$buttonName . 'Button'})) {
+                $curButtonSettings[$buttonName] = array_merge(
+                    ${$buttonName . 'Button'}[$buttonName],
+                    $curButtonSettings[$buttonName]
+                );
+            }
+            $button = $buttonName;
+        } else {
+            $curButtonSettings = ${$button . 'Button'};
+        }
+
+        $buttArr = array_merge(
+            $buttArr,
+            $curButtonSettings
+        );
+        $buttCol['template'] .= '{' . $button . '}';
+    }
+
+    $buttCol['buttons'] = $buttArr;
 }
 
 // Назначаем размер страницы провайдера
-$dataProvider->pagination->pageSize = Yii::app()->params['defaultPageSize'];
+$dataProvider->pagination->pageSize = \Yii::app()->params['defaultPageSize'];
 
 // обрабатываем не стандартные типы колонок (или улучшаем стандартные)
-foreach($columns as &$column)
-{
-  if(!is_array($column))
-    continue;
-
-  if(isset($column['type']))
-    switch($column['type'])
-    {
-    case 'datetime':
-      $column['type'] = 'raw';
-      $column['value'] ='str_replace(" ", "<br />", Yii::app()->dateFormatter->formatDateTime($data->' . $column['name'] . '))';
-      break;
+foreach ($columns as &$column) {
+    if (!is_array($column)) {
+        continue;
     }
+
+    if (isset($column['type'])) {
+        switch ($column['type']) {
+            case 'datetime':
+                $column['type'] = 'raw';
+                $column['value'] = 'str_replace(" ", "<br />", \Yii::app()->dateFormatter->formatDateTime($data->' . $column['name'] . '))';
+                break;
+        }
+    }
+
 }
 
-
 $defOpts = array(
-	'dataProvider'=>$dataProvider,
-	'columns'=>$columns,
-  'pager'=>array(
-    'cssFile'=>false,
-    'header'=>false,
-  ),
-  'cssFile'=>false,
-  'beforeAjaxUpdate' => 'startLoad',
-  'afterAjaxUpdate' => new CJavaScriptExpression('function(){stopLoad();reinstallDatePicker();}'),
-  'enableHistory' => true,
-  //'ajaxUpdate' => false,
+    'dataProvider' => $dataProvider,
+    'columns' => $columns,
+    'pager' => array(
+        'cssFile' => false,
+        'header' => false,
+    ),
+    'cssFile' => false,
+    'beforeAjaxUpdate' => 'startLoad',
+    'afterAjaxUpdate' => new \CJavaScriptExpression('function(){stopLoad();reinstallDatePicker();}'),
+    'enableHistory' => true,
+    //'ajaxUpdate' => false,
 );
 
-if(isset($buttCol))
-  $defOpts['columns'][] = $buttCol;
+if (isset($buttCol)) {
+    $defOpts['columns'][] = $buttCol;
+}
 
-if(isset($preTable))
-  echo $preTable;
+if (isset($preTable)) {
+    echo $preTable;
+}
 
-$this->widget('zii.widgets.grid.CGridView', array_merge(
-  $defOpts,
-  $options
+$this->widget('zii.widgets.grid.CGridView', \CMap::mergeArray(
+    $defOpts,
+    $options
 ));
 
 // Script that reinitialises events on datepicker fields and sets deffault localisation
 // for this feature all parameters of datepicker must be set in 'defaultOptions'
 // and field with datepicker must be of class reinstallDatePicker
-Yii::app()->clientScript->registerScript('re-install-date-picker', '
+\Yii::app()->clientScript->registerScript('re-install-date-picker', '
 function reinstallDatePicker() {
-    $(".reinstallDatePicker").each(function(){$(this).datepicker($.datepicker.regional["' . Yii::app()->language . '"])});
+    $(".reinstallDatePicker").each(function(){$(this).datepicker($.datepicker.regional["' . \Yii::app()->language . '"])});
 }
 ');
-?>
