@@ -81,7 +81,7 @@ array(
                 // на некоторых хостах пхп не может на прямую передавать параметры серверу
                 'transportOptions' => false,
                 'logging' => true,
-                'dryRun' => YII_DEBUG, // when true the mail will not be sended
+                'dryRun' => 'phpexpr:YII_DEBUG', // when true the mail will not be sended
             ),
         ),
         'widgetFactory' => array(
@@ -128,7 +128,7 @@ array(
         'session' => array(
             'class' => 'system.web.CDbHttpSession',
             'connectionID' => 'db',
-            'autoCreateSessionTable' => YII_DEBUG,
+            'autoCreateSessionTable' => 'phpexpr:YII_DEBUG',
         ),
         'cache' => array(
             'class' => 'system.caching.CFileCache',
