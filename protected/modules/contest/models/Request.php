@@ -35,6 +35,24 @@ class Request extends \CActiveRecord
         );
     }
 
+    public function relations()
+    {
+        return [
+            'musicians' => [self::HAS_MANY, '\contest\models\Musician', 'request_id'],
+            'compositions' => [self::HAS_MANY, '\contest\models\Composition', 'request_id'],
+        ];
+    }
+
+    public function getFormatLabel()
+    {
+        $formats = [
+            view\Request::FORMAT_SOLO => 'Сольное исполнение (без сопровождения)',
+            view\Request::FORMAT_MINUS => 'Сольное исполнение под минус',
+            view\Request::FORMAT_CONCERTMASTER => 'Сольное исполнение с концертмейстером',
+        ];
+        return !empty($this->format) ? $formats[$this->format] : '';
+    }
+
     public static function model($className = __CLASS__)
     {
         return parent::model($className);

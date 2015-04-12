@@ -10,20 +10,22 @@
 
 class ContestAdminController extends \admin\components\HAdminController
 {
+    public $defaultAction = 'list';
+
     /**
      * @return меню для табов
      */
     public function tabs()
     {
         return [
-            '' => 'Все видео',
+            'list' => 'Все видео',
             'update' => [
                 'name' => 'Редактирование видео',
                 'display' => 'whenActive',
             ],
             'create' => [
                 'name' => 'Добавить видео',
-                'display' => 'index',
+                'display' => 'list',
             ],
         ];
     }
@@ -31,7 +33,7 @@ class ContestAdminController extends \admin\components\HAdminController
     /**
      *  Выводит таблицу всех товаров
      */
-    public function actionIndex()
+    public function actionList()
     {
         $model = new \contest\models\Request('search');
         $model->unsetAttributes();
@@ -41,41 +43,45 @@ class ContestAdminController extends \admin\components\HAdminController
             $model->attributes = $attributes;
         }
 
-        $this->render('table', array(
-            'dataProvider' => $model->search(),
-            'options' => array(
+        $this->render('table', [
+            'dataProvider' => $model->with('musicians', 'compositions')->search(),
+            'options' => [
                 'filter' => $model,
-            ),
-            'columns' => array(
+            ],
+            'columns' => [
                 'name',
                 'type',
-                'format',
-                array(
+                [
+                    'name' => 'format',
+                    'value' => '$data->getFormatLabel()',
+                ],
+                [
+                    'name' => 'compositions',
+                    'type' => 'raw',
+                    'filter' => false,
+                    'value' => '$this->grid->owner->renderPartial("_composition_grid_cell", [
+                        "compositions" => $data->compositions
+                    ])',
+                ],
+                [
+                    'name' => 'musicians',
+                    'type' => 'raw',
+                    'filter' => false,
+                    'value' => '$this->grid->owner->renderPartial("_musician_grid_cell", [
+                        "musicians" => $data->musicians
+                    ])',
+                ],
+                [
+                    'name' => 'demos',
+                    'type' => 'raw',
+                    'filter' => false,
+                    'value' => '"<pre>".\CHtml::encode($data->demos)."</pre>"',
+                ],
+                [
+                    'class' => '\admin\components\grid\DateTimeColumn',
                     'name' => 'date_created',
-                    'type' => 'datetime',
-                    'filter' => $this->widget('zii.widgets.jui.CJuiDatePicker', array(
-                        'model' => $model,
-                        'attribute' => 'date_created', // TODO: _from
-                        'language' => 'ru',
-                        'defaultOptions' => array(
-                            'showOn' => 'focus',
-                            'showOtherMonths' => true,
-                            'selectOtherMonths' => true,
-                            'changeMonth' => true,
-                            'changeYear' => true,
-                            'showButtonPanel' => true,
-                            'autoSize' => true,
-                            'dateFormat' => "yy-mm-dd",
-                        ),
-                    ), true)
-                    .
-                    $this->widget('zii.widgets.jui.CJuiDatePicker', array(
-                        'model' => $model,
-                        'attribute' => 'date_created', // TODO: _to
-                        'language' => 'ru',
-                    ), true),
-                ),
-            ),
-        ));
+                ],
+            ],
+        ]);
     }
 }
