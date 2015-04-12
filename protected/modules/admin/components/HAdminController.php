@@ -65,22 +65,22 @@ class HAdminController extends \CController
     {
         if (!($viewFile = parent::getViewFile($viewName))) {
             $basePath = \Yii::app()->getViewPath();
-            if ($this->action instanceof \AdminAction) {
-                // попробуем поискать в admin вьюхах текущего модуля
-                // @property $this->action->id id текущего модуля, админ часть которого активна.
-                $moduleViewPath = \Yii::getPathOfAlias('application.modules.' . $this->action->id) . '/views';
-                $viewPath = $moduleViewPath . '/admin';
 
-                $themeBasePath = \Yii::app()->getTheme()->getViewPath();
-                $themeModuleViewPath = $themeBasePath . '/' . $this->action->id;
-                $themeViewPath = $themeModuleViewPath . '/admin';
+            // пробуем резолвить вьюхи относительно
+            // modules/[moduleId]/admin/views
+            // @var $this->id moduleId текущего модуля, админ часть которого активна.
+            $viewPath = \Yii::getPathOfAlias('application.modules.' . $this->id) . '/admin/views';
+            $moduleViewPath = $viewPath;
 
-                if (!($viewFile = $this->resolveViewFile($viewName, $themeViewPath, $themeBasePath, $themeModuleViewPath))) {
-                    $viewFile = $this->resolveViewFile($viewName, $viewPath, $basePath, $moduleViewPath);
-                }
-            } else {
-                // для обычных контроллеров модуля admin, в случае если в их директории нету нужной вьюхи,
-                // попробуем поискать ее во вьюхах контроллера AdminController
+            $themeBasePath = \Yii::app()->getTheme()->getViewPath();
+            $themeModuleViewPath = $themeBasePath . '/' . $this->action->id;
+            $themeViewPath = $themeModuleViewPath . '/admin';
+
+            $viewFile = $this->resolveViewFile($viewName, $viewPath, $basePath, $moduleViewPath);
+
+            if (!$viewFile) {
+                // fallback на modules/admin/views/admin
+
                 $moduleViewPath = $this->module->getViewPath();
                 $viewPath = $moduleViewPath . '/admin';
                 $viewFile = $this->resolveViewFile($viewName, $viewPath, $basePath, $moduleViewPath);
@@ -98,7 +98,7 @@ class HAdminController extends \CController
      */
     protected function tabs()
     {
-        return array();
+        return [];
     }
 
     /**
