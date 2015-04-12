@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "724da222c101934a99c1b1754dc3d5d5",
+    "hash": "f2301d6efb363a547459967263f4a075",
     "packages": [
         {
             "name": "eventviva/php-image-resize",
@@ -203,6 +203,45 @@
                 "minifier"
             ],
             "time": "2014-11-11 03:54:14"
+        },
+        {
+            "name": "yiiext/imperavi-redactor-widget",
+            "version": "v1.3.9",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/yiiext/imperavi-redactor-widget.git",
+                "reference": "e81689bad9eeb1e85e7a8cb78f7b5474b08d040a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/yiiext/imperavi-redactor-widget/zipball/e81689bad9eeb1e85e7a8cb78f7b5474b08d040a",
+                "reference": "e81689bad9eeb1e85e7a8cb78f7b5474b08d040a",
+                "shasum": ""
+            },
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "proprietary"
+            ],
+            "authors": [
+                {
+                    "name": "Veaceslav Medvedev",
+                    "email": "slavcopost@gmail.com"
+                },
+                {
+                    "name": "Alexander Makarov",
+                    "email": "sam@rmcreative.ru",
+                    "homepage": "http://rmcreative.ru/"
+                }
+            ],
+            "description": "Imperavi Redactor Widget for Yii",
+            "homepage": "https://github.com/yiiext/imperavi-redactor-widget",
+            "keywords": [
+                "impravi",
+                "wysiwyg",
+                "yii"
+            ],
+            "time": "2015-04-02 20:54:46"
         },
         {
             "name": "yiisoft/yii",
