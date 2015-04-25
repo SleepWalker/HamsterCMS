@@ -28,7 +28,13 @@ class VideoImage
             return '';
         }
 
-        return $thumbnails['maxres']['url'];
+        if (isset($thumbnails['medium']['url'])) {
+            // пока что medium достаточно для нас
+            return $thumbnails['medium']['url'];
+        } else {
+            return isset($thumbnails['maxres']['url']) ? $thumbnails['maxres']['url'] : $thumbnails['high']['url'];
+        }
+
     }
 
     protected function getThumbnails()

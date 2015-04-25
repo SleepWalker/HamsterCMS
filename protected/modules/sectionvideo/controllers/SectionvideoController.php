@@ -30,7 +30,7 @@ class SectionvideoController extends Controller
             echo CJSON::encode($data);
             Yii::app()->end();
         } else {
-        	$this->render('view', array(
+            $this->render('view', array(
                 'model' => $this->loadModel($id),
             ));
         }
@@ -42,15 +42,18 @@ class SectionvideoController extends Controller
         $criteria = new CDbCriteria();
 
         if (isset($_GET['tag'])) {
-            $criteria->addSearchCondition('tags', $_GET['tag']);
+            $criteria->compare('tags', $_GET['tag']);
         }
 
         if (isset($_GET['event'])) {
-            $criteria->addSearchCondition('event', $_GET['event']);
+            $criteria->compare('event', $_GET['event']);
         }
 
         if (isset($_GET['teacher'])) {
-            $criteria->addSearchCondition('teacher', $_GET['teacher']);
+            $criteria->distinct = true;
+            $criteria->join .= ' LEFT JOIN {{section_video_musicians}} vMusician ON vMusician.video_id = t.id';
+            $criteria->join .= ' LEFT JOIN {{section_teacher}} teacher ON teacher.id = vMusician.teacher_id';
+            $criteria->compare('teacher.id', $_GET['teacher'], false);
         }
 
         return new CActiveDataProvider(Video::model(), array(

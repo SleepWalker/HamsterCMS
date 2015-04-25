@@ -206,7 +206,11 @@
     <?= $form->labelEx($model, 'demos'); ?>
     <?= $form->textArea($model, 'demos', array('class' => 'form__input')); ?>
     <?= $form->error($model, 'demos'); ?>
-    <p class="note">Вы можете бесплатно загрузить свои записи на <a href="http://yotube.com">youtube.com</a> или <a href="http://ex.ua">ex.ua</a></p>
+    <p class="note">
+        Вы можете бесплатно загрузить свои записи на <a href="http://yotube.com">youtube.com</a>
+        или <a href="http://ex.ua">ex.ua</a>. Так же есть инструкция по
+        <?= CHtml::link('загрузке видео на youtube', ['/page/view', 'id' => 'how-to-youtube'], ['target' => '_blank']); ?>.
+    </p>
 </div>
 
 <div class="form__controls">
