@@ -103,6 +103,10 @@ abstract class HUpdateDb extends CDbMigration
             $oldV = '0';
         }
 
+        if (!in_array($newV, $this->verHistory())) {
+            throw new \Exception("There is no migration for $newV in {$this->moduleId} module");
+        }
+
         $updateMethods = $this->getUpdateMethodNames($oldV, $newV);
 
         $tr = $this->dbConnection->beginTransaction();
