@@ -28,88 +28,79 @@ if (!isset($buttons)) {
 }
 
 if (!isset($options)) {
-    $options = array();
+    $options = [];
 }
 
 if (isset($disableButtons) && $disableButtons) {
-    $buttons = array();
+    $buttons = [];
 } else {
-    $updateButton = array(
-        'update' => array(
-            //'label'=>'...',     // text label of the button
-            'url' => 'array("update", "id" => $data->primaryKey)', // a PHP expression for generating the URL of the button
+    $defaultButtons = [
+        'update' => [
+            'url' => '["update", "id" => $data->primaryKey]', // a PHP expression for generating the URL of the button
             'imageUrl' => $this->adminAssetsUrl . '/images/icon_edit.png', // image URL of the button. If not set or false, a text link is used
-            //'options'=>array(), // HTML options for the button tag
-            //'click'=>'...',     // a JS function to be invoked when the button is clicked
-            //'visible'=>'',   // a PHP expression for determining whether the button is visible
-        ),
-    );
-
-    $deleteButton = array(
-        'delete' => array(
+        ],
+        'delete' => [
             'imageUrl' => $this->adminAssetsUrl . '/images/icon_delete.png',
-            'url' => 'array("delete", "id" => $data->primaryKey)',
-        ),
-    );
-
-    $printButton = array(
-        'print' => array(
+            'url' => '["delete", "id" => $data->primaryKey]',
+        ],
+        'print' => [
             'imageUrl' => $this->adminAssetsUrl . '/images/icon_print.png',
-            'url' => 'array("print", "id" => $data->primaryKey)',
-        ),
-    );
-
-    $viewButton = array(
-        'view' => array(
+            'url' => '["print", "id" => $data->primaryKey]',
+        ],
+        'view' => [
             'url' => 'method_exists($data, "getViewUrl") ? $data->viewUrl : ""',
             'options' => array(
                 'target' => '_blank',
             ),
             'imageUrl' => $this->adminAssetsUrl . '/images/icon_view.png',
             'visible' => 'method_exists($data, "getViewUrl")',
-        ),
-    );
-
-    $moreButton = array(
-        'more' => array(
-            'url' => 'array("more", "id" => $data->primaryKey)',
+        ],
+        'more' => [
+            'url' => '["more", "id" => $data->primaryKey]',
             'imageUrl' => $this->adminAssetsUrl . '/images/icon_table.png',
-        ),
-    );
-
-    $okButton = array(
-        'ok' => array(
-            'url' => 'array("confirm", "id" => $data->primaryKey)',
+        ],
+        'ok' => [
+            'url' => '["confirm", "id" => $data->primaryKey]',
             'imageUrl' => $this->adminAssetsUrl . '/images/icon_ok.png',
-        ),
-    );
+        ],
+    ];
 
-    $buttArr = array();
-    $buttCol = array(
+    $buttArr = [];
+    $buttCol = [
         'class' => 'CButtonColumn',
-    );
+        'template' => '',
+    ];
 
-    $buttCol['template'] = '';
     foreach ($buttons as $buttonName => $button) {
-        $curButtonSettings = array();
-        if (is_array($button)) {
-            $curButtonSettings[$buttonName] = $button;
-            if (is_array(${$buttonName . 'Button'})) {
-                $curButtonSettings[$buttonName] = array_merge(
-                    ${$buttonName . 'Button'}[$buttonName],
-                    $curButtonSettings[$buttonName]
-                );
-            }
-            $button = $buttonName;
-        } else {
-            $curButtonSettings = ${$button . 'Button'};
+        if (is_string($button)) {
+            $buttonName = $button;
+            $button = [];
         }
 
-        $buttArr = array_merge(
-            $buttArr,
-            $curButtonSettings
-        );
-        $buttCol['template'] .= '{' . $button . '}';
+        if (isset($defaultButtons[$buttonName])) {
+            $button = \CMap::mergeArray(
+                $defaultButtons[$buttonName],
+                $button
+            );
+        }
+
+        if (empty($button)) {
+            throw new \Exception('Found empty button settings array');
+        }
+
+        if (isset($button['options']['ajax']) && $button['options']['ajax'] === true) {
+            // подсовываем свой ajax, который возьмет url из ссылки, вместо того, что у yii
+            $button['options']['data-ajax'] = '1';
+            unset($button['options']['ajax']);
+        }
+
+        if (isset($button['options']['confirmation'])) {
+            $buttCol['deleteConfirmation'] = $button['options']['confirmation'];
+            unset($button['options']['confirmation']);
+        }
+
+        $buttArr[$buttonName] = $button;
+        $buttCol['template'] .= '{' . $buttonName . '}';
     }
 
     $buttCol['buttons'] = $buttArr;
@@ -146,7 +137,6 @@ $defOpts = array(
     'beforeAjaxUpdate' => 'startLoad',
     'afterAjaxUpdate' => new \CJavaScriptExpression('function(){stopLoad();reinstallDatePicker();}'),
     'enableHistory' => true,
-    //'ajaxUpdate' => false,
 );
 
 if (isset($buttCol)) {
@@ -157,16 +147,32 @@ if (isset($preTable)) {
     echo $preTable;
 }
 
-$this->widget('zii.widgets.grid.CGridView', \CMap::mergeArray(
+$gridOptions = \CMap::mergeArray(
     $defOpts,
     $options
-));
+);
+
+$grid = $this->widget('zii.widgets.grid.CGridView', $gridOptions);
 
 // Script that reinitialises events on datepicker fields and sets deffault localisation
 // for this feature all parameters of datepicker must be set in 'defaultOptions'
 // and field with datepicker must be of class reinstallDatePicker
+// TODO: убрать отсюда в \admin\components\grid\DateTimeColumn
 \Yii::app()->clientScript->registerScript('re-install-date-picker', '
 function reinstallDatePicker() {
     $(".reinstallDatePicker").each(function(){$(this).datepicker($.datepicker.regional["' . \Yii::app()->language . '"])});
 }
 ');
+\Yii::app()->clientScript->registerScript('data-ajax', <<<SCRIPT
+    $('body').on('click', 'a[data-ajax]', function(event) {
+        event.preventDefault();
+
+        $.ajax({
+            type: 'get',
+            url: this.pathname+this.search
+        }).always(function() {
+            jQuery('#{$grid->id}').yiiGridView('update');
+        });
+    });
+SCRIPT
+);
