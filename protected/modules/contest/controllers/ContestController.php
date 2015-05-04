@@ -43,7 +43,7 @@ class ContestController extends \Controller
         $this->render('rules');
     }
 
-    protected function processModel(\contest\models\view\Request $model)
+    private function processModel(\contest\models\view\Request $model)
     {
         if ($this->postData) {
             if ($this->postData['type'] == \contest\models\view\Request::TYPE_GROUP) {
@@ -69,6 +69,7 @@ class ContestController extends \Controller
                     \contest\crud\RequestCrud::save($model);
                 } catch (\Exception $e) {
                     \Yii::app()->user->setFlash('error', 'Во время обработки заявки возникли не предвиденные ошибки. Пожалуйста попробуйте еще раз или свяжитесь с нами.');
+                    \Yii::log($e->getMessage(), \CLogger::LEVEL_ERROR);
                     $this->refresh();
                 }
                 $this->sendNotifications($model);
@@ -104,7 +105,7 @@ class ContestController extends \Controller
         }
     }
 
-    protected function sendNotifications($model)
+    private function sendNotifications($model)
     {
         // TODO: move into domain model
         foreach ($model->musicians as $musician) {

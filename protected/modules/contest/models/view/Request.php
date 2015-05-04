@@ -61,12 +61,10 @@ class Request extends \CFormModel
             }
         }
 
-        if ($validCount === 0) {
-            return $this->addError('musicians', 'Укажите информацию хотя бы об одном музыканте');
-        }
-
         if ($this->getScenario() == 'group' && $validCount < 2) {
             return $this->addError('musicians', 'В группе должно быть хотя бы два участника');
+        } elseif ($validCount === 0) {
+            return $this->addError('musicians', 'Укажите информацию хотя бы об одном музыканте');
         }
 
         if (!$hasContacts) {
@@ -84,6 +82,14 @@ class Request extends \CFormModel
         if (!$valid) {
             $this->addError('compositions', 'Пожалуйста, укажите обе композиции');
         }
+    }
+
+    public function setScenario($value)
+    {
+        foreach (array_merge($this->musicians, $this->compositions) as $model) {
+            $model->setScenario($value);
+        }
+        parent::setScenario($value);
     }
 
     /**

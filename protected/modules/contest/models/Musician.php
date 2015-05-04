@@ -38,7 +38,7 @@ class Musician extends \CActiveRecord
     public function rules()
     {
         return array(
-            array('request_id, first_name, last_name, birthdate, instrument', 'required'),
+            array('request_id, first_name, last_name, instrument', 'required'),
             array('request_id', 'length', 'max' => 11),
             array('first_name, last_name, school, class, teacher', 'length', 'max' => 128),
             array('email, instrument', 'length', 'max' => 64),
