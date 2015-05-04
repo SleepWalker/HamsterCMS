@@ -18,15 +18,7 @@ class ContestAdminController extends \admin\components\HAdminController
     public function tabs()
     {
         return [
-            'list' => 'Все видео',
-            'update' => [
-                'name' => 'Редактирование видео',
-                'display' => 'whenActive',
-            ],
-            'create' => [
-                'name' => 'Добавить видео',
-                'display' => 'list',
-            ],
+            'list' => 'Заявки',
         ];
     }
 
@@ -48,9 +40,21 @@ class ContestAdminController extends \admin\components\HAdminController
             'options' => [
                 'filter' => $model,
             ],
+            'buttons' => [
+                'ok' => [
+                    'url' => '["accept", "id" => $data->primaryKey]',
+                    'label' => 'Принять',
+                    'options' => ['ajax' => true],
+                ],
+                'delete' => [
+                    'url' => '["decline", "id" => $data->primaryKey]',
+                    'label' => 'Отклонить',
+                    'options' => ['confirmation' => false],
+                ],
+            ],
             'columns' => [
+                'id',
                 'name',
-                'type',
                 [
                     'name' => 'format',
                     'value' => '$data->getFormatLabel()',
@@ -78,10 +82,33 @@ class ContestAdminController extends \admin\components\HAdminController
                     'value' => '"<pre>".\CHtml::encode($data->demos)."</pre>"',
                 ],
                 [
+                    'name' => 'status',
+                    'filter' => $model->getStatusesList(),
+                    'value' => '$data->getStatusLabel()',
+                ],
+                [
                     'class' => '\admin\components\grid\DateTimeColumn',
                     'name' => 'date_created',
                 ],
             ],
         ]);
+    }
+
+    public function actionDecline($id)
+    {
+        try {
+            \contest\crud\RequestCrud::decline($id);
+        } catch (\Exception $e) {
+            throw new \CHttpException(503, $e->getMessage());
+        }
+    }
+
+    public function actionAccept($id)
+    {
+        try {
+            \contest\crud\RequestCrud::accept($id);
+        } catch (\Exception $e) {
+            throw new \CHttpException(503, $e->getMessage());
+        }
     }
 }

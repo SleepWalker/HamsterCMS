@@ -4,7 +4,7 @@ class UpdateDb extends HUpdateDb
 {
     public function verHistory()
     {
-        return array('1.1.0', '1.2.0');
+        return array('1.1.0', '1.2.0', '1.3.0');
     }
 
     /**
@@ -72,5 +72,13 @@ class UpdateDb extends HUpdateDb
 
         $this->addForeignKey('cotest_composition_request', '{{contest_composition}}', 'request_id', '{{contest_request}}', 'id');
         $this->addForeignKey('cotest_musician_request', '{{contest_musician}}', 'request_id', '{{contest_request}}', 'id');
+    }
+
+    /**
+     * Добавлен статус заявки
+     */
+    public function update1_3_0()
+    {
+        $this->addColumn('{{contest_request}}', 'status', 'TINYINT(1) NOT NULL DEFAULT 1 AFTER id');
     }
 }

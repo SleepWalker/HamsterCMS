@@ -55,4 +55,32 @@ class RequestCrud
             throw new \Exception('Error saving data', 0, $e);
         }
     }
+
+    public static function decline($pk)
+    {
+        $request = \contest\models\Request::model()->findByPk($pk);
+        if (!$request) {
+            throw new \Exception("Can't find request with id $pk");
+        }
+
+        $request->status = \contest\models\Request::STATUS_DECLINED;
+
+        if (!$request->save()) {
+            throw new \Exception('Error saving request: ' . var_export($request->getErrors(), true));
+        }
+    }
+
+    public static function accept($pk)
+    {
+        $request = \contest\models\Request::model()->findByPk($pk);
+        if (!$request) {
+            throw new \Exception("Can't find request with id $pk");
+        }
+
+        $request->status = \contest\models\Request::STATUS_ACCEPTED;
+
+        if (!$request->save()) {
+            throw new \Exception('Error saving request: ' . var_export($request->getErrors(), true));
+        }
+    }
 }

@@ -8,6 +8,7 @@
  * @property string $type
  * @property string $format
  * @property string $demos
+ * @property integer $status
  * @property string $date_created
  *
  * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
@@ -20,6 +21,10 @@ namespace contest\models;
 class Request extends \CActiveRecord
 {
     public $type = 'solo';
+
+    const STATUS_NEW = 1;
+    const STATUS_DECLINED = 2;
+    const STATUS_ACCEPTED = 3;
 
     /**
      * @return array validation rules for model attributes.
@@ -45,12 +50,31 @@ class Request extends \CActiveRecord
 
     public function getFormatLabel()
     {
-        $formats = [
+        if ($this->type == 'group') {
+            return 'Группа';
+        }
+
+        $map = [
             view\Request::FORMAT_SOLO => 'Сольное исполнение (без сопровождения)',
             view\Request::FORMAT_MINUS => 'Сольное исполнение под минус',
             view\Request::FORMAT_CONCERTMASTER => 'Сольное исполнение с концертмейстером',
         ];
-        return !empty($this->format) ? $formats[$this->format] : '';
+        return !empty($this->format) ? $map[$this->format] : '';
+    }
+
+    public function getStatusLabel()
+    {
+        $map = $this->getStatusesList();
+        return !empty($this->status) ? $map[$this->status] : 'Undefined';
+    }
+
+    public function getStatusesList()
+    {
+        return [
+            self::STATUS_NEW => 'Новая заявка',
+            self::STATUS_DECLINED => 'Отклонена',
+            self::STATUS_ACCEPTED => 'Принята',
+        ];
     }
 
     public static function model($className = __CLASS__)
