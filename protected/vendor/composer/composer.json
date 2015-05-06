@@ -16,6 +16,7 @@
         "zhuravljov/yii2-debug": "*",
         "google/apiclient": "~1.1",
         "eventviva/php-image-resize": "~1.2",
-        "yiiext/imperavi-redactor-widget": "~1.3"
+        "yiiext/imperavi-redactor-widget": "~1.3",
+        "mpdf/mpdf": "~6.0"
     }
 }
