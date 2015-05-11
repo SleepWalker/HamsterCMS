@@ -135,12 +135,12 @@ function parseCFormElements(&$form, $model, $params, $index = null)
         }
 
         if ($fieldType == 'translit' || $fieldType == 'translitUrl') {
-            $controller->widget('application.widgets.translit.TranslitWidget', array(
+            $fieldParams = [
+                'type' => '\application\widgets\translit\TranslitWidget',
                 'model' => $model,
                 'attribute' => $fieldName,
                 'urlMode' => $fieldType == 'translitUrl',
-            ));
-            $fieldParams['type'] = 'text';
+            ];
         }
 
         if (in_array($fieldType, array('autocomplete', 'tags'))) {

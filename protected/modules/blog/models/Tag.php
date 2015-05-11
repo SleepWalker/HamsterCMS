@@ -153,7 +153,7 @@ class Tag extends \CActiveRecord
 
     public function addTags($tags)
     {
-        $criteria = new CDbCriteria;
+        $criteria = new \CDbCriteria();
         $criteria->addInCondition('name', $tags);
         $this->updateCounters(array('frequency' => 1), $criteria);
         foreach ($tags as $name) {
@@ -172,7 +172,7 @@ class Tag extends \CActiveRecord
             return;
         }
 
-        $criteria = new CDbCriteria;
+        $criteria = new \CDbCriteria();
         $criteria->addInCondition('name', $tags);
         $this->updateCounters(array('frequency' => -1), $criteria);
         $this->deleteAll('frequency<=0');

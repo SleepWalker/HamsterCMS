@@ -166,6 +166,19 @@ http://stackoverflow.com/questions/1852223/mysql-keep-server-timezone-or-user-ti
     }
 
     /**
+     * Для надежности транслитерируем поле alias
+     */
+    public function beforeValidate()
+    {
+        if (parent::beforeValidate()) {
+            $this->alias = \Translit::url($this->alias);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      *  Обновляем даты
      *  Добавляем автора материала
      */

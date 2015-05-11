@@ -32,10 +32,10 @@ class BlogAdminController extends \admin\components\HAdminController
     /**
      * Создает или редактирует модель
      */
-    public function actionUpdate()
+    public function actionUpdate($id = null)
     {
-        if ($this->crudid) {
-            $model = \blog\models\Post::model()->findByPk($this->crudid);
+        if ($id) {
+            $model = \blog\models\Post::model()->findByPk($id);
         } else {
             $model = new \blog\models\Post();
         }
@@ -47,8 +47,8 @@ class BlogAdminController extends \admin\components\HAdminController
             \Yii::app()->end();
         }
 
-        if (isset($modelName)) {
-            $model->attributes = $modelName;
+        if (isset($_POST[$modelName])) {
+            $model->attributes = $_POST[$modelName];
 
             $model->save();
         }
@@ -127,11 +127,11 @@ class BlogAdminController extends \admin\components\HAdminController
      * If deletion is successful, the browser will be redirected to the 'admin' page.
      * @param integer $id the ID of the model to be deleted
      */
-    public function actionDelete()
+    public function actionDelete($id = null)
     {
         if (\Yii::app()->request->isPostRequest) {
             // we only allow deletion via POST request
-            $model = \blog\models\Post::model()->findByPk($this->crudid)->delete();
+            $model = \blog\models\Post::model()->findByPk($id)->delete();
         } else {
             throw new \CHttpException(400, 'Не правильный запрос. Пожалуйста не повторяйте этот запрос еще раз.');
         }
@@ -158,10 +158,10 @@ class BlogAdminController extends \admin\components\HAdminController
     /**
      * Создает или редактирует категорию
      */
-    public function actionCategorieUpdate()
+    public function actionCategorieUpdate($id = null)
     {
-        if (!empty($this->crudid) && $this->crud == 'update') {
-            $model = \blog\models\Categorie::model()->findByPk($this->crudid);
+        if (!empty($id) && $this->crud == 'update') {
+            $model = \blog\models\Categorie::model()->findByPk($id);
         } else {
             $model = new \blog\models\Categorie();
         }
@@ -219,11 +219,11 @@ $model->parent = $this->crudid;
     /**
      * Удаление категории
      */
-    public function actionCategorieDelete()
+    public function actionCategorieDelete($id = null)
     {
         if (\Yii::app()->user->checkAccess('admin')) {
             // we only allow deletion via POST request
-            $model = \blog\models\Categorie::model()->findByPk($this->crudid)->delete();
+            $model = \blog\models\Categorie::model()->findByPk($id)->delete();
         } else {
             throw new \CHttpException(400, 'Не правильный запрос. Пожалуйста не повторяйте этот запрос еще раз.');
         }
