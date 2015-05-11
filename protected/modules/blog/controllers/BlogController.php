@@ -7,7 +7,10 @@
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
-class BlogController extends Controller
+
+namespace blog\controllers;
+
+class BlogController extends \Controller
 {
     /**
      * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
@@ -52,7 +55,7 @@ array('deny',  // deny all users
      */
     protected function beforeAction($action)
     {
-        $this->menu = Categorie::model()->catsMenu;
+        $this->menu = \blog\models\Categorie::model()->catsMenu;
         return parent::beforeAction($action);
     }
 
@@ -69,7 +72,7 @@ array('deny',  // deny all users
 
     public function getIndexDataProvider()
     {
-        $criteria = new CDbCriteria();
+        $criteria = new \CDbCriteria();
 
         if (isset($_GET['tag'])) {
             $criteria->addSearchCondition('tags', $_GET['tag']);
@@ -79,7 +82,7 @@ array('deny',  // deny all users
             $criteria->addSearchCondition('cat.alias', $_GET['alias'], true);
         }
 
-        return new CActiveDataProvider(Post::model()->latest()->published()->with('cat', 'user'), array(
+        return new \CActiveDataProvider(\blog\models\Post::model()->latest()->published()->with('cat', 'user'), array(
             /*'pagination'=>array(
             'pageSize'=>Yii::app()->params['postsPerPage'],
             ),*/
@@ -112,15 +115,6 @@ array('deny',  // deny all users
     {
         $this->layout = '//layouts/rss';
 
-        // Отключаем CWebLogRoute
-        if (YII_DEBUG) {
-            foreach (Yii::app()->log->routes as $route) {
-                if ($route instanceof CWebLogRoute) {
-                    $route->enabled = false;
-                }
-            }
-        }
-
         $this->render('rss', array(
             'dataProvider' => $this->indexDataProvider,
         ));
@@ -133,9 +127,9 @@ array('deny',  // deny all users
      */
     public function loadModel($id)
     {
-        $model = Post::model()->with('cat', 'user')->findByAttributes(array('alias' => $id));
+        $model = \blog\models\Post::model()->with('cat', 'user')->findByAttributes(array('alias' => $id));
         if ($model === null) {
-            throw new CHttpException(404, 'The requested page does not exist.');
+            throw new \CHttpException(404, 'The requested page does not exist.');
         }
 
         return $model;
