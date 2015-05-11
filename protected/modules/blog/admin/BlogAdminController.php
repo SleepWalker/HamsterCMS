@@ -146,6 +146,9 @@ class BlogAdminController extends \admin\components\HAdminController
         ));
         $this->render('dragndrop', array(
             'models' => $models,
+            'actions' => [
+                'create' => $this->createUrl('categorieCreate'),
+            ],
             'attSindex' => 'sindex',
             'attParent' => 'parent',
             'attId' => 'id',
@@ -165,6 +168,7 @@ class BlogAdminController extends \admin\components\HAdminController
         } else {
             $model = new \blog\models\Categorie();
         }
+        $modelName = \CHtml::modelName($model);
 
         // AJAX валидация
         if (isset($_POST['ajax'])) {
@@ -172,8 +176,8 @@ class BlogAdminController extends \admin\components\HAdminController
             \Yii::app()->end();
         }
 
-        if (isset($_POST['Categorie'])) {
-            $model->attributes = $_POST['Categorie'];
+        if (isset($_POST[$modelName])) {
+            $model->attributes = $_POST[$modelName];
 /*
 if ($this->crud == 'create')
 {

@@ -7,6 +7,15 @@
  * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
+
+if (!isset($actions)) {
+    $actions = [];
+}
+
+$actions = \CMap::mergeArray([
+    'create' => $this->createUrl('create'),
+], $actions);
+
 foreach ($models as $model) {
     // Добавлем элемент в общий список
     $tree[ $model[$attId] ][0] = '<li sindex="' . $model[ $attSindex ] . '" id="row_' . $model[ $attId ] . '">';
@@ -38,7 +47,7 @@ if (isset($tree)) {
     echo '<p><i>Нет категорий</i></p>';
 }
 
-echo '<p>' . CHtml::link(CHtml::button('Добавить категорию'), $this->createUrl('create'), array('id' => 'addButton')) . '</p>';
+echo '<p>' . CHtml::link(CHtml::button('Добавить категорию'), $actions['create'], array('id' => 'addButton')) . '</p>';
 
 /***********************
 * #catTreeParse - строит дерево из массива

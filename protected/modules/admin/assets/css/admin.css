@@ -1331,3 +1331,21 @@ body .redactor_editor
   display:inline-block;
   margin-left: 15px;
 }
+
+
+/**
+ * jQuery UI
+ */
+.ui-dialog {
+  z-index: 999;
+}
+
+.ui-dialog .ui-button-icon-only .ui-icon {
+  /* Исправление иконки крестика в диалоге, которая поплыла, судя по всему из-за новой версии jQuery UI */
+  margin: -8px 0px 0px -9px;
+}
+
+.ui-dialog .ui-button-icon-only .ui-button-text {
+  /* Исправление иконки крестика в диалоге, которая поплыла, судя по всему из-за новой версии jQuery UI */
+  display: none;
+}

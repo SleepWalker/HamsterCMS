@@ -70,6 +70,14 @@ class Post extends \CActiveRecord
         return '{{blog}}';
     }
 
+    public function defaultScope()
+    {
+        $alias = $this->getTableAlias(true, false);
+        return array(
+            'order' => $alias . '.add_date DESC',
+        );
+    }
+
     /**
      * @return array validation rules for model attributes.
      */
