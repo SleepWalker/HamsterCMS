@@ -1,7 +1,7 @@
 (function($){
 	$.fn.fileUploader = function()
 	{
-	var d = document; 
+	var d = document;
 
 	$form = this.parents('form').eq(0);
 
@@ -29,19 +29,19 @@
  *
  ******************/
 // Check for the various File API support.
-if (window.File && window.FileReader && window.FileList && window.Blob) 
+if (window.File && window.FileReader && window.FileList && window.Blob)
 {
   // Great success! All the File APIs are supported.
-  
+
   var curFileId = 0;
-  
+
   var fileInputs = $('input[type="file"]');
 
   // Событие, которое производит инициализацию работы скрипта
   $('body').on('click', 'input[type="file"]', function()
   {
     if ($(this).attr('init')) return true; // Прерываем это событие, так как инициалиция уже проведена
-    
+
     var id = curFileId++;
     fileField = $(this);
     // Копия поля, которая будет использоваться при добавлении нового файлового поля
@@ -57,7 +57,7 @@ if (window.File && window.FileReader && window.FileList && window.Blob)
       	var ul = $('#files_cont_' + id);
 
       var files = evt.target.files; // FileList object
-      
+
       //Создаем еще одно поле загрузки
       if(fileField.prop('multiple') != '')
       	newFF.insertAfter(fileField);
@@ -74,9 +74,9 @@ if (window.File && window.FileReader && window.FileList && window.Blob)
           reader.onload = (function(theFile, k) {
           	return function(e) {
               // Render thumbnail.
-              
+
               var row = $(ul.children('li')[k]);
-              
+
               var img = new Image();
               img.src = e.target.result;
 
@@ -94,7 +94,7 @@ if (window.File && window.FileReader && window.FileList && window.Blob)
           // Read in the image file as a data URL.
           reader.readAsDataURL(f);
         }
-        
+
         output.push('<li><canvas width="100" height="100" style="background:#fff;" /><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
         	f.size, ' bytes',
         	'<a href="" class="icon_delete" fname="', f.name, '"></a></li>');
@@ -104,7 +104,7 @@ if (window.File && window.FileReader && window.FileList && window.Blob)
 $(this).attr('init', 1);
 });
   /*for (var i = 0; i < fileInputs.length; i++)
-  {   
+  {
     // Назначаем события
     setFileFieldEv(fileInputs[i], curFileId++);
   }*/
@@ -126,7 +126,7 @@ function setFileFieldEv(fileField, id)
     	var ul = $('#files_cont_' + id);
 
     var files = evt.target.files; // FileList object
-    
+
     //Создаем еще одно поле загрузки
     if(fileField.prop('multiple') != '')
     {
@@ -146,9 +146,9 @@ function setFileFieldEv(fileField, id)
         reader.onload = (function(theFile, k) {
         	return function(e) {
             // Render thumbnail.
-            
+
             var row = $(ul.children('li')[k]);
-            
+
             var img = new Image();
             img.src = e.target.result;
             img.onload = function()
@@ -165,7 +165,7 @@ function setFileFieldEv(fileField, id)
         // Read in the image file as a data URL.
         reader.readAsDataURL(f);
       }
-      
+
       output.push('<li><canvas width="100" height="100" style="background:#fff;" /><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
       	f.size, ' bytes',
       	'<a href="" class="icon_delete" fname="', f.name, '"></a></li>');
@@ -191,34 +191,34 @@ function scaleInside(img, width, height)
 
     // вешаем обработчик на уровень выше, что бы он всегда срабатывал после валидации формы
     $form.on('submit', 'form', startLoad);
-    
-    
+
+
     $('#submit').prop('name', 'ajaxSubmit');
-    
+
     $('<input type="hidden" name="ajaxIframe" value="1" />').insertAfter('#submit');
   }
 
   /**
    *  Создает iframe для транспорта
    **/
-   function createTransportFrame() 
+   function createTransportFrame()
    {
     // Создаем фрейм, через который мы будем общаться с сервером
     if(document.getElementById('upload_target')) return document.getElementById('upload_target');
-    
+
     var iframe = d.createElement('iframe');
     iframe.name = 'upload_target';
     iframe.id = 'upload_target';
     iframe.style.display = 'none';
     d.body.appendChild(iframe);
-    
-    iframe.onload = function() 
+
+    iframe.onload = function()
     {
       // При создании фрейма он загрузится с страницей типа about:blank и создаст событие. Игнорим его
       if(parent.upload_target.location.href == 'about:blank') return;
-      
+
       stopLoad();
-      
+
       // Проверяем, ответил ли сервер. Если ответил, обрабатываем ответ
       var answer = parent.upload_target.document.body.innerHTML;
       if (answer == '') return;
@@ -230,11 +230,11 @@ function scaleInside(img, width, height)
       	console.log(answer);
       	return;
       }
-      
+
       // функция parseAnswer находится во вьюхе админки update
       parseAnswer($form, JSONanswer);
     };
-    
+
     return iframe;
   }
 }
