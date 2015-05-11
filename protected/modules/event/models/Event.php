@@ -125,6 +125,19 @@ class Event extends \CActiveRecord
         $this->eventId = alphaID($this->id, false, 4);
     }
 
+    protected function beforeSave()
+    {
+        if (parent::beforeSave()) {
+            if (empty($this->end_date)) {
+                $this->end_date = new \CDbExpression('NULL');
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * Исчет мероприятие по его коду
      * @param string $id код мероприятия
@@ -192,13 +205,13 @@ class Event extends \CActiveRecord
         $utc0 = new \DateTimeZone('Etc/GMT');
         $datetime = new \DateTime($this->start_date);
         $datetime->setTimezone($utc0);
-        $this->start_date = $datetime->format('Y-m-d H:i:s');
+        $start_date = $datetime->format('Y-m-d H:i:s');
 
         $datetime = new \DateTime($this->end_date);
         $datetime->setTimezone($utc0);
-        $this->end_date = $datetime->format('Y-m-d H:i:s');
+        $end_date = $datetime->format('Y-m-d H:i:s');
 
-        $dates = date('Ymd\THis\Z', strtotime($this->start_date)) . '/' . date('Ymd\THis\Z', strtotime($this->end_date));
+        $dates = date('Ymd\THis\Z', strtotime($start_date)) . '/' . date('Ymd\THis\Z', strtotime($end_date));
         $params = array(
             'action' => 'TEMPLATE',
             'text' => $this->name,
