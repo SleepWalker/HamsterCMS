@@ -19,6 +19,7 @@ class ContestAdminController extends \admin\components\HAdminController
     {
         return [
             'list' => 'Заявки',
+            'export' => 'Экспорт',
         ];
     }
 
@@ -110,5 +111,19 @@ class ContestAdminController extends \admin\components\HAdminController
         } catch (\Exception $e) {
             throw new \CHttpException(503, $e->getMessage());
         }
+    }
+
+    public function actionExport()
+    {
+        $requests = \contest\crud\RequestCrud::findAll();
+
+        $html = $this->renderPartial('export', [
+            'requests' => $requests,
+        ], true);
+
+        $mpdf = new \mPDF();
+        $mpdf->WriteHTML($html);
+        $mpdf->Output();
+        \Yii::app()->end();
     }
 }

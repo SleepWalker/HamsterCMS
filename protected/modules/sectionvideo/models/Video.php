@@ -79,7 +79,7 @@ class Video extends \CActiveRecord
                 'class' => 'HRatingBehavior',
             ),
             'HTag' => array(
-                'class' => 'HTagBehavior',
+                'class' => '\hamster\components\HTagBehavior',
             ),
             'HtmlEncode' => array(
                 'class' => 'HtmlEncodeBehavior',

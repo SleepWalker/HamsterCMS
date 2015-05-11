@@ -32,6 +32,21 @@ class Musician extends \CActiveRecord
         return '{{contest_musician}}';
     }
 
+    public function getFullName()
+    {
+        // TODO: убрать в модель DM
+        return implode(' ', [
+            $this->first_name,
+            $this->last_name,
+        ]);
+    }
+
+    public function getAge()
+    {
+        // TODO: убрать в модель DM
+        return (int)date('Y')-(int)date('Y', strtotime($this->birthdate));
+    }
+
     /**
      * @return array validation rules for model attributes.
      */
@@ -43,6 +58,7 @@ class Musician extends \CActiveRecord
             array('first_name, last_name, school, class, teacher', 'length', 'max' => 128),
             array('email, instrument', 'length', 'max' => 64),
             array('phone', 'length', 'max' => 25),
+            ['birthdate', 'safe'],
         );
     }
 

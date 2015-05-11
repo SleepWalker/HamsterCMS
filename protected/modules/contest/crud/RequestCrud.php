@@ -56,6 +56,11 @@ class RequestCrud
         }
     }
 
+    public static function findAll()
+    {
+        return \contest\models\Request::model()->with('compositions', 'musicians')->findAll();
+    }
+
     public static function decline($pk)
     {
         $request = \contest\models\Request::model()->findByPk($pk);
