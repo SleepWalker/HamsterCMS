@@ -10,107 +10,94 @@
 
 class EventAdminController extends \admin\components\HAdminController
 {
-  /**
-	 * @return меню для табов
-	 */
-  public function tabs() {
-    return array(
-      ''  => 'Все мероприятия',
-      'update'  => array(
-        'name' => 'Редактирование мероприятия',
-        'display' => 'whenActive',
-      ),
-      'create'  => array(
-        'name' => 'Добавить мероприятие',
-        'display' => 'index',
-      ),
-    );
-  }
+    /**
+     * @return меню для табов
+     */
+    public function tabs()
+    {
+        return array(
+            'index' => 'Все мероприятия',
+            'update' => array(
+                'name' => 'Редактирование мероприятия',
+                'display' => 'whenActive',
+            ),
+            'create' => array(
+                'name' => 'Добавить мероприятие',
+                'display' => 'index',
+            ),
+        );
+    }
 
+    /**
+     * Создает или редактирует модель
+     */
+    public function actionUpdate()
+    {
+        if ($this->crudid) {
+            $model = \event\models\Event::model()->findByPk($this->crudid);
+        } else {
+            $model = new \event\models\Event;
+        }
 
+        $modelName = \CHtml::modelName($model);
 
-  /**
-	 * Создает или редактирует модель
-	 */
-  public function actionUpdate()
-  {
-    if ($this->crudid)
-      $model=Event::model()->findByPk($this->crudid);
-    else
-      $model = new Event;
+        // AJAX валидация
+        if (isset($_POST['ajax'])) {
+            echo \CActiveForm::validate($model);
+            \Yii::app()->end();
+        }
 
-    // AJAX валидация
-		if(isset($_POST['ajax']))
-		{
-      echo CActiveForm::validate($model);
-			Yii::app()->end();
-		}
+        if (isset($_POST[$modelName])) {
+            $model->attributes = $_POST[$modelName];
 
-		if(isset($_POST['Event']))
-		{
+            $model->save();
+        }
 
-			$model->attributes=$_POST['Event'];
+        $this->renderForm($model);
+    }
 
-      $model->save();
-		}
+    /**
+     * Перенаправляет обработку запроса на действие Update
+     */
+    public function actionCreate()
+    {
+        $this->actionUpdate();
+    }
 
-    $this->renderForm($model);
-  }
+    /**
+     *  Выводит таблицу всех товаров
+     */
+    public function actionIndex()
+    {
+        $this->render('table', array(
+            'dataProvider' => new \CActiveDataProvider('\event\models\Event'),
+            'columns' => array(
+                'eventId',
+                'name',
+                'where',
+                array(
+                    'name' => 'start_date',
+                    'type' => 'datetime',
+                ),
+                array(
+                    'name' => 'end_date',
+                    'type' => 'datetime',
+                ),
+            ),
+        ));
+    }
 
-  /**
-	 * Перенаправляет обработку запроса на действие Update
-	 */
-  public function actionCreate()
-  {
-    $this->actionUpdate();
-  }
+    /**
+     * Deletes a particular model.
+     * If deletion is successful, the browser will be redirected to the 'admin' page.
+     * @param integer $id the ID of the model to be deleted
+     */
+    public function actionDelete()
+    {
+        if (!\Yii::app()->request->isPostRequest || !\event\models\Event::model()->deleteByPk($this->crudid)) {
+            throw new \CHttpException(400, 'Не правильный запрос. Пожалуйста не повторяйте этот запрос еще раз.');
+        }
 
-  /**
-   *  Выводит таблицу всех товаров
-   */
-  public function actionIndex()
-  {
-		$this->render('table', array(
-			'dataProvider'=> new CActiveDataProvider('Event'),
-      'columns'=>array(
-        'eventId',
-        'name',
-        'where',
-        array(
-          'name' => 'start_date',
-          'type' => 'datetime',
-        ),
-        array(
-          'name' => 'end_date',
-          'type' => 'datetime',
-        ),
-      ),
-		));
-  }
-
-	/**
-	 * Deletes a particular model.
-	 * If deletion is successful, the browser will be redirected to the 'admin' page.
-	 * @param integer $id the ID of the model to be deleted
-	 */
-	public function actionDelete()
-	{
-    if(!Yii::app()->request->isPostRequest || !Event::model()->deleteByPk($this->crudid))
-			throw new CHttpException(400,'Не правильный запрос. Пожалуйста не повторяйте этот запрос еще раз.');
-    Yii:app()->end();
-	}
-
-  /**
-   *  @return array JSON массив для jQuery UI AutoComplete
-   */
-  public function actionActags()
-  {
-    $tag = Tag::model()->string2array($_GET['term']); // работаем только с последним тегом из списка
-    $tagsArr = Tag::model()->suggestTags(array_pop($tag));
-    array_walk($tagsArr, function (&$value, $index) {
-      $value = '"' . $value . '"';
-    });
-    echo '[' . implode(', ', $tagsArr) . ']';
-  }
+        \Yii::app()->end();
+    }
 }
-?>

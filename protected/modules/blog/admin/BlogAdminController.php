@@ -39,6 +39,7 @@ class BlogAdminController extends \admin\components\HAdminController
         } else {
             $model = new \blog\models\Post();
         }
+        $modelName = \CHtml::modelName($model);
 
         // AJAX валидация
         if (isset($_POST['ajax'])) {
@@ -46,8 +47,8 @@ class BlogAdminController extends \admin\components\HAdminController
             \Yii::app()->end();
         }
 
-        if (isset($_POST['Post'])) {
-            $model->attributes = $_POST['Post'];
+        if (isset($modelName)) {
+            $model->attributes = $modelName;
 
             $model->save();
         }

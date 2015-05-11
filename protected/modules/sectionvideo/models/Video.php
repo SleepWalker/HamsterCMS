@@ -23,9 +23,7 @@ use \CActiveDataProvider;
 use \CDbCriteria;
 use \CHtml;
 use \CJavaScriptExpression;
-use \Event;
-//use application\modules\event\models\Event as Event;
-\Yii::import('application.modules.event.models.Event');
+use \event\models\Event;
 use \Yii;
 
 class Video extends \CActiveRecord

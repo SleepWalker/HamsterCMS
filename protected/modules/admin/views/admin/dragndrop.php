@@ -83,7 +83,7 @@ function renderIcons($controller, $id, $model)
     return $html;
 }
 
-$this->widget('hamster.extensions.jui.AjaxDialogWidget', array(
+$this->widget('ext.jui.AjaxDialogWidget', array(
     'id'=>'dnd',
     'selectors' => array(
         '#dnd a.icon_edit',
