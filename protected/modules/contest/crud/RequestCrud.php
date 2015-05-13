@@ -11,7 +11,7 @@ namespace contest\crud;
 
 class RequestCrud
 {
-    public static function save(\contest\models\view\Request $request)
+    public static function create(\contest\models\view\Request $request)
     {
         $transaction = \Yii::app()->db->beginTransaction();
         try {
@@ -56,9 +56,19 @@ class RequestCrud
         }
     }
 
+    public static function findByPk($pk)
+    {
+        return \contest\models\Request::model()->with('compositions', 'musicians')->findByPk($pk);
+    }
+
     public static function findAll()
     {
         return \contest\models\Request::model()->with('compositions', 'musicians')->findAll();
+    }
+
+    public static function findAccepted()
+    {
+        return \contest\models\Request::model()->with('compositions', 'musicians')->findAll('status = ' . \contest\models\Request::STATUS_ACCEPTED);
     }
 
     public static function decline($pk)

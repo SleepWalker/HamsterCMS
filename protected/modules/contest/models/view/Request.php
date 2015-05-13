@@ -9,13 +9,15 @@ namespace contest\models\view;
 
 class Request extends \CFormModel
 {
+    public $id;
+
     public $type = 'solo';
     public $format = self::FORMAT_SOLO;
     public $name;
     public $demos;
 
-    private $_musicians;
-    private $_compositions;
+    private $_musicians = [];
+    private $_compositions = [];
 
     const MAX_COMPOSITIONS = 2;
     const MAX_MUSICIANS = 7;
@@ -26,6 +28,13 @@ class Request extends \CFormModel
 
     const TYPE_GROUP = 'group';
     const TYPE_SOLO = 'solo';
+
+    public function __construct()
+    {
+        $this->init();
+        $this->attachBehaviors($this->behaviors());
+        $this->afterConstruct();
+    }
 
     /**
      * @return array validation rules for model attributes.
@@ -149,7 +158,7 @@ class Request extends \CFormModel
 
     public function getMusicians()
     {
-        if (!isset($this->_musicians)) {
+        if (empty($this->_musicians)) {
             $musicians = [];
             for ($i = 0; $i < self::MAX_MUSICIANS; $i++) {
                 $musicians[] = new Musician();
@@ -162,7 +171,7 @@ class Request extends \CFormModel
 
     public function getCompositions()
     {
-        if (!isset($this->_compositions)) {
+        if (empty($this->_compositions)) {
             $compositions = [];
             for ($i = 0; $i < self::MAX_COMPOSITIONS; $i++) {
                 $compositions[] = new Composition();
@@ -171,5 +180,21 @@ class Request extends \CFormModel
         }
 
         return $this->_compositions;
+    }
+
+    public function addMusician(array $attributes)
+    {
+        $model = new \contest\models\view\Musician();
+
+        $model->setAttributes($attributes, false);
+        array_push($this->_musicians, $model);
+    }
+
+    public function addComposition(array $attributes)
+    {
+        $model = new \contest\models\view\Composition();
+
+        $model->setAttributes($attributes, false);
+        array_push($this->_compositions, $model);
     }
 }

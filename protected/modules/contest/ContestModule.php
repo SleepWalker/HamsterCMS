@@ -12,6 +12,15 @@ class ContestModule extends CWebModule
 {
     public $controllerNamespace = '\contest\controllers';
 
+    public function init()
+    {
+        $this->setComponents([
+            'mailer' => [
+                'class' => '\contest\components\Mailer',
+            ],
+        ]);
+    }
+
     public function getAdminEmail()
     {
         return isset($this->params['adminEmail']) ? $this->params['adminEmail'] : Yii::app()->params['adminEmail'];

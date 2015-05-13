@@ -25,11 +25,11 @@ class MdViewRenderer extends \CViewRenderer
     {
         $text = file_get_contents($sourceFile);
 
-        $md = new \CMarkdownParser();
-        $text = $md->safeTransform($text);
-
         // replacing {{var_name}} -> <?= $var_name ? >
         $text = preg_replace('/\{\{([^\{]+)\}\}/', '<?= \$$1 ?>', $text);
+
+        $md = new \CMarkdownParser();
+        $text = $md->transform($text);
 
         file_put_contents($viewFile, $text);
     }

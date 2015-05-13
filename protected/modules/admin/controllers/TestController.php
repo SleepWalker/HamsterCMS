@@ -11,6 +11,13 @@ namespace admin\controllers;
 
 class TestController extends \admin\components\HAdminController
 {
+    public function tabs()
+    {
+        return [
+            'mpdf' => 'mpdf',
+            'md' => 'md',
+        ];
+    }
     public function filters()
     {
         return [
@@ -38,13 +45,24 @@ class TestController extends \admin\components\HAdminController
     public function actionMpdf()
     {
         if (\Yii::app()->request->isPostRequest) {
-            $html = \Yii::app()->request->getPost('html');
+            $code = \Yii::app()->request->getPost('code');
             $mpdf = new \mPDF();
-            $mpdf->WriteHTML($html);
+            $mpdf->WriteHTML($code);
             $mpdf->Output();
             \Yii::app()->end();
         } else {
-            $this->render('mpdf');
+            $this->render('code');
+        }
+    }
+
+    public function actionMd()
+    {
+        if (\Yii::app()->request->isPostRequest) {
+            $code = \Yii::app()->request->getPost('code');
+            echo (new \CMarkdownParser())->transform($code);
+            \Yii::app()->end();
+        } else {
+            $this->render('code');
         }
     }
 }

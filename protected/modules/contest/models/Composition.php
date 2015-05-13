@@ -39,6 +39,11 @@ class Composition extends \CActiveRecord
         );
     }
 
+    public function getFullName()
+    {
+        return $this->author . ' — ' . $this->title;
+    }
+
     /**
      * @return array relational rules.
      */

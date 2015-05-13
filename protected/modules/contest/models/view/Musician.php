@@ -9,6 +9,8 @@ namespace contest\models\view;
 
 class Musician extends \CFormModel
 {
+    public $id;
+
     public $first_name;
     public $last_name;
     public $birthdate;

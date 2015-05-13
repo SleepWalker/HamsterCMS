@@ -4,7 +4,7 @@ class UpdateDb extends HUpdateDb
 {
     public function verHistory()
     {
-        return array('1.1.0', '1.2.0', '1.3.0');
+        return array('1.1.0', '1.2.0', '1.3.0', '1.4.0');
     }
 
     /**
@@ -80,5 +80,13 @@ class UpdateDb extends HUpdateDb
     public function update1_3_0()
     {
         $this->addColumn('{{contest_request}}', 'status', 'TINYINT(1) NOT NULL DEFAULT 1 AFTER id');
+    }
+
+    /**
+     * Добавлен статус заявки
+     */
+    public function update1_4_0()
+    {
+        $this->addColumn('{{contest_request}}', 'meta', 'TEXT NULL AFTER status');
     }
 }

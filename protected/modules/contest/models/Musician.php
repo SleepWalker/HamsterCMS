@@ -64,7 +64,11 @@ class Musician extends \CActiveRecord
 
     protected function beforeSave()
     {
-        $this->birthdate = date('Y-m-d', strtotime($this->birthdate));
+        if (preg_match('/\d{2}\.\d{2}\.\d{4}/', $this->birthdate)) {
+            $this->birthdate = implode('-', array_reverse(explode('.', $this->birthdate)));
+        } elseif (!preg_match('/\d{4}\-\d{2}\-\d{2}/', $this->birthdate)) {
+            throw new \Exception('Unsupported date format: ' . $this->birthdate);
+        }
 
         return parent::beforeSave();
     }

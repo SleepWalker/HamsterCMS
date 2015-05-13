@@ -5,7 +5,6 @@
  * In the same time it's supports fallback to YiiMail::send() method of yii-mailer (but ignores second, optional arg)
  *
  * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @package    contest.controllers
  * @copyright  Copyright &copy; 2015 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
@@ -28,6 +27,10 @@ class Mailer extends \CApplicationComponent
     {
         if ($params instanceof \YiiMailMessage) {
             return $this->mailer->send($params);
+        }
+
+        if (!isset($params['subject'])) {
+            throw new \Exception('The subject is required');
         }
 
         $params = $this->normalizeParams($params);

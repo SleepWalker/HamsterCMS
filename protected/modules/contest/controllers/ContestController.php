@@ -43,6 +43,79 @@ class ContestController extends \Controller
         $this->render('rules');
     }
 
+    public function actionConfirm()
+    {
+        $this->pageTitle = 'Страница финалиста - ' . \Yii::app()->name;
+
+        // TODO: переместить как параметры экшена, когда роутер позволит это
+        $id = \Yii::app()->request->getParam('id');
+        $key = \Yii::app()->request->getParam('key');
+        if (!$id || !$key) {
+            throw new \CHttpException(404, 'Not found');
+        }
+
+        $request = \contest\crud\RequestCrud::findByPk($id);
+        if (!$request || !$request->isValidConfirmationKey($key)) {
+            $this->redirect('/');
+        }
+
+        $requestViewModel = $request->getViewModel();
+
+        $model = $request->getConfirmViewModel();
+        $modelName = \CHtml::modelName($model);
+
+        if (($data = \Yii::app()->request->getPost($modelName)) && $this->postData) {
+            $this->feedRequest($requestViewModel);
+            $model->attributes = $data;
+
+            if ($model->validate() && $requestViewModel->validate()) {
+                $transaction = \Yii::app()->db->beginTransaction();
+                try {
+                    // TODO: confirm should be moved to DM
+                    $request->confirm($key, $model);
+
+                    $request->name = $requestViewModel->name;
+
+                    // TODO: DDD - это боль. отрефактори и это, заодно
+                    foreach ($requestViewModel->compositions as $index => $composition) {
+                        $compositionRecord = $request->compositions[$index];
+                        $compositionRecord->attributes = $composition->attributes;
+                        if (!$compositionRecord->save()) {
+                            throw new \Exception('Error saving composition: ' . var_export($request->errors, true));
+                        }
+                    }
+
+                    foreach ($requestViewModel->musicians as $index => $musician) {
+                        $musicianRecord = $request->musicians[$index];
+                        $musicianRecord->attributes = $musician->attributes;
+                        if (!$musicianRecord->save()) {
+                            throw new \Exception('Error saving musician: ' . var_export($request->errors, true));
+                        }
+                    }
+
+                    // TODO
+                    // \contest\crud\RequestCrud::save($request);
+                    if (!$request->save()) {
+                        throw new \Exception('Error saving: ' . var_export($request->errors, true));
+                    }
+
+                    \Yii::app()->user->setFlash('success', 'Спасибо, ваши данные успешно обработаны!');
+                    $transaction->commit();
+                } catch (\Exception $e) {
+                    $transaction->rollBack();
+                    \Yii::app()->user->setFlash('error', 'Возникла не предвиденная ошибка! Пожалуйста, свяжитесь с нами.');
+                    \Yii::log('Error while confirming request: ' . $e->getMessage(), \CLogger::LEVEL_ERROR);
+                }
+                $this->refresh();
+            }
+        }
+
+        $this->render('confirm', [
+            'model' => $model,
+            'request' => $requestViewModel,
+        ]);
+    }
+
     private function processModel(\contest\models\view\Request $model)
     {
         if ($this->postData) {
@@ -52,7 +125,7 @@ class ContestController extends \Controller
                 $model->scenario = 'solo';
             }
 
-            $this->feedModels($model);
+            $this->feedRequest($model);
 
             if (\Yii::app()->request->isAjaxRequest && \Yii::app()->request->getPost('ajaxValidation')) {
                 echo \CActiveForm::validate(array_merge(
@@ -66,12 +139,13 @@ class ContestController extends \Controller
 
             if ($model->validate()) {
                 try {
-                    \contest\crud\RequestCrud::save($model);
+                    \contest\crud\RequestCrud::create($model);
                 } catch (\Exception $e) {
                     \Yii::app()->user->setFlash('error', 'Во время обработки заявки возникли не предвиденные ошибки. Пожалуйста попробуйте еще раз или свяжитесь с нами.');
                     \Yii::log($e->getMessage(), \CLogger::LEVEL_ERROR);
                     $this->refresh();
                 }
+
                 $this->sendNotifications($model);
 
                 return true;
@@ -88,7 +162,7 @@ class ContestController extends \Controller
         return \Yii::app()->request->getPost($modelName);
     }
 
-    private function feedModels($model)
+    private function feedRequest(\contest\models\view\Request $model)
     {
         $model->attributes = \Yii::app()->request->getPost(\CHtml::modelName($model), []);
 
@@ -107,26 +181,15 @@ class ContestController extends \Controller
 
     private function sendNotifications($model)
     {
-        // TODO: move into domain model
-        foreach ($model->musicians as $musician) {
-            if (!empty($musician->email)) {
-                \Yii::app()->mail->send(array(
-                    'to' => $musician->email,
-                    'subject' => 'Заявка на участие в конкурсе',
-                    'view' => 'user_new_request',
-                    'viewData' => $musician->attributes,
-                ));
-            }
-        }
+        $this->module->mailer->notifyMusicians($model, [
+            'subject' => 'Заявка на участие в конкурсе',
+            'view' => 'user_new_request',
+        ]);
 
-        $adminEmail = $this->module->getAdminEmail();
-        if (!empty($adminEmail)) {
-            \Yii::app()->mail->send(array(
-                'to' => $adminEmail,
-                'subject' => 'Новая заявка на участие в конкурсе',
-                'view' => 'admin_new_request',
-                'viewData' => $model->attributes,
-            ));
-        }
+        $this->module->mailer->notifyAdmin([
+            'subject' => 'Новая заявка на участие в конкурсе',
+            'view' => 'admin_new_request',
+            'viewData' => $model->attributes,
+        ]);
     }
 }

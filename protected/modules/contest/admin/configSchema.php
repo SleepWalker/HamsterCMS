@@ -18,7 +18,7 @@ return array(
             'title' => 'Конкурсы',
             'description' => 'Модуль для управления конкурсами',
             'db' => array(
-                'version' => '1.3.0',
+                'version' => '1.4.0',
                 'tables' => array(
                     'contest_request',
                     'contest_musician',
@@ -29,6 +29,7 @@ return array(
                 'contest/apply',
                 'contest/rules',
                 'contest/success',
+                'contest/confirm',
             ),
         ),
     ),

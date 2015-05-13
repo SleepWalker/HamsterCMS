@@ -1,1 +1,0 @@
-<?= CHtml::link('mpdf', ['mpdf']) ?>

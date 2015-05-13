@@ -20,6 +20,7 @@ class ContestAdminController extends \admin\components\HAdminController
         return [
             'list' => 'Заявки',
             'export' => 'Экспорт',
+            'mailing' => 'Рассылки',
         ];
     }
 
@@ -125,5 +126,20 @@ class ContestAdminController extends \admin\components\HAdminController
         $mpdf->WriteHTML($html);
         $mpdf->Output();
         \Yii::app()->end();
+    }
+
+    public function actionMailing()
+    {
+        if (\Yii::app()->request->getPost('sendConfirm')) {
+            try {
+                \Yii::app()->getModule('contest')->mailer->sendConfirmations();
+                \Yii::app()->user->setFlash('success', 'Письма разосланы!');
+            } catch (\Exception $e) {
+                \Yii::app()->user->setFlash('error', 'Во время рассылки произошла не предвиденная ошибка: ' . $e->getMessage());
+            }
+            $this->refresh();
+        }
+
+        $this->render('mailing');
     }
 }

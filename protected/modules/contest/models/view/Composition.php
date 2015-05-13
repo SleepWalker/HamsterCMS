@@ -9,6 +9,8 @@ namespace contest\models\view;
 
 class Composition extends \CFormModel
 {
+    public $id;
+
     public $author;
     public $title;
     public $duration;

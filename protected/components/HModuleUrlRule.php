@@ -257,42 +257,45 @@ class HModuleUrlRule extends \CBaseUrlRule
             $lastParam = end($actionParams);
 
             // если у последнего параметра есть значение по умолчанию проверяем, нет ли там регулярного выражение для параметров
-            if ($lastParam->isDefaultValueAvailable() && $lastParam->getName() == '_pattern') {
-                array_pop($actionParams); // удаляем элемент _pattern
-                $_pattern = $lastParam->getDefaultValue();
+            if ($lastParam->isDefaultValueAvailable()) {
+                if ($lastParam->getName() == '_pattern') {
+                    array_pop($actionParams); // удаляем элемент _pattern
+                    $_pattern = $lastParam->getDefaultValue();
 
-                // тут идет кусок сокращенного и немного переделанного кода конструктора CUrlRule
-                // =========================
-                if (preg_match_all('/<(\w+):?(.*?)?>/', $_pattern, $matches)) {
-                    $tr['/'] = '\\/';
-                    $tokens = array_combine($matches[1], $matches[2]);
-                    foreach ($tokens as $name => $value) {
-                        if ($value === '') {
-                            $value = '[^\/]+';
+                    // тут идет кусок сокращенного и немного переделанного кода конструктора CUrlRule
+                    // =========================
+                    if (preg_match_all('/<(\w+):?(.*?)?>/', $_pattern, $matches)) {
+                        $tr['/'] = '\\/';
+                        $tokens = array_combine($matches[1], $matches[2]);
+                        foreach ($tokens as $name => $value) {
+                            if ($value === '') {
+                                $value = '[^\/]+';
+                            }
+
+                            $tr["<$name>"] = "(?P<$name>$value)";
                         }
+                    }
 
-                        $tr["<$name>"] = "(?P<$name>$value)";
+                    $template = preg_replace('/<(\w+):?.*?>/', '<$1>', $_pattern);
+                    $pattern = '/^' . strtr($template, $tr) . '$/u';
+
+                    if (YII_DEBUG && @preg_match($pattern, 'test') === false) {
+                        throw new \CException(\Yii::t('yii', 'The URL pattern "{pattern}" for action "{action}" is not a valid regular expression.', array(
+                            '{action}' => $actionId,
+                            '{pattern}' => $pattern,
+                        )));
+                    }
+
+                    // =========================
+                    // конец куска кода CUrlRule
+
+                    // проводим валидацию параметров
+                    if (!preg_match($pattern, implode('/', $urlParts))) {
+                        return false;
                     }
                 }
-
-                $template = preg_replace('/<(\w+):?.*?>/', '<$1>', $_pattern);
-                $pattern = '/^' . strtr($template, $tr) . '$/u';
-
-                if (YII_DEBUG && @preg_match($pattern, 'test') === false) {
-                    throw new \CException(\Yii::t('yii', 'The URL pattern "{pattern}" for action "{action}" is not a valid regular expression.', array(
-                        '{action}' => $actionId,
-                        '{pattern}' => $pattern,
-                    )));
-                }
-
-                // =========================
-                // конец куска кода CUrlRule
-
-                // проводим валидацию параметров
-                if (!preg_match($pattern, implode('/', $urlParts))) {
-                    return false;
-                }
-
+            } elseif (count($urlParts) != count($actionParams)) {
+                return false;
             }
 
             // Добавляем параметры в $_GET
