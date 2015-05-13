@@ -16,18 +16,19 @@ class Mailer extends \CApplicationComponent
         $success = true;
         foreach ($request->musicians as $musician) {
             if (!empty($musician->email)) {
-                if (isset($options['viewData'])) {
-                    $viewData = $options['viewData'];
+                $curOptions = $options;
+                if (isset($curOptions['viewData'])) {
+                    $viewData = $curOptions['viewData'];
 
                     if (is_callable($viewData)) {
-                        $options['viewData'] = $viewData($musician, $request);
+                        $curOptions['viewData'] = $viewData($musician, $request);
                     }
                 }
 
                 $success = $success && \Yii::app()->mail->send(array_merge([
                     'to' => $musician->email,
                     'viewData' => $musician->attributes,
-                ], $options));
+                ], $curOptions));
             }
         }
 
