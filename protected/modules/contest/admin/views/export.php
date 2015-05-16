@@ -13,15 +13,18 @@
 }
 table {
     border-collapse:collapse;
+    overflow: wrap; /* disable font resizing */
     width:100%;
 
     page-break-inside:avoid;
     autosize: 1;
 }
+td {
+    font-size: 10pt;
+}
 td td {
     border:1px solid #000;
     padding: 2px 5px;
-    font-size: 10pt;
 }
 .instrument {
     font-weight: bold;
@@ -140,8 +143,8 @@ foreach ($requests as $index => $request) {
         <td>
             <table>
                 <tr>
-                    <td style="width: 20px; background:#ddd;"><b>#<?= $request->id ?></b></td>
-                    <td style="width: 30px;"></td>
+                    <td style="width: 10mm; background:#ddd;"><b>#<?= $request->id ?></b></td>
+                    <td style="width: 10mm;"></td>
                     <td><?= date('m.d.Y', strtotime($request->date_created)) ?></td>
                     <td><?= $nomination ?></td>
                     <td><?= $ageCategory ?></td>
@@ -177,11 +180,14 @@ foreach ($requests as $index => $request) {
         <td>
             <table>
                 <tr>
-                    <td width="50%"><b>Композиции</b>
+                    <td width="50%">
+                        <b>Композиции</b>
                     </td>
-                    <td width="20"><b>мин</b>
+                    <td style="width: 11mm">
+                        <b>мин</b>
                     </td>
-                    <td><b>Демо</b>
+                    <td>
+                        <b>Демо</b>
                     </td>
                 </tr>
     <?php
