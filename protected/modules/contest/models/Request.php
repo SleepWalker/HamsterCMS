@@ -27,7 +27,8 @@ class Request extends \CActiveRecord
     const STATUS_NEW = 1;
     const STATUS_DECLINED = 2;
     const STATUS_ACCEPTED = 3;
-    const STATUS_CONFIRMED = 4;
+    const STATUS_WAIT_CONFIRM = 4;
+    const STATUS_CONFIRMED = 5;
 
     /**
      * @return array validation rules for model attributes.
@@ -109,6 +110,7 @@ class Request extends \CActiveRecord
             self::STATUS_NEW => 'Новая заявка',
             self::STATUS_DECLINED => 'Отклонена',
             self::STATUS_ACCEPTED => 'Принята',
+            self::STATUS_WAIT_CONFIRM => 'Ожидает подтвердждения',
             self::STATUS_CONFIRMED => 'Подтверждена',
         ];
     }

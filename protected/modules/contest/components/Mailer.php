@@ -74,6 +74,9 @@ class Mailer extends \CApplicationComponent
                     ];
                 },
             ]);
+
+            $request->status = $request::STATUS_WAIT_CONFIRM;
+            $request->save();
         }
     }
 
