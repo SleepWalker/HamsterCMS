@@ -29,6 +29,7 @@
       'Логи' => array('/admin/logs'),
       'Настройки Hamster' => array('/admin/config'),
       'Обновление Hamster' => array('/admin/update'),
+      'Тест' => array('/admin/test'),
     ), 'hamsterConfig');
   ?>
 </div>
@@ -38,25 +39,27 @@
     $modulesInfo = $this->modulesInfo;
     $enabledModules = $this->enabledModules;
     $menuArray['Управление страницами'] = array('admin/page');
-    if(count($modulesInfo))
-      foreach($modulesInfo as $moduleId=>$moduleConfig)
-      {
-        if(!array_key_exists($moduleId, $enabledModules))
+    if (count($modulesInfo)) {
+      foreach ($modulesInfo as $moduleId => $moduleConfig) {
+        if (!array_key_exists($moduleId, $enabledModules)) {
           continue; // модуль выключен
+        }
 
         // Определяем в какое меню пойдет модуль в зависимости
         // от того, есть ли у него контент (контент-модуль)
         $menuVarName = isset($moduleConfig['internal']) ? 'extraMenuArray' : 'menuArray';
         ${$menuVarName}[$moduleConfig['title']] = array('admin/' . $moduleId);
       }
+    }
     Yii::app()->menuMap->render($menuArray, 'hamsterContentModules');
   ?>
 </div>
 
 <div id="menu5" class="ddmenu">
 <?php
-    if(isset($extraMenuArray) && is_array($extraMenuArray))
+    if (isset($extraMenuArray) && is_array($extraMenuArray)) {
       Yii::app()->menuMap->render($extraMenuArray, 'hamsterInternalModules');
+    }
 ?>
 </div>
 
@@ -80,4 +83,3 @@
 <?php
 Yii::app()->clientScript->registerCoreScript('jquery');
 Yii::app()->clientScript->registerScriptFile($this->adminAssetsUrl."/js/admin.js",CClientScript::POS_END);
-?>

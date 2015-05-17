@@ -380,7 +380,7 @@ class CartAdminController extends \admin\components\HAdminController
 
     $check->prod_id = '';
 
-    $this->render('CFormUpdate', array(
+    $this->render('cform_update', array(
       'form' => $form,
     ));
   }

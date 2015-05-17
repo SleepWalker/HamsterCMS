@@ -385,7 +385,7 @@ class ConfigController extends \admin\components\HAdminController
         }
 
         if ($cform) {
-            echo $this->render('CFormUpdate', array(
+            echo $this->render('cform_update', array(
                 'form' => $cform,
             ));
         } else {
