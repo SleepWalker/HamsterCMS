@@ -27,7 +27,7 @@ td {
 }
 td td,
 td th {
-    border:1px solid #000;
+    border: 1px solid #000;
     padding: 1mm 0.5mm;
 }
 

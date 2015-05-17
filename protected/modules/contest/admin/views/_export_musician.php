@@ -11,7 +11,7 @@
         </td>
     </tr>
     <tr>
-        <td class="instrument"><?= $musician->instrument ?></td>
+        <td class="important"><?= $musician->instrument ?></td>
         <td><b>Шк./Кл./Препод.</b>: <?= $musician->school ?> / <?= $musician->class ?> / <?= $musician->teacher ?></td>
     </tr>
 </table>

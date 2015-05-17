@@ -6,7 +6,7 @@
  */
 ?>
 <tr>
-    <td><?= $composition->author ?> — <?= $composition->title ?></td>
+    <td><?= $composition->getFullName() ?></td>
     <td><?= $composition->duration ?></td>
     <?php
     if (!$index) {
