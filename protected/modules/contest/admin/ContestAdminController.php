@@ -137,8 +137,28 @@ class ContestAdminController extends \admin\components\HAdminController
     {
         $requests = \contest\crud\RequestCrud::findAll();
 
+        foreach ($requests as $request) {
+            $nomination = $request->getNominationLabel();
+            $ageCategory = $request->getAgeCategoryLabel();
+            if (!isset($lists[$nomination])) {
+                $lists[$nomination] = [];
+            }
+            if (!isset($lists[$nomination][$ageCategory])) {
+                $lists[$nomination][$ageCategory] = [];
+            }
+
+            array_push($lists[$nomination][$ageCategory], $request);
+        }
+
         $html = $this->renderPartial('export_jury', [
-            'requests' => $requests,
+            'lists' => $lists,
+            'juries' => [
+                'Романчишин Василий',
+                'Полтарев Петр',
+                'Елена собко',
+                'Вырвальский Вадим',
+                'Корниенко Вадим',
+            ],
         ], true);
 
         $mpdf = new \mPDF('', 'A4-L');

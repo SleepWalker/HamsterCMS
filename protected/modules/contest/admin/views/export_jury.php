@@ -1,6 +1,7 @@
 <?php
 /**
- * @var \contest\models\Request[] $requests
+ * @var array $lists
+ * @var array $juries
  */
 ?>
 <style>
@@ -13,6 +14,7 @@
     margin-right: 6mm;
 
     header: html_header;
+    footer: html_footer;
 }
 table {
     border-collapse:collapse;
@@ -25,6 +27,7 @@ table {
 td {
     font-size: 10pt;
 }
+.bordered td,
 td td,
 td th {
     border: 1px solid #000;
@@ -36,6 +39,7 @@ td th,
     font-weight: bold;
 }
 
+.hint,
 td th {
     font-size: 8pt;
 }
@@ -49,105 +53,36 @@ td th {
 }
 </style>
 
-<table>
-<tr>
-<td>
+<?php
+set_time_limit(200);
 
-    <table>
-        <tr>
-            <td>
-                Карточка жюри: <b>ПОЛТАРЕВ ПЕТР</b>
-            </td>
-            <td>
-                Вокально-инстр. ансамбль
-            </td>
-            <td>
-                18 лет и старше
-            </td>
-        </tr>
-    </table>
+$controller = $this;
+$needPageBreak = false;
+$renderNominationPartial = function ($view, $data = []) use ($lists, $controller, &$needPageBreak) {
 
-</td>
-</tr>
-<tr>
-<td>
+    foreach ($lists as $nomination => $agesList) {
+        foreach ($agesList as $ageCategory => $requests) {
+            if ($needPageBreak) {
+                echo '<pagebreak />';
+            }
+            $needPageBreak = true;
 
-    <table>
-        <tr style="text-rotate: 90;">
-            <th rowspan="2" style="text-rotate: 0;">
-                Исполнитель
-            </th>
-            <th rowspan="2" style="text-rotate: 0;">
-                Программа
-            </th>
-            <th rowspan="2" class="note">
-                № выступления
-            </th>
-            <th colspan="2" style="text-rotate: 0;">
-                Техника
-            </th>
-            <th rowspan="2" class="note">
-                Артистичность
-            </th>
-            <th rowspan="2" class="note">
-                Соотв. тематике
-            </th>
-            <th rowspan="2" class="note">
-                Сумма оценок
-            </th>
-            <th rowspan="2" class="note">
-                Общая сумма
-            </th>
-            <th rowspan="2" class="comment" style="text-rotate: 0;">
-                Комментарий
-            </th>
-        </tr>
+            $controller->renderPartial($view, array_merge([
+                'nomination' => $nomination,
+                'ageCategory' => $ageCategory,
+                'requests' => $requests,
+            ], $data));
+        }
+    }
+}
+?>
 
-        <tr>
-            <th class="note">Вокал</th>
-            <th class="note">Инстр.</th>
-        </tr>
-
-        <tr>
-            <td rowspan="2">Superband</td>
-            <td>Led Zeppelin — Immigrant Song</td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td rowspan="2"></td>
-            <td rowspan="2"></td>
-        </tr>
-
-        <tr>
-            <td>Elvis presley — A Little Less Conversation</td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
-    </table>
-
-</td>
-</tr>
-<tr>
-<td>
-
-    <table>
-        <tr>
-            <td class="important">Оценка выставляется по 5-ти бальной шкале</td>
-        </tr>
-    </table>
-
-</td>
-</tr>
-</table>
-
-
+<?php
+foreach ($juries as $jury) {
+    $renderNominationPartial('_export_jury', ['jury' => $jury]);
+}
+?>
+<?php $renderNominationPartial('_export_jury_summary', ['juries' => $juries]) ?>
 
 <htmlpageheader name="header">
     <table>
@@ -159,3 +94,11 @@ td th {
         </tr>
     </table>
 </htmlpageheader>
+
+<htmlpagefooter name="footer">
+    <table class="bordered">
+        <tr>
+            <td class="important hint">Оценка выставляется по 5-ти бальной шкале</td>
+        </tr>
+    </table>
+</htmlpagefooter>
