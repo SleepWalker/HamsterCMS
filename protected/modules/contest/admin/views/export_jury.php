@@ -5,11 +5,14 @@
 ?>
 <style>
 @page {
+    size: landscape;
+
     margin-top: 27mm;
     margin-bottom: 6mm;
+    margin-left: 6mm;
+    margin-right: 6mm;
 
     header: html_header;
-    footer: html_footer;
 }
 table {
     border-collapse:collapse;
@@ -22,15 +25,129 @@ table {
 td {
     font-size: 10pt;
 }
-td td {
+td td,
+td th {
     border:1px solid #000;
-    padding: 2px 5px;
+    padding: 1mm 0.5mm;
 }
-.instrument {
+
+td th,
+.important {
     font-weight: bold;
-    width: 25%;
+}
+
+td th {
+    font-size: 8pt;
+}
+
+.note {
+    width: 12mm;
+}
+
+.comment {
+    width: 80mm;
 }
 </style>
+
+<table>
+<tr>
+<td>
+
+    <table>
+        <tr>
+            <td>
+                Карточка жюри: <b>ПОЛТАРЕВ ПЕТР</b>
+            </td>
+            <td>
+                Вокально-инстр. ансамбль
+            </td>
+            <td>
+                18 лет и старше
+            </td>
+        </tr>
+    </table>
+
+</td>
+</tr>
+<tr>
+<td>
+
+    <table>
+        <tr style="text-rotate: 90;">
+            <th rowspan="2" style="text-rotate: 0;">
+                Исполнитель
+            </th>
+            <th rowspan="2" style="text-rotate: 0;">
+                Программа
+            </th>
+            <th rowspan="2" class="note">
+                № выступления
+            </th>
+            <th colspan="2" style="text-rotate: 0;">
+                Техника
+            </th>
+            <th rowspan="2" class="note">
+                Артистичность
+            </th>
+            <th rowspan="2" class="note">
+                Соотв. тематике
+            </th>
+            <th rowspan="2" class="note">
+                Сумма оценок
+            </th>
+            <th rowspan="2" class="note">
+                Общая сумма
+            </th>
+            <th rowspan="2" class="comment" style="text-rotate: 0;">
+                Комментарий
+            </th>
+        </tr>
+
+        <tr>
+            <th class="note">Вокал</th>
+            <th class="note">Инстр.</th>
+        </tr>
+
+        <tr>
+            <td rowspan="2">Superband</td>
+            <td>Led Zeppelin — Immigrant Song</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td rowspan="2"></td>
+            <td rowspan="2"></td>
+        </tr>
+
+        <tr>
+            <td>Elvis presley — A Little Less Conversation</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    </table>
+
+</td>
+</tr>
+<tr>
+<td>
+
+    <table>
+        <tr>
+            <td class="important">Оценка выставляется по 5-ти бальной шкале</td>
+        </tr>
+    </table>
+
+</td>
+</tr>
+</table>
+
+
 
 <htmlpageheader name="header">
     <table>
@@ -42,167 +159,3 @@ td td {
         </tr>
     </table>
 </htmlpageheader>
-<htmlpagefooter name="footer">
-{PAGENO}
-</htmlpagefooter>
-
-
-<?php
-if (!function_exists('median')) {
-    function median($arr)
-    {
-        sort($arr);
-        $count = count($arr); //total numbers in array
-        $middleval = floor(($count-1)/2); // find the middle value, or the lowest middle value
-        if ($count % 2) { // odd number, middle is the median
-            $median = $arr[$middleval];
-        } else { // even number, calculate avg of 2 medians
-            $low = $arr[$middleval];
-            $high = $arr[$middleval+1];
-            $median = (($low+$high)/2);
-        }
-        return $median;
-    }
-}
-if (!function_exists('average')) {
-    function average($arr)
-    {
-        $total = 0;
-        $count = count($arr); //total numbers in array
-        foreach ($arr as $value) {
-            $total +=  + $value; // total value of array numbers
-        }
-        $average = ($total/$count); // get average value
-        return $average;
-    }
-}
-
-foreach ($requests as $index => $request) {
-    $isGroup = $request->type == \contest\models\view\Request::TYPE_GROUP;
-    $hasVocal = count(array_filter($request->musicians, function ($musician) {
-        return preg_match('/вокал/iu', $musician->instrument);
-    })) > 0;
-
-    if ($isGroup) {
-        $format = 'Группа';
-    } else {
-        switch ($request->format) {
-            case \contest\models\view\Request::FORMAT_SOLO:
-                $format = 'Соло';
-                break;
-            case \contest\models\view\Request::FORMAT_MINUS:
-                $format = 'Минус';
-                break;
-            case \contest\models\view\Request::FORMAT_CONCERTMASTER:
-                $format = 'Концертмейстер';
-                break;
-        }
-    }
-
-    switch ((int)$isGroup.(int)$hasVocal) {
-        case '00':
-            $nomination = 'Инструментальное соло';
-            break;
-        case '10':
-            $nomination = 'Инстр. ансамбль';
-            break;
-        case '01':
-            $nomination = 'Вокальное соло';
-            break;
-        case '11':
-            $nomination = 'Вокально-инстр. ансамбль';
-            break;
-    }
-
-    $ageMap = [
-        10 => 'до 10 лет',
-        14 => '11-14 лет',
-        17 => '15-17 лет',
-        100 => '18 лет и старше',
-    ];
-    $ageMap = array_reverse($ageMap, true);
-
-    if ($isGroup) {
-        $ages = array_map(function ($musician) {
-            return $musician->age;
-        }, $request->musicians);
-        $age = min(median($ages), average($ages));
-    } else {
-        $age = $request->musicians[0]->age;
-    }
-
-    foreach ($ageMap as $ageThreshold => $label) {
-        if ($age <= $ageThreshold) {
-            $ageCategory = $label;
-        }
-    }
-
-?>
-<table<?php if ($index) echo ' style="margin-top: 20px;"'; ?>>
-    <tr>
-        <td>
-            <table>
-                <tr>
-                    <td style="width: 10mm; background:#ddd;"><b>#<?= $request->id ?></b></td>
-                    <td style="width: 10mm;"></td>
-                    <td><?= date('m.d.Y', strtotime($request->date_created)) ?></td>
-                    <td><?= $nomination ?></td>
-                    <td><?= $ageCategory ?></td>
-                    <td><?= $format ?></td>
-                </tr>
-            </table>
-        </td>
-    </tr>
-    <?php if ($isGroup): ?>
-    <tr>
-        <td>
-            <table>
-                <tr>
-                    <td>Название коллектива: "<b><?= $request->name ?></b>"</td>
-                </tr>
-            </table>
-        </td>
-    </tr>
-    <?php endif; ?>
-    <tr>
-        <td>
-    <?php
-    foreach ($request->musicians as $index => $musician) {
-        $this->renderPartial('_export_musician', [
-            'index' => $index,
-            'musician' => $musician,
-        ]);
-    }
-    ?>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <table>
-                <tr>
-                    <td width="50%">
-                        <b>Композиции</b>
-                    </td>
-                    <td style="width: 11mm">
-                        <b>мин</b>
-                    </td>
-                    <td>
-                        <b>Демо</b>
-                    </td>
-                </tr>
-    <?php
-    foreach ($request->compositions as $index => $composition) {
-        $this->renderPartial('_export_composition', [
-            'index' => $index,
-            'demos' => $request->demos,
-            'composition' => $composition,
-        ]);
-    }
-    ?>
-            </table>
-        </td>
-    </tr>
-</table>
-<?php
-}
-?>

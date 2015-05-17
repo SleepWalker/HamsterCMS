@@ -135,7 +135,16 @@ class ContestAdminController extends \admin\components\HAdminController
 
     public function actionExportJury()
     {
-        echo 1;
+        $requests = \contest\crud\RequestCrud::findAll();
+
+        $html = $this->renderPartial('export_jury', [
+            'requests' => $requests,
+        ], true);
+
+        $mpdf = new \mPDF('', 'A4-L');
+        $mpdf->WriteHTML($html);
+        $mpdf->Output();
+        \Yii::app()->end();
     }
 
     public function actionMailing()
