@@ -44,7 +44,7 @@ foreach ($requests as $index => $request) {
             <table>
                 <tr>
                     <td style="width: 10mm; background:#ddd;"><b>#<?= $request->id ?></b></td>
-                    <td style="width: 10mm;"></td>
+                    <td style="width: 10mm; text-align: center;"><?php if (!$request->isAccepted()) {echo '❌';}?></td>
                     <td><?= date('m.d.Y', strtotime($request->date_created)) ?></td>
                     <td><?= $request->getNominationLabel() ?></td>
                     <td><?= $request->getAgeCategoryLabel(); ?></td>

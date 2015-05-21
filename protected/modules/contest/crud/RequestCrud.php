@@ -73,7 +73,7 @@ class RequestCrud
 
     public static function findAccepted()
     {
-        return \contest\models\Request::model()->with('compositions', 'musicians')->findAll('status NOT IN (' . implode(', ', [\contest\models\Request::STATUS_NEW, \contest\models\Request::STATUS_REJECTED]) . ')');
+        return \contest\models\Request::model()->with('compositions', 'musicians')->findAll('status NOT IN (' . implode(', ', [\contest\models\Request::STATUS_NEW, \contest\models\Request::STATUS_DECLINED]) . ')');
     }
 
     public static function decline($pk)

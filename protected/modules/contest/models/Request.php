@@ -68,6 +68,11 @@ class Request extends \CActiveRecord
         return $this->status == self::STATUS_CONFIRMED;
     }
 
+    public function isAccepted()
+    {
+        return $this->status != self::STATUS_NEW && $this->status != self::STATUS_DECLINED;
+    }
+
     /**
      * @throws \Excption IF the key is invalid
      */
