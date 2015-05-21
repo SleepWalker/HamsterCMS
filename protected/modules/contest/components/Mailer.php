@@ -25,7 +25,7 @@ class Mailer extends \CApplicationComponent
                     }
                 }
 
-                $success = $success && \Yii::app()->mail->send(array_merge([
+                $success = $success && \Yii::app()->mail->send(\CMap::mergeArray([
                     'to' => $musician->email,
                     'viewData' => $musician->attributes,
                 ], $curOptions));
@@ -64,7 +64,6 @@ class Mailer extends \CApplicationComponent
 
                     return [
                         'fullName' => $musician->getFullName(),
-                        'logoSrc' => \Yii::app()->createAbsoluteUrl('/images/logo_email.png'),
                         'confirmationUrl' => \Yii::app()->createAbsoluteUrl('contest/contest/confirm', [
                             'id' => $request->primaryKey,
                             'key' => $confirmationKey,

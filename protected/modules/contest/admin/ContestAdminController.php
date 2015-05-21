@@ -180,6 +180,25 @@ class ContestAdminController extends \admin\components\HAdminController
             $this->refresh();
         }
 
+        if (\Yii::app()->request->getPost('sendCustom')) {
+            try {
+                $requests = \contest\crud\RequestCrud::findAccepted();
+                foreach ($requests as $request) {
+                    \Yii::app()->getModule('contest')->mailer->notifyMusicians($request, [
+                        'subject' => \Yii::app()->request->getPost('subject'),
+                        'view' => 'custom_email',
+                        'viewData' => [
+                            'message' => (new \CMarkdownParser())->transform(\Yii::app()->request->getPost('message'))
+                        ],
+                    ]);
+                }
+                \Yii::app()->user->setFlash('success', 'Письма разосланы!');
+            } catch (\Exception $e) {
+                \Yii::app()->user->setFlash('error', 'Во время рассылки произошла не предвиденная ошибка: ' . $e->getMessage());
+            }
+            $this->refresh();
+        }
+
         $this->render('mailing');
     }
 }

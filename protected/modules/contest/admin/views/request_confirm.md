@@ -1,4 +1,4 @@
-![Киевская городская секция эстрадной и рок музыки]({{logoSrc}})
+<?php $this->beginContent('email_layout'); ?>
 
 Здравствуйте, {{fullName}}
 
@@ -24,10 +24,4 @@
 
 Если у вас возникли вопросы, пишите на [contest@estrocksection.kiev.ua](mailto:contest@estrocksection.kiev.ua)
 
----
-
-*Всего наилучшего,*
-
-*Киевская городская секция эстрадной и рок музыки*
-
-[http://estrocksection.kiev.ua](http://estrocksection.kiev.ua)
+<?php $this->endContent(); ?>
