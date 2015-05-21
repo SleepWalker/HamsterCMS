@@ -198,8 +198,7 @@ function parseCFormElements(&$form, $model, $params, $index = null)
         // textarea для редактирования markdown
         if ($fieldType == 'markdown') {
             $fieldParams = array(
-                'type' => 'ext.markitup.HMarkitupWidget',
-                'theme' => 'hamster',
+                'type' => '\ext\markitup\HMarkitupWidget',
                 //'htmlOptions'=>array('rows'=>15, 'cols'=>70),
                 'options' => array(
                     //'previewParserPath'=>Yii::app()->urlManager->createUrl($preview)
