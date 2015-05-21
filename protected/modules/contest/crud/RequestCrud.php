@@ -66,9 +66,14 @@ class RequestCrud
         return \contest\models\Request::model()->with('compositions', 'musicians')->findAll();
     }
 
-    public static function findAccepted()
+    public static function findNotConfirmed()
     {
         return \contest\models\Request::model()->with('compositions', 'musicians')->findAll('status = ' . \contest\models\Request::STATUS_ACCEPTED);
+    }
+
+    public static function findAccepted()
+    {
+        return \contest\models\Request::model()->with('compositions', 'musicians')->findAll('status NOT IN (' . implode(', ', [\contest\models\Request::STATUS_NEW, \contest\models\Request::STATUS_REJECTED]) . ')');
     }
 
     public static function decline($pk)

@@ -136,7 +136,7 @@ class ContestAdminController extends \admin\components\HAdminController
     public function actionExportJury()
     {
         // TODO: нужно выбирать не новых и не отклоненных!
-        $requests = \contest\crud\RequestCrud::findAll();
+        $requests = \contest\crud\RequestCrud::findAccepted();
 
         foreach ($requests as $request) {
             $nomination = $request->getNominationLabel();

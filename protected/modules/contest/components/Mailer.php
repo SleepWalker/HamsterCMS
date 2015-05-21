@@ -53,7 +53,7 @@ class Mailer extends \CApplicationComponent
      */
     public function sendConfirmations()
     {
-        $requests = \contest\crud\RequestCrud::findAccepted();
+        $requests = \contest\crud\RequestCrud::findNotConfirmed();
 
         foreach ($requests as $request) {
             $this->notifyMusicians($request, [
