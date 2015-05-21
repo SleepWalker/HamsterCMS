@@ -25,7 +25,7 @@ table {
     autosize: 1;
 }
 td {
-    font-size: 10pt;
+    font-size: 12pt;
 }
 .bordered td,
 td td,
