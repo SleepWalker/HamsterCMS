@@ -52,6 +52,14 @@ class Request extends \CActiveRecord
         ];
     }
 
+    /**
+     * @return string group name or first musician name
+     */
+    public function getMainName()
+    {
+        return !empty($this->name) ? $this->name : $this->musicians[0]->getFullName();
+    }
+
     public function getConfirmationKey()
     {
         // TODO: move to MD

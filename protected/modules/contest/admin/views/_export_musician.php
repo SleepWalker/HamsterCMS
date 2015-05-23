@@ -3,7 +3,8 @@
  * @var integer $index
  * @var \contest\models\Musician $musician
  */
-?><table style="margin-left: 5px;<?php if ($index) echo ' margin-top:10px;'; ?>">
+?>
+<table style="margin-left: 5px;<?php if ($index) echo ' margin-top:10px;'; ?>">
     <tr>
         <td colspan="2">
             <b><?= $musician->fullName ?></b>, <?= date('d.m.Y', strtotime($musician->birthdate)) ?>

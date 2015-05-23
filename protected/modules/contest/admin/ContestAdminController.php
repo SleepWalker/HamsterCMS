@@ -135,7 +135,6 @@ class ContestAdminController extends \admin\components\HAdminController
 
     public function actionExportJury()
     {
-        // TODO: нужно выбирать не новых и не отклоненных!
         $requests = \contest\crud\RequestCrud::findAccepted();
 
         foreach ($requests as $request) {
@@ -163,6 +162,33 @@ class ContestAdminController extends \admin\components\HAdminController
         ], true);
 
         $mpdf = new \mPDF('', 'A4-L');
+        $mpdf->WriteHTML($html);
+        $mpdf->Output();
+        \Yii::app()->end();
+    }
+
+    public function actionExportContributionsList()
+    {
+        $requests = \contest\crud\RequestCrud::findAccepted();
+
+        // sort alphabeticaly by group name or musician name
+        usort($requests, function ($one, $two) {
+            $name1 = $one->getMainName();
+            $name2 = $two->getMainName();
+            $name1 = trim($name1);
+            $name2 = trim($name2);
+
+            if ($name1 == $name2) {
+                return 0;
+            }
+            return $name1 > $name2 ? 1 : -1;
+        });
+
+        $html = $this->renderPartial('export_contributions', [
+            'requests' => $requests,
+        ], true);
+
+        $mpdf = new \mPDF();
         $mpdf->WriteHTML($html);
         $mpdf->Output();
         \Yii::app()->end();
