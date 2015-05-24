@@ -163,7 +163,7 @@ class BlogAdminController extends \admin\components\HAdminController
      */
     public function actionCategorieUpdate($id = null)
     {
-        if (!empty($id) && $this->crud == 'update') {
+        if (!empty($id) && $this->action->id == 'categorieupdate') {
             $model = \blog\models\Categorie::model()->findByPk($id);
         } else {
             $model = new \blog\models\Categorie();

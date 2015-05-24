@@ -47,7 +47,7 @@ if (isset($tree)) {
     echo '<p><i>Нет категорий</i></p>';
 }
 
-echo '<p>' . CHtml::link(CHtml::button('Добавить категорию'), $actions['create'], array('id' => 'addButton')) . '</p>';
+echo '<p>' . CHtml::link(CHtml::button('Добавить категорию'), $actions['create'], ['id' => 'addButton', 'class' => 'js-dialog']) . '</p>';
 
 /***********************
 * #catTreeParse - строит дерево из массива
@@ -75,7 +75,7 @@ function catTreeParse($tree, $level = -1)
 ***********************/
 function renderIcons($controller, $id, $model)
 {
-    $html = CHtml::ajaxLink('', 'delete/'.$id, array(
+    $html = CHtml::ajaxLink('', 'categoriedelete/'.$id, array(
             'beforeSend' => new CJavaScriptExpression('function() {return confirm("Вы действительно хотите удалить категорию?")}'),
             'complete' => new CJavaScriptExpression('function() {location.reload()}'),
         ), array(
@@ -83,22 +83,17 @@ function renderIcons($controller, $id, $model)
             'id'=>'delete'.$id,
             'type'=>'post',
         ))
-        .CHtml::link('', $controller->createUrl('charshema', array('id' => $id), array('class'=>'icon_table', 'id'=>'table'.$id)))
-        .CHtml::link('', $controller->createUrl('update', array('id' => $id), array('class'=>'icon_edit', 'id'=>'update'.$id)))
-        .CHtml::link('', $controller->createUrl('create', array('id' => $id), array('class'=>'icon_add', 'id'=>'create'.$id)))
-        .CHtml::link('', $model->viewUrl, array('class'=>'icon_view', 'target'=>'_blank'))
+        .CHtml::link('', $controller->createUrl('categoriecharshema', ['id' => $id]), ['class'=>'icon_table js-dialog', 'id'=>'table'.$id])
+        .CHtml::link('', $controller->createUrl('categorieupdate', ['id' => $id]), ['class'=>'icon_edit js-dialog', 'id'=>'update'.$id])
+        .CHtml::link('', $controller->createUrl('categoriecreate', ['id' => $id]), ['class'=>'icon_add js-dialog', 'id'=>'create'.$id])
+        .CHtml::link('', $model->viewUrl, ['class'=>'icon_view', 'target'=>'_blank'])
     ;
 
     return $html;
 }
 
-$this->widget('ext.jui.AjaxDialogWidget', array(
-    'id'=>'dnd',
-    'selectors' => array(
-        '#dnd a.icon_edit',
-        '#dnd a.icon_add',
-        //'#dnd a.icon_table',
-        '#addButton',
-    ),
+$this->widget('\ext\jui\AjaxDialogWidget', [
+    'id' => 'dnd',
+    'selectors' => ['.js-dialog'],
     'themeUrl' => $this->adminAssetsUrl . '/css/jui',
-));
+]);

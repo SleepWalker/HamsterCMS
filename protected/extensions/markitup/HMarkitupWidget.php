@@ -87,7 +87,7 @@ class HMarkitupWidget extends \EMarkitupWidget
                 $callbackJs .= ob_get_clean();
             }
 
-            \Yii::app()->controller->widget('ext.jui.AjaxDialogWidget', array(
+            \Yii::app()->controller->widget('\ext\jui\AjaxDialogWidget', array(
                 'selectors' => array("#markItUp{$this->id} li.hmdImageUpload"),
                 'options' => array(
                     'title' => 'Загрузка изображений',
