@@ -92,8 +92,6 @@ class Post extends \CActiveRecord
             array('user_id', 'length', 'max' => 10),
             array('image', 'length', 'max' => 128),
             array('alias, title', 'length', 'max' => 200),
-            array('tags', 'match', 'pattern' => '/^[a-zA-Zа-яА-Я0-9_\s,\.]+$/u',
-                'message' => 'В тегах можно использовать только буквы.'),
             array('tags', 'normalizeTags'),
             array('alias', 'unique'),
 
