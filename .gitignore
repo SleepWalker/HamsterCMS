@@ -11,4 +11,9 @@ Thumbs.db
 .*.swp
 .*.swo
 *~
+
+# composer files
 protected/vendor/composer/vendor
+
+# tests reports
+protected/tests/report
