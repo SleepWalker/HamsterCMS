@@ -180,7 +180,7 @@ class Tag extends \CActiveRecord
 
     public function tagViewUrl($tag = false)
     {
-        return Yii::app()->createUrl('blog/blog/index', array('tag' => $tag));
+        return \Yii::app()->createUrl('blog/blog/index', array('tag' => $tag));
     }
 
     public function tagRssViewUrl($tag = false)
@@ -189,7 +189,7 @@ class Tag extends \CActiveRecord
             $params = array('tag' => $tag);
         }
 
-        return Yii::app()->createUrl('blog/blog/rss', $params);
+        return \Yii::app()->createUrl('blog/blog/rss', $params);
     }
 
     /**
