@@ -15,10 +15,11 @@ class ContestController extends \Controller
 
     public function actionApply()
     {
-        $this->pageTitle = 'Заявка на участие в конкурсе';
+        $this->pageTitle = 'Заявка на участие в конкурсе - ' . \Yii::app()->name;
 
-        $model = new \contest\models\view\Request();
+        $model = $this->module->factory->createRequest();
 
+        // TODO: use builder pattern for creating new entity (?)
         if ($this->processModel($model)) {
             \Yii::app()->user->setFlash(self::FLASH_APPLY, true);
             $this->redirect('success');

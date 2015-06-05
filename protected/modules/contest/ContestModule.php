@@ -18,6 +18,9 @@ class ContestModule extends CWebModule
             'mailer' => [
                 'class' => '\contest\components\Mailer',
             ],
+            'factory' => [
+                'class' => '\contest\components\ContestFactory',
+            ],
         ]);
     }
 
