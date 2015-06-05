@@ -6,11 +6,6 @@
 
 namespace sectionvideo\components;
 
-use \CException;
-
-use \Google_Client;
-use \Google_Service_YouTube;
-
 class VideoImage
 {
     protected $_videoId;
@@ -39,25 +34,6 @@ class VideoImage
 
     protected function getThumbnails()
     {
-        $youtube = new Google_Service_YouTube($this->getGoogleClient());
-
-        $listResponse = $youtube->videos->listVideos("snippet", array('id' => $this->_videoId));
-
-        if (empty($listResponse)) {
-            throw new CException(get_class($this)."::getThumbnails(): No data for specified video, probably wrong id");
-        }
-
-        $video = $listResponse[0];
-
-        return $video['snippet']['thumbnails'];
-    }
-
-    protected function getGoogleClient()
-    {
-        $client = new Google_Client();
-        $client->setApplicationName("estrocksection.kiev.ua");
-        $client->setDeveloperKey("AIzaSyD7QiC2AO4PUtiMRN9i5SfZOAhZLvSnGzw");
-
-        return $client;
+        return \Yii::app()->getModule('sectionvideo')->externalVideo->get($this->_videoId)->getThumbnails();
     }
 }

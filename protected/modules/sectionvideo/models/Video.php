@@ -172,8 +172,7 @@ class Video extends \CActiveRecord
     {
         $cacheId = $this->video_url . '#views';
         if (($views = \Yii::app()->cache->get($cacheId)) === false) {
-            $video = $this->getGoogleYoutubeVideo();
-            $views = $video['statistics']['viewCount'];
+            $views = $this->getGoogleYoutubeVideo()->getViews();
             \Yii::app()->cache->set($cacheId, $views);
         }
 
@@ -188,12 +187,32 @@ class Video extends \CActiveRecord
         // TODO: пускай эти лайки смешиваются с yt лайками
         $cacheId = $this->video_url . '#likes';
         if (($likes = \Yii::app()->cache->get($cacheId)) === false) {
-            $video = $this->getGoogleYoutubeVideo();
-            $likes = $video['statistics']['likeCount'];
+            $likes = $this->getGoogleYoutubeVideo()->getLikes();
             \Yii::app()->cache->set($cacheId, $likes);
         }
 
         return $likes;
+    }
+
+    /**
+     * @param  string $size размер изображения. Доступные размеры: full, list, grid
+     * @return string url изображения
+     */
+    public function getImageSrc($size = null)
+    {
+        $cacheId = $this->video_url . '#src';
+        if (($src = \Yii::app()->cache->get($cacheId)) === false) {
+            $src = $this->getGoogleYoutubeVideo()->getThumbnail($size);
+            \Yii::app()->cache->set($cacheId, $src);
+        }
+
+        return $src;
+    }
+
+    protected function getGoogleYoutubeVideo()
+    {
+        // TODO: связь с youtube должна происходить снаружи
+        return \Yii::app()->getModule('sectionvideo')->externalVideo->get($this->video_url);
     }
 
     public function ratingWidget()
@@ -206,44 +225,6 @@ class Video extends \CActiveRecord
             </div>
         </div>
         <?php
-    }
-
-    protected function getGoogleYoutubeVideo()
-    {
-        $youtube = new \Google_Service_YouTube($this->getGoogleClient());
-
-        $listResponse = $youtube->videos->listVideos("statistics", array('id' => self::getYtVideoId($this->video_url)));
-
-        if (empty($listResponse)) {
-            throw new \CException(get_class($this) . "::getThumbnails(): No data for specified video, probably wrong id");
-        }
-
-        return $listResponse[0];
-    }
-
-    protected function getGoogleClient()
-    {
-        $client = new \Google_Client();
-        $client->setApplicationName("estrocksection.kiev.ua");
-        $client->setDeveloperKey("AIzaSyD7QiC2AO4PUtiMRN9i5SfZOAhZLvSnGzw");
-
-        return $client;
-    }
-
-    /**
-     * @param  string $size размер изображения. Доступные размеры: full, list, grid
-     * @return string url изображения
-     */
-    public function getImageSrc($size = null)
-    {
-        $cacheId = $this->video_url . '#src';
-        if (($src = \Yii::app()->cache->get($cacheId)) === false) {
-            $videoImage = new \sectionvideo\components\VideoImage(self::getYtVideoId($this->video_url));
-            $src = $videoImage->get($size);
-            \Yii::app()->cache->set($cacheId, $src);
-        }
-
-        return $src;
     }
 
     /**
@@ -266,9 +247,8 @@ class Video extends \CActiveRecord
      */
     public static function getYtVideoCode($url, $params = array())
     {
-        $id = self::getYtVideoId($url);
-        // html5=1 - исправляет баг с нерабочим видео в firefox в случае если оно вставлялось на страницу после ее загрузки (к примеру через ajax)
-        return '<iframe width="420" height="315" src="//www.youtube.com/embed/' . $id . '?html5=1" frameborder="0" allowfullscreen></iframe>';
+        // TODO: нам не нужен клиент, что бы получить код плеера
+        return \Yii::app()->getModule('sectionvideo')->externalVideo->get($url)->getPlayerCode();
     }
 
     /**
