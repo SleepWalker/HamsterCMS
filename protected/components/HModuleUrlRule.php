@@ -131,24 +131,25 @@ class HModuleUrlRule extends \CBaseUrlRule
             $modules = \Yii::app()->modules;
             $moduleUrls = array();
             foreach ($modules as $moduleId => $moduleConfig) {
-                if (isset($moduleConfig['params']['aliases'][$pathInfo]['route'])) {
-                    // Новый вариант роутинга. когда все пути задаются в админке
-                    return $moduleId . '/' . $moduleConfig['params']['aliases'][$pathInfo]['route'];
-                }
+                // if (isset($moduleConfig['params']['aliases'][$pathInfo]['route'])) {
+                //     // Новый вариант роутинга. когда все пути задаются в админке
+                //     return $moduleId . '/' . $moduleConfig['params']['aliases'][$pathInfo]['route'];
+                // }
 
-                // проверяем view url
-                $pathInfoWithId = preg_replace('/[^\/]+$/', '{id}', $pathInfo);
-                if (isset($moduleConfig['params']['aliases'][$pathInfoWithId]['route'])) {
-                    // Новый вариант роутинга. когда все пути задаются в админке ({id} placeholder)
-                    $_GET['id'] = end($url);
-                    return $moduleId . '/' . $moduleConfig['params']['aliases'][$pathInfoWithId]['route'];
-                }
+                // // проверяем view url
+                // $pathInfoWithId = preg_replace('/[^\/]+$/', '{id}', $pathInfo);
+                // if (isset($moduleConfig['params']['aliases'][$pathInfoWithId]['route'])) {
+                //     // Новый вариант роутинга. когда все пути задаются в админке ({id} placeholder)
+                //     $_GET['id'] = end($url);
+                //     return $moduleId . '/' . $moduleConfig['params']['aliases'][$pathInfoWithId]['route'];
+                // }
 
-                // Массив с адресами всех модулей
-                if (!isset($moduleConfig['params']['aliases'])) {
-                    $moduleUrls[$moduleId] = isset($moduleConfig['params']) && !empty($moduleConfig['params']['moduleUrl']) ? $moduleConfig['params']['moduleUrl'] : $moduleId;
-                }
+                // // Массив с адресами всех модулей
+                // if (!isset($moduleConfig['params']['aliases'])) {
+                //     $moduleUrls[$moduleId] = isset($moduleConfig['params']) && !empty($moduleConfig['params']['moduleUrl']) ? $moduleConfig['params']['moduleUrl'] : $moduleId;
+                // }
 
+                $moduleUrls[$moduleId] = isset($moduleConfig['params']) && !empty($moduleConfig['params']['moduleUrl']) ? $moduleConfig['params']['moduleUrl'] : $moduleId;
             }
 
             if (!in_array($url[0], $moduleUrls)) {
