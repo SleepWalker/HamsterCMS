@@ -76,6 +76,26 @@ class SectionvideoController extends Controller
         ));
     }
 
+    public function actionLike()
+    {
+        $videoId = \Yii::app()->request->getPost('id');
+
+        try {
+            $likes = $this->module->ratingCalculator->addLike($videoId);
+
+            header('Content-Type: application/json');
+
+            echo \CJSON::encode([
+                'status' => 'success',
+                'data' => [
+                    'likes' => $likes,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            throw new \CHttpException(400, 'Wrong request');
+        }
+    }
+
     /**
      * Returns the data model based on the primary key given in the GET variable.
      * If the data model is not found, an HTTP exception will be raised.

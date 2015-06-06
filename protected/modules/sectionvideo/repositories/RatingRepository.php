@@ -11,26 +11,29 @@ class RatingRepository extends \sectionvideo\components\Repository
         return VideoRating::model();
     }
 
-    public function addVideoLike($videoId)
+    /**
+     * @param integer $videoId
+     * @throws \DomainException if wrong $videoId or invalid model
+     */
+    public function addLike($videoId)
     {
         $this->assertId($videoId);
 
         $rating = new VideoRating();
+        $rating->source_id = $videoId;
+        $rating->ip = \Yii::app()->request->getUserHostAddress();
+
+        $this->save($rating);
     }
 
-    public function getVideoRating($videoId)
+    /**
+     * @param integer $videoId
+     * @throws \DomainException if wrong $videoId
+     */
+    public function getRating($videoId)
     {
         $this->assertId($videoId);
 
-        $rating = $this->getModel()->findAllByAttributes(['source_id' => $videoId]);
-
-        return $rating && $rating->value > 0 ? $rating->value : 0;
-    }
-
-    private function assertId($videoId)
-    {
-        if (!is_numeric($videoId)) {
-            throw new \InvalidArgumentException('Wrong video id provided: ' . $videoId);
-        }
+        return $this->getModel()->countByAttributes(['source_id' => $videoId]);
     }
 }

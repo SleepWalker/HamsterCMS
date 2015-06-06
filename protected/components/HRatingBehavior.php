@@ -49,7 +49,7 @@ class HRatingBehavior extends CActiveRecordBehavior
                 header('Content-Type: application/json');
 
                 if (empty($value) || ($value < 1 || $value > 5)) {
-                    throw new CDbException('Нету всех необходимых параметров');
+                    throw new \CDbException('Нету всех необходимых параметров');
                 }
 
                 $value = round($value);
@@ -59,6 +59,7 @@ class HRatingBehavior extends CActiveRecordBehavior
                     'source_id' => $this->owner->primaryKey,
                     'user_id' => \Yii::app()->user->id,
                     'value' => $value,
+                    'ip' => \Yii::app()->request->getUserHostAddress(),
                 );
                 $ratingModel->save();
             } catch (\CDbException $e) {

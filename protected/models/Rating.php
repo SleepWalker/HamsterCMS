@@ -48,11 +48,24 @@ abstract class Rating extends \CActiveRecord
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('source_id, user_id, value', 'required'),
+            array('source_id', 'required'),
+            array('ip', 'safe'),
             //array('prod_id, user_id', 'unique'),
             array('source_id, user_id', 'numerical', 'integerOnly' => true),
-            array('value', 'numerical', 'min' => 1, 'max' => 5),
+            array('value', 'numerical', 'min' => 0, 'max' => 5),
+            ['source_id', 'validateVoteUniqueness'],
         );
+    }
+
+    public function validateVoteUniqueness($attribute, $params = [])
+    {
+        if ($this->countByAttributes([
+            'source_id' => $this->source_id,
+            'user_id' => $this->user_id,
+            'ip' => ip2long($this->ip),
+        ]) > 0) {
+            $this->addError('source_id', 'Ваш голос уже учтен!');
+        }
     }
 
     /**
@@ -67,6 +80,12 @@ abstract class Rating extends \CActiveRecord
         $this->ip = long2ip($this->ip);
     }
 
+    protected function afterSave()
+    {
+        parent::afterSave();
+        $this->afterFind();
+    }
+
     /**
      * преобразовывает ip юзера в int для того, что бы сохранить его бд
      */
@@ -74,9 +93,9 @@ abstract class Rating extends \CActiveRecord
     {
         if (parent::beforeSave()) {
             if ($this->isNewRecord) {
-                $this->ip = ip2long(\Yii::app()->request->getUserHostAddress());
+                $this->ip = ip2long($this->ip);
             } else {
-                throw new \Exception('Обновление модели невозможно. Значения рейтинга иммутабельны!');
+                throw new \BadMethodCallException('Обновление модели невозможно. Значения рейтинга иммутабельны!');
                 // $this->ip = ip2long($this->ip);
             }
 
@@ -116,15 +135,15 @@ abstract class Rating extends \CActiveRecord
     private function createDbTable()
     {
         $this->getDbConnection()->createCommand()->createTable($this->tableName(), [
-          'id' => 'int(10) unsigned NOT NULL AUTO_INCREMENT',
-          'source_id' => 'int(10) unsigned NOT NULL',
-          'user_id' => 'int(10) unsigned NOT NULL',
-          'value' => 'double(2,2) NOT NULL',
-          'ip' => 'int(10) unsigned NOT NULL',
-          'PRIMARY KEY (`id`)',
-          'UNIQUE KEY `source_id` (`source_id`,`user_id`,`ip`)',
-          'KEY `user_id` (`user_id`)',
-          'KEY `source_id_2` (`source_id`)'
+            'id' => 'int(10) unsigned NOT NULL AUTO_INCREMENT',
+            'source_id' => 'int(10) unsigned NOT NULL',
+            'user_id' => 'int(10) unsigned NOT NULL',
+            'value' => 'double(2,2) NOT NULL',
+            'ip' => 'int(10) unsigned NOT NULL',
+            'PRIMARY KEY (`id`)',
+            'UNIQUE KEY `source_id` (`source_id`,`user_id`,`ip`)',
+            'KEY `user_id` (`user_id`)',
+            'KEY `source_id_2` (`source_id`)',
         ], 'ENGINE=InnoDB DEFAULT CHARSET=utf8');
     }
 }
