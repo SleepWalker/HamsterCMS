@@ -12,12 +12,12 @@
  * @property string $thumbnail
  * @property string $title
  * @property string $description
- * @property string $rating
+ * @property string $likes
  * @property string $tags
  * @property string $create_date
  */
 
-namespace hamster\modules\sectionvideo\models;
+namespace sectionvideo\models;
 
 use \CActiveDataProvider;
 use \CDbCriteria;
@@ -62,11 +62,11 @@ class Video extends \CActiveRecord
             array('event_id', 'numerical', 'integerOnly' => true),
             array('composition_author, composition_name, event, title', 'length', 'max' => 128),
             array('video_url', 'url', 'defaultScheme' => 'http'),
-            array('rating', 'length', 'max' => 7),
+            array('likes', 'length', 'max' => 7),
             array('description, tags', 'safe'),
             // The following rule is used by search().
             // Please remove those attributes that should not be searched.
-            array('id, composition_author, composition_name, event, video, thumbnail, description, rating, tags, date_create', 'safe', 'on' => 'search'),
+            array('id, composition_author, composition_name, event, video, thumbnail, description, likes, tags, date_create', 'safe', 'on' => 'search'),
         );
     }
 
@@ -75,6 +75,8 @@ class Video extends \CActiveRecord
         return array(
             'HRating' => array(
                 'class' => 'HRatingBehavior',
+                'attribute' => 'likes',
+                'ratingModelClass' => '\sectionvideo\models\VideoRating',
             ),
             'HTag' => array(
                 'class' => '\hamster\components\HTagBehavior',
@@ -101,22 +103,21 @@ class Video extends \CActiveRecord
                 $this->date_create = new \CDbExpression('NOW()');
             }
 
-            $entry = self::getYtVideoEntry($this->video_url);
-            $this->thumbnail = self::getYtVideoThumbnail($entry);
+            // TODO: это должно устанавливаться извне. к примеру в репозитории. Причем сама картинка должна попадать из сервиса
+            $this->thumbnail = $this->getImageSrc();
 
             return true;
         } else {
             return false;
         }
-
     }
 
     public function defaultScope()
     {
+        $alias = $this->getTableAlias(true, false);
         return array(
-            'order' => 'date_create DESC',
+            'order' => $alias . '.likes DESC',
         );
-
     }
 
     /**
@@ -127,7 +128,7 @@ class Video extends \CActiveRecord
         // NOTE: you may need to adjust the relation name and the related
         // class name for the relations automatically generated below.
         return array(
-            'musicians' => array(self::HAS_MANY, 'hamster\modules\sectionvideo\models\VideoMusicians', 'video_id'),
+            'musicians' => array(self::HAS_MANY, 'sectionvideo\models\VideoMusicians', 'video_id'),
         );
     }
 
@@ -146,7 +147,7 @@ class Video extends \CActiveRecord
             'video_url' => 'Ссылка на ролик Youtube',
             'thumbnail' => 'thumbnail',
             'description' => 'Описание',
-            'rating' => 'Rating',
+            'likes' => 'Лайки',
             'tags' => 'Теги',
             'date_create' => 'Add Date',
         );
@@ -180,21 +181,6 @@ class Video extends \CActiveRecord
     }
 
     /**
-     * @return integer рейтинг (кол-во лайков на youtube)
-     */
-    public function getLikes()
-    {
-        // TODO: пускай эти лайки смешиваются с yt лайками
-        $cacheId = $this->video_url . '#likes';
-        if (($likes = \Yii::app()->cache->get($cacheId)) === false) {
-            $likes = $this->getGoogleYoutubeVideo()->getLikes();
-            \Yii::app()->cache->set($cacheId, $likes);
-        }
-
-        return $likes;
-    }
-
-    /**
      * @param  string $size размер изображения. Доступные размеры: full, list, grid
      * @return string url изображения
      */
@@ -212,7 +198,7 @@ class Video extends \CActiveRecord
     protected function getGoogleYoutubeVideo()
     {
         // TODO: связь с youtube должна происходить снаружи
-        return \Yii::app()->getModule('sectionvideo')->externalVideo->get($this->video_url);
+        return \Yii::app()->getModule('sectionvideo')->externalVideo->create($this->video_url);
     }
 
     public function ratingWidget()
@@ -236,65 +222,7 @@ class Video extends \CActiveRecord
      */
     public function getVideoCode($params = array())
     {
-        return self::getYtVideoCode($this->video_url, $params);
-    }
-
-    /**
-     * Возвращает код видеоплеера Youtube
-     * @param string $url ссылка на ролик Youtube
-     * @param array $params дополнительные параметры, такие как размер видео TODO
-     * @return string html код плеера
-     */
-    public static function getYtVideoCode($url, $params = array())
-    {
-        // TODO: нам не нужен клиент, что бы получить код плеера
-        return \Yii::app()->getModule('sectionvideo')->externalVideo->get($url)->getPlayerCode();
-    }
-
-    /**
-     * Возвращает ссылку на изображение - превью видеоролика
-     * @param Zend_Gdata_YouTube_VideoEntry $entry обьект представляющий информацию о видео записи
-     * @return string url картинки
-     */
-    public static function getYtVideoThumbnail($entry)
-    {
-        // TODO: возможность менять размеры и, как вариант, сохранение картинки на сайте
-        //$thumbnails = $entry->getVideoThumbnails();
-        return $entry->mediaGroup->thumbnail[0]->url;
-    }
-
-    /**
-     * Возвращает обьект, описывающий YouTube видео
-     *
-     * @param string $url url ролика
-     * @return Zend_Gdata_YouTube_VideoEntry $entry обьект видео записи
-     */
-    public static function getYtVideoEntry($url)
-    {
-        $videoId = self::getYtVideoId($url);
-
-        Yii::import('application.vendor.*');
-        require_once 'Zend/Loader.php';
-
-        \Zend_Loader::loadClass('Zend_Gdata_YouTube');
-
-        $yt = new \Zend_Gdata_YouTube();
-
-        $entry = $yt->getVideoEntry($videoId);
-
-        return $entry;
-    }
-
-    /**
-     * Возвращает id видеоролика с youtube. URL
-     * @param string $url url видеоролика (например: http://www.youtube.com/watch?v=EB4ljWxG5P4)
-     * @return string video id
-     */
-    public static function getYtVideoId($url)
-    {
-        parse_str(parse_url($url, PHP_URL_QUERY), $params);
-
-        return $params['v'];
+        return $this->getGoogleYoutubeVideo()->getPlayerCode();
     }
 
     /**
@@ -421,7 +349,7 @@ class Video extends \CActiveRecord
         $criteria->compare('event', $this->event, true);
         $criteria->compare('title', $this->title, true);
         $criteria->compare('description', $this->description, true);
-        $criteria->compare('rating', $this->rating, true);
+        $criteria->compare('likes', $this->likes, true);
         $criteria->compare('tags', $this->tags, true);
         $criteria->compare('date_create', $this->date_create, true);
 

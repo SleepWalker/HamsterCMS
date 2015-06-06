@@ -122,6 +122,7 @@ class Post extends \CActiveRecord
             ),
             'HRating' => array(
                 'class' => 'HRatingBehavior',
+                'ratingModelClass' => '\blog\models\PostRating',
             ),
             'i18n' => array(
                 'class' => 'Hi18nBehavior',

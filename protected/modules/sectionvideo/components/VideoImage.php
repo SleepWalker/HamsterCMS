@@ -34,6 +34,6 @@ class VideoImage
 
     protected function getThumbnails()
     {
-        return \Yii::app()->getModule('sectionvideo')->externalVideo->get($this->_videoId)->getThumbnails();
+        return \Yii::app()->getModule('sectionvideo')->externalVideo->create($this->_videoId)->getThumbnails();
     }
 }

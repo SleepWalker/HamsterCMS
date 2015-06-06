@@ -11,7 +11,7 @@
  * @property SectionVideoMusicians[] $sectionVideoMusicians
  */
 
-namespace hamster\modules\sectionvideo\models;
+namespace sectionvideo\models;
 
 use \CActiveDataProvider;
 use \CDbCriteria;

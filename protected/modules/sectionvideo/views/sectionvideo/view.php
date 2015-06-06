@@ -36,7 +36,7 @@ $model->htmlEncode();
         <aside class="related-videos">
             <div class="related-videos__clip">
                 <?php $this->widget('hamster.widgets.view.SimpleListView', array(
-                    'model' => 'hamster\modules\sectionvideo\models\Video',
+                    'model' => 'sectionvideo\models\Video',
                     'amount' => 6,
                     'view' => 'small',
                 )); ?>

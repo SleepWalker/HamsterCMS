@@ -87,5 +87,18 @@ class YoutubeVideo
         }
 
         return $listResponse[0];
+        /*
+        'title' => $video['snippet']['title'],
+        'description' => $video['snippet']['description'],
+        'title' => $video['snippet']['title'],
+        'thumbnails' => $video['snippet']['thumbnails'],
+        'tags' => $video['snippet']['tags'],
+        'viewCount' => $video['statistics']['viewCount'],
+        'likeCount' => $video['statistics']['likeCount'],
+        'dislikeCount' => $video['statistics']['dislikeCount'],
+        'favoriteCount' => $video['statistics']['favoriteCount'],
+        'commentCount' => $video['statistics']['commentCount'],
+        'embedHtml' => $video['player']['embedHtml'],
+         */
     }
 }

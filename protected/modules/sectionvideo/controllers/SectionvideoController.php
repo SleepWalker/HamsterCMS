@@ -8,7 +8,7 @@
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
 
-use hamster\modules\sectionvideo\models\Video as Video;
+use sectionvideo\models\Video as Video;
 
 class SectionvideoController extends Controller
 {

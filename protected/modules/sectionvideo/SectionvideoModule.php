@@ -16,6 +16,15 @@ class SectionvideoModule extends \CWebModule
             'externalVideo' => [
                 'class' => '\sectionvideo\components\ExternalVideo',
             ],
+            'ratingCalculator' => [
+                'class' => '\sectionvideo\components\RatingCalculator',
+            ],
+            'videoRepository' => [
+                'class' => '\sectionvideo\repositories\VideoRepository',
+            ],
+            'ratingRepository' => [
+                'class' => '\sectionvideo\repositories\RatingRepository',
+            ],
         ]);
     }
 }

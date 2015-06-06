@@ -209,6 +209,7 @@ array(
         ),
         'debug' => array(
             'class' => 'application.vendor.composer.vendor.zhuravljov.yii2-debug.Yii2Debug',
+            'enabled' => 'phpexpr:YII_DEBUG && isset($_SERVER["SERVER_NAME"])',
         ),
     ),
     'defaultController' => 'page/page',

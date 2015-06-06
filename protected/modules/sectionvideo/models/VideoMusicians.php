@@ -19,7 +19,7 @@
  * @property SectionTeacher $teacher
  */
 
-namespace hamster\modules\sectionvideo\models;
+namespace sectionvideo\models;
 
 use \CActiveDataProvider;
 use \CDbCriteria;
@@ -68,10 +68,10 @@ class VideoMusicians extends \CActiveRecord
         // NOTE: you may need to adjust the relation name and the related
         // class name for the relations automatically generated below.
         return array(
-            'video' => array(self::BELONGS_TO, '\hamster\modules\sectionvideo\models\Video', 'video_id'),
-            'instrument' => array(self::BELONGS_TO, '\hamster\modules\sectionvideo\models\Instrument', 'instrument_id'),
-            'musician' => array(self::BELONGS_TO, '\hamster\modules\sectionvideo\models\Musician', 'musician_id'),
-            'teacher' => array(self::BELONGS_TO, '\hamster\modules\sectionvideo\models\Teacher', 'teacher_id'),
+            'video' => array(self::BELONGS_TO, '\sectionvideo\models\Video', 'video_id'),
+            'instrument' => array(self::BELONGS_TO, '\sectionvideo\models\Instrument', 'instrument_id'),
+            'musician' => array(self::BELONGS_TO, '\sectionvideo\models\Musician', 'musician_id'),
+            'teacher' => array(self::BELONGS_TO, '\sectionvideo\models\Teacher', 'teacher_id'),
         );
     }
 

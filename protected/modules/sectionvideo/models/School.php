@@ -19,7 +19,7 @@
  * @property SectionTeacher[] $sectionTeachers
  */
 
-namespace hamster\modules\sectionvideo\models;
+namespace sectionvideo\models;
 
 use \CActiveDataProvider;
 use \CDbCriteria;

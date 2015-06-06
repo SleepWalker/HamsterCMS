@@ -13,7 +13,7 @@ class ExternalVideo extends \CApplicationComponent
         $this->googleClient = $this->createGoogleClient();
     }
 
-    public function get($videoId)
+    public function create($videoId)
     {
         // NOTE: ссылка и id от одного и того же видео создадут дубликаты обьектов
         if (!isset($this->videos[$videoId])) {

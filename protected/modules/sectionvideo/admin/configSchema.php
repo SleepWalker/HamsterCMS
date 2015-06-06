@@ -11,14 +11,14 @@ return array(
     'type' => 'text',
     'default' => 'video',
   ),
-  
+
   // global params schema and admin panel settings
   'hamster' => array(
     'admin' => array(
       'title' => 'Видео секции',
       'description' => 'Модуль реализирующий функционал видео-каталога со специфическими для музыкальной секции модификациями',
       'db' => array(
-        'version' => '1.1',
+        'version' => '1.2.0',
         'tables' => array(
           'section_video',
           'section_video_tag',
