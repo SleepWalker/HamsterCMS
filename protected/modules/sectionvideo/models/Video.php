@@ -201,18 +201,6 @@ class Video extends \CActiveRecord
         return \Yii::app()->getModule('sectionvideo')->externalVideo->create($this->video_url);
     }
 
-    public function ratingWidget()
-    {
-        ?>
-        <div class="sharing-rocks">
-            <div class="this-rocks">
-                <span class="this-rocks__counter"><?=$this->likes?></span>
-                <span class="this-rocks__icon"></span>
-            </div>
-        </div>
-        <?php
-    }
-
     /**
      * Возвращает код видеоплеера Youtube
      * @param string $url ссылка на ролик Youtube
