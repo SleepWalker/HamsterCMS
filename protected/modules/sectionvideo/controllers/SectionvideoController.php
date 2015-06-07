@@ -17,10 +17,11 @@ class SectionvideoController extends \Controller
      */
     public function actionView($id)
     {
+        $model = $this->loadModel($id);
         if (isset($_GET['ajax'])) {
             $data = array(
                 'content' => $this->renderPartial('view', array(
-                    'model' => $this->loadModel($id),
+                    'model' => $model,
                 ), true, true),
                 'title' => $this->pageTitle,
             );
@@ -28,8 +29,16 @@ class SectionvideoController extends \Controller
             echo \CJSON::encode($data);
             \Yii::app()->end();
         } else {
+            \Yii::app()->openGraph->registerMeta([
+                'type' => 'video',
+                'url' => $model->getViewUrl(),
+                'title' => $model->getFullTitle(),
+                'image' => $model->getImageSrc('full'),
+                'updatedTime' => $model->date_create,
+            ]);
+
             $this->render('view', array(
-                'model' => $this->loadModel($id),
+                'model' => $model,
             ));
         }
     }

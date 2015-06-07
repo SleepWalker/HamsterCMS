@@ -100,6 +100,9 @@ array(
                 ),
             ),
         ),
+        'openGraph' => [
+            'class' => '\hamster\components\OpenGraph',
+        ],
         'ePdf' => array(
             'class' => 'ext.yii-pdf.EYiiPdf',
             'params' => array(

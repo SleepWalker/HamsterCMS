@@ -155,6 +155,18 @@ class Video extends \CActiveRecord
         );
     }
 
+    public function getFullTitle()
+    {
+        $caption = $this->getCaption();
+        $composition = $this->getComposition();
+
+        if (!empty($composition)) {
+            return $composition . (!empty($caption) ? " ($caption)" : '');
+        } else {
+            return $caption;
+        }
+    }
+
     /**
      * @return string возвращает заголовок для видео в зависимости от доступных данных
      */
@@ -219,7 +231,7 @@ class Video extends \CActiveRecord
             return false;
         }
 
-        return implode(' - ', $compositionName);
+        return implode(' — ', $compositionName);
     }
 
     /**
