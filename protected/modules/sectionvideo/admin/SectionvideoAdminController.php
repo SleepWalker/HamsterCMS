@@ -208,7 +208,7 @@ class SectionvideoAdminController extends \admin\components\HAdminController
                     'type' => 'raw',
                     'filter' => '',
                 ),
-                'caption',
+                'fullTitle',
                 /*
             array(
             'name'=>'cat_id',

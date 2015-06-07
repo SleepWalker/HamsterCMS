@@ -58,7 +58,7 @@ class YoutubeVideo
     {
         // TODO: делигировать на другой класс
         // html5=1 - исправляет баг с нерабочим видео в firefox в случае если оно вставлялось на страницу после ее загрузки (к примеру через ajax)
-        return '<iframe width="420" height="315" src="//www.youtube.com/embed/' . $this->videoId . '?html5=1" frameborder="0" allowfullscreen></iframe>';
+        return '<iframe width="100%" height="100%" src="//www.youtube.com/embed/' . $this->videoId . '?html5=1" frameborder="0" allowfullscreen></iframe>';
     }
 
     public function parseId($str)
