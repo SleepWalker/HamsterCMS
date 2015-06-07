@@ -4,7 +4,7 @@ class UpdateDb extends HUpdateDb
 {
     public function verHistory()
     {
-        return array('1.1', '1.2.0');
+        return array('1.1', '1.2.0', '1.2.1');
     }
 
     /**
@@ -162,5 +162,13 @@ class UpdateDb extends HUpdateDb
     {
         $this->alterColumn('{{section_video}}', 'rating', 'INT(10) UNSIGNED NOT NULL DEFAULT 0');
         $this->renameColumn('{{section_video}}', 'rating', 'likes');
+    }
+
+    /**
+     * Добавил views
+     */
+    public function update1_2_1()
+    {
+        $this->addColumn('{{section_video}}', 'views', 'INT(10) UNSIGNED NOT NULL DEFAULT 0');
     }
 }

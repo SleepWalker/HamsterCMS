@@ -10,6 +10,7 @@ class RatingCalculator extends \CApplicationComponent
 
         foreach ($videos as $video) {
             $video->likes = $this->calculateRating($video->primaryKey, $video->video_url);
+            $video->views = $this->getExternalVideoData($video->video_url)->getViews();
             \Yii::app()->getModule('sectionvideo')->videoRepository->save($video);
         }
     }
@@ -74,10 +75,13 @@ class RatingCalculator extends \CApplicationComponent
      */
     public function getExternalRating($extVideoId)
     {
+        return $this->getExternalVideoData($extVideoId)->getLikes();
+    }
+
+    private function getExternalVideoData($extVideoId)
+    {
         return \Yii::app()->getModule('sectionvideo')
             ->externalVideo
-            ->create($extVideoId)
-            ->getLikes()
-            ;
+            ->create($extVideoId);
     }
 }

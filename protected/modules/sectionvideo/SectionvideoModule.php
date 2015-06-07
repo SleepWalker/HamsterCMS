@@ -10,6 +10,8 @@
 
 class SectionvideoModule extends \CWebModule
 {
+    public $controllerNamespace = '\sectionvideo\controllers';
+
     public function init()
     {
         $this->setComponents([

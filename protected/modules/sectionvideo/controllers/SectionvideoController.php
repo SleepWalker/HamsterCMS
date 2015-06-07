@@ -3,16 +3,14 @@
  * SectionVideoController class for video module
  *
  * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @package    hamster.modules.sectionvideo.controllers
  * @copyright  Copyright &copy; 2013 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
 
-use sectionvideo\models\Video as Video;
+namespace sectionvideo\controllers;
 
-class SectionvideoController extends Controller
+class SectionvideoController extends \Controller
 {
-
     /**
      * Displays a particular model.
      * @param integer $id the ID of the model to be displayed
@@ -26,20 +24,19 @@ class SectionvideoController extends Controller
                 ), true, true),
                 'title' => $this->pageTitle,
             );
-            header('application/json');
-            echo CJSON::encode($data);
-            Yii::app()->end();
+            header('Content-Type: application/json');
+            echo \CJSON::encode($data);
+            \Yii::app()->end();
         } else {
             $this->render('view', array(
                 'model' => $this->loadModel($id),
             ));
         }
-
     }
 
     public function getIndexDataProvider()
     {
-        $criteria = new CDbCriteria();
+        $criteria = new \CDbCriteria();
 
         if (isset($_GET['tag'])) {
             $criteria->compare('tags', $_GET['tag']);
@@ -56,11 +53,28 @@ class SectionvideoController extends Controller
             $criteria->compare('teacher.id', $_GET['teacher'], false);
         }
 
-        return new CActiveDataProvider(Video::model(), array(
-            'pagination' => array(
+        return new \CActiveDataProvider('\sectionvideo\models\Video', array(
+            'pagination' => [
                 'pageSize' => 20,
                 'route' => 'index',
-            ),
+                'pageVar' => 'page',
+            ],
+            'sort' => [
+                'attributes' => [
+                    'likes' => [
+                        'asc' => 'likes ASC, views ASC',
+                        'desc' => 'likes DESC, views DESC',
+                        'default' => 'desc',
+                    ],
+                    'date_create' => [
+                        'default' => 'desc',
+                    ],
+                ],
+                'defaultOrder' => [
+                    'likes' => \CSort::SORT_DESC,
+                ],
+                'sortVar' => 'sort',
+            ],
             'criteria' => $criteria,
         ));
     }
@@ -72,7 +86,7 @@ class SectionvideoController extends Controller
     public function actionIndex()
     {
         $this->render('index', array(
-            'dataProvider' => $this->indexDataProvider,
+            'dataProvider' => $this->getIndexDataProvider(),
         ));
     }
 
@@ -103,11 +117,10 @@ class SectionvideoController extends Controller
      */
     public function loadModel($id)
     {
-        $model = Video::model()->findByPk($id);
-        if ($model === null) {
-            throw new CHttpException(404, 'The requested page does not exist.');
+        try {
+            return $this->module->videoRepository->get($id);
+        } catch (\Exception $e) {
+            throw new \CHttpException(404, 'The requested page does not exist.');
         }
-
-        return $model;
     }
 }

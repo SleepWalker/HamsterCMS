@@ -4,7 +4,7 @@
  * This is the model class for table "section_video".
  *
  * The followings are the available columns in table 'section_video':
- * @property string $id
+ * @property integer $id
  * @property string $composition_author
  * @property string $composition_name
  * @property string $event
@@ -12,7 +12,8 @@
  * @property string $thumbnail
  * @property string $title
  * @property string $description
- * @property string $likes
+ * @property integer $likes
+ * @property integer $views
  * @property string $tags
  * @property string $create_date
  */
@@ -116,7 +117,7 @@ class Video extends \CActiveRecord
     {
         $alias = $this->getTableAlias(true, false);
         return array(
-            'order' => $alias . '.likes DESC',
+            'order' => $alias . '.date_create DESC',
         );
     }
 
@@ -148,8 +149,9 @@ class Video extends \CActiveRecord
             'thumbnail' => 'thumbnail',
             'description' => 'Описание',
             'likes' => 'Лайки',
+            'views' => 'Просмотры',
             'tags' => 'Теги',
-            'date_create' => 'Add Date',
+            'date_create' => 'Дата добавления',
         );
     }
 
@@ -164,20 +166,6 @@ class Video extends \CActiveRecord
         } else {
             return $this->title;
         }
-    }
-
-    /**
-     * @return integer кол-во просмотров на youtube
-     */
-    public function getViews()
-    {
-        $cacheId = $this->video_url . '#views';
-        if (($views = \Yii::app()->cache->get($cacheId)) === false) {
-            $views = $this->getGoogleYoutubeVideo()->getViews();
-            \Yii::app()->cache->set($cacheId, $views);
-        }
-
-        return $views;
     }
 
     /**
