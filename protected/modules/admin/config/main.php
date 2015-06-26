@@ -16,7 +16,7 @@
  */
 
 return
-array(
+[
     'language' => 'ru',
     'sourceLanguage' => 'ru',
     'charset' => 'UTF-8',
@@ -194,26 +194,23 @@ array(
             'errorAction' => 'site/error',
         ),
 
-        'log' => array(
+        'log' => [
             'class' => 'CLogRouter',
-            'routes' => array(
-                array(
+            'routes' => [
+               [
                     'class' => 'CFileLogRoute',
-                    'levels' => 'error, warning, info',
-                    'filter' => array(
-                        'class' => 'CLogFilter',
-                        'prefixSession' => false,
-                        'prefixUser' => false,
-                        'logUser' => false,
-                        'logVars' => array('_GET', '_POST', '_REQUEST_URI', '_REMOTE_ADDR'),
-                    ),
-                ),
-            ),
-        ),
-        'debug' => array(
+                    'levels' => 'error, warning',
+                    'filter' => [
+                        'class' => 'hamster\components\LogContext',
+                        'logVars' => [['_SERVER', 'REMOTE_ADDR'], '_GET', '_POST'],
+                    ],
+                ],
+            ],
+        ],
+        'debug' => [
             'class' => 'application.vendor.composer.vendor.zhuravljov.yii2-debug.Yii2Debug',
             'enabled' => 'phpexpr:YII_DEBUG && isset($_SERVER["SERVER_NAME"])',
-        ),
+        ],
     ),
     'defaultController' => 'page/page',
-);
+];
