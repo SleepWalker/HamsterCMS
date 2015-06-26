@@ -131,10 +131,10 @@ class HModuleUrlRule extends \CBaseUrlRule
             $modules = \Yii::app()->modules;
             $moduleUrls = array();
             foreach ($modules as $moduleId => $moduleConfig) {
-                // if (isset($moduleConfig['params']['aliases'][$pathInfo]['route'])) {
-                //     // Новый вариант роутинга. когда все пути задаются в админке
-                //     return $moduleId . '/' . $moduleConfig['params']['aliases'][$pathInfo]['route'];
-                // }
+                if (isset($moduleConfig['params']['aliases'][$pathInfo]['route'])) {
+                    // Новый вариант роутинга. когда все пути задаются в админке
+                    return $moduleId . '/' . $moduleConfig['params']['aliases'][$pathInfo]['route'];
+                }
 
                 // // проверяем view url
                 // $pathInfoWithId = preg_replace('/[^\/]+$/', '{id}', $pathInfo);

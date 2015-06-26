@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This is the model class for managing config files of models for Hamster
  *
@@ -93,7 +92,7 @@ class Config extends \CFormModel
     {
         $config = \Yii::getPathOfAlias('application.modules.'.$moduleId.'.admin').'/configSchema.php';
         if (file_exists($config)) {
-            return new \Config(require($config), $moduleId);
+            return new self(require($config), $moduleId);
         } else {
             return null; // у этого модуля нету конфига
         }
@@ -487,7 +486,11 @@ class Config extends \CFormModel
         // активируем админский модуль по дефолту
         $hamsterConfig['modules'][] = 'admin';
 
-        $hamsterConfigStr = "<?php\n\nreturn " . var_export($hamsterConfig, true) . ";";
+        $configHeader = <<<HEADER
+Yii::setPathOfAlias('hamster', dirname(dirname(__FILE__)));
+HEADER;
+
+        $hamsterConfigStr = "<?php\n\n" . $configHeader . "\n\nreturn " . var_export($hamsterConfig, true) . ";";
 
         //FIXME тут есть пару костылей... для тех случаев, когда надо включать в экспорт php выражения
         //FIXME надо бы придумать более адекватное добавление переменных ГЛОБАЛ

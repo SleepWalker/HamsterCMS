@@ -70,7 +70,7 @@ class HRatingBehavior extends CActiveRecordBehavior
                 return;
             }
 
-            if (empty($this->getRatingVal())) {
+            if (!$this->getRatingVal()) {
                 $rating = '1.' . $value * 100;
             } else {
                 $rating = ($this->getVotesCount() + 1) . '.' . (round(($this->getRatingVal() + $value) / 2, 2) * 100);
