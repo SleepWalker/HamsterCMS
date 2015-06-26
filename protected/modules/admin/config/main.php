@@ -165,6 +165,13 @@ return
             //'excludePattern' => '/\.tpl/i', //js regexp, files with matching paths won't be filtered is set to other than 'null'
             //'includePattern' => '/\.php/', //js regexp, only files with matching paths will be filtered if set to other than 'null'
 
+            'packages' => [
+                'js-logger' => [
+                    'basePath' => 'hamster.modules.admin.assets.js.logger',
+                    'js' => ['logger.js'],
+                ],
+            ],
+
             'mergeJs' => false, //def:true
             // 'compressMergedJs' => false, //def:false
 

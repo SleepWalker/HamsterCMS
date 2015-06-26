@@ -67,6 +67,28 @@ class SiteController extends Controller
         }
     }
 
+    public function actionJsError()
+    {
+        $error = \CHtml::encode(\Yii::app()->request->getPost('error'));
+        $source = \CHtml::encode(\Yii::app()->request->getPost('source'));
+        $line = \Yii::app()->request->getPost('line');
+        $col = \Yii::app()->request->getPost('col');
+        $stack = \CHtml::encode(\Yii::app()->request->getPost('stack'));
+        $location = \CHtml::encode(\Yii::app()->request->getPost('location'));
+
+        if (!is_numeric($line) || !is_numeric($col)) {
+            throw new \DomainException('Wrong line and col format');
+        }
+
+        if (filter_var($location, FILTER_VALIDATE_URL) === false) {
+            throw new \DomainException('Wrong url format');
+        }
+
+        $message = "JsError with message $error in $source:$line\n\nStack trace:\n$stack\n\nwindow.location=$location\n---";
+
+        \Yii::log($message, CLogger::LEVEL_ERROR, 'js');
+    }
+
     /**
      * Displays the contact page
      */
