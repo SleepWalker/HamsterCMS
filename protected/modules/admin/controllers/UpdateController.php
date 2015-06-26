@@ -242,7 +242,7 @@ class UpdateController extends \admin\components\HAdminController
     {
         $updateList = array(); // модули к обновлению
         foreach (array_keys($this->enabledModules) as $moduleId) {
-            $config = \Config::load($moduleId); // конфиг, в котором лежит актуальная версия бд
+            $config = \admin\models\Config::load($moduleId); // конфиг, в котором лежит актуальная версия бд
             if (!$config) {
                 continue;
             }

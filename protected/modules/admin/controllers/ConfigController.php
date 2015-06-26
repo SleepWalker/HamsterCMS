@@ -158,7 +158,7 @@ class ConfigController extends \admin\components\HAdminController
             $cform = new \CForm($cformConfig);
 
         } else {
-            // $config = new \Config(array(), 'admin');
+            // $config = new \admin\models\Config::(array(), 'admin');
 
             // TODO: написать еще одну прослойку, которая будет принимать полный конфиг и хранить при себе все сгенерированные модели и потом уже выдавать CForm
             /*

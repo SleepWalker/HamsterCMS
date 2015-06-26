@@ -39,7 +39,7 @@ class HModuleManager extends \CApplicationComponent
             if (is_dir($path . '/' . $moduleName)) {
                 $modulePath = \Yii::getPathOfAlias('application.modules.' . $moduleName);
                 if (is_dir($modulePath . '/admin')) {
-                    $adminConfig = \Config::load($moduleName)->adminConfig;
+                    $adminConfig = \admin\models\Config::load($moduleName)->adminConfig;
                     /*if($modulesInfo[$moduleName]['title'] == '')
                     $modulesInfo[$moduleName]['title'] = $adminConfig['title'];
                     else
@@ -156,7 +156,7 @@ class HModuleManager extends \CApplicationComponent
 
         // Обновим статус модуля в конфиге (FIXME: честно говоря грубый способ... но пока так)
         $moduleIds = array_values(array_flip($hamsterModules['enabledModules']));
-        \Config::load(reset($moduleIds))->save(false);
+        \admin\models\Config::load(reset($moduleIds))->save(false);
         $this->_hamsterModules = $hamsterModules;
     }
 
@@ -170,7 +170,7 @@ class HModuleManager extends \CApplicationComponent
     private function testDb($moduleId)
     {
         // TODO: needs rewriting or should be deleted after refactoring
-        $tables = \Config::load($moduleId)->adminConfig['db']['tables'];
+        $tables = \admin\models\Config::load($moduleId)->adminConfig['db']['tables'];
         if (!isset($tables)) {
             return;
         }

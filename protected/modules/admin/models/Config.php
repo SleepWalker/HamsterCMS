@@ -9,8 +9,10 @@
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
 
+namespace admin\models;
+
 // TODO: переписать этот даунский класс!
-class Config extends CFormModel
+class Config extends \CFormModel
 {
     //TODO: loadCForm()
     // в этот массив парсятся все настройки для текущего модуля (из configSchema)
@@ -66,16 +68,16 @@ class Config extends CFormModel
     public function __construct(array $config, $moduleId, $scenario = '')
     {
         if (empty($moduleId)) {
-            throw new CException('moduleId не может быть пустой строкой');
+            throw new \CException('moduleId не может быть пустой строкой');
         }
         // проверяем можем ли мы писать в необходимых директориях
-        $path = Yii::getPathOfAlias('application.config') . '/hamster.php';
+        $path = \Yii::getPathOfAlias('application.config') . '/hamster.php';
         if (!is_writable($path)) {
-            Yii::app()->user->setFlash('error', "Файл '$path' не доступен для записи.");
+            \Yii::app()->user->setFlash('error', "Файл '$path' не доступен для записи.");
         }
-        $path = Yii::getPathOfAlias('application.config') . '/hamsterModules.php';
+        $path = \Yii::getPathOfAlias('application.config') . '/hamsterModules.php';
         if (is_file($path) && !is_writable($path)) {
-            Yii::app()->user->setFlash('error', "Файл '$path' не доступен для записи.");
+            \Yii::app()->user->setFlash('error', "Файл '$path' не доступен для записи.");
         }
         $this->_moduleId = $moduleId;
         $this->_configSchema = $config;
@@ -89,9 +91,9 @@ class Config extends CFormModel
      */
     public static function load($moduleId)
     {
-        $config = Yii::getPathOfAlias('application.modules.'.$moduleId.'.admin').'/configSchema.php';
+        $config = \Yii::getPathOfAlias('application.modules.'.$moduleId.'.admin').'/configSchema.php';
         if (file_exists($config)) {
-            return new Config(require($config), $moduleId);
+            return new \Config(require($config), $moduleId);
         } else {
             return null; // у этого модуля нету конфига
         }
@@ -120,7 +122,7 @@ class Config extends CFormModel
         // добавим в массив с настройками еще параметры, которые передаются модулю
         // TODO: Обязательно написать об этом (['hamtser']['options'] == конфиг модуля) в будущей документации, бо я сам чуть не забыл о такой возможности
         if (isset($this->_configSchema['hamster']['options'])) {
-            $this->_curModConfig['config']['modules'][$this->moduleId] = CMap::mergeArray($this->_curModConfig['config']['modules'][$this->moduleId], $this->_configSchema['hamster']['options']);
+            $this->_curModConfig['config']['modules'][$this->moduleId] = \CMap::mergeArray($this->_curModConfig['config']['modules'][$this->moduleId], $this->_configSchema['hamster']['options']);
         }
 
         if ($this->moduleId != 'admin') {
@@ -335,7 +337,7 @@ class Config extends CFormModel
     protected function hamsterConfigSchema($name, $params, $linkTo = false)
     {
         if ($params['type'] == '') {
-            throw new CException("У параметра $name не указан обязательный параметр type");
+            throw new \CException("У параметра $name не указан обязательный параметр type");
         }
 
         // Добавляем поле в конфиг CForm
@@ -432,7 +434,7 @@ class Config extends CFormModel
         $this->mergeConfigs();
 
         if (!$this->_CForm && $this->_CFormConfig) {
-            $this->_CForm = new CForm(array(
+            $this->_CForm = new \CForm(array(
                 'buttons'=>array(
                     'submit'=>array(
                         'type'=>'submit',
@@ -468,9 +470,9 @@ class Config extends CFormModel
         $this->mergeConfigs();
 
         // загружаем файл с настройками hamster и обьединяем их с массивом настроек, за исключением некоторых элементов
-        $hamsterConfig = require(Yii::getPathOfAlias('application.modules.admin.config').'/main.php');
+        $hamsterConfig = require(\Yii::getPathOfAlias('application.modules.admin.config').'/main.php');
         if (is_array($this->_hamsterModules['config'])) {
-            $hamsterConfig = CMap::mergeArray($hamsterConfig, $this->_hamsterModules['config']);
+            $hamsterConfig = \CMap::mergeArray($hamsterConfig, $this->_hamsterModules['config']);
         }
         unset($hamsterConfig['modules']); // удаляем всю старую информацию о модулях
         // добавляем в массив настроек настройки модулей, с учетом их включенности/выключенности в админке
@@ -485,18 +487,7 @@ class Config extends CFormModel
         // активируем админский модуль по дефолту
         $hamsterConfig['modules'][] = 'admin';
 
-        ob_start();
-        ?>
-if(isset($_SERVER['REQUEST_URI']))
-    $GLOBALS['_REQUEST_URI'] = $_SERVER['REQUEST_URI'];
-if(isset($_SERVER['REMOTE_ADDR']))
-    $GLOBALS['_REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];
-
-Yii::setPathOfAlias('hamster', dirname(dirname(__FILE__)));
-        <?php
-        $configHeader = ob_get_clean();
-
-        $hamsterConfigStr = "<?php\n\n" . $configHeader . "\n\nreturn " . var_export($hamsterConfig, true) . ";";
+        $hamsterConfigStr = "<?php\n\nreturn " . var_export($hamsterConfig, true) . ";";
 
         //FIXME тут есть пару костылей... для тех случаев, когда надо включать в экспорт php выражения
         //FIXME надо бы придумать более адекватное добавление переменных ГЛОБАЛ
@@ -506,8 +497,8 @@ Yii::setPathOfAlias('hamster', dirname(dirname(__FILE__)));
 
         $hamsterModulesStr = "<?php\n\nreturn " . var_export($this->_hamsterModules, true) . ";";
 
-        return (file_put_contents(Yii::getPathOfAlias('application.config') . '/hamster.php', $hamsterConfigStr) !== false)
-        && (file_put_contents(Yii::getPathOfAlias('application.config') . '/hamsterModules.php', $hamsterModulesStr) !== false);
+        return (file_put_contents(\Yii::getPathOfAlias('application.config') . '/hamster.php', $hamsterConfigStr) !== false)
+        && (file_put_contents(\Yii::getPathOfAlias('application.config') . '/hamsterModules.php', $hamsterModulesStr) !== false);
     }
 
     /**
@@ -523,7 +514,7 @@ Yii::setPathOfAlias('hamster', dirname(dirname(__FILE__)));
             // после этой операции {@link _curModConfig} тоже заполнится актуальными данными из конфига
             $hamsterModules = $this->hamsterModules;
 
-            $this->_hamsterModules = CMap::mergeArray($this->_curModConfig, $hamsterModules);
+            $this->_hamsterModules = \CMap::mergeArray($this->_curModConfig, $hamsterModules);
 
             // сохраним в эту переменную изначальную версию элемента конфига params
             // это нужно для того, что бы пофиксить баг оверврайта полностью всех глобальных параметров при сохранении основных настроек цмс (это из-за того, что там linkTo => '$config["params"]'.
@@ -547,7 +538,7 @@ Yii::setPathOfAlias('hamster', dirname(dirname(__FILE__)));
      */
     public static function hamsterModules()
     {
-        $file = Yii::getPathOfAlias('application.config') . '/hamsterModules.php';
+        $file = \Yii::getPathOfAlias('application.config') . '/hamsterModules.php';
 
         return file_exists($file) ? require($file) : array();
     }
