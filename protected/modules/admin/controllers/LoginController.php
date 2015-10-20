@@ -16,6 +16,11 @@ class LoginController extends \admin\components\HAdminController
 {
     public $adminAssetsUrl;
 
+    public function filters()
+    {
+        return [];
+    }
+
     public function actionIndex()
     {
         $this->layout = 'empty';

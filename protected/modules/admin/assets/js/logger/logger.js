@@ -10,6 +10,7 @@
             return false;
         }
 
+        colno = colno || 0;
         error = error || {stack: ''};
 
         var Request = window.XMLHttpRequest;
@@ -25,6 +26,6 @@
         var request = new Request();
         request.open('POST', '/site/jsError', true);
         request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        request.send('error='+message+'&source='+source+'&line='+lineno+'&col='+colno+'&stack='+encodeURIComponent(error.stack));
+        request.send('error='+message+'&source='+source+'&line='+lineno+'&col='+colno+'&stack='+encodeURIComponent(error.stack)+'&location='+window.location.href);
     };
 }());

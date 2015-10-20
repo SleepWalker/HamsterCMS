@@ -12,30 +12,6 @@ namespace admin\controllers;
 
 class AdminController extends \admin\components\HAdminController
 {
-    public function filters()
-    {
-        return array(
-            'accessControl',
-        );
-    }
-
-    public function accessRules()
-    {
-        return array(
-            array('allow',
-                'roles' => array('admin'),
-            ),
-            array('allow',
-                'actions' => array('shop', 'error', 'index', 'cart', 'blog', 'page'),
-                'roles' => array('staff'),
-            ),
-            array('deny', // deny all users
-                'users' => array('*'),
-            ),
-        );
-    }
-    //expression: specifies a PHP expression whose value indicates whether this rule matches. In the expression, you can use variable $user which refers to Yii::app()->user.
-
     public function actionIndex()
     {
         $this->layout = 'main';

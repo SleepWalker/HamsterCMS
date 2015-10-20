@@ -2,11 +2,9 @@
 /**
  * Admin action file for page controller
  *
- * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @package    Hamster.controllers.page.PageAdminController
- * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
  * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
+
 class PageAdminController extends \admin\components\HAdminController
 {
     /**
@@ -31,9 +29,9 @@ class PageAdminController extends \admin\components\HAdminController
     public function actionUpdate()
     {
         if (!empty($this->crudid)) {
-            $model = Page::model()->findByPk($this->crudid);
+            $model = \page\models\Page::model()->findByPk($this->crudid);
         } else {
-            $model = new Page;
+            $model = new \page\models\Page();
         }
 
         // AJAX валидация
@@ -42,37 +40,17 @@ class PageAdminController extends \admin\components\HAdminController
             Yii::app()->end();
         }
 
-        if (isset($_POST['Page'])) {
-            $model->attributes = $_POST['Page'];
+        $modelName = \CHtml::modelName($model);
+        $postData = \Yii::app()->request->getPost($modelName);
+        if ($postData) {
+            $model->attributes = $postData;
 
             if (!$model->save()) {
                 throw new CHttpException(404, 'Ошибка при сохранении');
             }
-
-            $saved = true;
-        }
-        if (isset($_POST['ajaxSubmit'])) {
-            if ($saved && $this->crud == 'create') {
-                $data = array(
-                    'action' => 'redirect',
-                    'content' => $this->curModuleUrl . 'update/' . $model->id,
-                );
-            } else {
-                $data = array(
-                    'action' => 'renewForm',
-                    'content' => $this->renderPartial('update', array(
-                        'model' => $model,
-                    ), true, true),
-                );
-            }
-
-            echo json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
-        } else {
-            $this->render('update', array(
-                'model' => $model,
-            ));
         }
 
+        $this->renderForm($model);
     }
 
     /**
@@ -85,7 +63,7 @@ class PageAdminController extends \admin\components\HAdminController
 
     public function actionIndex()
     {
-        $dataProvider = new CActiveDataProvider('Page', array(
+        $dataProvider = new CActiveDataProvider('\page\models\Page', array(
             'pagination' => array(
                 'pageSize' => Yii::app()->params['defaultPageSize'],
             ),
@@ -108,7 +86,7 @@ class PageAdminController extends \admin\components\HAdminController
     {
         if (Yii::app()->request->isPostRequest) {
             // we only allow deletion via POST request
-            Page::model()->findByPk($this->crudid)->delete();
+            \page\models\Page::model()->findByPk($this->crudid)->delete();
 
             // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
             /*if(!isset($_GET['ajax']))

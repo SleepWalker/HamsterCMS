@@ -99,6 +99,7 @@ class SiteController extends Controller
             $model->attributes = $_POST['ContactForm'];
             if ($model->validate()) {
                 $emailWasSent = Yii::app()->mail->send(array(
+                    'from' => $model->email,
                     'to' => \Yii::app()->params['adminEmail'],
                     'subject' => $model->getSubject(),
                     'view' => 'mail_contact',

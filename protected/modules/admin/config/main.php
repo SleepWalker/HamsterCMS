@@ -209,7 +209,7 @@ return
                     'levels' => 'error, warning',
                     'filter' => [
                         'class' => 'hamster\components\LogContext',
-                        'logVars' => [['_SERVER', 'REMOTE_ADDR'], '_GET', '_POST'],
+                        'logVars' => [['_SERVER', 'REMOTE_ADDR'], ['_SERVER', 'HTTP_USER_AGENT'], '_GET', '_POST'],
                     ],
                 ],
             ],

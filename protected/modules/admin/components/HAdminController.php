@@ -47,6 +47,27 @@ class HAdminController extends \CController
         }
     }
 
+    public function filters()
+    {
+        return ['accessControl'];
+    }
+
+    public function accessRules()
+    {
+        return [
+            ['allow',
+                'roles' => ['admin'],
+            ],
+            ['allow',
+                'actions' => ['shop', 'error', 'index', 'cart', 'blog', 'page'],
+                'roles' => ['staff'],
+            ],
+            ['deny', // deny all users
+                'users' => ['*'],
+            ],
+        ];
+    }
+
     /**
      * Переопредиляем стандартный метод таким образом, что бы он искал вьюхи в следущем порядке:
      *  - Сначала во вьюхах админки (admin/views/admin/*)
@@ -203,16 +224,16 @@ class HAdminController extends \CController
      * @access public
      * @return void
      */
-    public function renderForm($model, $params = array())
+    public function renderForm($model, array $params = [])
     {
-        $params = \CMAp::mergeArray(array('model' => $model), $params);
+        $params = \CMAp::mergeArray(['model' => $model], $params);
 
         if (\Yii::app()->request->isPostRequest) {
             // если модель сохранена и это было действие добавления, переадресовываем на страницу редактирования этого же материала
             if (!$model->hasErrors() && $this->action->id == 'create') {
                 $data = array(
                     'action' => 'redirect',
-                    'content' => $this->curModuleUrl . 'update/' . $model->id,
+                    'content' => $this->createUrl('update', ['id' => $model->id]),
                 );
             } else {
                 $data = array(

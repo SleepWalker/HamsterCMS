@@ -13,8 +13,8 @@ use sectionvideo\models\Musician as Musician;
 use sectionvideo\models\Teacher as Teacher;
 use sectionvideo\models\Video as Video;
 use sectionvideo\models\VideoMusicians as VideoMusicians;
+
 Yii::import('application.modules.event.models.Event');
-use \Event;
 
 class SectionvideoAdminController extends \admin\components\HAdminController
 {
@@ -283,7 +283,7 @@ class SectionvideoAdminController extends \admin\components\HAdminController
     {
         if (Yii::app()->request->isPostRequest) {
             // we only allow deletion via POST request
-            $model = Post::model()->findByPk($this->crudid)->delete();
+            $model = Video::model()->findByPk($this->crudid)->delete();
         } else {
             throw new CHttpException(400, 'Не правильный запрос. Пожалуйста не повторяйте этот запрос еще раз.');
         }
@@ -312,7 +312,7 @@ class SectionvideoAdminController extends \admin\components\HAdminController
      */
     public function actionAcevent()
     {
-        $events = Event::model()->findAll(array(
+        $events = \Event::model()->findAll(array(
             'condition' => 'name LIKE :keyword',
             'limit' => 10,
             'params' => array(

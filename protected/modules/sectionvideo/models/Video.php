@@ -133,6 +133,16 @@ class Video extends \CActiveRecord
         );
     }
 
+    protected function beforeDelete()
+    {
+        if (parent::beforeDelete()) {
+            VideoMusicians::model()->deleteAllByAttributes(['video_id' => $this->primaryKey]);
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * @return array customized attribute labels (name=>label)
      */
