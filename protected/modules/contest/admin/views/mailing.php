@@ -14,23 +14,33 @@
 ]) ?>
     <h2>Отправить произвольный текст</h2>
 
-    <div class="form__row">
-        <div class="form__label">Кому?</div>
-        <?= \CHtml::radioButtonList('requestType', 'any', [
-            'any' => 'Всем',
-            'notConfirmed' => 'Не подтвердженным',
-            'accepted' => 'Принятым',
-        ]) ?>
-    </div>
+    <fieldset>
+        <legend>Фильтр получателей</legend>
+        <div class="form__row">
+            <div class="form__label">Тип заявки:</div>
+            <?= \CHtml::radioButtonList('requestType', 'any', [
+                'any' => 'Все',
+                'notConfirmed' => 'Не подтвердженные',
+                'accepted' => 'Принятые',
+            ]) ?>
+        </div>
 
-    <div class="form__row">
-        <div class="form__label">Формат номера</div>
-        <?= \CHtml::radioButtonList('type', 'any', [
-            'any' => 'Любой',
-            'group' => 'Группа',
-            'solo' => 'Соло',
-        ]) ?>
-    </div>
+        <div class="form__row">
+            <div class="form__label">Формат номера:</div>
+            <?= \CHtml::radioButtonList('type', 'any', [
+                'any' => 'Любой',
+                'group' => 'Группа',
+                'solo' => 'Соло',
+            ]) ?>
+        </div>
+
+        <div class="form__row">
+            <div class="form__label">Отправить на заданный Email:</div>
+            <?= \CHtml::textField('toEmail', '', [
+                'placeholder' => 'Email',
+            ]) ?>
+        </div>
+    </fieldset>
 
     <div class="form__row">
         <?= \CHtml::textField('subject', '', [

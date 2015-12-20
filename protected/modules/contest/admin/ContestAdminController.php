@@ -214,22 +214,32 @@ class ContestAdminController extends \admin\components\HAdminController
         if (\Yii::app()->request->getPost('sendCustom')) {
             $subject = \Yii::app()->request->getPost('subject');
             $message = \Yii::app()->request->getPost('message');
+            $toEmail = \Yii::app()->request->getPost('toEmail');
+
+            $emailData = [
+                'subject' => $subject,
+                'view' => 'custom_email',
+                'viewData' => [
+                    'message' => (new \CMarkdownParser())->transform($message)
+                ],
+            ];
 
             try {
-                $requests = $this->getRequestsForMailing([
-                    'requestType' => \Yii::app()->request->getPost('requestType', 'any'),
-                    'type' => \Yii::app()->request->getPost('type', 'any'),
-                ]);
-
-                foreach ($requests as $request) {
-                    \Yii::app()->getModule('contest')->mailer->notifyMusicians($request, [
-                        'subject' => $subject,
-                        'view' => 'custom_email',
-                        'viewData' => [
-                            'message' => (new \CMarkdownParser())->transform($message)
-                        ],
+                if (empty($toEmail)) {
+                    $requests = $this->getRequestsForMailing([
+                        'requestType' => \Yii::app()->request->getPost('requestType', 'any'),
+                        'type' => \Yii::app()->request->getPost('type', 'any'),
                     ]);
+
+                    foreach ($requests as $request) {
+                        \Yii::app()->getModule('contest')->mailer->notifyMusicians($request, $emailData);
+                    }
+                } else {
+                    $emailData['to'] = $toEmail;
+
+                    \Yii::app()->mail->send($emailData);
                 }
+
                 \Yii::app()->user->setFlash('success', 'Письма разосланы!');
             } catch (\Exception $e) {
                 \Yii::app()->user->setFlash('error', 'Во время рассылки произошла не предвиденная ошибка: ' . $e->getMessage());
