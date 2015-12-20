@@ -40,6 +40,26 @@ class Mailer extends \CApplicationComponent
         return $this->getMailer()->send($m);
     }
 
+    /**
+     * Renders message as it will be send
+     *
+     * @param  array  $params
+     *
+     * @return string
+     */
+    public function render(array $params)
+    {
+        if (isset($params['view'])) {
+            $message = $this->renderMessage($params['view'], $params['viewData']);
+        } elseif (isset($params['message'])) {
+            $message = $params['message'];
+        } else {
+            $message = '';
+        }
+
+        return $message;
+    }
+
     private function normalizeParams($params)
     {
         return \CMap::mergeArray(array(
@@ -80,15 +100,7 @@ class Mailer extends \CApplicationComponent
 
     private function setMessage($m, $params)
     {
-        if (isset($params['view'])) {
-            $message = $this->renderMessage($params['view'], $params['viewData']);
-        } elseif (isset($params['message'])) {
-            $message = $params['message'];
-        } else {
-            $message = '';
-        }
-
-        $m->setBody($message, 'text/html');
+        $m->setBody($this->render($params), 'text/html');
     }
 
     private function renderMessage($view, $data)

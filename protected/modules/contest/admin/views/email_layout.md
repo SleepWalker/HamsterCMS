@@ -10,3 +10,9 @@
 *Киевская городская секция эстрадной и рок музыки*
 
 [http://estrocksection.kiev.ua](http://estrocksection.kiev.ua)
+
+<style type="text/css">
+    body {
+        font-family: arial;
+    }
+</style>

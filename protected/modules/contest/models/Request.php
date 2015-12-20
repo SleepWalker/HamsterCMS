@@ -30,6 +30,9 @@ class Request extends \CActiveRecord
     const STATUS_WAIT_CONFIRM = 4;
     const STATUS_CONFIRMED = 5;
 
+    const TYPE_SOLO = 'solo';
+    const TYPE_GROUP = 'group';
+
     /**
      * @return array validation rules for model attributes.
      */

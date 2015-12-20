@@ -206,15 +206,27 @@ class ContestAdminController extends \admin\components\HAdminController
             $this->refresh();
         }
 
+        if (\Yii::app()->request->getPost('sendPreview')) {
+            echo $this->renderPreview();
+            \Yii::app()->end();
+        }
+
         if (\Yii::app()->request->getPost('sendCustom')) {
+            $subject = \Yii::app()->request->getPost('subject');
+            $message = \Yii::app()->request->getPost('message');
+
             try {
-                $requests = \contest\crud\RequestCrud::findAccepted();
+                $requests = $this->getRequestsForMailing([
+                    'requestType' => \Yii::app()->request->getPost('requestType', 'any'),
+                    'type' => \Yii::app()->request->getPost('type', 'any'),
+                ]);
+
                 foreach ($requests as $request) {
                     \Yii::app()->getModule('contest')->mailer->notifyMusicians($request, [
-                        'subject' => \Yii::app()->request->getPost('subject'),
+                        'subject' => $subject,
                         'view' => 'custom_email',
                         'viewData' => [
-                            'message' => (new \CMarkdownParser())->transform(\Yii::app()->request->getPost('message'))
+                            'message' => (new \CMarkdownParser())->transform($message)
                         ],
                     ]);
                 }
@@ -226,5 +238,62 @@ class ContestAdminController extends \admin\components\HAdminController
         }
 
         $this->render('mailing');
+    }
+
+    public function renderPreview()
+    {
+        if (\Yii::app()->request->isPostRequest) {
+            $message = \Yii::app()->request->getPost('message');
+
+            $requests = $this->getRequestsForMailing([
+                'requestType' => \Yii::app()->request->getPost('requestType', 'any'),
+                'type' => \Yii::app()->request->getPost('type', 'any'),
+            ]);
+
+            if (count($requests)) {
+                $musician = $requests[0]->musicians[0];
+
+                return \Yii::app()->getModule('contest')->mailer->render($musician, [
+                    'view' => 'custom_email',
+                    'viewData' => [
+                        'message' => (new \CMarkdownParser())->transform($message)
+                    ],
+                ]);
+            } else {
+                return 'Не найдены адресаты для отправки';
+            }
+        }
+    }
+
+    /**
+     * @return contest\models\Request[]
+     */
+    private function getRequestsForMailing(array $criteria)
+    {
+        $requestType = $criteria['requestType'];
+        $type = $criteria['type'];
+
+        switch ($requestType) {
+            case 'accepted':
+                $requests = \contest\crud\RequestCrud::findAccepted();
+                break;
+
+            case 'notConfirmed':
+                $requests = \contest\crud\RequestCrud::findNotConfirmed();
+                break;
+
+            case 'any':
+            default:
+                $requests = \contest\crud\RequestCrud::findAll();
+                break;
+        }
+
+        if ($type != 'any' && ($type == \contest\models\Request::TYPE_SOLO || $type == \contest\models\Request::TYPE_GROUP)) {
+            $requests = array_filter($requests, function ($request) use ($type) {
+                return $request->type == $type;
+            });
+        }
+
+        return $requests;
     }
 }

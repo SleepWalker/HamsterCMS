@@ -35,6 +35,24 @@ class Mailer extends \CApplicationComponent
         return $success;
     }
 
+    /**
+     * Renders mailing message as it will be send to user
+     * @return string
+     */
+    public function render(\CModel $musician, array $params = [])
+    {
+        if (!isset($params['viewData'])) {
+            $params['viewData'] = [];
+        }
+
+        $params['viewData'] = \CMap::mergeArray(
+            $musician->attributes,
+            $params['viewData']
+        );
+
+        return \Yii::app()->mail->render($params);
+    }
+
     public function notifyAdmin(array $options)
     {
         $adminEmail = $this->getModule()->getAdminEmail();
