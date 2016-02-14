@@ -7,11 +7,7 @@ namespace contest\components;
 
 class Mailer extends \CApplicationComponent
 {
-    /**
-     * TODO: it should accept only DTO
-     * for now it accepts \contest\models\view\Request and \contest\models\Request
-     */
-    public function notifyMusicians(\CModel $request, array $options)
+    public function notifyMusicians(\contest\models\Request $request, array $options)
     {
         $success = true;
         foreach ($request->musicians as $musician) {

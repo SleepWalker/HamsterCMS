@@ -1,53 +1,56 @@
 <?php
 /**
  * The class to handle request persistence
- *
- * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @copyright  Copyright &copy; 2015 Sviatoslav Danylenko (http://hamstercms.com)
- * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
 
 namespace contest\crud;
 
+use contest\models\view\ApplyForm;
+use contest\models\Request;
+use contest\models\Musician;
+
 class RequestCrud
 {
-    public static function create(\contest\models\view\Request $request)
+    /**
+     * @param  ApplyForm $request
+     *
+     * @throws Exception if can not create record
+     *
+     * @return Request
+     */
+    public static function create(ApplyForm $form)
     {
         $transaction = \Yii::app()->db->beginTransaction();
         try {
-            $requestAR = new \contest\models\Request();
-            $requestAR->attributes = $request->attributes;
+            $requestAR = new Request();
+            $requestAR->attributes = $form->request->attributes;
 
-            if (!$requestAR->save()) {
-                throw new \Exception('Error saving request: ' . var_export($requestAR->getErrors(), true));
-            }
+            $this->saveOrThrow($requestAR);
 
-            foreach ($request->compositions as $composition) {
+            foreach ($form->compositions as $composition) {
                 $compositionAR = new \contest\models\Composition();
                 $compositionAR->attributes = $composition->attributes;
                 $compositionAR->request_id = $requestAR->primaryKey;
 
-                if (!$compositionAR->save()) {
-                    throw new \Exception('Error saving composition: ' . var_export($compositionAR->getErrors(), true));
-                }
+                $this->saveOrThrow($compositionAR);
             }
 
-            foreach ($request->musicians as $musician) {
+            foreach ($form->musicians as $musician) {
                 if ($musician->isEmpty()) {
                     continue;
                 }
 
-                $musicianAR = new \contest\models\Musician();
+                $musicianAR = new Musician();
                 $musicianAR->attributes = $musician->attributes;
                 $musicianAR->request_id = $requestAR->primaryKey;
 
-                if (!$musicianAR->save()) {
-                    throw new \Exception('Error saving musician: ' . var_export($musicianAR->getErrors(), true));
-                }
+                $this->saveOrThrow($musicianAR);
             }
 
             $transaction->commit();
-        } catch (\CException $e) {
+
+            return $requestAR;
+        } catch (\Exception $e) {
             $transaction->rollBack();
 
             \Yii::log('Error adding request: ' . $e->getMessage(), \CLogger::LEVEL_ERROR);
@@ -56,34 +59,46 @@ class RequestCrud
         }
     }
 
+    private function saveOrThrow(\CActiveRecord $model)
+    {
+        if (!$model->save()) {
+            throw new \Exception(
+                'Error saving ' . get_class($model) . ': '
+                . var_export($model->getErrors(), true)
+            );
+        }
+    }
+
     public static function findByPk($pk)
     {
-        return \contest\models\Request::model()->with('compositions', 'musicians')->findByPk($pk);
+        return Request::model()->with('compositions', 'musicians')->findByPk($pk);
     }
 
     public static function findAll()
     {
-        return \contest\models\Request::model()->with('compositions', 'musicians')->findAll();
+        return Request::model()->with('compositions', 'musicians')->findAll();
     }
 
     public static function findNotConfirmed()
     {
-        return \contest\models\Request::model()->with('compositions', 'musicians')->findAll('status = ' . \contest\models\Request::STATUS_ACCEPTED);
+        return Request::model()->with('compositions', 'musicians')
+            ->findAll('status = ' . Request::STATUS_ACCEPTED);
     }
 
     public static function findAccepted()
     {
-        return \contest\models\Request::model()->with('compositions', 'musicians')->findAll('status NOT IN (' . implode(', ', [\contest\models\Request::STATUS_NEW, \contest\models\Request::STATUS_DECLINED]) . ')');
+        return Request::model()->with('compositions', 'musicians')
+            ->findAll('status NOT IN (' . implode(', ', [Request::STATUS_NEW, Request::STATUS_DECLINED]) . ')');
     }
 
     public static function decline($pk)
     {
-        $request = \contest\models\Request::model()->findByPk($pk);
+        $request = Request::model()->findByPk($pk);
         if (!$request) {
             throw new \Exception("Can't find request with id $pk");
         }
 
-        $request->status = \contest\models\Request::STATUS_DECLINED;
+        $request->status = Request::STATUS_DECLINED;
 
         if (!$request->save()) {
             throw new \Exception('Error saving request: ' . var_export($request->getErrors(), true));
@@ -92,12 +107,12 @@ class RequestCrud
 
     public static function accept($pk)
     {
-        $request = \contest\models\Request::model()->findByPk($pk);
+        $request = Request::model()->findByPk($pk);
         if (!$request) {
             throw new \Exception("Can't find request with id $pk");
         }
 
-        $request->status = \contest\models\Request::STATUS_ACCEPTED;
+        $request->status = Request::STATUS_ACCEPTED;
 
         if (!$request->save()) {
             throw new \Exception('Error saving request: ' . var_export($request->getErrors(), true));

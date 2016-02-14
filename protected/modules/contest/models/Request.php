@@ -19,9 +19,12 @@
 
 namespace contest\models;
 
+use contest\models\view\ApplyForm;
+
 class Request extends \CActiveRecord
 {
-    public $type = 'solo';
+    public $type = self::TYPE_SOLO;
+    public $format = self::FORMAT_SOLO;
     public $meta = [];
 
     const STATUS_NEW = 1;
@@ -29,6 +32,10 @@ class Request extends \CActiveRecord
     const STATUS_ACCEPTED = 3;
     const STATUS_WAIT_CONFIRM = 4;
     const STATUS_CONFIRMED = 5;
+
+    const FORMAT_SOLO = 1;
+    const FORMAT_MINUS = 2;
+    const FORMAT_CONCERTMASTER = 3;
 
     const TYPE_SOLO = 'solo';
     const TYPE_GROUP = 'group';
@@ -38,13 +45,17 @@ class Request extends \CActiveRecord
      */
     public function rules()
     {
-        return array(
-            array('type', 'required'),
-            array('name', 'length', 'max' => 128),
-            array('type', 'in', 'range' => array('solo', 'group')),
-            array('format', 'numerical', 'integerOnly' => true),
-            array('demos', 'safe'),
-        );
+        return [
+            ['type', 'required'],
+            ['name', 'length', 'max' => 128],
+
+            ['type', 'in', 'range' => [self::TYPE_SOLO, self::TYPE_GROUP]],
+            ['format', 'numerical', 'integerOnly' => true],
+            ['demos', 'safe'],
+
+            ['name', 'required', 'except' => 'solo'],
+            ['format', 'required', 'except' => 'group'],
+        ];
     }
 
     public function relations()
@@ -100,6 +111,18 @@ class Request extends \CActiveRecord
         $this->meta['confirmation'] = $confirmModel->attributes;
     }
 
+    /**
+     * @return array list for radio button/dropdown list
+     */
+    public function getFormatsList()
+    {
+        return [
+            self::FORMAT_SOLO => 'Сольное исполнение (без сопровождения)',
+            self::FORMAT_MINUS => 'Сольное исполнение под минус',
+            self::FORMAT_CONCERTMASTER => 'Сольное исполнение с концертмейстером',
+        ];
+    }
+
     public function getFormatLabel()
     {
         if ($this->isGroup()) {
@@ -107,13 +130,11 @@ class Request extends \CActiveRecord
         }
 
         $map = [
-            // view\Request::FORMAT_SOLO => 'Сольное исполнение (без сопровождения)',
-            // view\Request::FORMAT_MINUS => 'Сольное исполнение под минус',
-            // view\Request::FORMAT_CONCERTMASTER => 'Сольное исполнение с концертмейстером',
-            view\Request::FORMAT_SOLO => 'Соло',
-            view\Request::FORMAT_MINUS => 'Минус',
-            view\Request::FORMAT_CONCERTMASTER => 'Концертмейстер',
+            self::FORMAT_SOLO => 'Соло',
+            self::FORMAT_MINUS => 'Минус',
+            self::FORMAT_CONCERTMASTER => 'Концертмейстер',
         ];
+
         return !empty($this->format) ? $map[$this->format] : '';
     }
 
@@ -204,7 +225,7 @@ class Request extends \CActiveRecord
 
     public function isGroup()
     {
-        return $this->type == \contest\models\view\Request::TYPE_GROUP;
+        return $this->type == self::TYPE_GROUP;
     }
 
     public function getStatusesList()
@@ -246,7 +267,7 @@ class Request extends \CActiveRecord
     /**
      * TODO: need to be refactored according to DDD architecture
      * @throws  Exception IF it is a new model without pk
-     * @return  \contest\models\view\Request
+     * @return  ApplyForm
      */
     public function getViewModel()
     {
@@ -254,7 +275,7 @@ class Request extends \CActiveRecord
             throw new \Exception('The model should be created from persisted entity');
         }
 
-        $request = new \contest\models\view\Request();
+        $request = new ApplyForm();
 
         $request->attributes = $this->attributes;
         $request->id = $this->id;
@@ -274,6 +295,18 @@ class Request extends \CActiveRecord
         }
 
         return $request;
+    }
+
+    public function attributeLabels()
+    {
+        return [
+            'name' => 'Название группы',
+            'demos' => 'Ссылки на демо записи',
+            'type' => 'Номинация',
+            'format' => 'Формат номера',
+            'compositions' => 'Исполняемые композиции',
+            'musicians' => 'Исполнитель(-ли)',
+        ];
     }
 
     /**

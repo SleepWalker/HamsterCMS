@@ -1,13 +1,12 @@
 <?php
 /**
  * This controller allows to apply into the contest
- *
- * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @copyright  Copyright &copy; 2015 Sviatoslav Danylenko (http://hamstercms.com)
- * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
 
 namespace contest\controllers;
+
+use contest\models\view\ApplyForm;
+use contest\models\Request;
 
 class ContestController extends \Controller
 {
@@ -17,7 +16,7 @@ class ContestController extends \Controller
     {
         $this->pageTitle = 'Заявка на участие в конкурсе - ' . \Yii::app()->name;
 
-        $model = $this->module->factory->createRequest();
+        $model = new ApplyForm();
 
         // TODO: use builder pattern for creating new entity (?)
         if ($this->processModel($model)) {
@@ -117,10 +116,11 @@ class ContestController extends \Controller
         ]);
     }
 
-    private function processModel(\contest\models\view\Request $model)
+    private function processModel(ApplyForm $model)
     {
         if ($this->postData) {
-            if ($this->postData['type'] == \contest\models\view\Request::TYPE_GROUP) {
+            // TODO
+            if ($this->postData['type'] == Request::TYPE_GROUP) {
                 $model->scenario = 'group';
             } else {
                 $model->scenario = 'solo';
@@ -129,27 +129,23 @@ class ContestController extends \Controller
             $this->feedRequest($model);
 
             if (\Yii::app()->request->isAjaxRequest && \Yii::app()->request->getPost('ajaxValidation')) {
-                echo \CActiveForm::validate(array_merge(
-                    [$model],
-                    $model->musicians,
-                    $model->compositions
-                ), null, false);
+                echo \CActiveForm::validate($model->getModels(), null, false);
 
                 \Yii::app()->end();
             }
 
             if ($model->validate()) {
                 try {
-                    \contest\crud\RequestCrud::create($model);
+                    $request = \contest\crud\RequestCrud::create($model);
+
+                    $this->sendNotifications($request);
+
+                    return true;
                 } catch (\Exception $e) {
                     \Yii::app()->user->setFlash('error', 'Во время обработки заявки возникли не предвиденные ошибки. Пожалуйста попробуйте еще раз или свяжитесь с нами.');
                     \Yii::log($e->getMessage(), \CLogger::LEVEL_ERROR);
                     $this->refresh();
                 }
-
-                $this->sendNotifications($model);
-
-                return true;
             }
         }
 
@@ -158,14 +154,14 @@ class ContestController extends \Controller
 
     protected function getPostData()
     {
-        $modelName = \CHtml::modelName('\contest\models\view\Request');
+        $modelName = \CHtml::modelName(Request::class);
 
         return \Yii::app()->request->getPost($modelName);
     }
 
-    private function feedRequest(\contest\models\view\Request $model)
+    private function feedRequest(ApplyForm $model)
     {
-        $model->attributes = \Yii::app()->request->getPost(\CHtml::modelName($model), []);
+        $model->request->attributes = \Yii::app()->request->getPost(\CHtml::modelName(Request::class), []);
 
         $compositionsData = \Yii::app()->request->getPost(\CHtml::modelName($model->compositions[0]), []);
         $compositions = $model->compositions;
@@ -180,7 +176,7 @@ class ContestController extends \Controller
         }
     }
 
-    private function sendNotifications($model)
+    private function sendNotifications(Request $model)
     {
         $this->module->mailer->notifyMusicians($model, [
             'subject' => 'Заявка на участие в конкурсе',

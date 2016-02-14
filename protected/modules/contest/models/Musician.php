@@ -25,11 +25,38 @@ namespace contest\models;
 class Musician extends \CActiveRecord
 {
     /**
-     * @return string the associated database table name
+     * @return array validation rules for model attributes.
      */
-    public function tableName()
+    public function rules()
     {
-        return '{{contest_musician}}';
+        return [
+            ['request_id, first_name, last_name, instrument', 'required'],
+            ['request_id', 'length', 'max' => 11],
+            ['last_name, birthdate', 'required', 'except' => ['group']],
+
+            ['first_name, last_name, school, teacher', 'length', 'max' => 128],
+            ['email, instrument', 'length', 'max' => 64],
+
+            ['phone', 'length', 'max' => 25],
+            ['phone', 'match', 'pattern' => '/\+38 \(\d{3}\) \d{3}\-\d{2}\-\d{2}/'],
+
+            ['birthdate', 'match', 'pattern' => '/\d{2}\.\d{2}\.\d{4}/'],
+
+            ['email', 'email'],
+
+            ['class', 'safe'],
+        ];
+    }
+
+    public function isEmpty()
+    {
+        $empty = true;
+
+        foreach ($this->attributeNames() as $attribute) {
+            $empty = $empty && empty($this->$attribute);
+        }
+
+        return $empty;
     }
 
     public function getFullName()
@@ -47,21 +74,6 @@ class Musician extends \CActiveRecord
         return (int)date('Y')-(int)date('Y', strtotime($this->birthdate));
     }
 
-    /**
-     * @return array validation rules for model attributes.
-     */
-    public function rules()
-    {
-        return array(
-            array('request_id, first_name, last_name, instrument', 'required'),
-            array('request_id', 'length', 'max' => 11),
-            array('first_name, last_name, school, class, teacher', 'length', 'max' => 128),
-            array('email, instrument', 'length', 'max' => 64),
-            array('phone', 'length', 'max' => 25),
-            ['birthdate', 'safe'],
-        );
-    }
-
     protected function beforeSave()
     {
         if (preg_match('/\d{2}\.\d{2}\.\d{4}/', $this->birthdate)) {
@@ -73,6 +85,21 @@ class Musician extends \CActiveRecord
         return parent::beforeSave();
     }
 
+    public function attributeLabels()
+    {
+        return [
+            'first_name' => 'Имя',
+            'last_name' => 'Фамилия',
+            'birthdate' => 'Дата рождения',
+            'email' => 'Email',
+            'phone' => 'Телефон',
+            'instrument' => 'Инструмент/Вокал',
+            'school' => 'Школа/коледж/училище',
+            'teacher' => 'Преподаватель',
+            'class' => 'Класс/курс',
+        ];
+    }
+
     /**
      * @return array relational rules.
      */
@@ -81,6 +108,14 @@ class Musician extends \CActiveRecord
         return array(
             'request' => array(self::BELONGS_TO, '\contest\models\Request', 'request_id'),
         );
+    }
+
+    /**
+     * @return string the associated database table name
+     */
+    public function tableName()
+    {
+        return '{{contest_musician}}';
     }
 
     /**

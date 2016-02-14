@@ -1,33 +1,21 @@
 <?php
 /**
- * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @copyright  Copyright &copy; 2015 Sviatoslav Danylenko (http://hamstercms.com)
- * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
+ * An aggregate over Request, Muscian and Composition
  */
-
 namespace contest\models\view;
 
-class Request extends \CFormModel
+use contest\models\Request;
+use contest\models\Musician;
+use contest\models\Composition;
+
+class ApplyForm extends \CFormModel
 {
-    public $id;
-
-    public $type = 'solo';
-    public $format = self::FORMAT_SOLO;
-    public $name;
-    public $demos;
-
+    private $_request;
     private $_musicians = [];
     private $_compositions = [];
 
     const MAX_COMPOSITIONS = 2;
     const MAX_MUSICIANS = 7;
-
-    const FORMAT_SOLO = 1;
-    const FORMAT_MINUS = 2;
-    const FORMAT_CONCERTMASTER = 3;
-
-    const TYPE_GROUP = 'group';
-    const TYPE_SOLO = 'solo';
 
     public function __construct()
     {
@@ -41,18 +29,20 @@ class Request extends \CFormModel
      */
     public function rules()
     {
-        return array(
-            array('compositions, musicians', 'required'),
-            array('name', 'required', 'except' => 'solo'),
-            array('format', 'required', 'except' => 'group'),
-            array('name', 'length', 'max' => 64),
-            array('type', 'in', 'range' => array(self::TYPE_SOLO, self::TYPE_GROUP)),
-            array('demos', 'safe'),
-            array('format', 'numerical', 'integerOnly' => true),
+        return [
+            ['compositions, musicians, request', 'required'],
 
-            array('musicians', 'musiciansValidator'),
-            array('compositions', 'compositionsValidator'),
-        );
+            ['musicians', 'musiciansValidator'],
+            ['compositions', 'compositionsValidator'],
+            ['request', 'requestValidator'],
+        ];
+    }
+
+    public function requestValidator($attribute, $params = [])
+    {
+        if (!$this->request->validate()) {
+            return $this->addError('request', 'Часть полей формы были заполнены не верно');
+        }
     }
 
     public function musiciansValidator($attribute, $params = [])
@@ -95,10 +85,15 @@ class Request extends \CFormModel
 
     public function setScenario($value)
     {
-        foreach (array_merge($this->musicians, $this->compositions) as $model) {
+        foreach ($this->getModels() as $model) {
             $model->setScenario($value);
         }
         parent::setScenario($value);
+    }
+
+    public function getModels()
+    {
+        return array_merge($this->musicians, $this->compositions, [$this->request]);
     }
 
     /**
@@ -106,11 +101,7 @@ class Request extends \CFormModel
      */
     public function getFormatsList()
     {
-        return [
-            self::FORMAT_SOLO => 'Сольное исполнение (без сопровождения)',
-            self::FORMAT_MINUS => 'Сольное исполнение под минус',
-            self::FORMAT_CONCERTMASTER => 'Сольное исполнение с концертмейстером',
-        ];
+        return $this->request->getFormatsList();
     }
 
     /**
@@ -133,7 +124,7 @@ class Request extends \CFormModel
      */
     private function childrenHasErrors()
     {
-        $children = array_merge($this->musicians, $this->compositions);
+        $children = $this->getModels();
 
         foreach ($children as $child) {
             if ($child->hasErrors()) {
@@ -146,14 +137,19 @@ class Request extends \CFormModel
 
     public function attributeLabels()
     {
-        return array(
-            'name' => 'Название группы',
-            'demos' => 'Ссылки на демо записи',
-            'type' => 'Номинация',
-            'format' => 'Формат номера',
+        return [
             'compositions' => 'Исполняемые композиции',
             'musicians' => 'Исполнитель(-ли)',
-        );
+        ];
+    }
+
+    public function getRequest()
+    {
+        if (empty($this->_request)) {
+            $this->_request = new Request();
+        }
+
+        return $this->_request;
     }
 
     public function getMusicians()
@@ -184,7 +180,7 @@ class Request extends \CFormModel
 
     public function addMusician(array $attributes)
     {
-        $model = new \contest\models\view\Musician();
+        $model = new Musician();
 
         $model->setAttributes($attributes, false);
         array_push($this->_musicians, $model);
@@ -192,7 +188,7 @@ class Request extends \CFormModel
 
     public function addComposition(array $attributes)
     {
-        $model = new \contest\models\view\Composition();
+        $model = new Composition();
 
         $model->setAttributes($attributes, false);
         array_push($this->_compositions, $model);

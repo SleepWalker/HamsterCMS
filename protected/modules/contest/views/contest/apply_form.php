@@ -1,6 +1,6 @@
 <?php
 /**
- * @var  \contest\models\view\Request $model
+ * @var  \contest\models\view\ApplyForm $model
  */
 ?>
 
@@ -19,15 +19,15 @@
 
 <div class="form__row form__row--inline">
     <div class="form__row__right--push">
-        <?= $form->radioButtonList($model, 'type', array(
+        <?= $form->radioButtonList($model->request, 'type', array(
             'solo' => 'Соло',
             'group' => 'Группа',
         )); ?>
-        <?= $form->error($model, 'type'); ?>
+        <?= $form->error($model->request, 'type'); ?>
     </div>
     <?php
     Yii::app()->clientScript->registerScript(__FILE__.'#group-solo-switch', '$(function() {
-        $("#'.CHtml::activeId($model, 'type').'").change(function() {
+        $("#'.CHtml::activeId($model->request, 'type').'").change(function() {
             var selected = $("input:checked", this).val();
             var $solo = $(".js-solo-only");
             var $group = $(".js-group-only");
@@ -48,20 +48,33 @@
 </div>
 
 <div class="form__row js-group-only">
-    <?= $form->labelEx($model, 'name'); ?>
-    <?= $form->textField($model, 'name', array('class' => 'form__input')); ?>
-    <?= $form->error($model, 'name'); ?>
+    <?= $form->labelEx($model->request, 'name'); ?>
+    <?= $form->textField($model->request, 'name', array('class' => 'form__input')); ?>
+    <?= $form->error($model->request, 'name'); ?>
 </div>
 
 <div class="form__row js-solo-only">
-    <?= $form->labelEx($model, 'format'); ?>
+    <?= $form->labelEx($model->request, 'format'); ?>
     <div class="form__row__right">
-        <?= $form->radioButtonList($model, 'format', $model->getFormatsList(), array(
+        <?= $form->radioButtonList($model->request, 'format', $model->getFormatsList(), array(
             'class' => 'form__input',
         )); ?>
-        <?= $form->error($model, 'format'); ?>
+        <?= $form->error($model->request, 'format'); ?>
     </div>
-    <p class="note">В случае исполнения с концертмейстером, укажите информацию о нем в форме "Исполнитель(-ли)"</p>
+</div>
+
+<div class="form__row">
+    <div class="form__row__left">
+        <!-- <?= $form->labelEx($model, 'musicians'); ?> -->
+        Контакты
+    </div>
+    <div class="form__row__right--push">
+        <div class="form__row__small">
+            <input class="form__input" style="width:33%;" placeholder="Ваше имя" type="text">
+            <input class="form__input" style="width:33%;" placeholder="Email" type="email">
+            <input class="form__input" style="width:33%;" placeholder="Телефон" type="text">
+        </div>
+    </div>
 </div>
 
 <div class="form__row">
@@ -93,43 +106,6 @@
                         'class' => 'form__input',
                         'style' => 'width: 19%;',
                         'placeholder' => $musician->getAttributeLabel('instrument'),
-                    )); ?>
-                </div>
-
-                <div class="form__row__small">
-                    <?= $form->textField($musician, "[$index]email", array(
-                        'class' => 'form__input',
-                        'style' => 'width: 40%;',
-                        'placeholder' => $musician->getAttributeLabel('email'),
-                    )); ?>
-                    <?php $this->widget('CMaskedTextField', array(
-                        'model' => $musician,
-                        'attribute' => "[$index]phone",
-                        'htmlOptions' => array(
-                            'class' => 'form__input',
-                            'style' => 'width: 40%;',
-                            'placeholder' => $musician->getAttributeLabel('phone'),
-                        ),
-                        'mask' => '+38 (999) 999-99-99',
-                    )); ?>
-                    <?php $this->widget('zii.widgets.jui.CJuiDatePicker', array(
-                        'model' => $musician,
-                        'attribute' => "[$index]birthdate",
-                        'language' => 'ru',
-                        'htmlOptions' => array(
-                            'class' => 'form__input',
-                            'style' => 'width: 19%;',
-                            'placeholder' => $musician->getAttributeLabel('birthdate'),
-                        ),
-                        'options' => array(
-                            'changeYear' => true,
-                            'changeMonth' => true,
-                            'dateFormat' => 'dd.mm.yy',
-                            'defaultDate' => '-18y',
-                            'minDate' => '01.01.' . (date('Y')-70),
-                            'maxDate' => '31.12.' . (date('Y')-7),
-                            'yearRange' => (date('Y')-70).':'.(date('Y')-7),
-                        ),
                     )); ?>
                 </div>
 
@@ -203,13 +179,25 @@
 </div>
 
 <div class="form__row">
-    <?= $form->labelEx($model, 'demos'); ?>
-    <?= $form->textArea($model, 'demos', array('class' => 'form__input')); ?>
-    <?= $form->error($model, 'demos'); ?>
+    <?= $form->labelEx($model->request, 'demos'); ?>
+    <?= $form->textArea($model->request, 'demos', array('class' => 'form__input')); ?>
+    <?= $form->error($model->request, 'demos'); ?>
     <p class="note">
         Вы можете бесплатно загрузить свои записи на <a href="http://yotube.com">youtube.com</a>
-        или <a href="http://ex.ua">ex.ua</a>. Так же есть инструкция по
+        или <a href="http://ex.ua">ex.ua</a>.<br>
+        Так же есть инструкция по
         <?= CHtml::link('загрузке видео на youtube', ['/page/view', 'id' => 'how-to-youtube'], ['target' => '_blank']); ?>.
+    </p>
+</div>
+
+<div class="form__row">
+    <?= $form->labelEx($model->request, 'demos'); ?>
+    <?= $form->textArea($model->request, 'demos', ['class' => 'form__input']); ?>
+    <?= $form->error($model->request, 'demos'); ?>
+    <p class="note">
+        Дополнительная информация
+        Если вы играете с концертмейтером или живым сопровождением, укажите
+        здесь информацию о нем, что бы наши ведущие могли правильно обьявить Ваш номер.
     </p>
 </div>
 

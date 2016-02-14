@@ -31,11 +31,21 @@ class Composition extends \CActiveRecord
      */
     public function rules()
     {
+        return [
+            ['request_id', 'required'],
+            ['author, title, duration', 'required', 'message' => false],
+            ['duration', 'numerical', 'integerOnly' => true, 'max' => 15, 'message' => 'Время должно быть числом'],
+            ['request_id', 'length', 'max' => 11],
+            ['author, title', 'length', 'max' => 128],
+        ];
+    }
+
+    public function attributeLabels()
+    {
         return array(
-            array('request_id, author, title, duration', 'required'),
-            array('duration', 'numerical', 'integerOnly' => true),
-            array('request_id', 'length', 'max' => 11),
-            array('author, title', 'length', 'max' => 128),
+            'author' => 'Автор',
+            'title' => 'Название',
+            'duration' => 'Время, мин',
         );
     }
 
