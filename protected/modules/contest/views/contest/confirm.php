@@ -1,6 +1,7 @@
 <?php
 /**
- * @var \contest\models\view\ConfirmForm $model
+ * @var \contest\models\view\ConfirmForm $confirmForm
+ * @var \contest\models\view\ApplyForm $applyForm
  */
 ?>
 
@@ -15,24 +16,24 @@
 )); ?>
 
 <div class="form form--inline">
-    <?php if ($request->type == $request::TYPE_GROUP): ?>
+    <?php if ($applyForm->request->type == \contest\models\Request::TYPE_GROUP): ?>
         <div class="form__row">
-            <?= $form->labelEx($request, 'name'); ?>
-            <?= $form->textField($request, 'name', array('class' => 'form__input')); ?>
-            <?= $form->error($request, 'name'); ?>
+            <?= $form->labelEx($applyForm->request, 'name'); ?>
+            <?= $form->textField($applyForm->request, 'name', array('class' => 'form__input')); ?>
+            <?= $form->error($applyForm->request, 'name'); ?>
         </div>
     <?php endif; ?>
     <div class="form__row">
         <div class="form__row__left">
-            <?= $form->labelEx($request, 'musicians'); ?>
+            <?= $form->labelEx($applyForm, 'musicians'); ?>
         </div>
 
         <div class="form__row__right--push">
             <?php
-            foreach ($request->musicians as $index => $musician) {
+            foreach ($applyForm->musicians as $index => $musician) {
                 $isHidden = $musician->isEmpty();
                 ?>
-                <div class="form__row"<?php if ($isHidden) echo ' style="display: none;"'; ?>>
+                <div class="form__row"<?= $isHidden ? ' style="display: none;"' : ''; ?>>
                     <div class="form__row__small">
                         <?= $form->textField($musician, "[$index]first_name", array(
                             'class' => 'form__input',
@@ -72,18 +73,18 @@
                 <?php
             }
             ?>
-            <?= $form->error($request, 'musicians'); ?>
+            <?= $form->error($applyForm, 'musicians'); ?>
         </div>
     </div>
 
     <div class="form__row">
         <div class="form__row__left">
-            <?= $form->labelEx($request, 'compositions'); ?>
+            <?= $form->labelEx($applyForm, 'compositions'); ?>
         </div>
 
         <div class="form__row__right--push">
             <?php
-            foreach ($request->compositions as $index => $composition) {
+            foreach ($applyForm->compositions as $index => $composition) {
                 ?>
                 <div class="form__row">
                     <?= $form->textField($composition, "[$index]author", array(
@@ -106,29 +107,30 @@
                 <?php
             }
             ?>
-            <?= $form->error($request, 'compositions'); ?>
+            <?= $form->error($applyForm, 'compositions'); ?>
         </div>
     </div>
 </div>
 
 <div class="form">
     <div class="form__row">
-        <?= $form->checkBox($model, 'needSoundcheck') ?>
-        <?= $form->labelEx($model, 'needSoundcheck') ?>
-        <?= $form->error($model, 'needSoundcheck') ?>
+        <?= $form->checkBox($confirmForm, 'needSoundcheck') ?>
+        <?= $form->labelEx($confirmForm, 'needSoundcheck') ?>
+        <?= $form->error($confirmForm, 'needSoundcheck') ?>
     </div>
     <div class="form__row">
-        <?= $form->checkBox($model, 'hasMinus') ?>
-        <?= $form->labelEx($model, 'hasMinus') ?>
-        <?= $form->error($model, 'hasMinus') ?>
+        <?= $form->checkBox($confirmForm, 'hasMinus') ?>
+        <?= $form->labelEx($confirmForm, 'hasMinus') ?>
+        <?= $form->error($confirmForm, 'hasMinus') ?>
         <div class="hint">Для экономии нашего и вашего времени, пожалуйста, заранее отправьте минус на нашу почту <a href="mailto:contest@estrocksection.kiev.ua">contest@estrocksection.kiev.ua</a>. Спасибо!</div>
     </div>
     <div class="form__row">
-        <?= $form->checkBox($model, 'willInviteFriends') ?>
-        <?= $form->labelEx($model, 'willInviteFriends') ?>
-        <?= $form->error($model, 'willInviteFriends') ?>
+        <?= $form->checkBox($confirmForm, 'willInviteFriends') ?>
+        <?= $form->labelEx($confirmForm, 'willInviteFriends') ?>
+        <?= $form->error($confirmForm, 'willInviteFriends') ?>
     </div>
     <div class="form__controls">
+        <?= \CHtml::hiddenField(\CHtml::modelName($applyForm) . '[submitted]', 1) ?>
         <?= \CHtml::submitButton('Отправить', ['class' => 'button']) ?>
     </div>
 </div>

@@ -17,8 +17,18 @@ class ApplyForm extends \CFormModel
     const MAX_COMPOSITIONS = 2;
     const MAX_MUSICIANS = 7;
 
-    public function __construct()
+    public function __construct(Request $request = null, array $musicians = [], array $compositions = [])
     {
+        if ($request) {
+            array_walk($musicians, function (Musician $musician) {
+            });
+            array_walk($compositions, function (Composition $composition) {
+            });
+            $this->_request = $request;
+            $this->_musicians = $musicians;
+            $this->_compositions = $compositions;
+        }
+
         $this->init();
         $this->attachBehaviors($this->behaviors());
         $this->afterConstruct();
@@ -94,6 +104,33 @@ class ApplyForm extends \CFormModel
     public function getModels()
     {
         return array_merge($this->musicians, $this->compositions, [$this->request]);
+    }
+
+    public function load(\CHttpRequest $request)
+    {
+        $requestData = $request->getPost(\CHtml::modelName(Request::class), []);
+        $compositionsData = $request->getPost(\CHtml::modelName(Composition::class), []);
+        $musiciansData = $request->getPost(\CHtml::modelName(Musician::class), []);
+
+        $this->request->attributes = $requestData;
+
+        foreach ($this->compositions as $index => $composition) {
+            if (isset($compositionsData[$index])) {
+                $composition->attributes = $compositionsData[$index];
+            }
+        }
+
+        foreach ($this->musicians as $index => $musician) {
+            if (isset($musiciansData[$index])) {
+                $musician->attributes = $musiciansData[$index];
+            }
+        }
+
+        $this->setScenario(
+            $this->request->type === Request::TYPE_GROUP
+            ? Request::SCENARIO_GROUP
+            : Request::SCENARIO_SOLO
+        );
     }
 
     /**
@@ -176,21 +213,5 @@ class ApplyForm extends \CFormModel
         }
 
         return $this->_compositions;
-    }
-
-    public function addMusician(array $attributes)
-    {
-        $model = new Musician();
-
-        $model->setAttributes($attributes, false);
-        array_push($this->_musicians, $model);
-    }
-
-    public function addComposition(array $attributes)
-    {
-        $model = new Composition();
-
-        $model->setAttributes($attributes, false);
-        array_push($this->_compositions, $model);
     }
 }

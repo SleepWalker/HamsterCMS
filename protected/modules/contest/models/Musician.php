@@ -61,7 +61,6 @@ class Musician extends \CActiveRecord
 
     public function getFullName()
     {
-        // TODO: убрать в модель DM
         return implode(' ', [
             $this->first_name,
             $this->last_name,
@@ -70,7 +69,6 @@ class Musician extends \CActiveRecord
 
     public function getAge()
     {
-        // TODO: убрать в модель DM
         return (int)date('Y')-(int)date('Y', strtotime($this->birthdate));
     }
 
@@ -83,6 +81,18 @@ class Musician extends \CActiveRecord
         }
 
         return parent::beforeSave();
+    }
+
+    protected function afterSave()
+    {
+        parent::afterSave();
+        $this->birthdate = date('d.m.Y', strtotime($this->birthdate));
+    }
+
+    protected function afterFind()
+    {
+        parent::afterFind();
+        $this->birthdate = date('d.m.Y', strtotime($this->birthdate));
     }
 
     public function attributeLabels()

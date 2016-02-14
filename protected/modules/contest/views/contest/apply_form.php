@@ -6,7 +6,10 @@
 
 <h1>Заявка на участие в конкурсе</h1>
 
-<p class="note">Пожалуйста, перед тем как подавать заявку, ознакомьтесь с <?= CHtml::link('правилами конкурса', array('rules')) ?>.</p>
+<p class="note">
+    Пожалуйста, перед тем как подавать заявку, ознакомьтесь
+    с <?= \CHtml::link('правилами конкурса', array('rules')) ?>.
+</p>
 
 <div class="form form--inline">
 <?php $form = $this->beginWidget('CActiveForm', array(
@@ -27,7 +30,7 @@
     </div>
     <?php
     Yii::app()->clientScript->registerScript(__FILE__.'#group-solo-switch', '$(function() {
-        $("#'.CHtml::activeId($model->request, 'type').'").change(function() {
+        $("#'.\CHtml::activeId($model->request, 'type').'").change(function() {
             var selected = $("input:checked", this).val();
             var $solo = $(".js-solo-only");
             var $group = $(".js-group-only");
@@ -90,7 +93,7 @@
         foreach ($model->musicians as $index => $musician) {
             $isHidden = $index && $musician->isEmpty() && !$musician->hasErrors();
             ?>
-            <div class="form__row js-addable"<?php if ($isHidden) echo ' style="display: none;"'; ?>>
+            <div class="form__row js-addable"<?= $isHidden ? ' style="display: none;"' : '' ?>>
                 <div class="form__row__small">
                     <?= $form->textField($musician, "[$index]first_name", array(
                         'class' => 'form__input',
@@ -180,13 +183,13 @@
 
 <div class="form__row">
     <?= $form->labelEx($model->request, 'demos'); ?>
-    <?= $form->textArea($model->request, 'demos', array('class' => 'form__input')); ?>
+    <?= $form->textArea($model->request, 'demos', ['class' => 'form__input']); ?>
     <?= $form->error($model->request, 'demos'); ?>
     <p class="note">
         Вы можете бесплатно загрузить свои записи на <a href="http://yotube.com">youtube.com</a>
         или <a href="http://ex.ua">ex.ua</a>.<br>
         Так же есть инструкция по
-        <?= CHtml::link('загрузке видео на youtube', ['/page/view', 'id' => 'how-to-youtube'], ['target' => '_blank']); ?>.
+        <?= \CHtml::link('загрузке видео на youtube', ['/page/view', 'id' => 'how-to-youtube'], ['target' => '_blank']); ?>.
     </p>
 </div>
 
@@ -202,7 +205,8 @@
 </div>
 
 <div class="form__controls">
-    <?= CHtml::submitButton('Отправить', array('class' => 'button')); ?>
+    <?= \CHtml::hiddenField(\CHtml::modelName($model) . '[submitted]', 1) ?>
+    <?= \CHtml::submitButton('Отправить', ['class' => 'button']); ?>
 </div>
 
 <?php $this->endWidget('CActiveForm'); ?>

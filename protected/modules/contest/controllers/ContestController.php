@@ -6,6 +6,7 @@
 namespace contest\controllers;
 
 use contest\models\view\ApplyForm;
+use contest\models\view\ConfirmForm;
 use contest\models\Request;
 
 class ContestController extends \Controller
@@ -16,16 +17,15 @@ class ContestController extends \Controller
     {
         $this->pageTitle = 'Заявка на участие в конкурсе - ' . \Yii::app()->name;
 
-        $model = new ApplyForm();
+        $form = new ApplyForm();
 
-        // TODO: use builder pattern for creating new entity (?)
-        if ($this->processModel($model)) {
+        if ($this->processApplyForm($form)) {
             \Yii::app()->user->setFlash(self::FLASH_APPLY, true);
             $this->redirect('success');
         }
 
         $this->render('apply_form', array(
-            'model' => $model,
+            'model' => $form,
         ));
     }
 
@@ -47,7 +47,6 @@ class ContestController extends \Controller
     {
         $this->pageTitle = 'Страница финалиста - ' . \Yii::app()->name;
 
-        // TODO: переместить как параметры экшена, когда роутер позволит это
         $id = \Yii::app()->request->getParam('id');
         $key = \Yii::app()->request->getParam('key');
         if (!$id || !$key) {
@@ -56,94 +55,50 @@ class ContestController extends \Controller
 
         $request = \contest\crud\RequestCrud::findByPk($id);
         if (!$request || !$request->isValidConfirmationKey($key)) {
-            $this->redirect('/');
+            throw new \CHttpException(404, 'Not found');
         }
 
-        $requestViewModel = $request->getViewModel();
+        $applyForm = $request->getApplyForm();
+        $confirmForm = $request->getConfirmForm();
 
-        $model = $request->getConfirmViewModel();
-        $modelName = \CHtml::modelName($model);
-
-        if (($data = \Yii::app()->request->getPost($modelName)) && $this->postData) {
-            $this->feedRequest($requestViewModel);
-            $model->attributes = $data;
-
-            if ($model->validate() && $requestViewModel->validate()) {
-                $transaction = \Yii::app()->db->beginTransaction();
-                try {
-                    // TODO: confirm should be moved to DM
-                    $request->confirm($key, $model);
-
-                    $request->name = $requestViewModel->name;
-
-                    // TODO: DDD - это боль. отрефактори и это, заодно
-                    foreach ($requestViewModel->compositions as $index => $composition) {
-                        $compositionRecord = $request->compositions[$index];
-                        $compositionRecord->attributes = $composition->attributes;
-                        if (!$compositionRecord->save()) {
-                            throw new \Exception('Error saving composition: ' . var_export($request->errors, true));
-                        }
-                    }
-
-                    foreach ($requestViewModel->musicians as $index => $musician) {
-                        $musicianRecord = $request->musicians[$index];
-                        $musicianRecord->attributes = $musician->attributes;
-                        if (!$musicianRecord->save()) {
-                            throw new \Exception('Error saving musician: ' . var_export($request->errors, true));
-                        }
-                    }
-
-                    // TODO
-                    // \contest\crud\RequestCrud::save($request);
-                    if (!$request->save()) {
-                        throw new \Exception('Error saving: ' . var_export($request->errors, true));
-                    }
-
-                    \Yii::app()->user->setFlash('success', 'Спасибо, ваши данные успешно обработаны!');
-                    $transaction->commit();
-                } catch (\Exception $e) {
-                    $transaction->rollBack();
-                    \Yii::app()->user->setFlash('error', 'Возникла не предвиденная ошибка! Пожалуйста, свяжитесь с нами.');
-                    \Yii::log('Error while confirming request: ' . $e->getMessage(), \CLogger::LEVEL_ERROR);
-                }
-                $this->refresh();
-            }
+        if ($this->processConfirmForm($key, $applyForm, $confirmForm)) {
+            \Yii::app()->user->setFlash(
+                'success',
+                'Спасибо, ваши данные успешно обработаны!'
+            );
         }
 
         $this->render('confirm', [
-            'model' => $model,
-            'request' => $requestViewModel,
+            'confirmForm' => $confirmForm,
+            'applyForm' => $applyForm,
         ]);
     }
 
-    private function processModel(ApplyForm $model)
+    private function processConfirmForm($key, ApplyForm $applyForm, ConfirmForm $confirmForm)
     {
-        if ($this->postData) {
-            // TODO
-            if ($this->postData['type'] == Request::TYPE_GROUP) {
-                $model->scenario = 'group';
-            } else {
-                $model->scenario = 'solo';
-            }
+        $modelName = \CHtml::modelName($confirmForm);
 
-            $this->feedRequest($model);
+        $confirmModelData = \Yii::app()->request->getPost($modelName);
 
-            if (\Yii::app()->request->isAjaxRequest && \Yii::app()->request->getPost('ajaxValidation')) {
-                echo \CActiveForm::validate($model->getModels(), null, false);
+        if ($confirmModelData && $this->isApplyFormSubmitted()) {
+            $applyForm->load(\Yii::app()->request);
+            $confirmForm->attributes = $confirmModelData;
 
-                \Yii::app()->end();
-            }
-
-            if ($model->validate()) {
+            if ($confirmForm->validate() && $applyForm->validate()) {
                 try {
-                    $request = \contest\crud\RequestCrud::create($model);
+                    $applyForm->request->confirm($key, $confirmForm);
 
-                    $this->sendNotifications($request);
+                    \contest\crud\RequestCrud::update($applyForm->request);
 
                     return true;
                 } catch (\Exception $e) {
-                    \Yii::app()->user->setFlash('error', 'Во время обработки заявки возникли не предвиденные ошибки. Пожалуйста попробуйте еще раз или свяжитесь с нами.');
-                    \Yii::log($e->getMessage(), \CLogger::LEVEL_ERROR);
+                    \Yii::log('Error while confirming request: ' . $e->getMessage(), \CLogger::LEVEL_ERROR);
+
+                    \Yii::app()->user->setFlash(
+                        'error',
+                        'Возникла не предвиденная ошибка! Пожалуйста, свяжитесь с нами.'
+                    );
+
                     $this->refresh();
                 }
             }
@@ -152,28 +107,49 @@ class ContestController extends \Controller
         return false;
     }
 
-    protected function getPostData()
+    private function processApplyForm(ApplyForm $form)
     {
-        $modelName = \CHtml::modelName(Request::class);
+        if ($this->isApplyFormSubmitted()) {
+            $form->load(\Yii::app()->request);
 
-        return \Yii::app()->request->getPost($modelName);
+            if (\Yii::app()->request->isAjaxRequest && \Yii::app()->request->getPost('ajaxValidation')) {
+                echo \CActiveForm::validate($form->getModels(), null, false);
+
+                \Yii::app()->end();
+            }
+
+            if ($form->validate()) {
+                try {
+                    $request = \contest\crud\RequestCrud::create($form);
+
+                    $this->sendNotifications($request);
+
+                    return true;
+                } catch (\Exception $e) {
+                    \Yii::log('Error processing apply form: ' . $e->getMessage(), \CLogger::LEVEL_ERROR);
+
+                    \Yii::app()->user->setFlash(
+                        'error',
+                        'Во время обработки заявки возникли не предвиденные ошибки. Пожалуйста попробуйте еще раз или свяжитесь с нами.'
+                    );
+
+                    $this->refresh();
+                }
+            }
+        }
+
+        return false;
     }
 
-    private function feedRequest(ApplyForm $model)
+    /**
+     * @return boolean
+     */
+    private function isApplyFormSubmitted()
     {
-        $model->request->attributes = \Yii::app()->request->getPost(\CHtml::modelName(Request::class), []);
-
-        $compositionsData = \Yii::app()->request->getPost(\CHtml::modelName($model->compositions[0]), []);
-        $compositions = $model->compositions;
-        foreach ($compositionsData as $index => $compositionData) {
-            $compositions[$index]->attributes = $compositionData;
-        }
-
-        $musiciansData = \Yii::app()->request->getPost(\CHtml::modelName($model->musicians[0]), []);
-        $musicians = $model->musicians;
-        foreach ($musiciansData as $index => $musicianData) {
-            $musicians[$index]->attributes = $musicianData;
-        }
+        return !!\Yii::app()->request->getPost(
+            \CHtml::modelName(ApplyForm::class),
+            false
+        );
     }
 
     private function sendNotifications(Request $model)

@@ -11,15 +11,12 @@
  * @property integer $status
  * @property string $meta
  * @property string $date_created
- *
- * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @copyright  Copyright &copy; 2015 Sviatoslav Danylenko (http://hamstercms.com)
- * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
 
 namespace contest\models;
 
 use contest\models\view\ApplyForm;
+use contest\models\view\ConfirmForm;
 
 class Request extends \CActiveRecord
 {
@@ -39,6 +36,9 @@ class Request extends \CActiveRecord
 
     const TYPE_SOLO = 'solo';
     const TYPE_GROUP = 'group';
+
+    const SCENARIO_SOLO = 'solo';
+    const SCENARIO_GROUP = 'group';
 
     /**
      * @return array validation rules for model attributes.
@@ -61,8 +61,8 @@ class Request extends \CActiveRecord
     public function relations()
     {
         return [
-            'musicians' => [self::HAS_MANY, '\contest\models\Musician', 'request_id'],
-            'compositions' => [self::HAS_MANY, '\contest\models\Composition', 'request_id'],
+            'musicians' => [self::HAS_MANY, Musician::class, 'request_id'],
+            'compositions' => [self::HAS_MANY, Composition::class, 'request_id'],
         ];
     }
 
@@ -76,7 +76,6 @@ class Request extends \CActiveRecord
 
     public function getConfirmationKey()
     {
-        // TODO: move to MD
         return md5($this->primaryKey.$this->date_created);
     }
 
@@ -96,15 +95,17 @@ class Request extends \CActiveRecord
     }
 
     /**
-     * @throws \Excption IF the key is invalid
+     * @throws \DomainException IF the key is invalid
      */
-    public function confirm($key, \contest\models\view\ConfirmForm $confirmModel)
+    public function confirm($key, ConfirmForm $confirmModel)
     {
-        if (!$this->isValidConfirmationKey($key)) {
-            throw new \Exception('Invalid confirmation key');
+        if (!$confirmModel->validate()) {
+            throw new \InvalidArgumentException('Invalid confirmation form data');
         }
 
-        // TODO: should we call validate on confirm model?
+        if (!$this->isValidConfirmationKey($key)) {
+            throw new \InvalidArgumentException('Invalid confirmation key');
+        }
 
         $this->status = self::STATUS_CONFIRMED;
 
@@ -264,39 +265,6 @@ class Request extends \CActiveRecord
         }
     }
 
-    /**
-     * TODO: need to be refactored according to DDD architecture
-     * @throws  Exception IF it is a new model without pk
-     * @return  ApplyForm
-     */
-    public function getViewModel()
-    {
-        if ($this->isNewRecord) {
-            throw new \Exception('The model should be created from persisted entity');
-        }
-
-        $request = new ApplyForm();
-
-        $request->attributes = $this->attributes;
-        $request->id = $this->id;
-        foreach ($this->musicians as $musician) {
-            $attributes = $musician->attributes;
-            if (!empty($attributes['birthdate'])) {
-                $attributes['birthdate'] = date('d.m.Y', strtotime($attributes['birthdate']));
-            }
-
-            $request->addMusician($attributes);
-        }
-
-        foreach ($this->compositions as $composition) {
-            $attributes = $composition->attributes;
-
-            $request->addComposition($attributes);
-        }
-
-        return $request;
-    }
-
     public function attributeLabels()
     {
         return [
@@ -310,11 +278,25 @@ class Request extends \CActiveRecord
     }
 
     /**
-     * @return  \contest\models\view\ConfirmForm
+     * @throws  Exception IF it is a new model without pk
+     *
+     * @return  ApplyForm
      */
-    public function getConfirmViewModel()
+    public function getApplyForm()
     {
-        $model = new \contest\models\view\ConfirmForm();
+        if ($this->isNewRecord) {
+            throw new \Exception('The model should be created from persisted entity');
+        }
+
+        return new ApplyForm($this, $this->musicians, $this->compositions);
+    }
+
+    /**
+     * @return  ConfirmForm
+     */
+    public function getConfirmForm()
+    {
+        $model = new ConfirmForm();
 
         if (isset($this->meta['confirmation'])) {
             $model->attributes = $this->meta['confirmation'];
@@ -344,8 +326,8 @@ class Request extends \CActiveRecord
         // $criteria->compare('title', $this->title, true);
         // $criteria->compare('content', $this->content, true);
 
-        return new \CActiveDataProvider($this, array(
+        return new \CActiveDataProvider($this, [
             'criteria' => $criteria,
-        ));
+        ]);
     }
 }

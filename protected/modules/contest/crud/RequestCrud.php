@@ -8,11 +8,12 @@ namespace contest\crud;
 use contest\models\view\ApplyForm;
 use contest\models\Request;
 use contest\models\Musician;
+use contest\models\Composition;
 
 class RequestCrud
 {
     /**
-     * @param  ApplyForm $request
+     * @param  ApplyForm $form
      *
      * @throws Exception if can not create record
      *
@@ -25,14 +26,14 @@ class RequestCrud
             $requestAR = new Request();
             $requestAR->attributes = $form->request->attributes;
 
-            $this->saveOrThrow($requestAR);
+            self::saveOrThrow($requestAR);
 
             foreach ($form->compositions as $composition) {
-                $compositionAR = new \contest\models\Composition();
+                $compositionAR = new Composition();
                 $compositionAR->attributes = $composition->attributes;
                 $compositionAR->request_id = $requestAR->primaryKey;
 
-                $this->saveOrThrow($compositionAR);
+                self::saveOrThrow($compositionAR);
             }
 
             foreach ($form->musicians as $musician) {
@@ -44,7 +45,7 @@ class RequestCrud
                 $musicianAR->attributes = $musician->attributes;
                 $musicianAR->request_id = $requestAR->primaryKey;
 
-                $this->saveOrThrow($musicianAR);
+                self::saveOrThrow($musicianAR);
             }
 
             $transaction->commit();
@@ -59,7 +60,40 @@ class RequestCrud
         }
     }
 
-    private function saveOrThrow(\CActiveRecord $model)
+    /**
+     * @param  Request $request
+     *
+     * @throws Exception if can not update record
+     *
+     * @return Request
+     */
+    public static function update(Request $request)
+    {
+        $transaction = \Yii::app()->db->beginTransaction();
+        try {
+            self::saveOrThrow($request);
+
+            foreach ($request->compositions as $index => $composition) {
+                self::saveOrThrow($composition);
+            }
+
+            foreach ($request->musicians as $index => $musician) {
+                self::saveOrThrow($musician);
+            }
+
+            $transaction->commit();
+
+            return $request;
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+
+            \Yii::log('Error saving request: ' . $e->getMessage(), \CLogger::LEVEL_ERROR);
+
+            throw new \Exception('Error saving data', 0, $e);
+        }
+    }
+
+    private static function saveOrThrow(\CActiveRecord $model)
     {
         if (!$model->save()) {
             throw new \Exception(

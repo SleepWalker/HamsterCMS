@@ -1,11 +1,8 @@
 <?php
 /**
- * Admin action class for blog module
+ * Admin action class for contest module
  *
- * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
  * @package    hamster.modules.sectionvideo.admin.SectionvideoAdminController
- * @copyright  Copyright &copy; 2013 Sviatoslav Danylenko (http://hamstercms.com)
- * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
 
 class ContestAdminController extends \admin\components\HAdminController
