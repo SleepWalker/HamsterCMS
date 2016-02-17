@@ -93,16 +93,6 @@ class RequestCrud
         }
     }
 
-    private static function saveOrThrow(\CActiveRecord $model)
-    {
-        if (!$model->save()) {
-            throw new \Exception(
-                'Error saving ' . get_class($model) . ': '
-                . var_export($model->getErrors(), true)
-            );
-        }
-    }
-
     public static function findByPk($pk)
     {
         return Request::model()->with('compositions', 'musicians')->findByPk($pk);
@@ -150,6 +140,16 @@ class RequestCrud
 
         if (!$request->save()) {
             throw new \Exception('Error saving request: ' . var_export($request->getErrors(), true));
+        }
+    }
+
+    private static function saveOrThrow(\CActiveRecord $model)
+    {
+        if (!$model->save()) {
+            throw new \Exception(
+                'Error saving ' . get_class($model) . ': '
+                . var_export($model->getErrors(), true)
+            );
         }
     }
 }

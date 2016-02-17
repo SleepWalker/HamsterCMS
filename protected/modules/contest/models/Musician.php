@@ -38,7 +38,10 @@ class Musician extends \CActiveRecord
             ['email, instrument', 'length', 'max' => 64],
 
             ['phone', 'length', 'max' => 25],
-            ['phone', 'match', 'pattern' => '/\+38 \(\d{3}\) \d{3}\-\d{2}\-\d{2}/'],
+            ['phone', 'match',
+                'pattern' => '/\+38 \(\d{3}\) \d{3}\-\d{2}\-\d{2}/',
+                'message' => 'Введите телефон в формате +38 (00) 000-00-00',
+            ],
 
             ['birthdate', 'match', 'pattern' => '/\d{2}\.\d{2}\.\d{4}/'],
 

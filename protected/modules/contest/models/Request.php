@@ -21,8 +21,13 @@ use contest\models\view\ConfirmForm;
 class Request extends \CActiveRecord
 {
     public $type = self::TYPE_SOLO;
-    public $format = self::FORMAT_SOLO;
     public $meta = [];
+
+    // TODO: remove after migration
+    public $contact_name;
+    public $contact_email;
+    public $contact_phone;
+    public $age_category;
 
     const STATUS_NEW = 1;
     const STATUS_DECLINED = 2;
@@ -33,6 +38,14 @@ class Request extends \CActiveRecord
     const FORMAT_SOLO = 1;
     const FORMAT_MINUS = 2;
     const FORMAT_CONCERTMASTER = 3;
+    const FORMAT_INSTRUMENTAL_SOLO = 4;
+    const FORMAT_VOCAL_SOLO = 5;
+    const FORMAT_GROUP = 6;
+
+    const AGE_CATEGORY_10 = 1;
+    const AGE_CATEGORY_11_14 = 2;
+    const AGE_CATEGORY_15_17 = 3;
+    const AGE_CATEGORY_18 = 4;
 
     const TYPE_SOLO = 'solo';
     const TYPE_GROUP = 'group';
@@ -46,15 +59,30 @@ class Request extends \CActiveRecord
     public function rules()
     {
         return [
-            ['type', 'required'],
-            ['name', 'length', 'max' => 128],
+            ['contact_name, contact_email, contact_phone', 'required'],
+            ['age_category', 'required',
+                'message' => 'Пожалуйста выберите возраст'],
+            ['format', 'required',
+                'message' => 'Пожалуйста выберите формат'],
+            ['name, contact_name', 'length', 'max' => 128],
 
-            ['type', 'in', 'range' => [self::TYPE_SOLO, self::TYPE_GROUP]],
-            ['format', 'numerical', 'integerOnly' => true],
+            ['age_category, format', 'numerical', 'integerOnly' => true],
+            ['format', 'in',
+                'range' => array_keys($this->getFormatsList())],
+            ['age_category', 'in',
+                'range' => array_keys($this->getAgeCategoriesList())],
+
             ['demos', 'safe'],
 
+            ['contact_phone', 'length', 'max' => 25],
+            ['contact_phone', 'match',
+                'pattern' => '/\+38 \(\d{3}\) \d{3}\-\d{2}\-\d{2}/',
+                'message' => 'Введите телефон в формате +38 (00) 000-00-00',
+            ],
+
+            ['contact_email', 'email'],
+
             ['name', 'required', 'except' => 'solo'],
-            ['format', 'required', 'except' => 'group'],
         ];
     }
 
@@ -112,31 +140,24 @@ class Request extends \CActiveRecord
         $this->meta['confirmation'] = $confirmModel->attributes;
     }
 
-    /**
-     * @return array list for radio button/dropdown list
-     */
-    public function getFormatsList()
-    {
-        return [
-            self::FORMAT_SOLO => 'Сольное исполнение (без сопровождения)',
-            self::FORMAT_MINUS => 'Сольное исполнение под минус',
-            self::FORMAT_CONCERTMASTER => 'Сольное исполнение с концертмейстером',
-        ];
-    }
-
     public function getFormatLabel()
     {
+        $format = $this->format;
+
         if ($this->isGroup()) {
-            return 'Группа';
+            $format = self::FORMAT_GROUP;
         }
 
         $map = [
             self::FORMAT_SOLO => 'Соло',
             self::FORMAT_MINUS => 'Минус',
             self::FORMAT_CONCERTMASTER => 'Концертмейстер',
+            self::FORMAT_INSTRUMENTAL_SOLO => 'Инструментальное соло',
+            self::FORMAT_VOCAL_SOLO => 'Вокальное соло',
+            self::FORMAT_GROUP => 'Вокально-инстр. ансамбль',
         ];
 
-        return !empty($this->format) ? $map[$this->format] : '';
+        return !empty($this->format) ? $map[$format] : '';
     }
 
     public function getStatusLabel()
@@ -226,7 +247,32 @@ class Request extends \CActiveRecord
 
     public function isGroup()
     {
-        return $this->type == self::TYPE_GROUP;
+        return $this->type == self::TYPE_GROUP || $this->format === self::FORMAT_GROUP;
+    }
+
+    /**
+     * @return array list for radio button/dropdown list
+     */
+    public function getFormatsList()
+    {
+        return [
+            // self::FORMAT_SOLO => 'Сольное исполнение (без сопровождения)',
+            // self::FORMAT_MINUS => 'Сольное исполнение под минус',
+            // self::FORMAT_CONCERTMASTER => 'Сольное исполнение с концертмейстером',
+            self::FORMAT_INSTRUMENTAL_SOLO => 'Инструментальное соло',
+            self::FORMAT_VOCAL_SOLO => 'Вокальное соло',
+            self::FORMAT_GROUP => 'Вокально-инстр. ансамбль',
+        ];
+    }
+
+    public function getAgeCategoriesList()
+    {
+        return [
+            self::AGE_CATEGORY_10 => 'до 10 лет',
+            self::AGE_CATEGORY_11_14 => '11-14 лет',
+            self::AGE_CATEGORY_15_17 => '15-17 лет',
+            self::AGE_CATEGORY_18 => '18 лет и старше',
+        ];
     }
 
     public function getStatusesList()
@@ -269,11 +315,14 @@ class Request extends \CActiveRecord
     {
         return [
             'name' => 'Название группы',
-            'demos' => 'Ссылки на демо записи',
+            'demos' => 'Демо и дополнительная информация',
             'type' => 'Номинация',
             'format' => 'Формат номера',
             'compositions' => 'Исполняемые композиции',
             'musicians' => 'Исполнитель(-ли)',
+            'contact_name' => 'Ваше имя',
+            'contact_email' => 'Email',
+            'contact_phone' => 'Телефон',
         ];
     }
 

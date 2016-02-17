@@ -10,6 +10,9 @@ use contest\models\Composition;
 
 class ApplyForm extends \CFormModel
 {
+    public $contacts = 'this is for label only';
+    public $nomination = 'this is for label only';
+
     private $_request;
     private $_musicians = [];
     private $_compositions = [];
@@ -40,7 +43,7 @@ class ApplyForm extends \CFormModel
     public function rules()
     {
         return [
-            ['compositions, musicians, request', 'required'],
+            ['compositions, musicians, request, contacts, nomination', 'required'],
 
             ['musicians', 'musiciansValidator'],
             ['compositions', 'compositionsValidator'],
@@ -177,6 +180,8 @@ class ApplyForm extends \CFormModel
         return [
             'compositions' => 'Исполняемые композиции',
             'musicians' => 'Исполнитель(-ли)',
+            'contacts' => 'Контакты',
+            'nomination' => 'Номинация',
         ];
     }
 
