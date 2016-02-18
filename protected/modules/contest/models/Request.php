@@ -15,19 +15,17 @@
 
 namespace contest\models;
 
+use KoKoKo\assert\Assert;
+
 use contest\models\view\ApplyForm;
 use contest\models\view\ConfirmForm;
 
 class Request extends \CActiveRecord
 {
-    public $type = self::TYPE_SOLO;
     public $meta = [];
+    public $status = self::STATUS_NEW;
 
-    // TODO: remove after migration
-    public $contact_name;
-    public $contact_email;
-    public $contact_phone;
-    public $age_category;
+    public $contest_id = 2; // TODO: remove hardcode, when we will be able to create contest
 
     const STATUS_NEW = 1;
     const STATUS_DECLINED = 2;
@@ -47,8 +45,9 @@ class Request extends \CActiveRecord
     const AGE_CATEGORY_15_17 = 3;
     const AGE_CATEGORY_18 = 4;
 
-    const TYPE_SOLO = 'solo';
-    const TYPE_GROUP = 'group';
+    public $type; // DEPRECATED
+    const TYPE_SOLO = 'solo'; // DEPRECATED
+    const TYPE_GROUP = 'group'; // DEPRECATED
 
     const SCENARIO_SOLO = 'solo';
     const SCENARIO_GROUP = 'group';
@@ -82,7 +81,9 @@ class Request extends \CActiveRecord
 
             ['contact_email', 'email'],
 
-            ['name', 'required', 'except' => 'solo'],
+            ['name', 'required', 'except' => self::SCENARIO_SOLO],
+
+            ['contest_id', 'length', 'max' => 11],
         ];
     }
 
@@ -247,7 +248,7 @@ class Request extends \CActiveRecord
 
     public function isGroup()
     {
-        return $this->type == self::TYPE_GROUP || $this->format === self::FORMAT_GROUP;
+        return $this->type === self::TYPE_GROUP || (int)$this->format === self::FORMAT_GROUP;
     }
 
     /**
@@ -288,6 +289,9 @@ class Request extends \CActiveRecord
 
     protected function beforeSave()
     {
+        Assert::assert($this->contest_id, 'contest_id')->numeric();
+        Assert::assert($this->status, 'status')->inArray(array_keys($this->getStatusesList()));
+
         if (parent::beforeSave()) {
             $this->meta = \CJSON::encode($this->meta);
 

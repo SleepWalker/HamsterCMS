@@ -4,11 +4,10 @@
  *
  * @abstract
  * @package hamster.modules.admin.components
- * @version $id$
- * @copyright Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
- * @author Sviatoslav Danylenko <mybox@udf.su>
- * @license PGPLv3 ({@link http://www.gnu.org/licenses/gpl-3.0.html})
  */
+
+use \admin\models\Config;
+
 abstract class HUpdateDb extends CDbMigration
 {
     /**
@@ -128,7 +127,7 @@ abstract class HUpdateDb extends CDbMigration
             $this->processLogStack();
 
             // обновляем версию БД в конфиге хомяка
-            $config = \Config::load($this->moduleId); // конфиг, в котором лежит актуальная версия бд
+            $config = Config::load($this->moduleId); // конфиг, в котором лежит актуальная версия бд
             $config->dbVersion = $newV;
             $config->save();
 

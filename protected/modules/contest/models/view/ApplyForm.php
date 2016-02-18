@@ -60,27 +60,18 @@ class ApplyForm extends \CFormModel
 
     public function musiciansValidator($attribute, $params = [])
     {
-        $hasContacts = false;
         $validCount = 0;
         foreach ($this->musicians as $musician) {
-            if (!empty($musician->email)) {
-                $hasContacts = true;
-            }
-
             // валидируем только тем модели, которые заполнялись юзером
             if (!$musician->isEmpty() && $musician->validate()) {
                 $validCount++;
             }
         }
 
-        if ($this->getScenario() == 'group' && $validCount < 2) {
+        if ($this->getScenario() === Request::SCENARIO_GROUP && $validCount < 2) {
             return $this->addError('musicians', 'В группе должно быть хотя бы два участника');
         } elseif ($validCount === 0) {
             return $this->addError('musicians', 'Укажите информацию хотя бы об одном музыканте');
-        }
-
-        if (!$hasContacts) {
-            return $this->addError('musicians', 'Пожалуйста, укажите email хоть одного музыканта');
         }
     }
 
@@ -130,7 +121,7 @@ class ApplyForm extends \CFormModel
         }
 
         $this->setScenario(
-            $this->request->type === Request::TYPE_GROUP
+            $this->request->isGroup()
             ? Request::SCENARIO_GROUP
             : Request::SCENARIO_SOLO
         );

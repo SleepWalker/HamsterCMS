@@ -22,6 +22,8 @@
 
 namespace contest\models;
 
+use KoKoKo\assert\Assert;
+
 class Musician extends \CActiveRecord
 {
     /**
@@ -30,8 +32,7 @@ class Musician extends \CActiveRecord
     public function rules()
     {
         return [
-            ['request_id, first_name, last_name, instrument', 'required'],
-            ['request_id', 'length', 'max' => 11],
+            ['first_name, last_name, instrument', 'required'],
             ['last_name, birthdate', 'required', 'except' => ['group']],
 
             ['first_name, last_name, school, teacher', 'length', 'max' => 128],
@@ -48,6 +49,8 @@ class Musician extends \CActiveRecord
             ['email', 'email'],
 
             ['class', 'safe'],
+
+            ['request_id', 'length', 'max' => 11],
         ];
     }
 
@@ -77,6 +80,8 @@ class Musician extends \CActiveRecord
 
     protected function beforeSave()
     {
+        Assert::assert($this->request_id, 'request_id')->numeric();
+
         if (preg_match('/\d{2}\.\d{2}\.\d{4}/', $this->birthdate)) {
             $this->birthdate = implode('-', array_reverse(explode('.', $this->birthdate)));
         } elseif (!preg_match('/\d{4}\-\d{2}\-\d{2}/', $this->birthdate)) {
@@ -119,7 +124,7 @@ class Musician extends \CActiveRecord
     public function relations()
     {
         return array(
-            'request' => array(self::BELONGS_TO, '\contest\models\Request', 'request_id'),
+            'request' => array(self::BELONGS_TO, Request::class, 'request_id'),
         );
     }
 

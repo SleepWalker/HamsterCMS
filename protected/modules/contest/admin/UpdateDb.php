@@ -4,7 +4,7 @@ class UpdateDb extends HUpdateDb
 {
     public function verHistory()
     {
-        return array('1.1.0', '1.2.0', '1.3.0', '1.4.0');
+        return ['1.1.0', '1.2.0', '1.3.0', '1.4.0', '1.5.0', '1.5.1'];
     }
 
     /**
@@ -88,5 +88,24 @@ class UpdateDb extends HUpdateDb
     public function update1_4_0()
     {
         $this->addColumn('{{contest_request}}', 'meta', 'TEXT NULL AFTER status');
+    }
+
+    /**
+     * Добавлен статус заявки
+     */
+    public function update1_5_0()
+    {
+        $this->addColumn('{{contest_request}}', 'contact_name', 'VARCHAR(128) NOT NULL AFTER format');
+        $this->addColumn('{{contest_request}}', 'contact_phone', 'VARCHAR(64) NOT NULL AFTER contact_name');
+        $this->addColumn('{{contest_request}}', 'contact_email', 'VARCHAR(25) NOT NULL AFTER contact_phone');
+        $this->addColumn('{{contest_request}}', 'contest_id', 'INT(11) UNSIGNED NOT NULL AFTER id');
+        $this->addColumn('{{contest_request}}', 'age_category', 'TINYINT(1) UNSIGNED AFTER format');
+    }
+
+    public function update1_5_1()
+    {
+        $this->update('{{contest_request}}', [
+            'contest_id' => 1
+        ], 'date_Created < NOW()');
     }
 }

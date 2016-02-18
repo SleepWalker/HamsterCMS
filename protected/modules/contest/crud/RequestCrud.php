@@ -22,18 +22,16 @@ class RequestCrud
     public static function create(ApplyForm $form)
     {
         $transaction = \Yii::app()->db->beginTransaction();
-        try {
-            $requestAR = new Request();
-            $requestAR->attributes = $form->request->attributes;
 
-            self::saveOrThrow($requestAR);
+        try {
+            $request = $form->request;
+
+            self::saveOrThrow($request);
 
             foreach ($form->compositions as $composition) {
-                $compositionAR = new Composition();
-                $compositionAR->attributes = $composition->attributes;
-                $compositionAR->request_id = $requestAR->primaryKey;
+                $composition->request_id = $request->primaryKey;
 
-                self::saveOrThrow($compositionAR);
+                self::saveOrThrow($composition);
             }
 
             foreach ($form->musicians as $musician) {
@@ -41,16 +39,14 @@ class RequestCrud
                     continue;
                 }
 
-                $musicianAR = new Musician();
-                $musicianAR->attributes = $musician->attributes;
-                $musicianAR->request_id = $requestAR->primaryKey;
+                $musician->request_id = $request->primaryKey;
 
-                self::saveOrThrow($musicianAR);
+                self::saveOrThrow($musician);
             }
 
             $transaction->commit();
 
-            return $requestAR;
+            return $request;
         } catch (\Exception $e) {
             $transaction->rollBack();
 
@@ -70,6 +66,7 @@ class RequestCrud
     public static function update(Request $request)
     {
         $transaction = \Yii::app()->db->beginTransaction();
+
         try {
             self::saveOrThrow($request);
 

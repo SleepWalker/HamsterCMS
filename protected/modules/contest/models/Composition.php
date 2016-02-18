@@ -16,6 +16,8 @@
 
 namespace contest\models;
 
+use KoKoKo\assert\Assert;
+
 class Composition extends \CActiveRecord
 {
     /**
@@ -32,21 +34,28 @@ class Composition extends \CActiveRecord
     public function rules()
     {
         return [
-            ['request_id', 'required'],
             ['author, title, duration', 'required', 'message' => false],
             ['duration', 'numerical', 'integerOnly' => true, 'max' => 15, 'message' => 'Время должно быть числом'],
-            ['request_id', 'length', 'max' => 11],
             ['author, title', 'length', 'max' => 128],
+
+            ['request_id', 'length', 'max' => 11],
         ];
+    }
+
+    protected function beforeSave()
+    {
+        Assert::assert($this->request_id, 'request_id')->numeric();
+
+        return parent::beforeSave();
     }
 
     public function attributeLabels()
     {
-        return array(
+        return [
             'author' => 'Автор',
             'title' => 'Название',
             'duration' => 'Время, мин',
-        );
+        ];
     }
 
     public function getFullName()
@@ -59,9 +68,9 @@ class Composition extends \CActiveRecord
      */
     public function relations()
     {
-        return array(
-            'request' => array(self::BELONGS_TO, '\contest\models\Request', 'request_id'),
-        );
+        return [
+            'request' => [self::BELONGS_TO, Request::class, 'request_id'],
+        ];
     }
 
     /**

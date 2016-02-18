@@ -4,13 +4,12 @@
  *
  * Производит обновление файлов цмс
  *
- * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
  * @package    hamster.modules.admin.controllers.UpdateController
- * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
- * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
 
 namespace admin\controllers;
+
+use \admin\models\Config;
 
 class UpdateController extends \admin\components\HAdminController
 {
@@ -242,7 +241,7 @@ class UpdateController extends \admin\components\HAdminController
     {
         $updateList = array(); // модули к обновлению
         foreach (array_keys($this->enabledModules) as $moduleId) {
-            $config = \admin\models\Config::load($moduleId); // конфиг, в котором лежит актуальная версия бд
+            $config = Config::load($moduleId); // конфиг, в котором лежит актуальная версия бд
             if (!$config) {
                 continue;
             }

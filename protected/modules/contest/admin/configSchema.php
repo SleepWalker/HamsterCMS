@@ -1,36 +1,36 @@
 <?php
-return array(
+return [
     // modulewide params schema
-    'moduleName' => array(
+    'moduleName' => [
         'label' => 'Название модуля',
         'type' => 'text',
         'default' => 'Конкурсы',
-    ),
-    'moduleUrl' => array(
+    ],
+    'moduleUrl' => [
         'label' => 'URI Адрес модуля',
         'type' => 'text',
         'default' => 'contest',
-    ),
+    ],
 
     // global params schema and admin panel settings
-    'hamster' => array(
-        'admin' => array(
+    'hamster' => [
+        'admin' => [
             'title' => 'Конкурсы',
             'description' => 'Модуль для управления конкурсами',
-            'db' => array(
-                'version' => '1.4.0',
-                'tables' => array(
+            'db' => [
+                'version' => '1.5.1',
+                'tables' => [
                     'contest_request',
                     'contest_musician',
                     'contest_composition',
-                ),
-            ),
-            'routes' => array(
+                ],
+            ],
+            'routes' => [
                 'contest/apply',
                 'contest/rules',
                 'contest/success',
                 'contest/confirm',
-            ),
-        ),
-    ),
-);
+            ],
+        ],
+    ],
+];
