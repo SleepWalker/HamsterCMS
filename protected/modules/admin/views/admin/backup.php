@@ -1,48 +1,79 @@
 <?php
 $this->pageTitle = 'Резервные копии';
-      
-echo CHtml::beginForm();
-echo '<p>' . CHtml::submitButton('Сделать резервную копию') . ' ' . 
-  CHtml::submitButton('Очистить базу данных', array('name'=>'flushDb', 'disabled'=>'disabled')) . '</p>';
-echo CHtml::endForm();
+?>
 
-$this->widget('zii.widgets.grid.CGridView', array(
-    'dataProvider'=>$dataProvider,
-    'columns'=>array(
-      array(
-        'name' => 'name',
-        'header' => 'Имя файла',
-      ),
-      array(
-        'name' => 'size',
-        'header' => 'Размер',
-        'value' => 'formatSize($data["size"])',
-      ),
-      array(
-        'name' => 'time',
-        'header' => 'Дата',
-        'value' => 'Yii::app()->dateFormatter->formatDateTime($data["time"])',
-      ),
-      array(
-        'name' => 'restore',
-        'header' => '',
-        'value' => '"<a href=\"?restore=" . $data["name"] . "\" title=\"Восстановить этот бекап\" class=\"icon_refresh\"></a>"
-          ."<a href=\"?delete=" . $data["name"] . "\" title=\"Удалить бекап\" class=\"icon_delete\" onclick=\"return confirm(\'Вы действительно хотите удалить этот бекап?\');\"></a>"
-        ',
-        'type' => "raw",
-      ),
-    ),
-    'cssFile'=>false,
+<?= CHtml::beginForm() ?>
+<p>
+    <?= \CHtml::submitButton('Сделать резервную копию') ?>
+    <?= \CHtml::submitButton('Очистить базу данных', ['name'=>'flushDb', 'disabled'=>'disabled']) ?>
+</p>
+<?= CHtml::endForm() ?>
+
+<div class="form">
+    <?= CHtml::beginForm('', 'post', [
+        'enctype' => 'multipart/form-data',
+    ]) ?>
+    <div class="row">
+        <label for="dump">Upload backup:</label>
+        <input required type="file" name="dump" id="dump" />
+    </div>
+
+    <div class="row">
+        <?= \CHtml::submitButton('Upload') ?>
+    </div>
+    <?= CHtml::endForm() ?>
+</div>
+
+<?php
+$this->widget('zii.widgets.grid.CGridView', [
+    'dataProvider' => $dataProvider,
+    'columns' => [
+        [
+            'name' => 'name',
+            'header' => 'Имя файла',
+        ],
+        [
+            'name' => 'formattedSize',
+            'header' => 'Размер',
+        ],
+        [
+            'name' => 'time',
+            'header' => 'Дата',
+            'value' => '\\Yii::app()->dateFormatter->formatDateTime($data["time"])',
+        ],
+        [
+            'class' => 'zii.widgets.grid.CButtonColumn',
+            'header' => '',
+            'template' => '{download} {restore} {delete}',
+            'buttons' => [
+                'download' => [
+                    'url' => '"?download=" . $data["name"]',
+                    'options' => [
+                        'title' => 'Скачать бекап',
+                        'class' => 'icon_sort_desc',
+                    ],
+                ],
+                'restore' => [
+                    'url' => '"?restore=" . $data["name"]',
+                    'options' => [
+                        'title' => 'Восстановить бекап',
+                        'class' => 'icon_refresh',
+                    ],
+                ],
+                'delete' => [
+                    'url' => '"?delete=" . $data["name"]',
+                    'options' => [
+                        'title' => 'Удалить бекап',
+                        'class' => 'icon_delete',
+                    ],
+                ],
+            ],
+        ],
+    ],
+    'cssFile' => false,
     'ajaxUpdate' => false,
-    'pager'=>array(
-      'cssFile'=>false,
-      'header'=>false,
-    ),
-));
-
-function formatSize($value, $decimals = 2, $base = 1024)
-{
-  $units=array('B','KB','MB','GB','TB');
-  for($i=0; $base<=$value; $i++) $value=$value/$base;
-  return round($value, $decimals).$units[$i];
-}
+    'pager' => [
+        'cssFile' => false,
+        'header' => false,
+    ],
+]);

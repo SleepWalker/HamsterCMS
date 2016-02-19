@@ -1,14 +1,11 @@
 <?php
 /**
  * AdminController class for admin module
- *
- * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @package    hamster.modules.admin.controllers
- * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
- * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
 
 namespace admin\controllers;
+
+\Yii::import('admin.extensions.yii-database-dumper.SDatabaseDumper');
 
 class BackupController extends \admin\components\HAdminController
 {
@@ -33,71 +30,31 @@ class BackupController extends \admin\components\HAdminController
 
     public function actionIndex()
     {
-        \Yii::import('admin.extensions.yii-database-dumper.SDatabaseDumper');
-
-        if (!is_dir(\Yii::getPathOfAlias('application.runtime.backup'))) {
-            mkdir(\Yii::getPathOfAlias('application.runtime.backup'));
-        }
-        // создаем директорию для дампов
-
         $filePath = \Yii::getPathOfAlias('application.runtime.backup') . DIRECTORY_SEPARATOR;
+
+        // Скачивание бекапа
+        if (isset($_GET['download']) && !empty($_GET['download'])) {
+            $this->actionDownload($_GET['download']);
+        }
 
         // Восстановление из бекапа
         if (isset($_GET['restore']) && $_GET['restore']) {
-            $sqlFile = $filePath . $_GET['restore'];
-            if (file_exists($sqlFile)) {
-                $sql = file_get_contents($sqlFile);
-                if (strpos($sqlFile, 'gz')) {
-                    $sql = gzinflate(substr($sql, 10, -8));
-                }
-                // чистим бд
-                $dumper = new \SDatabaseDumper;
-                $dumper->flushDb();
-
-                // запускаем sql комманды
-                $db = \Yii::app()->db;
-                $command = $db->createCommand($sql);
-                $rowCount = $command->execute();
-
-                \Yii::app()->user->setFlash('success', 'База успешно восстановлена. Затронуто строк: ' . $rowCount);
-            }
-            // T!: сделать отправку на восстановление из бекапа через пост
-            $this->redirect(array('/admin/backup'));
+            $this->actionRestore($_GET['restore']);
         }
 
         // удаление бекапа
         if (isset($_GET['delete']) && $_GET['delete']) {
-            if (file_exists($filePath . $_GET['delete'])) {
-                if (unlink($filePath . $_GET['delete']) === true) {
-                    \Yii::app()->user->setFlash('success', 'Бекап ' . $_GET['delete'] . ' успешно удален');
-                }
-
-            }
-            $this->redirect(array('/admin/backup'));
+            $this->actionDelete($_GET['delete']);
         }
 
         if (\Yii::app()->request->isPostRequest) {
             if (isset($_POST['flushDb']) && $_POST['flushDb']) {
-                $dumper = new \SDatabaseDumper;
-                if ($dumper->flushDb()) {
-                    \Yii::app()->user->setFlash('success', 'База успешно очищена');
-                }
-
+                $this->actionFlush();
+            } elseif (isset($_FILES['dump'])) {
+                $this->actionUpload($_FILES['dump']);
             } else {
-                $dumper = new \SDatabaseDumper;
-                // Get path to backup file
-                $file = $filePath . 'dump_' . date('Y-m-d_H_i_s') . '.sql';
-
-                $dump = $dumper->getDump();
-                // Gzip dump
-                if (function_exists('gzencode')) {
-                    file_put_contents($file . '.gz', gzencode($dump));
-                } else {
-                    file_put_contents($file, $dump);
-                }
-
+                $this->actionBackupAll();
             }
-            $this->refresh();
         }
 
         // список файлов в директории
@@ -105,11 +62,12 @@ class BackupController extends \admin\components\HAdminController
         $pathTofileListDirectory = \Yii::getPathOfAlias('application.runtime.backup');
         foreach (new \DirectoryIterator($pathTofileListDirectory) as $file) {
             if ($file->isFile() === true) {
-                array_push($fileListOfDirectory, array(
+                array_push($fileListOfDirectory, [
                     'name' => $file->getBasename(),
                     'size' => $file->getSize(),
+                    'formattedSize' => $this->formatSize($file->getSize()),
                     'time' => $file->getMTime(),
-                ));
+                ]);
             }
         }
 
@@ -131,5 +89,158 @@ class BackupController extends \admin\components\HAdminController
         $this->render('backup', array(
             'dataProvider' => $dataProvider,
         ));
+    }
+
+    private function actionBackupAll()
+    {
+        $file = $this->getBackupDir() . '/' . $this->generateDumpName();
+
+        $this->backupToFile($file);
+
+        $this->refresh();
+    }
+
+    private function backupToFile($destination, $options = array())
+    {
+        $dumper = $this->getDumper();
+        $dump = $dumper->getDump($options);
+
+        if (function_exists('gzencode')) {
+            file_put_contents($destination . '.gz', gzencode($dump));
+        } else {
+            file_put_contents($destination, $dump);
+        }
+    }
+
+    private function generateDumpName($prefix = '')
+    {
+        if (!empty($prefix)) {
+            $prefix .= '_';
+        }
+
+        return $prefix . 'dump_hamster_' . substr(\Yii::app()->request->getHostInfo(null), 3) . '_' . date('Y-m-d_H_i_s') . '.sql';
+    }
+
+    private function actionDownload($file)
+    {
+        $sqlFile = $this->getSqlFile($file);
+
+        header('Content-Disposition: attachment; filename="' . basename($sqlFile) . '"');
+        header('Content-type: application/x-gzip; name=' . basename($sqlFile));
+        header('Content-Length: ' . filesize($sqlFile));
+
+        readfile($sqlFile);
+        \Yii::app()->end();
+    }
+
+    private function actionDelete($file)
+    {
+        $sqlFile = $this->getSqlFile($file);
+        if (unlink($sqlFile) === true) {
+            \Yii::app()->user->setFlash('success', 'Бекап ' . $file . ' успешно удален');
+        } else {
+            \Yii::app()->user->setFlash('error', 'Не удалось удалить бекап ' . $file);
+        }
+
+        $this->redirect(['/admin/backup']);
+    }
+
+    private function actionRestore($file)
+    {
+        $sqlFile = $this->getSqlFile($file);
+        $sql = file_get_contents($sqlFile);
+        if (strpos($sqlFile, 'gz')) {
+            $sql = gzinflate(substr($sql, 10, -8));
+        }
+
+        $rowCount = \Yii::app()->db->createCommand($sql)->execute();
+
+        \Yii::app()->user->setFlash('success', 'База успешно восстановлена. Затронуто строк: ' . $rowCount);
+
+        // TODO: сделать отправку на восстановление из бекапа через пост
+        $this->redirect(['/admin/backup']);
+    }
+
+    private function actionFlush()
+    {
+        $dumper = $this->getDumper();
+        if ($dumper->flushDb()) {
+            \Yii::app()->user->setFlash('success', 'База успешно очищена');
+        } else {
+            \Yii::app()->user->setFlash('error', 'При очистке базы данных произошла ошибка');
+        }
+
+        $this->refresh();
+    }
+
+    private function actionUpload($file)
+    {
+        $isSql = strpos($file['type'], 'sql') !== false;
+        $isZip = strpos($file['type'], 'gz') !== false;
+
+        if (!$isSql && !$isZip) {
+            \Yii::app()->controller->refresh();
+        }
+
+        $destination = $this->getBackupDir() . '/' . $file['name'];
+        if (move_uploaded_file($file['tmp_name'], $destination)) {
+            @chmod($destination, 0777);
+            \Yii::app()->user->setFlash('success', 'Файл ' . $file['name'] . ' успешно загружен');
+        } else {
+            \Yii::app()->user->setFlash('error', 'Не удалось загрузить файл ' . $file['name']);
+        }
+
+        $this->refresh();
+    }
+
+    /**
+     * Производит базовую фильтрацию имени файла
+     *
+     * @param  string $fileName имя файла
+     *
+     * @return string отфильтрованное имя файла с путем к нему
+     */
+    private function getSqlFile($fileName)
+    {
+        $fileName = str_replace('/', '', $fileName);
+
+        $sqlFile = $this->getBackupDir() . DIRECTORY_SEPARATOR . $fileName;
+
+        if (!is_readable($sqlFile)) {
+            throw new \CException('Backup file can not be read');
+        }
+
+        return $sqlFile;
+    }
+
+    /**
+     * @return string путь к директории с бекапами
+     */
+    private function getBackupDir()
+    {
+        $backupDir = \Yii::app()->runtimePath . DIRECTORY_SEPARATOR . 'backup';
+        if (!is_dir($backupDir)) {
+            mkdir($backupDir);
+        }
+
+        return $backupDir;
+    }
+
+    private function formatSize($value, $decimals = 2, $base = 1024)
+    {
+        $units = ['B','KB','MB','GB','TB'];
+        for ($i = 0; $base <= $value; $i++) {
+            $value = $value / $base;
+        }
+
+        return round($value, $decimals) . $units[$i];
+    }
+
+    /**
+     * @return SDatabaseDumper
+     */
+    protected function getDumper()
+    {
+        return new \SDatabaseDumper(\Yii::app()->db);
     }
 }
