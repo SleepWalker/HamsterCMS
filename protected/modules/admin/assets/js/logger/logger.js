@@ -6,6 +6,18 @@
     window.console = window.console || {log: noop, warn: noop, error: noop, info: noop};
 
     window.onerror = function(message, source, lineno, colno, error) {
+        if (typeof message !== 'string') {
+            var messageString = '';
+            for (var x in message) {
+                if (messageString) messageString += ', ';
+                messageString += x + ': ' + message[x];
+            }
+            message = 'Unexpected error message type: {' + messageString + '}';
+
+            source = source || '';
+            source = lineno || 0;
+        }
+
         if (window.debug) {
             return false;
         }
@@ -13,19 +25,16 @@
         colno = colno || 0;
         error = error || {stack: ''};
 
-        var Request = window.XMLHttpRequest;
-        if (typeof Request == 'undefined') {
-            Request = function(){
-                return new window.ActiveXObject(
-                    navigator.userAgent.indexOf('MSIE 5') >= 0 ?
-                        'Microsoft.XMLHTTP' : 'Msxml2.XMLHTTP'
-                );
-            };
-        }
-
-        var request = new Request();
+        var request = new XMLHttpRequest();
         request.open('POST', '/site/jsError', true);
         request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        request.send('error='+message+'&source='+source+'&line='+lineno+'&col='+colno+'&stack='+encodeURIComponent(error.stack)+'&location='+window.location.href);
+        request.send([
+            'error='+encodeURIComponent(message),
+            'source='+encodeURIComponent(source),
+            'line='+encodeURIComponent(lineno),
+            'col='+encodeURIComponent(colno),
+            'stack='+encodeURIComponent(error.stack),
+            'location='+encodeURIComponent(window.location.href)
+        ].join('&'));
     };
 }());

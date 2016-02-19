@@ -84,9 +84,9 @@ class SiteController extends Controller
             throw new \DomainException('Wrong url format');
         }
 
-        $message = "JsError with message $error in $source:$line\n\nStack trace:\n$stack\n\nwindow.location=$location\n---";
+        $message = "JsError with message $error in $source:$line:$col\n\nStack trace:\n$stack\n\nwindow.location=$location\n---";
 
-        \Yii::log($message, CLogger::LEVEL_ERROR, 'js');
+        \Yii::log($message, \CLogger::LEVEL_ERROR, 'js');
     }
 
     /**
