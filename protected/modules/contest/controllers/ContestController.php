@@ -15,7 +15,9 @@ class ContestController extends \Controller
 
     public function actionApply()
     {
-        $this->pageTitle = 'Заявка на участие в конкурсе - ' . \Yii::app()->name;
+        \Yii::app()->language = 'uk';
+
+        $this->pageTitle = 'Заява на участь у конкурсі - ' . \Yii::app()->name;
 
         $form = new ApplyForm();
 

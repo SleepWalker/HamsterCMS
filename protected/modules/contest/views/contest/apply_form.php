@@ -18,12 +18,13 @@ use contest\models\Request;
 
 <div class="form__row">
     <div class="form__row__right--push">
-        <h1>Заявка на участие в конкурсе</h1>
+        <h1>Заява на участь у конкурсі</h1>
     </div>
 
     <p class="note">
-        Пожалуйста, перед тем как подавать заявку, ознакомьтесь
-        с <?= \CHtml::link('правилами конкурса', ['rules']) ?>.
+        Будь ласка, перед тим, як подавати заяву, ознайомтесь
+        з <?= \CHtml::link('правилами конкурсу', ['rules']) ?>.<br>
+        Зверніть увагу, що заява заповнюється українською мовою.
     </p>
 </div>
 
@@ -54,10 +55,10 @@ Yii::app()->clientScript->registerScript(__FILE__.'#group-solo-switch', '$(funct
 
     <div class="form__row__right">
         <?= $form->dropDownList($model->request, 'format', $model->request->getFormatsList(), [
-            'empty' => '-- формат --'
+            'empty' => '-- формат номеру --'
         ]) ?>
         <?= $form->dropDownList($model->request, 'age_category', $model->request->getAgeCategoriesList(), [
-            'empty' => '-- возраст --'
+            'empty' => '-- вікова категорія --'
         ]) ?>
 
         <?= $form->error($model->request, 'format'); ?>
@@ -106,7 +107,7 @@ Yii::app()->clientScript->registerScript(__FILE__.'#group-solo-switch', '$(funct
     <div class="form__row__left">
         <?= $form->labelEx($model, 'musicians'); ?>
         <p>
-            <button class="button js-add-row" type="button">Добавить</button>
+            <button class="button js-add-row" type="button">Додати</button>
         </p>
     </div>
 
@@ -131,7 +132,7 @@ Yii::app()->clientScript->registerScript(__FILE__.'#group-solo-switch', '$(funct
                         'language' => 'ru',
                         'htmlOptions' => [
                             'class' => 'form__input',
-                            'style' => 'width: 110px;',
+                            'style' => 'width: 120px;',
                             'placeholder' => $musician->getAttributeLabel('birthdate'),
                         ],
                         'options' => [
@@ -225,24 +226,22 @@ Yii::app()->clientScript->registerScript(__FILE__.'#group-solo-switch', '$(funct
     <?= $form->labelEx($model->request, 'demos'); ?>
     <?= $form->textArea($model->request, 'demos', [
         'class' => 'form__input',
-        'placeholder' => 'Укажите здесь ссылки на демо записи, а так же любую дополнительную информацию'
+        'placeholder' => 'Вкажіть в цьому полі посилання на демо-записи, а також будь-яку додаткову інформацію'
     ]); ?>
     <?= $form->error($model->request, 'demos'); ?>
     <p class="note">
-        Вы можете бесплатно загрузить свои записи на <a href="http://yotube.com">youtube.com</a>
-        или <a href="http://ex.ua">ex.ua</a>.<br>
-        Так же есть инструкция по
-        <?= \CHtml::link('загрузке видео на youtube', ['/page/view', 'id' => 'how-to-youtube'], ['target' => '_blank']); ?>.
+        Ви можете безкоштовно завантажити свої записи на <a href="http://yotube.com">youtube.com</a>
+        або <a href="http://ex.ua">ex.ua</a>. Для нас не важливо який сервіс ви використаєте, головне, щоб ваш демо-запис був достипним для перегляду.<br>
+        Для завантаження на youtube, можете скористатися <?= \CHtml::link('інструкцією', ['/page/view', 'id' => 'how-to-youtube'], ['target' => '_blank']); ?>.
     </p>
     <p class="note">
-        Если Вы играете с концертмейтером или живым сопровождением, укажите
-        здесь информацию о нем, что бы наши ведущие могли правильно обьявить Ваш номер.
+        Якщо Ви граєте у супроводі концертмейстру або живого ансамблю, вкажіть тут інформацію про них, щоб наші ведучі могли вірно оголосити Ваш номер.
     </p>
 </div>
 
 <div class="form__controls">
     <?= \CHtml::hiddenField(\CHtml::modelName($model) . '[submitted]', 1) ?>
-    <?= \CHtml::submitButton('Отправить', ['class' => 'button']); ?>
+    <?= \CHtml::submitButton('Відправити', ['class' => 'button']); ?>
 </div>
 
 <?php $this->endWidget('CActiveForm'); ?>

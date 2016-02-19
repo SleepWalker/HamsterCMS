@@ -60,9 +60,9 @@ class Request extends \CActiveRecord
         return [
             ['contact_name, contact_email, contact_phone', 'required'],
             ['age_category', 'required',
-                'message' => 'Пожалуйста выберите возраст'],
+                'message' => 'Будь ласка, оберіть вікову категорію'],
             ['format', 'required',
-                'message' => 'Пожалуйста выберите формат'],
+                'message' => 'Будь ласка оберіть формат номеру'],
             ['name, contact_name', 'length', 'max' => 128],
 
             ['age_category, format', 'numerical', 'integerOnly' => true],
@@ -260,19 +260,19 @@ class Request extends \CActiveRecord
             // self::FORMAT_SOLO => 'Сольное исполнение (без сопровождения)',
             // self::FORMAT_MINUS => 'Сольное исполнение под минус',
             // self::FORMAT_CONCERTMASTER => 'Сольное исполнение с концертмейстером',
-            self::FORMAT_INSTRUMENTAL_SOLO => 'Инструментальное соло',
-            self::FORMAT_VOCAL_SOLO => 'Вокальное соло',
-            self::FORMAT_GROUP => 'Вокально-инстр. ансамбль',
+            self::FORMAT_INSTRUMENTAL_SOLO => 'Інструментальне соло',
+            self::FORMAT_VOCAL_SOLO => 'Вокальне соло',
+            self::FORMAT_GROUP => 'Вокально-інстр. ансамбль',
         ];
     }
 
     public function getAgeCategoriesList()
     {
         return [
-            self::AGE_CATEGORY_10 => 'до 10 лет',
-            self::AGE_CATEGORY_11_14 => '11-14 лет',
-            self::AGE_CATEGORY_15_17 => '15-17 лет',
-            self::AGE_CATEGORY_18 => '18 лет и старше',
+            self::AGE_CATEGORY_10 => 'до 10 років',
+            self::AGE_CATEGORY_11_14 => '11-14 років',
+            self::AGE_CATEGORY_15_17 => '15-17 років',
+            self::AGE_CATEGORY_18 => '18 років та більше',
         ];
     }
 
@@ -318,13 +318,13 @@ class Request extends \CActiveRecord
     public function attributeLabels()
     {
         return [
-            'name' => 'Название группы',
-            'demos' => 'Демо и дополнительная информация',
-            'type' => 'Номинация',
-            'format' => 'Формат номера',
-            'compositions' => 'Исполняемые композиции',
-            'musicians' => 'Исполнитель(-ли)',
-            'contact_name' => 'Ваше имя',
+            'name' => 'Назва гурту',
+            'demos' => 'Демо та додаткова інформація',
+            'type' => 'Номінація',
+            'format' => 'Формат номеру',
+            'compositions' => 'Виконувані композиції',
+            'musicians' => 'Виконавець(-ці)',
+            'contact_name' => 'Ваше ім\'я',
             'contact_email' => 'Email',
             'contact_phone' => 'Телефон',
         ];

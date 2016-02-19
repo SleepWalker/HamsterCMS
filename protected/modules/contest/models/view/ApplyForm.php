@@ -54,7 +54,7 @@ class ApplyForm extends \CFormModel
     public function requestValidator($attribute, $params = [])
     {
         if (!$this->request->validate()) {
-            return $this->addError('request', 'Часть полей формы были заполнены не верно');
+            return $this->addError('request', 'Будь ласка, заповніть усі обовь\'язкові поля форми');
         }
     }
 
@@ -69,9 +69,9 @@ class ApplyForm extends \CFormModel
         }
 
         if ($this->getScenario() === Request::SCENARIO_GROUP && $validCount < 2) {
-            return $this->addError('musicians', 'В группе должно быть хотя бы два участника');
+            return $this->addError('musicians', 'В гурті повинно бути хоча б два виконавця');
         } elseif ($validCount === 0) {
-            return $this->addError('musicians', 'Укажите информацию хотя бы об одном музыканте');
+            return $this->addError('musicians', 'Вкажіть інформацію хоча про одного виконавця');
         }
     }
 
@@ -83,7 +83,7 @@ class ApplyForm extends \CFormModel
         }
 
         if (!$valid) {
-            $this->addError('compositions', 'Пожалуйста, укажите обе композиции');
+            $this->addError('compositions', 'Будь ласка, вкажіть обидві композиції');
         }
     }
 
@@ -169,10 +169,10 @@ class ApplyForm extends \CFormModel
     public function attributeLabels()
     {
         return [
-            'compositions' => 'Исполняемые композиции',
-            'musicians' => 'Исполнитель(-ли)',
-            'contacts' => 'Контакты',
-            'nomination' => 'Номинация',
+            'compositions' => 'Виконувані композиції',
+            'musicians' => 'Виконавець(-вці)',
+            'contacts' => 'Контакти',
+            'nomination' => 'Номінація',
         ];
     }
 

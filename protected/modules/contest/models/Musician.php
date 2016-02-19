@@ -32,8 +32,7 @@ class Musician extends \CActiveRecord
     public function rules()
     {
         return [
-            ['first_name, last_name, instrument', 'required'],
-            ['last_name, birthdate', 'required', 'except' => ['group']],
+            ['first_name, last_name, instrument, birthdate', 'required'],
 
             ['first_name, last_name, school, teacher', 'length', 'max' => 128],
             ['email, instrument', 'length', 'max' => 64],
@@ -41,7 +40,7 @@ class Musician extends \CActiveRecord
             ['phone', 'length', 'max' => 25],
             ['phone', 'match',
                 'pattern' => '/\+38 \(\d{3}\) \d{3}\-\d{2}\-\d{2}/',
-                'message' => 'Введите телефон в формате +38 (00) 000-00-00',
+                'message' => 'Введіть телефон у форматі +38 (00) 000-00-00',
             ],
 
             ['birthdate', 'match', 'pattern' => '/\d{2}\.\d{2}\.\d{4}/'],
@@ -106,15 +105,15 @@ class Musician extends \CActiveRecord
     public function attributeLabels()
     {
         return [
-            'first_name' => 'Имя',
-            'last_name' => 'Фамилия',
-            'birthdate' => 'Дата рождения',
+            'first_name' => 'Ім\'я',
+            'last_name' => 'Прізвище',
+            'birthdate' => 'Дата народження',
             'email' => 'Email',
             'phone' => 'Телефон',
-            'instrument' => 'Инструмент/Вокал',
+            'instrument' => 'Інструмент/Вокал',
             'school' => 'Школа/коледж/училище',
-            'teacher' => 'Преподаватель',
-            'class' => 'Класс/курс',
+            'teacher' => 'Викладач',
+            'class' => 'Клас/курс',
         ];
     }
 

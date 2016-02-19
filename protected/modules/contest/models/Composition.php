@@ -35,7 +35,7 @@ class Composition extends \CActiveRecord
     {
         return [
             ['author, title, duration', 'required', 'message' => false],
-            ['duration', 'numerical', 'integerOnly' => true, 'max' => 15, 'message' => 'Время должно быть числом'],
+            ['duration', 'numerical', 'integerOnly' => true, 'max' => 15, 'message' => 'Тривалість повинна бути цілим числом'],
             ['author, title', 'length', 'max' => 128],
 
             ['request_id', 'length', 'max' => 11],
@@ -53,8 +53,8 @@ class Composition extends \CActiveRecord
     {
         return [
             'author' => 'Автор',
-            'title' => 'Название',
-            'duration' => 'Время, мин',
+            'title' => 'Назва',
+            'duration' => 'Тривалість, хв',
         ];
     }
 
