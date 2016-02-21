@@ -16,6 +16,8 @@
 
 namespace application\models;
 
+use user\models\User;
+
 abstract class Rating extends \CActiveRecord
 {
     /**
@@ -112,7 +114,7 @@ abstract class Rating extends \CActiveRecord
     public function relations()
     {
         return array(
-            'user' => array(self::BELONGS_TO, 'User', 'user_id'),
+            'user' => array(self::BELONGS_TO, User::class, 'user_id'),
         );
     }
 

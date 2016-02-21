@@ -19,14 +19,11 @@
  * The followings are the available model relations:
  * @property AuthUser $user
  * @property Categorie $cat
- *
- * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @package    shop.ShopController
- * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
- * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
 
 namespace blog\models;
+
+use user\models\User;
 
 class Post extends \CActiveRecord
 {
@@ -167,7 +164,7 @@ http://stackoverflow.com/questions/1852223/mysql-keep-server-timezone-or-user-ti
         // NOTE: you may need to adjust the relation name and the related
         // class name for the relations automatically generated below.
         return array(
-            'user' => array(self::BELONGS_TO, '\User', 'user_id'),
+            'user' => array(self::BELONGS_TO, User::class, 'user_id'),
             'cat' => array(self::BELONGS_TO, '\blog\models\Categorie', 'cat_id'),
         );
     }
@@ -343,10 +340,10 @@ http://stackoverflow.com/questions/1852223/mysql-keep-server-timezone-or-user-ti
         $criteria->compare('cat_id', $this->cat_id);
 
         // Критерии для фильтрации по related таблицам
-        $criteria->compare('user.' . \User::first_name, $this->user_search, true);
+        $criteria->compare('user.' . User::FIRST_NAME, $this->user_search, true);
 
         $criteria->with = array(
-            'user' => array('select' => 'user.' . \User::first_name),
+            'user' => array('select' => 'user.' . User::FIRST_NAME),
             'cat' => array('select' => 'cat.name'),
         );
 
@@ -355,8 +352,8 @@ http://stackoverflow.com/questions/1852223/mysql-keep-server-timezone-or-user-ti
             'sort' => array(
                 'attributes' => array(
                     'user_search' => array(
-                        'asc' => 'user.' . \User::first_name,
-                        'desc' => 'user.' . \User::first_name . ' DESC',
+                        'asc' => 'user.' . User::FIRST_NAME,
+                        'desc' => 'user.' . User::FIRST_NAME . ' DESC',
                     ),
                     '*',
                 ),

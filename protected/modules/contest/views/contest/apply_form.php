@@ -232,7 +232,7 @@ Yii::app()->clientScript->registerScript(__FILE__.'#group-solo-switch', '$(funct
     <p class="note">
         Ви можете безкоштовно завантажити свої записи на <a href="http://yotube.com">youtube.com</a>
         або <a href="http://ex.ua">ex.ua</a>. Для нас не важливо який сервіс ви використаєте, головне, щоб ваш демо-запис був достипним для перегляду.<br>
-        Для завантаження на youtube, можете скористатися <?= \CHtml::link('інструкцією', ['/page/view', 'id' => 'how-to-youtube'], ['target' => '_blank']); ?>.
+        Для завантаження на youtube, можете скористатися <?= \CHtml::link('інструкцією', ['/page/view', 'id' => 'how-to-youtube'], ['target' => '_blank']) ?>.
     </p>
     <p class="note">
         Якщо Ви граєте у супроводі концертмейстру або живого ансамблю, вкажіть тут інформацію про них, щоб наші ведучі могли вірно оголосити Ваш номер.
@@ -241,7 +241,7 @@ Yii::app()->clientScript->registerScript(__FILE__.'#group-solo-switch', '$(funct
 
 <div class="form__controls">
     <?= \CHtml::hiddenField(\CHtml::modelName($model) . '[submitted]', 1) ?>
-    <?= \CHtml::submitButton('Відправити', ['class' => 'button']); ?>
+    <?= \CHtml::submitButton('Відправити', ['class' => 'button']) ?>
 </div>
 
 <?php $this->endWidget('CActiveForm'); ?>

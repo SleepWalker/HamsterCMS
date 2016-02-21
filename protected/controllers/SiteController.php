@@ -4,12 +4,13 @@
  * Provides authentication (login, logout, register, change password, accaount activation),
  * contact and error displaying functionality
  *
- * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
  * @package    shop.ShopController
- * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
- * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
-class SiteController extends Controller
+
+use user\models\User;
+use user\models\LoginForm;
+
+class SiteController extends \Controller
 {
     public $layout = '//layouts/column3';
     /**
@@ -26,7 +27,7 @@ class SiteController extends Controller
             ),
             'oauth' => array(
                 'class' => 'ext.hoauth.HOAuthAction',
-                'model' => 'User',
+                'model' => User::class,
                 'attributes' => array(
                     'email' => 'email',
                     'first_name' => 'firstName',
@@ -129,34 +130,37 @@ class SiteController extends Controller
 
         $renderType = isset($_GET['ajax']) ? 'renderPartial' : 'render';
         if (isset($_GET['ajax'])) {
-            Yii::app()->clientscript->scriptMap['jquery.js'] = Yii::app()->clientscript->scriptMap['jquery.min.js'] = false;
+            \Yii::app()->clientscript->scriptMap['jquery.js'] = Yii::app()->clientscript->scriptMap['jquery.min.js'] = false;
         }
 
-        $model = new LoginForm;
+        $model = new LoginForm();
+        $modelName = \CHtml::modelName($model);
 
         // ставим по умолчанию галочку rememberMe
         $model->rememberMe = 1;
 
         // collect user input data
-        if (isset($_POST['LoginForm'])) {
-            $model->attributes = $_POST['LoginForm'];
+        if (\Yii::app()->request->getPost($modelName)) {
+            $model->attributes = \Yii::app()->request->getPost($modelName);
+
             // validate user input and redirect to the previous page if valid
             if ($model->validate() && $model->login()) {
-                if (!$_GET['ajax']) {
+                if (!\Yii::app()->request->isAjaxRequest()) {
                     $this->redirect();
                 } else {
                     echo 'ok';
-                    Yii::app()->end();
+                    \Yii::app()->end();
                 }
             }
-
         } else {
             // страница, на которую вернется пользователь.
-            Yii::app()->user->returnUrl = Yii::app()->getRequest()->urlReferrer;
+            \Yii::app()->user->returnUrl = Yii::app()->getRequest()->urlReferrer;
         }
 
         // display the login form
-        $this->{$renderType}('login', array('model' => $model), false, !empty($_GET['ajax']));
+        $this->{$renderType}('login', [
+            'model' => $model
+        ], false, !empty($_GET['ajax']));
     }
 
     /**

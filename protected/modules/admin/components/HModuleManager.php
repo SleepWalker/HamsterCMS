@@ -2,6 +2,8 @@
 
 namespace admin\components;
 
+use admin\models\Config;
+
 class HModuleManager extends \CApplicationComponent
 {
     private $_hamsterModules = [];
@@ -39,7 +41,7 @@ class HModuleManager extends \CApplicationComponent
             if (is_dir($path . '/' . $moduleName)) {
                 $modulePath = \Yii::getPathOfAlias('application.modules.' . $moduleName);
                 if (is_dir($modulePath . '/admin')) {
-                    $adminConfig = \admin\models\Config::load($moduleName)->adminConfig;
+                    $adminConfig = Config::load($moduleName)->adminConfig;
                     /*if($modulesInfo[$moduleName]['title'] == '')
                     $modulesInfo[$moduleName]['title'] = $adminConfig['title'];
                     else
@@ -156,7 +158,9 @@ class HModuleManager extends \CApplicationComponent
 
         // Обновим статус модуля в конфиге (FIXME: честно говоря грубый способ... но пока так)
         $moduleIds = array_values(array_flip($hamsterModules['enabledModules']));
-        \admin\models\Config::load(reset($moduleIds))->save(false);
+        if (!Config::load(reset($moduleIds))->save(false)) {
+            throw new \DomainException('Can not save modules configs');
+        }
         $this->_hamsterModules = $hamsterModules;
     }
 
@@ -170,7 +174,7 @@ class HModuleManager extends \CApplicationComponent
     private function testDb($moduleId)
     {
         // TODO: needs rewriting or should be deleted after refactoring
-        $tables = \admin\models\Config::load($moduleId)->adminConfig['db']['tables'];
+        $tables = Config::load($moduleId)->adminConfig['db']['tables'];
         if (!isset($tables)) {
             return;
         }
@@ -182,12 +186,13 @@ class HModuleManager extends \CApplicationComponent
                 // запускаем sql комманды
                 $db->createCommand('SHOW CREATE TABLE `' . $tableName . '`')->execute();
             }
-        } catch (CDbException $e) {
+        } catch (\CDbException $e) {
             // одной из таблиц нету - запускаем sql создания таблицы
+            $modulePath = \Yii::getPathOfAlias('application.modules.' . $moduleId . '.admin');
             if ($moduleId) {
-                $path = \Yii::getPathOfAlias('application.modules.' . $moduleId . '.admin') . '/schema.mysql.sql';
+                $path = $modulePath . '/schema.mysql.sql';
             } elseif ($moduleId == 'admin') {
-                $path = \Yii::getPathOfAlias('application.modules.' . $moduleId . '.admin') . '/' . strtolower($className) . '.schema.mysql.sql';
+                $path = $modulePath . '/' . strtolower($className) . '.schema.mysql.sql';
             } else {
                 $path = \Yii::getPathOfAlias('application.models._schema') . '/' . strtolower($className) . '.schema.mysql.sql';
             }

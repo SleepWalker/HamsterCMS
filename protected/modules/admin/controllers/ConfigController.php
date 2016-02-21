@@ -1,10 +1,6 @@
 <?php
 /**
  * ConfigController class for admin module
- *
- * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
- * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
 
 namespace admin\controllers;

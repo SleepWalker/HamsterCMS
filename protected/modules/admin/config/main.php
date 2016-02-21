@@ -2,10 +2,7 @@
 /**
  * Hamster base config file
  *
- * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
  * @package    hamster.modules.admin.config.main
- * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
- * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
 
 /*
@@ -22,14 +19,14 @@ return
     'charset' => 'UTF-8',
     'theme' => 'default',
 
-    'preload' => array('log', 'debug'),
+    'preload' => ['log', 'debug'],
 
-    'import' => array(
+    'import' => [
         'application.models.*',
         'application.components.*',
         'ext.yii-mail.YiiMailMessage',
-    ),
-    'onBeginRequest' => array('HBeginRequest', 'onBeginRequest'),
+    ],
+    'onBeginRequest' => ['HBeginRequest', 'onBeginRequest'],
     //TODO: maintance mode
     /*'catchAllRequest'=>array(
     'controllerId/actionId',
@@ -42,9 +39,9 @@ return
     /*'onBeginRequest'=>create_function('$event', 'return ob_start("ob_gzhandler");'),
     'onEndRequest'=>create_function('$event', 'return ob_end_flush();'),*/
 
-    'modules' => array(
+    'modules' => [
         'admin',
-    ),
+    ],
 
     // application components
     'components' => array(
@@ -137,14 +134,14 @@ return
             'class' => 'system.caching.CFileCache',
         ),
         // uncomment the following to enable URLs in path-format
-        'urlManager' => array(
+        'urlManager' => [
             'urlFormat' => 'path',
             'showScriptName' => false,
-            'rules' => array(
+            'rules' => [
                 // Правило url для модулей
-                array(
+                [
                     'class' => '\application\components\HModuleUrlRule',
-                ),
+                ],
                 'site/<action:\w+>' => 'site/<action>',
 
                 '<controller:api>/<path:.*>' => '<controller>/index',
@@ -156,11 +153,11 @@ return
 
                 '<module:\w+>/<controller:\w+>/<action:\w+>/<id:\d+>'=>'<module>/<controller>/<action>',
                 '<module:\w+>/<controller:\w+>/<action:\w+>'=>'<module>/<controller>/<action>',
-            ),
-        ),
+            ],
+        ],
 
         // замена стандартному ClientScript, которая умеет не отправлять скрипты при аякс запросах. пока что для теста работает только на бекенде
-        'clientScript' => array(
+        'clientScript' => [
             'class' => '\nlac\NLSClientScript',
             //'excludePattern' => '/\.tpl/i', //js regexp, files with matching paths won't be filtered is set to other than 'null'
             //'includePattern' => '/\.php/', //js regexp, only files with matching paths will be filtered if set to other than 'null'
@@ -188,18 +185,18 @@ return
             // 'curlConnectionTimeOut' => 10, //def:10, see curl_setopt() doc
 
             // 'appVersion'=>1.0 //if set, it will be appended to the urls of the merged scripts/css
-        ),
+        ],
 
-        'authManager' => array(
+        'authManager' => [
             'class' => 'CDbAuthManager',
             'connectionID' => 'db',
-            'defaultRoles' => array('guest', 'user'),
-        ),
+            'defaultRoles' => ['guest', 'user'],
+        ],
 
-        'errorHandler' => array(
+        'errorHandler' => [
             // use 'site/error' action to display errors
             'errorAction' => 'site/error',
-        ),
+        ],
 
         'log' => [
             'class' => 'CLogRouter',

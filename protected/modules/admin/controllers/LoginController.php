@@ -12,6 +12,8 @@
 
 namespace admin\controllers;
 
+use user\models\LoginForm;
+
 class LoginController extends \admin\components\HAdminController
 {
     public $adminAssetsUrl;
@@ -31,14 +33,15 @@ class LoginController extends \admin\components\HAdminController
             $this->redirect(array('/'));
         }
 
-        $model = new \LoginForm();
+        $model = new LoginForm();
+        $modelName = \CHtml::modelName($model);
 
         // ставим по умолчанию галочку rememberMe
         $model->rememberMe = 1;
 
         // collect user input data
-        if (isset($_POST['LoginForm'])) {
-            $model->attributes = $_POST['LoginForm'];
+        if (\Yii::app()->request->getPost($modelName)) {
+            $model->attributes = \Yii::app()->request->getPost($modelName);
             // Проверяем введенные юзером данные
             $valid = $model->validate() && $model->login();
             // Пишим в лог все удачные и неудачные попытки

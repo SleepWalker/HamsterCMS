@@ -20,13 +20,14 @@ return array(
             'db' => array(
                 'version' => '1.2.1',
                 'tables' => array(
-                    'section_video',
-                    'section_video_tag',
-                    'section_musician',
                     'section_instrument',
-                    'section_teacher',
+                    'section_musician',
                     'section_school',
-                    'section_video_musician',
+                    'section_teacher',
+                    'section_video',
+                    'section_video_musicians',
+                    'section_video_rating',
+                    'section_video_tag',
                 ),
             ),
             'routes' => array(
