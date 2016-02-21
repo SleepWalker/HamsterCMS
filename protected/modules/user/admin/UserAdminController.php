@@ -17,7 +17,7 @@ class UserAdminController extends \admin\components\HAdminController
         return array(
             'hoauth' => array(
                 'class' => 'ext.hoauth.HOAuthAdminAction',
-                'route' => 'site/oauth',
+                'route' => 'user/oauth',
             ),
         );
     }

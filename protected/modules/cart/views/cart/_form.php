@@ -26,7 +26,7 @@ $form = $this->beginWidget('CActiveForm', array(
     'clientOptions' => array(
       'ajaxVar' => 'ajaxValidate',
     ),
-)); 
+));
 
 if (is_object($model))
   echo $form->errorSummary($model);
@@ -36,20 +36,20 @@ if (is_object($model2))
   echo $form->errorSummary($model2);
 
 switch($step)
-{ 
+{
   case 1:
-    echo "<h1>Выберите способ оплаты</h1>"; 
+    echo "<h1>Выберите способ оплаты</h1>";
     echo '<p>' . $form->radioButtonList($model, 'currency', $model->orderCurrency) . '</p>';
     if(in_array('Безналичный расчет', $model->orderCurrency) && Yii::app()->params['currency']['toEmoney'] > 0)
       echo '<p><b>Внимание!</b> Б/Н оплата и оплата электронными деньгами произвдится по курсу: 1$=' . Yii::app()->params->currency['toEmoney'] . 'грн.<br />
     Пересчет суммы к оплате будет произведен перед последним шагом оформления заказа.
     </p>';
-    
-    echo "<h1>Выберите способ доставки</h1>"; 
+
+    echo "<h1>Выберите способ доставки</h1>";
     echo '<p>' . $form->radioButtonList($model, 'type', $model->orderType) . '</p>';
   break;
   case 2:
-    echo "<h1>Введите информацию, необходимую для заказа</h1>"; 
+    echo "<h1>Введите информацию, необходимую для заказа</h1>";
     echo '<p>Поля, помеченные <span class="required">*</span> обязательны</p>';
     if(Yii::app()->user->isGuest)
     {
@@ -57,12 +57,12 @@ switch($step)
       echo '<div class="row" style="float:right;">' . $form->labelEx($model1, 'last_name') . $form->textField($model1, 'last_name', array('style'=>'width:180px;')) . $form->error($model1,'last_name') . '</div>';
       echo '<div class="row"  style="clear:both;">' . $form->labelEx($model1, 'email') . $form->textField($model1, 'email', array('style'=>'width:565px')) . $form->error($model1,'email') . '</div>';
     }
-    
+
     if(!Yii::app()->user->isGuest && count($model1->address))
     {
       echo '<fieldset>
         <legend>Ранее использованные вами контактные данные</legend>';
-      
+
       // У залогиненого юзера могут быть адреса, потому даем ему возможность выбрать один из них
       $addressArr = array();
       foreach($model1->address as $address)
@@ -70,19 +70,19 @@ switch($step)
         $addressArr[$address->id] = 'Тел: <b>' . $address->telephone . '</b>; ';
         if($address->street != '')
           $addressArr[$address->id] .= 'Адрес: <b>' . $address->street . ', ' . $address->house.(($address->flat)?', кв. '.$address->flat:'') . '</b>';
-        if(!$first)        
+        if(!$first)
           $first = $address->id;
       }
-      
+
       $first = $oldAddress ? $oldAddress : $first;
-      
+
       if(count($model1->address))
         $addressStyle = ' style="display:none;"';
-      
-      echo '<p>' . CHtml::radioButtonList('oldAddress', $first, $addressArr) . '</p>'; 
-      
+
+      echo '<p>' . CHtml::radioButtonList('oldAddress', $first, $addressArr) . '</p>';
+
       echo '<br /><p>' . CHtml::checkBox('newAddress', false, array('onchange'=>'js:$("#address").toggle()')) . CHtml::label('Использовать другие контактные данные', 'newAddress') . '</p>';
-        
+
       echo '</fieldset>';
     }
 
@@ -94,7 +94,7 @@ switch($step)
       echo '<div class="row">' . $form->labelEx($model2, 'street') . $form->textField($model2, 'street', array('style'=>'width:545px')) . $form->error($model2,'street') . '</div>';
       echo '<div class="row">' . $form->labelEx($model2, 'house') . $form->textField($model2, 'house', array('style'=>'width:545px')) . $form->error($model2,'house') . '</div>';
       echo '<div class="row">' . $form->labelEx($model2, 'flat') . $form->textField($model2, 'flat', array('style'=>'width:545px')) . $form->error($model2,'flat') . '</div>';
-    }  
+    }
     echo '</fieldset>';
     if ($model1->scenario == 'register')
     {
@@ -124,7 +124,7 @@ switch($step)
             'pageSize'=>count($summary['orderInfo']),
         ),
     ));
-    
+
     $this->widget('zii.widgets.grid.CGridView', array(
       'dataProvider'=>$dataProvider,
       'columns'=>array(
@@ -160,7 +160,7 @@ switch($step)
   break;
   case 4:
     if($valid)
-    {      
+    {
       if(isset($emoneyAction))
       {// Форма для перенаправления на оплату
         echo $emoneyFields;
@@ -175,11 +175,11 @@ switch($step)
         <?php
       }
       else
-      { 
+      {
         ?>
         <h1>Спасибо за покупку!</h1>
         <p>В ближайшее время с вами свяжется наш оператор для уточнения подробностей заказа.</p>
-        
+
         <br />
         <p><a href="/" class="button">Вернутся на главную страницу</a></p>
         <?php
@@ -197,7 +197,7 @@ switch($step)
   break;
 }
 
-echo '<p>'; 
+echo '<p>';
 if($step == 3)
     echo '<div style="float:right;">' . $butt( (isset($emoneyAction) ? 'Перейти к оплате заказа' : 'Завершить заказ') ) . '</div>';
 if($step != 4)
@@ -207,15 +207,15 @@ if($step != 4)
     echo '<a href="/cart" class="button">Назад</a> ';
   if($step == 3)
       echo CHtml::ajaxButton('Отмена заказа', $this->createUrl('/cart/clear'), array('complete'=>'js: function() {location.href="/"}'));
-      
+
 if($step == 1 && $askAboutAccount)
 {//Справшиваем, есть ли у юзера аккаунт перед переходом на следующий шаг
   echo CHtml::link(CHtml::button('Далее'), '', array(
-    'onclick' =>'runDialog("<h2 align=center>У вас уже есть аккаунт на нашем сайте?</h2>")', 
+    'onclick' =>'runDialog("<h2 align=center>У вас уже есть аккаунт на нашем сайте?</h2>")',
   ));
-  
+
   echo '<p style="display:none;">' . $butt('Далее') . '</p>';
-  
+
   $this->widget('application.widgets.juiajaxdialog.AjaxDialogWidget', array(
     'selectors' => array(
       '#showLogin',
@@ -223,7 +223,7 @@ if($step == 1 && $askAboutAccount)
     'themeUrl' => '/css/jui',
     'options' => array(
       'title' => 'Корзина',
-      'buttons' => 'js:{ 
+      'buttons' => 'js:{
         "Да": function() {
           $.ajax({
             "success":function(data){
@@ -235,7 +235,7 @@ if($step == 1 && $askAboutAccount)
               });
               $(this).dialog("close");
             },
-            "url":"/site/login/?ajax=1",
+            "url":"/user/login/?ajax=1",
             "breforeSend":startLoad,
             "context": $(this),
             "complete":stopLoad,
@@ -243,23 +243,23 @@ if($step == 1 && $askAboutAccount)
             "error":function(ans) {
               console.log(ans.responseText);
             },
-          });        
+          });
         },
-        "Нет, создать новый": function() { 
+        "Нет, создать новый": function() {
           $("<input type=\"hidden\" name=\"newUser\" value=\"1\">").appendTo($("#cartForm"));
           $("#yt1").click();
-          $(this).dialog("close"); 
+          $(this).dialog("close");
         },
-        "Продолжить без регистрации": function() { 
+        "Продолжить без регистрации": function() {
           $("#yt1").click();
-          $(this).dialog("close"); 
+          $(this).dialog("close");
         },
       }',
     ),
   ));
 }
 else
-{    
+{
   if($step < 3)
   {
     echo $butt('Далее');
@@ -267,8 +267,8 @@ else
 }
 echo '</p>';
 echo '</div>'; //#cartContent
-  
+
 //echo CHtml::hiddenField('step', $step);
 
-$this->endWidget(); 
+$this->endWidget();
 ?>

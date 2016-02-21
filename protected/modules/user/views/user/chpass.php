@@ -40,7 +40,7 @@ if(Yii::app()->user->isGuest)
   case 2:
 ?>
            <h1>Ошибка</h1>
-           <p>Такого Email не существует. Вы можете попробовать <a href="<?php echo Yii::app()->createUrl('site/chpass'); ?>">еще раз</a></p>
+           <p>Такого Email не существует. Вы можете попробовать <a href="<?php echo Yii::app()->createUrl('user/chpass'); ?>">еще раз</a></p>
            <p>Для продолжения работы с сайтом вы можете вернуться на <a href="/">главную страницу</a>.</p>
 <?php
     break;
@@ -52,7 +52,7 @@ if(Yii::app()->user->isGuest)
 <?php
     break;
   case 4:
-    echo '<p>Введите новый пароль для вашего аккаунта</p>'; 
+    echo '<p>Введите новый пароль для вашего аккаунта</p>';
     echo '<div class="row">' .
       $form->labelEx($model,'password1') .
       $form->passwordField($model,'password1') .
@@ -72,7 +72,7 @@ if(Yii::app()->user->isGuest)
            <h1>Смена пароля прошла успешно</h1>
            <p>Для продолжения работы с сайтом вернитесь на <a href="/">главную страницу</a>.</p>
            <p>Или можете воспользоваться формой входа:</p>
-           <p><a href="<?php echo Yii::app()->createUrl('site/login'); ?>">Войти на сайт</a></p>
+           <p><a href="<?php echo Yii::app()->createUrl('user/login'); ?>">Войти на сайт</a></p>
 <?php
     break;
 

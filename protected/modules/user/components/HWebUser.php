@@ -1,9 +1,9 @@
 <?php
 class HWebUser extends CWebUser
 {
-    public $loginUrl = ['/site/login'];
-    public $logoutUrl = ['/site/logout'];
-    public $registerUrl = ['/site/register'];
+    public $loginUrl = ['/user/login'];
+    public $logoutUrl = ['/user/logout'];
+    public $registerUrl = ['/user/register'];
 
     public function init()
     {

@@ -11,7 +11,7 @@ if (Yii::app()->user->isGuest) {
 
 <?php $form=$this->beginWidget('CActiveForm', [
     'id' => 'login-form',
-    'action' => Yii::app()->createUrl('site/login'),
+    'action' => Yii::app()->createUrl('user/login'),
     'enableClientValidation' => true,
     'clientOptions' => [
         'validateOnSubmit' => true,
@@ -37,7 +37,7 @@ if (Yii::app()->user->isGuest) {
             // Отключаем jquery
             Yii::app()->clientscript->scriptMap['jquery.js'] = Yii::app()->clientscript->scriptMap['jquery.min.js'] = false;
 
-            echo CHtml::ajaxSubmitButton('Вход', '/site/login?ajax=1', [
+            echo CHtml::ajaxSubmitButton('Вход', '/user/login?ajax=1', [
                 'type' => 'POST',
                 'context' => 'js:$(this)',
                 'success' => 'js:function(data) {
@@ -56,7 +56,7 @@ if (Yii::app()->user->isGuest) {
             ]);
         } else {
             echo CHtml::submitButton('Вход');
-//echo ' ' . CHtml::button('Восстановить пароль', array('onclick'=>"location.href ='" . Yii::app()->createUrl('site/chpass') . "'"));
+//echo ' ' . CHtml::button('Восстановить пароль', array('onclick'=>"location.href ='" . Yii::app()->createUrl('user/chpass') . "'"));
         }
         ?>
     </div>
@@ -64,7 +64,7 @@ if (Yii::app()->user->isGuest) {
         <?= $form->checkBox($model, 'rememberMe'); ?>
         <?= $form->label($model, 'rememberMe'); ?>
         <?= $form->error($model, 'rememberMe'); ?>
-        <p><?= CHtml::link('Забыли пароль?', Yii::app()->createUrl('site/chpass')); ?></p>
+        <p><?= CHtml::link('Забыли пароль?', Yii::app()->createUrl('user/chpass')); ?></p>
     </div>
 
 <?php

@@ -55,7 +55,7 @@ class UserController extends \Controller
 
             // validate user input and redirect to the previous page if valid
             if ($model->validate() && $model->login()) {
-                if (!\Yii::app()->request->isAjaxRequest()) {
+                if (!\Yii::app()->request->isAjaxRequest) {
                     $this->redirect();
                 } else {
                     echo 'ok';
@@ -120,7 +120,7 @@ class UserController extends \Controller
          <h1>Успешная регистрация</h1>
          <p>Ваш аккаунт был успешно зарегистрирован. Вскоре на ваш почтовый ящик придет письмо с ссылкой для активации аккаунта.</p>
          <p>Вернуться на <a href="/">главную страницу</a> или воспользоваться формой входа:</p>
-         <p><a href="/site/login">Войти на сайт</a></p>
+         <p><a href="/user/login">Войти на сайт</a></p>
          ');
                 \Yii::app()->end();
             }

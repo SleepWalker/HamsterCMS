@@ -110,9 +110,9 @@ class User extends \CActiveRecord
     {
         if (parent::beforeSave()) {
             if ($this->isNewRecord) {
-                $this->date_joined = $this->last_login = new CDbExpression('NOW()');
+                $this->date_joined = $this->last_login = new \CDbExpression('NOW()');
             } else {
-                $this->last_login = new CDbExpression('NOW()');
+                $this->last_login = new \CDbExpression('NOW()');
             }
 
             if ($this->scenario == 'register') {
@@ -206,7 +206,7 @@ class User extends \CActiveRecord
      **/
     protected function confirmationUrl($action)
     {
-        return \Yii::app()->createAbsoluteUrl('site/' . $action, array('h' => $this->{$action . 'Hash'}, 'email' => $this->email));
+        return \Yii::app()->createAbsoluteUrl('user/' . $action, array('h' => $this->{$action . 'Hash'}, 'email' => $this->email));
     }
 
     /**
