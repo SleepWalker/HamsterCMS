@@ -2,52 +2,56 @@
 /**
  * Admin action class for user module
  *
- * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
  * @package    Hamster.modules.user.admin.UserAdminController
- * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
- * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
+
+use user\models\User;
+use user\models\MailingForm;
+use \AuthItem as AuthItem;
+use \AuthAssignment as AuthAssignment;
 
 class UserAdminController extends \admin\components\HAdminController
 {
-  public function actions() {
-    return array(
-      'hoauth' => array(
-        'class' => 'ext.hoauth.HOAuthAdminAction',
-        'route' => 'site/oauth',
-        ),
-      );
-  }
-  /**
-	 * @return меню для табов
-	 */
-  public function tabs() {
-    $transferCount = ($transferCount = AuthAssignment::model()->transferCount) ? ' (<b style="text-decoration: blink;color:orange;">' . $transferCount . '</b>)' : '';
-    return array(
-      ''  => 'Пользователи',
-      'batchmailing' => 'Рассылки',
-      'roles' => 'Роли (группы)',
-      'roles/update'  => array(
-        'name' => 'Редактирование роли',
-        'display' => 'whenActive',
-      ),
-      'roles/create'  => array(
-        'name' => 'Создать роль',
-        'display' => 'roles',
-      ),
-      'transfer' => 'Ожидающие переноса'.$transferCount,
-      'hoauth' => 'Вход через социальные сети',
-    );
-  }
+    public function actions()
+    {
+        return array(
+            'hoauth' => array(
+                'class' => 'ext.hoauth.HOAuthAdminAction',
+                'route' => 'site/oauth',
+            ),
+        );
+    }
+    /**
+     * @return меню для табов
+     */
+    public function tabs()
+    {
+        $transferCount = ($transferCount = AuthAssignment::model()->transferCount) ? ' (<b style="text-decoration: blink;color:orange;">' . $transferCount . '</b>)' : '';
+        return array(
+            '' => 'Пользователи',
+            'batchmailing' => 'Рассылки',
+            'roles' => 'Роли (группы)',
+            'roles/update' => array(
+                'name' => 'Редактирование роли',
+                'display' => 'whenActive',
+            ),
+            'roles/create' => array(
+                'name' => 'Создать роль',
+                'display' => 'roles',
+            ),
+            'transfer' => 'Ожидающие переноса' . $transferCount,
+            'hoauth' => 'Вход через социальные сети',
+        );
+    }
 
-  /**
-   *  Выводит таблицу всех товаров
-   */
-  public function actionIndex()
-  {
-    $model = new User('search');
+    /**
+     *  Выводит таблицу всех товаров
+     */
+    public function actionIndex()
+    {
+        $model = new User('search');
 
-    Yii::app()->clientScript->registerScript('groupEdit', '
+        Yii::app()->clientScript->registerScript('groupEdit', '
       var roles = ' . CJavaScript::encode(AuthItem::getAuthItemsList()) . ';
     var $dd;
     $("body").on("click", ".roleRevoke", function() {
@@ -114,270 +118,267 @@ class UserAdminController extends \admin\components\HAdminController
 
     return false;
   });
-      ');
+          ');
 
-    $this->render('table', array(
-      'dataProvider' => $model->with('roles')->search(),
-      'disableButtons' => true,
-      'columns' => array(
-        'id',
-        'fullName',
-        array(
-          'name' => 'emailWithStatus',
-          'type' => 'raw',
-        ),
-        array(
-          'name' => 'roles',
-          'value' => '$data->getRolesControll()',
-          'type' => 'raw',
-        ),
-        array(
-          'name' => 'last_login',
-          'type' => 'datetime',
-        ),
-        array(
-          'name' => 'date_joined',
-          'type' => 'datetime',
-        ),
-      ),
-    ));
-  }
-
-  /**
-   * Присваивает роль пользователю (страница со списком пользователей)
-   *
-   * @access public
-   * @return void
-   */
-  public function actionAssign()
-  {
-    AuthItem::model()->am->assign($_POST['roleId'], $_POST['userId']);
-    echo '<div class="tagControll" data-roleid="' . $_POST['roleId'] . '" data-userid="' . $_POST['userId'] . '">' . $_POST['role'] . '<a href="" class="icon_delete roleRevoke"></a></div>';
-  }
-
-  /**
-   * Снимает роль с пользователя (страница со списком пользователей)
-   *
-   * @access public
-   * @return void
-   */
-  public function actionRevoke()
-  {
-    AuthItem::model()->am->revoke($_POST['roleId'], $_POST['userId']);
-  }
-
-  /**
-   * Страница со списком ролей.
-   *
-   * @access public
-   * @return void
-   */
-  public function actionRoles()
-  {
-    $model=new AuthItem('search');
-
-		$this->render('table',array(
-			'dataProvider'=> $model->search(),
-			'columns'=>array(
-        'l10edName',
-        'type',
-        'description',
-        'bizrule',
-        'data',
-        )
-      )
-    );
-  }
-
-  public function actionRolesUpdate()
-  {
-    if (!empty($this->crudid))
-      $model = AuthItem::model()->findByPk($this->crudid);
-    else
-      $model = new AuthItem;
-
-    // AJAX валидация
-		if(isset($_POST['ajax']))
-		{
-      $model->attributes = $_POST['AuthItem'];
-      echo CActiveForm::validate($model);
-			Yii::app()->end();
-		}
-
-    if(isset($_POST['AuthItem']))
-    {
-      $model->attributes = $_POST['AuthItem'];
-
-      $saved = $model->save();
+        $this->render('table', array(
+            'dataProvider' => $model->with('roles')->search(),
+            'disableButtons' => true,
+            'columns' => array(
+                'id',
+                'fullName',
+                array(
+                    'name' => 'emailWithStatus',
+                    'type' => 'raw',
+                ),
+                array(
+                    'name' => 'roles',
+                    'value' => '$data->getRolesControll()',
+                    'type' => 'raw',
+                ),
+                array(
+                    'name' => 'last_login',
+                    'type' => 'datetime',
+                ),
+                array(
+                    'name' => 'date_joined',
+                    'type' => 'datetime',
+                ),
+            ),
+        ));
     }
 
-		if($_POST['ajaxIframe'] || $_POST['ajaxSubmit'])
+    /**
+     * Присваивает роль пользователю (страница со списком пользователей)
+     *
+     * @access public
+     * @return void
+     */
+    public function actionAssign()
     {
-      // если модель сохранена и это было действие добавления, переадресовываем на страницу редактирования этого же материала
-      if($saved && $this->crud == 'create')
-        $data = array(
-          'action' => 'redirect',
-          'content' => $this->createUrl('update', array('id' => $model->primaryKey)),
-        );
-      else
-        $data = array(
-          'action' => 'renewForm',
-          'content' => $this->renderPartial('update',array(
-                         'model'=>$model,
-                       ), true, true),
-        );
-
-      echo json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
-      Yii::app()->end();
+        AuthItem::model()->am->assign($_POST['roleId'], $_POST['userId']);
+        echo '<div class="tagControll" data-roleid="' . $_POST['roleId'] . '" data-userid="' . $_POST['userId'] . '">' . $_POST['role'] . '<a href="" class="icon_delete roleRevoke"></a></div>';
     }
 
-		if(!$_POST['ajaxSubmit'])
-      $this->render('update',array(
-			  'model'=>$model,
-		  ));
-  }
-
-  public function actionRolesCreate()
-  {
-    $this->actionRolesUpdate();
-  }
-
-  public function actionRolesDelete()
-  {
-    //TODO: переместить в модель
-    $this->am->removeAuthItem($this->crudid);
-  }
-
-  public function actionBatchmailing()
-  {
-    $model = new MailingForm;
-
-    // AJAX валидация
-		if(isset($_POST['ajax']))
-		{
-      $model->attributes = $_POST['MailingForm'];
-      echo CActiveForm::validate($model);
-			Yii::app()->end();
-		}
-
-    if(isset($_POST['MailingForm']))
+    /**
+     * Снимает роль с пользователя (страница со списком пользователей)
+     *
+     * @access public
+     * @return void
+     */
+    public function actionRevoke()
     {
-      $model->attributes = $_POST['MailingForm'];
-
-      if($model->validate())
-      {
-        $userList = AuthAssignment::model()->findAllByRole($model->roles);
-        foreach($userList as &$item)
-          $item = $item->user;
-
-        $message = new YiiMailMessage;
-        $message->from = array($model->from => Yii::app()->params['shortName']);;
-        $message->subject = $model->subject;
-        $message->setBody($model->message, 'text/html');
-        $status = Yii::app()->mail->batchSend($message, $userList);
-
-        ob_start();
-        print_r($status->failed);
-        $failed = ob_get_clean();
-        Yii::app()->user->setFlash('info', "Отправленно {$status->sent} писем. Не доставленно: $failed");
-
-        $data = array(
-          'action' => 'renewForm',
-          'content' => '<script> location.reload() </script>',
-        );
-      }
-      else
-        $data = array(
-          'action' => 'renewForm',
-          'content' => $this->renderPartial('update',array(
-            'model'=>$model,
-          ), true, true),
-        );
-
-      echo json_encode($data, JSON_HEX_TAG);
-        Yii::app()->end();
+        AuthItem::model()->am->revoke($_POST['roleId'], $_POST['userId']);
     }
 
-    $this->render('update', array(
-      'model' => $model,
-    ));
-  }
+    /**
+     * Страница со списком ролей.
+     *
+     * @access public
+     * @return void
+     */
+    public function actionRoles()
+    {
+        $model = new AuthItem('search');
 
-  public function actionTransfer()
-  {
-    $model=new AuthAssignment('search');
-    $activeProvider=$model->with('user')->search();
-	  $activeProvider->criteria->compare('t.itemname', 'transfer');
+        $this->render('table', array(
+            'dataProvider' => $model->search(),
+            'columns' => array(
+                'l10edName',
+                'type',
+                'description',
+                'bizrule',
+                'data',
+            ),
+        ));
+    }
 
-		$this->render('table',array(
-			'dataProvider'=> $activeProvider,
-      'buttons' => array(
-        'delete' => array(
-          'url' => 'array("revoke", "id" => $data->primaryKey["userid"])',
-        ),
-        'ok' => array(
-          'url' => 'array("assign", "id" => $data->primaryKey["userid"])',
-        ),
-      ),
-			'columns'=>array(
-        'name',
-        'email',
-        array(
-          'name' => 'Выбраная группа',
-          'value' => '$data->data["chosenRole"]',
-        ),
-        )
-      )
-    );
-  }
+    public function actionRolesUpdate()
+    {
+        if (!empty($this->crudid)) {
+            $model = AuthItem::model()->findByPk($this->crudid);
+        } else {
+            $model = new AuthItem;
+        }
 
-  /**
-   * Отклонение перемещения пользователя в выбранную им при регистрации роль
-   *
-   * @access public
-   * @return void
-   */
-  public function actionTransferRevoke()
-  {
-    $this->actionTransferAssign(false);
-  }
+        // AJAX валидация
+        if (isset($_POST['ajax'])) {
+            $model->attributes = $_POST['AuthItem'];
+            echo CActiveForm::validate($model);
+            Yii::app()->end();
+        }
 
-  /**
-   * Подтверждение перемещения пользователя в выбранную им при регистрации роль
-   *
-   * @param boolean $assign если true пользователь будет перемещен в выбранную им роль
-   * @access public
-   * @return void
-   */
-  public function actionTransferAssign($assign = true)
-  {
-    $model = AuthAssignment::model()->transfer($this->crudid, $assign);
+        if (isset($_POST['AuthItem'])) {
+            $model->attributes = $_POST['AuthItem'];
 
-    if($assign)
-      Yii::app()->user->setFlash('success', 'Пользователь <b>' . $model->name . '</b> успешно перемещен в группу "' . $model->data['chosenRole'] . '"');
+            $saved = $model->save();
+        }
 
-    $this->redirect('/admin/user/transfer');
-  }
+        if ($_POST['ajaxIframe'] || $_POST['ajaxSubmit']) {
+            // если модель сохранена и это было действие добавления, переадресовываем на страницу редактирования этого же материала
+            if ($saved && $this->crud == 'create') {
+                $data = array(
+                    'action' => 'redirect',
+                    'content' => $this->createUrl('update', array('id' => $model->primaryKey)),
+                );
+            } else {
+                $data = array(
+                    'action' => 'renewForm',
+                    'content' => $this->renderPartial('update', array(
+                        'model' => $model,
+                    ), true, true),
+                );
+            }
 
-  protected function getAm()
-  {
-    return Yii::app()->authManager;
-  }
+            echo json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
+            Yii::app()->end();
+        }
 
-	/**
-	 * Deletes a particular model.
-	 * If deletion is successful, the browser will be redirected to the 'admin' page.
-	 * @param integer $id the ID of the model to be deleted
-	 */
-	public function actionDelete()
-	{
-		if(Yii::app()->request->isPostRequest)
-		{
-			// we only allow deletion via POST request
-			User::model()->findByPk($this->crudid)->delete();
-	  }
-		else
-			throw new CHttpException(400,'Не правильный запрос. Пожалуйста не повторяйте этот запрос еще раз.');
-	}
+        if (!$_POST['ajaxSubmit']) {
+            $this->render('update', array(
+                'model' => $model,
+            ));
+        }
+
+    }
+
+    public function actionRolesCreate()
+    {
+        $this->actionRolesUpdate();
+    }
+
+    public function actionRolesDelete()
+    {
+        //TODO: переместить в модель
+        $this->am->removeAuthItem($this->crudid);
+    }
+
+    public function actionBatchmailing()
+    {
+        $model = new MailingForm;
+
+        // AJAX валидация
+        if (isset($_POST['ajax'])) {
+            $model->attributes = $_POST['MailingForm'];
+            echo CActiveForm::validate($model);
+            Yii::app()->end();
+        }
+
+        if (isset($_POST['MailingForm'])) {
+            $model->attributes = $_POST['MailingForm'];
+
+            if ($model->validate()) {
+                $userList = AuthAssignment::model()->findAllByRole($model->roles);
+                foreach ($userList as &$item) {
+                    $item = $item->user;
+                }
+
+                $message = new YiiMailMessage;
+                $message->from = array($model->from => Yii::app()->params['shortName']);
+                $message->subject = $model->subject;
+                $message->setBody($model->message, 'text/html');
+                $status = Yii::app()->mail->batchSend($message, $userList);
+
+                ob_start();
+                print_r($status->failed);
+                $failed = ob_get_clean();
+                Yii::app()->user->setFlash('info', "Отправленно {$status->sent} писем. Не доставленно: $failed");
+
+                $data = array(
+                    'action' => 'renewForm',
+                    'content' => '<script> location.reload() </script>',
+                );
+            } else {
+                $data = array(
+                    'action' => 'renewForm',
+                    'content' => $this->renderPartial('update', array(
+                        'model' => $model,
+                    ), true, true),
+                );
+            }
+
+            echo json_encode($data, JSON_HEX_TAG);
+            Yii::app()->end();
+        }
+
+        $this->render('update', array(
+            'model' => $model,
+        ));
+    }
+
+    public function actionTransfer()
+    {
+        $model = new AuthAssignment('search');
+        $activeProvider = $model->with('user')->search();
+        $activeProvider->criteria->compare('t.itemname', 'transfer');
+
+        $this->render('table', array(
+            'dataProvider' => $activeProvider,
+            'buttons' => array(
+                'delete' => array(
+                    'url' => 'array("revoke", "id" => $data->primaryKey["userid"])',
+                ),
+                'ok' => array(
+                    'url' => 'array("assign", "id" => $data->primaryKey["userid"])',
+                ),
+            ),
+            'columns' => array(
+                'name',
+                'email',
+                array(
+                    'name' => 'Выбраная группа',
+                    'value' => '$data->data["chosenRole"]',
+                ),
+            ),
+        ));
+    }
+
+    /**
+     * Отклонение перемещения пользователя в выбранную им при регистрации роль
+     *
+     * @access public
+     * @return void
+     */
+    public function actionTransferRevoke()
+    {
+        $this->actionTransferAssign(false);
+    }
+
+    /**
+     * Подтверждение перемещения пользователя в выбранную им при регистрации роль
+     *
+     * @param boolean $assign если true пользователь будет перемещен в выбранную им роль
+     * @access public
+     * @return void
+     */
+    public function actionTransferAssign($assign = true)
+    {
+        $model = AuthAssignment::model()->transfer($this->crudid, $assign);
+
+        if ($assign) {
+            Yii::app()->user->setFlash('success', 'Пользователь <b>' . $model->name . '</b> успешно перемещен в группу "' . $model->data['chosenRole'] . '"');
+        }
+
+        $this->redirect('/admin/user/transfer');
+    }
+
+    protected function getAm()
+    {
+        return Yii::app()->authManager;
+    }
+
+    /**
+     * Deletes a particular model.
+     * If deletion is successful, the browser will be redirected to the 'admin' page.
+     * @param integer $id the ID of the model to be deleted
+     */
+    public function actionDelete()
+    {
+        if (Yii::app()->request->isPostRequest) {
+            // we only allow deletion via POST request
+            User::model()->findByPk($this->crudid)->delete();
+        } else {
+            throw new CHttpException(400, 'Не правильный запрос. Пожалуйста не повторяйте этот запрос еще раз.');
+        }
+
+    }
 }
-?>

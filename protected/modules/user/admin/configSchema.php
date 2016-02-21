@@ -1,32 +1,24 @@
 <?php
-return array(
-  // modulewide params schema
-  /*'scriptsAlias' => array(
-    'label' => 'Alias папки со скриптами',
-    'type' => 'text',
-    'default' => 'application.mevalScripts',
-  ),*/
-  
-  // global params schema and admin panel settings
-  'hamster' => array(
-    'admin' => array(
-      'title' => 'Пользователи и группы',
-      'description' => 'Модуль позволяет просматривать зарегистрированных пользователей системы. Управлять группами и перемещать пользователей в них. Совершать рассылки зарегистрированным или оставившим свой email пользователям.',
-      'internal' => true, // этот модуль работает только внутри админки
-      'db' => array(
-        'version' => 1.1,
-        'tables' => array(
-          'AuthAssignment',
-          'AuthItem',
-          'AuthItemChild',
-          'auth_user',
-          'YiiSession',
-        ),
-      ),
-      'routes' => array(
-        // 'blog/index', //layout, title, alias
-        // 'blog/view',
-      ),
-    ),
-  ),
-);
+return [
+    'hamster' => [
+        'admin' => [
+            'title' => 'Пользователи и группы',
+            'description' => 'Модуль позволяет просматривать зарегистрированных пользователей системы. Управлять группами и перемещать пользователей в них. Совершать рассылки зарегистрированным или оставившим свой email пользователям.',
+            'db' => [
+                'version' => 1.1,
+                'tables' => [
+                    'AuthAssignment',
+                    'AuthItem',
+                    'AuthItemChild',
+                    'auth_user',
+                    'YiiSession',
+                ],
+            ],
+            'routes' => [
+                'user/login',
+                'user/logout',
+                'user/register',
+            ],
+        ],
+    ],
+];

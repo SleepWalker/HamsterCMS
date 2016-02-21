@@ -546,7 +546,7 @@ class User extends \CActiveRecord
      */
     public function getEmailWithStatus()
     {
-        return '<span class="status_' . ($this->is_active ? "3" : "1") . '">' . CHtml::encode($this->email) . '</span>';
+        return '<span class="status_' . ($this->is_active ? "3" : "1") . '">' . \CHtml::encode($this->email) . '</span>';
     }
 
     /**

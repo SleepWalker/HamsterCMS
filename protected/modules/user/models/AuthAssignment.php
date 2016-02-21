@@ -12,6 +12,9 @@
  * The followings are the available model relations:
  * @property AuthItem $itemname0
  */
+
+use user\models\User;
+
 class AuthAssignment extends CActiveRecord
 {
     /**
