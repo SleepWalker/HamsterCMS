@@ -1,10 +1,11 @@
 <?php
+namespace sectionvideo\admin;
 
-class UpdateDb extends HUpdateDb
+class UpdateDb extends \admin\components\HUpdateDb
 {
     public function verHistory()
     {
-        return array('1.1', '1.2.0', '1.2.1');
+        return ['1.1', '1.2.0', '1.2.1'];
     }
 
     /**

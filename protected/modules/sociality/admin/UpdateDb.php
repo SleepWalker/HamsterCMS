@@ -1,21 +1,21 @@
 <?php
+namespace sociality\admin;
 
-class UpdateDb extends HUpdateDb
+class UpdateDb extends \admin\components\HUpdateDb
 {
-  public function verHistory()
-  {
-    return array(1, 1.1, '1.1.1');
-  }
-
-  /**
-   * Добавляем колонку для ip юзера
-   */
-  public function update1_1()
-  {
-    if(empty(Comment::model()->tableSchema->columns['ip']))
+    public function verHistory()
     {
-      $this->startRawSql();
-?>
+        return [1, 1.1, '1.1.1'];
+    }
+
+    /**
+     * Добавляем колонку для ip юзера
+     */
+    public function update1_1()
+    {
+        if (empty(Comment::model()->tableSchema->columns['ip'])) {
+            $this->startRawSql();
+            ?>
 ALTER TABLE  `comment` ADD `ip` INT UNSIGNED NOT NULL
 <?
       $this->endRawSql();
@@ -33,7 +33,7 @@ ALTER TABLE  `comment` ADD `ip` INT UNSIGNED NOT NULL
 ?>
 ALTER TABLE  `comment_user` DROP FOREIGN KEY  `comment_user_ibfk_1` ;
 <?php
-      $this->endRawSql();
+$this->endRawSql();
+        }
     }
-  }
 }

@@ -9,7 +9,8 @@
 
 namespace admin\controllers;
 
-use \admin\models\Config;
+use admin\models\Config;
+use admin\components\HUpdateDb;
 
 class UpdateController extends \admin\components\HAdminController
 {
@@ -317,7 +318,7 @@ class UpdateController extends \admin\components\HAdminController
      */
     protected function runDBUpdate($updateInfo)
     {
-        return \HUpdateDb::instance($updateInfo['moduleId'])
+        return HUpdateDb::instance($updateInfo['moduleId'])
                            ->runUpdates((string) $updateInfo['oldV'], (string) $updateInfo['newV']);
     }
 

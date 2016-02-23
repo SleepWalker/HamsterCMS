@@ -1,16 +1,17 @@
 <?php
+namespace shop\admin;
 
-class UpdateDb extends HUpdateDb
+class UpdateDb extends \admin\components\HUpdateDb
 {
-  public function verHistory()
-  {
-    return array(1, 1.1, 1.2, '1.2.1', 1.3, '1.3.1', '1.3.2');
-  }
-  
-  public function update1_1()
-  {
-    $this->startRawSql();
-?>
+    public function verHistory()
+    {
+        return [1, 1.1, 1.2, '1.2.1', 1.3, '1.3.1', '1.3.2'];
+    }
+
+    public function update1_1()
+    {
+        $this->startRawSql();
+        ?>
 -- на всякий случай поменяем тип таблицы статус на тот, который нам действительно надо
 ALTER TABLE `shop` CHANGE `status` `status` TINYINT( 3 ) UNSIGNED NOT NULL;
 UPDATE `shop` SET `status`=6 WHERE `status`=1;
@@ -19,19 +20,18 @@ UPDATE `shop` SET `status`=2 WHERE `status`=4;
 UPDATE `shop` SET `status`=4 WHERE `status`=5;
 UPDATE `shop` SET `status`=5 WHERE `status`=6;
 <?php
-    $this->endRawSql();
-  }
+$this->endRawSql();
+    }
 
-  /**
-   * В этом обновлении мы проследим, что бы у колонки id была длина 10 знаков, 
-   * так как теперь длина кода контролируется в модели
-   */
-  public function update1_2()
-  {
-    if(Shop::model()->tableSchema->columns['id']->size != 10)
+    /**
+     * В этом обновлении мы проследим, что бы у колонки id была длина 10 знаков,
+     * так как теперь длина кода контролируется в модели
+     */
+    public function update1_2()
     {
-      $this->startRawSql();
-?>
+        if (Shop::model()->tableSchema->columns['id']->size != 10) {
+            $this->startRawSql();
+            ?>
 ALTER TABLE  `shop` CHANGE  `id`  `id` INT( 10 ) UNSIGNED NOT NULL;
 <?
       $this->endRawSql();
@@ -66,21 +66,22 @@ UPDATE `shop` SET `code`=`id`;
 ?>
 ALTER TABLE  `shop_brand` ADD  `description` TEXT;
 <?php
-      $this->endRawSql();
+$this->endRawSql();
+        }
     }
-  }
 
-  public function update1_3_1(){}
+    public function update1_3_1()
+    {}
 
-  /**
-   * Изменили тип поля code на VARCHAR
-   */
-  public function update1_3_2()
-  {
-      $this->startRawSql();
-?>
+    /**
+     * Изменили тип поля code на VARCHAR
+     */
+    public function update1_3_2()
+    {
+        $this->startRawSql();
+        ?>
     ALTER TABLE  `shop` CHANGE  `code`  `code` VARCHAR( 10 );
 <?php
-      $this->endRawSql();
-  }
+$this->endRawSql();
+    }
 }

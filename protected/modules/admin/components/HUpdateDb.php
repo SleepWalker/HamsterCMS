@@ -3,12 +3,13 @@
  * HUpdateDb базовый класс для обновления БД модулей hamster
  *
  * @abstract
- * @package hamster.modules.admin.components
  */
 
-use \admin\models\Config;
+namespace admin\components;
 
-abstract class HUpdateDb extends CDbMigration
+use admin\models\Config;
+
+abstract class HUpdateDb extends \CDbMigration
 {
     /**
      * @property string $moduleId идентификатор модуля, для которого создан экземпляр класса
@@ -36,19 +37,19 @@ abstract class HUpdateDb extends CDbMigration
     final protected function __construct($moduleId)
     {
         // проверяем можем ли мы писать в необходимых директориях
-        $path = Yii::getPathOfAlias('application.config') . '/hamster.php';
+        $path = \Yii::getPathOfAlias('application.config') . '/hamster.php';
         if (!is_writable($path)) {
-            Yii::app()->user->setFlash('error', "Файл '$path' не доступен для записи.");
+            \Yii::app()->user->setFlash('error', "Файл '$path' не доступен для записи.");
         }
-        $path = Yii::getPathOfAlias('application.config') . '/hamsterModules.php';
+        $path = \Yii::getPathOfAlias('application.config') . '/hamsterModules.php';
         if (!is_writable($path)) {
-            Yii::app()->user->setFlash('error', "Файл '$path' не доступен для записи.");
+            \Yii::app()->user->setFlash('error', "Файл '$path' не доступен для записи.");
         }
         $this->moduleId = $moduleId;
-        $this->setDbConnection(Yii::app()->db);
+        $this->setDbConnection(\Yii::app()->db);
 
         // подключаем модели модуля
-        Yii::app()->controller->module->setImport(array(
+        \Yii::app()->controller->module->setImport(array(
             $moduleId . '.models.*',
         ));
 
@@ -57,10 +58,9 @@ abstract class HUpdateDb extends CDbMigration
 
     public static function instance($moduleId)
     {
-        Yii::import('application.modules.' . $moduleId . '.admin.UpdateDb', true);
+        $className = "\\$moduleId\\admin\\UpdateDb";
 
-        $updater = new UpdateDb($moduleId);
-        return $updater;
+        return new $className($moduleId);
     }
 
     /**
@@ -115,7 +115,7 @@ abstract class HUpdateDb extends CDbMigration
             foreach ($updateMethods as $newV => $method) {
                 ob_start();
                 $this->$method();
-                Yii::log(ob_get_clean(), 'trace', 'hamster.update.db');
+                \Yii::log(ob_get_clean(), 'trace', 'hamster.update.db');
                 // занесли в журнал версию, до которой только что обновилась БД
                 $this->logVersionIncrement($oldV, $newV);
                 $oldV = $newV;
@@ -163,9 +163,13 @@ abstract class HUpdateDb extends CDbMigration
                 break;
             }
 
-            if (($curMethod = str_replace('.', '_', 'update' . $ver)) && method_exists($this, $curMethod)) {
-                $updateMethods[$ver] = $curMethod;
+            $curMethod = str_replace('.', '_', 'update' . $ver);
+
+            if (!method_exists($this, $curMethod)) {
+                throw new \DomainException("Can't find migration method " . static::class . "::$curMethod()");
             }
+
+            $updateMethods[$ver] = $curMethod;
 
         }
         $updateMethods = array_reverse($updateMethods);
@@ -265,5 +269,24 @@ abstract class HUpdateDb extends CDbMigration
         }
 
         $this->rawSqlStarted = true;
+    }
+
+    public function tableExists($table)
+    {
+        return (\Yii::app()->db->schema->getTable($table, true) !== null);
+    }
+
+    public function dropTableIfExists($table)
+    {
+        if ($this->tableExists($table)) {
+            echo " table $table exists, drop it";
+            $this->dropTable($table);
+        }
+    }
+
+    public function createTableIfExists($table, $columns, $options = null)
+    {
+        $this->dropTableIfExists($table);
+        $this->createTable($table, $columns, $options);
     }
 }
