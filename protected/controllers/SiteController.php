@@ -1,10 +1,9 @@
 <?php
 /**
  * Site controller class.
- * Provides authentication (login, logout, register, change password, accaount activation),
- * contact and error displaying functionality
+ * Provides contact and error displaying functionality
  *
- * @package    shop.ShopController
+ * @package application.controllers
  */
 
 class SiteController extends \Controller

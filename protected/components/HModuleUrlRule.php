@@ -3,11 +3,6 @@
  * HModuleUrlRule
  *
  * @uses CBaseUrlRule
- * @package hamster.components.HModuleUrlRule
- * @version $id$
- * @copyright Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
- * @author Sviatoslav Danylenko <mybox@udf.su>
- * @license PGPLv3 ({@link http://www.gnu.org/licenses/gpl-3.0.html})
  */
 
 namespace application\components;
@@ -173,17 +168,17 @@ class HModuleUrlRule extends \CBaseUrlRule
 
             // TODO: в этом месте могут не проходить контроллеры на подобии ShareCountController. из-за нескольких смен регистра в имени
             // можно пофиксить этот момент разве что с помощью ручного поиска в фс
-            $classFile = ucfirst($url[1]) . 'Controller.php';
+            $controllerId = $url[1];
+            $classFile = ucfirst($controllerId) . 'Controller.php';
 
             $moduleControllersDirectory = \Yii::getPathOfAlias('application.modules.' . $moduleId . '.controllers');
 
             // проверяем есть ли в url название контроллера
-            if (is_file($moduleControllersDirectory . DIRECTORY_SEPARATOR . $classFile)) {
+            if (isset($module->controllerMap[$controllerId]) || is_file($moduleControllersDirectory . DIRECTORY_SEPARATOR . $classFile)) {
                 // в запросе есть название контроллера!
-                $controllerId = $url[1];
                 $actionParts = array_slice($url, 2);
             } else {
-                $controllerId = $moduleId;
+                $controllerId = $moduleId; // e.g. admin/admin/XXX
                 $actionParts = array_slice($url, 1);
             }
             $route[] = $controllerId;
@@ -195,7 +190,7 @@ class HModuleUrlRule extends \CBaseUrlRule
 
             //работаем с {xxx}Controller
             if (isset($module->controllerMap[$controllerId])) {
-                $controllerClass = $module->controllerMap[$controllerId];
+                $controllerClass = \Yii::import($module->controllerMap[$controllerId]);
             } else {
                 $controllerClass = ucfirst($controllerId) . 'Controller';
 

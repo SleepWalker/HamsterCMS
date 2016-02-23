@@ -115,6 +115,17 @@ class AuthItem extends CActiveRecord
         );
     }
 
+    public function getTypeLabel()
+    {
+        $map = [
+            self::TYPE_OPERATION => 'Операция',
+            self::TYPE_TASK => 'Задача',
+            self::TYPE_ROLE => 'Роль',
+        ];
+
+        return isset($map[$this->type]) ? $map[$this->type] : null;
+    }
+
     /**
      * Возвращает элемент авторизации по его Pk (name)
      *

@@ -228,18 +228,21 @@ class HAdminController extends \CController
     {
         $params = \CMAp::mergeArray(['model' => $model], $params);
 
+        $ajaxSubmit = \Yii::app()->request->getPost('ajaxSubmit');
+        $ajaxIframe = \Yii::app()->request->getPost('ajaxIframe');
+
         if (\Yii::app()->request->isPostRequest) {
             // если модель сохранена и это было действие добавления, переадресовываем на страницу редактирования этого же материала
             if (!$model->hasErrors() && $this->action->id == 'create') {
-                $data = array(
+                $data = [
                     'action' => 'redirect',
                     'content' => $this->createUrl('update', ['id' => $model->id]),
-                );
+                ];
             } else {
-                $data = array(
+                $data = [
                     'action' => 'renewForm',
                     'content' => $this->renderPartial('update', $params, true, true),
-                );
+                ];
             }
 
             header('application/json');
@@ -247,7 +250,7 @@ class HAdminController extends \CController
             //echo json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
             \Yii::app()->end();
         } else {
-            if (isset($_POST['ajaxIframe']) || isset($_POST['ajaxSubmit']) || \Yii::app()->request->isAjaxRequest) {
+            if ($ajaxSubmit || $ajaxIframe || \Yii::app()->request->isAjaxRequest) {
                 $this->renderPartial('update', $params, false, true);
             } else {
                 $this->render('update', $params);

@@ -27,21 +27,19 @@ class AdminModuleTabs extends \CWidget
                         if ($this->actionId != $path) {
                             $hide = 1;
                         }
-
                         break;
                     case 'index':
                         if (!($this->actionId == 'index' || $this->actionId == 'create' || $this->actionId == 'update')) {
                             $hide = 1;
                         }
-
                         break;
                     default:
                         if (strpos($this->actionId, $name['display']) === false) {
                             $hide = 1;
                         }
-
                         break;
                 }
+
                 if ($hide) {
                     continue;
                 }
@@ -49,7 +47,7 @@ class AdminModuleTabs extends \CWidget
                 $name = $name['name'];
             }
 
-            $isActive = $this->actionId == $path;
+            $isActive = $this->actionId === str_replace('/', '', $path);
 
             if ($this->setPageTitle && $isActive) {
                 $this->controller->pageTitle = $name;
@@ -57,7 +55,7 @@ class AdminModuleTabs extends \CWidget
 
             $links[] = [
                 'text' => $name,
-                'url' => $this->controller->createUrl($path),
+                'url' => $this->controller->createUrl($this->controller->id . '/' . $path),
                 'htmlOptions' => [
                     'class' => $isActive ? 'active' : '',
                 ],

@@ -28,7 +28,7 @@ class UserAdminController extends \admin\components\HAdminController
     {
         $transferCount = ($transferCount = AuthAssignment::model()->transferCount) ? ' (<b style="text-decoration: blink;color:orange;">' . $transferCount . '</b>)' : '';
         return array(
-            '' => 'Пользователи',
+            'index' => 'Пользователи',
             'batchmailing' => 'Рассылки',
             'roles' => 'Роли (группы)',
             'roles/update' => array(
@@ -120,31 +120,31 @@ class UserAdminController extends \admin\components\HAdminController
   });
           ');
 
-        $this->render('table', array(
+        $this->render('table', [
             'dataProvider' => $model->with('roles')->search(),
             'disableButtons' => true,
-            'columns' => array(
+            'columns' => [
                 'id',
                 'fullName',
-                array(
+                [
                     'name' => 'emailWithStatus',
                     'type' => 'raw',
-                ),
-                array(
+                ],
+                [
                     'name' => 'roles',
                     'value' => '$data->getRolesControll()',
                     'type' => 'raw',
-                ),
-                array(
+                ],
+                [
                     'name' => 'last_login',
                     'type' => 'datetime',
-                ),
-                array(
+                ],
+                [
                     'name' => 'date_joined',
                     'type' => 'datetime',
-                ),
-            ),
-        ));
+                ],
+            ],
+        ]);
     }
 
     /**
@@ -184,7 +184,10 @@ class UserAdminController extends \admin\components\HAdminController
             'dataProvider' => $model->search(),
             'columns' => array(
                 'l10edName',
-                'type',
+                [
+                    'name' => 'type',
+                    'value' => '$data->getTypeLabel()',
+                ],
                 'description',
                 'bizrule',
                 'data',
@@ -197,48 +200,27 @@ class UserAdminController extends \admin\components\HAdminController
         if (!empty($this->crudid)) {
             $model = AuthItem::model()->findByPk($this->crudid);
         } else {
-            $model = new AuthItem;
+            $model = new AuthItem();
         }
+
+        $modelName = \CHtml::modelName($model);
+        $postData = \Yii::app()->request->getPost($modelName);
+        $ajax = \Yii::app()->request->getPost('ajax');
 
         // AJAX валидация
-        if (isset($_POST['ajax'])) {
-            $model->attributes = $_POST['AuthItem'];
-            echo CActiveForm::validate($model);
-            Yii::app()->end();
+        if ($ajax) {
+            $model->attributes = $postData;
+            echo \CActiveForm::validate($model);
+            \Yii::app()->end();
         }
 
-        if (isset($_POST['AuthItem'])) {
-            $model->attributes = $_POST['AuthItem'];
+        if ($postData) {
+            $model->attributes = $postData;
 
-            $saved = $model->save();
+            $model->save();
         }
 
-        if ($_POST['ajaxIframe'] || $_POST['ajaxSubmit']) {
-            // если модель сохранена и это было действие добавления, переадресовываем на страницу редактирования этого же материала
-            if ($saved && $this->crud == 'create') {
-                $data = array(
-                    'action' => 'redirect',
-                    'content' => $this->createUrl('update', array('id' => $model->primaryKey)),
-                );
-            } else {
-                $data = array(
-                    'action' => 'renewForm',
-                    'content' => $this->renderPartial('update', array(
-                        'model' => $model,
-                    ), true, true),
-                );
-            }
-
-            echo json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
-            Yii::app()->end();
-        }
-
-        if (!$_POST['ajaxSubmit']) {
-            $this->render('update', array(
-                'model' => $model,
-            ));
-        }
-
+        $this->renderForm($model);
     }
 
     public function actionRolesCreate()
@@ -254,7 +236,7 @@ class UserAdminController extends \admin\components\HAdminController
 
     public function actionBatchmailing()
     {
-        $model = new MailingForm;
+        $model = new MailingForm();
 
         // AJAX валидация
         if (isset($_POST['ajax'])) {
