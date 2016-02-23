@@ -8,18 +8,21 @@
 namespace user\components;
 
 use user\models\User;
+use user\models\Identity;
+use user\components\PasswordHash;
 
 class UserIdentity extends \CUserIdentity
 {
     public $user;
+    private $identity;
 
-    public function __construct($username, $password = null)
+    public function __construct($email, $password)
     {
-        parent::__construct($username, $password);
-        $this->user = User::model()->findByEmail($this->username);
+        parent::__construct($email, $password);
 
-        if ($this->password === null) {
-            $this->errorCode = self::ERROR_NONE;
+        $this->identity = Identity::model()->findIdentity($email);
+        if ($this->identity) {
+            $this->user = $this->identity->user;
         }
     }
 
@@ -29,17 +32,21 @@ class UserIdentity extends \CUserIdentity
      */
     public function authenticate()
     {
-        if ($this->user === null) {
+        if (!$this->user || !$this->identity) {
             $this->errorCode = self::ERROR_USERNAME_INVALID;
-        } else if (!$this->user->validatePassword($this->password)) {
-            $this->errorCode = self::ERROR_PASSWORD_INVALID;
         } else {
-            $this->setState('email', $this->user->email);
+            $hash = new PasswordHash($this->identity->private);
 
-            $this->errorCode = self::ERROR_NONE;
+            if (!$hash->verify($this->password)) {
+                $this->errorCode = self::ERROR_PASSWORD_INVALID;
+            } else {
+                $this->setState('email', $this->user->email);
 
-            // Обновляем дату последнего входа
-            $this->user->save();
+                $this->errorCode = self::ERROR_NONE;
+
+                // Обновляем дату последнего входа
+                $this->user->save();
+            }
         }
         return $this->errorCode == self::ERROR_NONE;
     }

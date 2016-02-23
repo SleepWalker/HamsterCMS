@@ -41,55 +41,24 @@ class User extends \CActiveRecord
     const FIRST_NAME = 'first_name';
 
     /**
-     * Returns the static model of the specified AR class.
-     * @param string $className active record class name.
-     * @return User the static model class
-     */
-    public static function model($className = __CLASS__)
-    {
-        return parent::model($className);
-    }
-
-    public function init()
-    {
-        \Yii::app()->setImport(array(
-            'application.modules.user.models.*',
-        ));
-    }
-
-    /**
-     * @return string the associated database table name
-     */
-    public function tableName()
-    {
-        return 'auth_user';
-    }
-
-    /**
      * @return array validation rules for model attributes.
      */
     public function rules()
     {
-        // NOTE: you should only define rules for those attributes that
-        // will receive user inputs.
         return array(
             array('first_name, email', 'required'),
             array('first_name, last_name', 'match', 'pattern' => '/^[a-zA-Zа-яА-Я0-9_\- ]+$/u', 'message' => 'Поле содержит не допустимые знаки.'),
-            array('password1, password2', 'required', 'on' => 'register'),
-            array('password2', 'compare', 'compareAttribute' => 'password1', 'strict' => true, 'on' => 'register'),
-            array('password1, password2', 'length', 'min' => 7),
             array('is_active', 'boolean'),
-            array('first_name, last_name, password1, password2', 'length', 'max' => 30),
             array('email', 'length', 'max' => 75),
             array('email', 'email'),
             array('email', 'unique'),
-            array('password', 'length', 'max' => 128),
 
             array('is_active', 'default', 'value' => 0),
             //array('date_joined','default','value'=>time(), 'on'=>'insert'),
+
             // The following rule is used by search().
             // Please remove those attributes that should not be searched.
-            array('id, first_name, last_name, email, password, is_active, last_login, date_joined', 'safe', 'on' => 'search'),
+            array('id, first_name, last_name, email, is_active, last_login, date_joined', 'safe', 'on' => 'search'),
         );
     }
 
@@ -113,10 +82,6 @@ class User extends \CActiveRecord
                 $this->date_joined = $this->last_login = new \CDbExpression('NOW()');
             } else {
                 $this->last_login = new \CDbExpression('NOW()');
-            }
-
-            if ($this->scenario == 'register') {
-                $this->password = $this->hashPassword($this->password1);
             }
 
             return true;
@@ -152,7 +117,7 @@ class User extends \CActiveRecord
         return array(
             'shopRatings' => array(self::HAS_MANY, 'ShopRating', 'user_id'),
             'address' => array(self::HAS_MANY, 'OrderAddress', 'user_id'),
-            'roles' => array(self::HAS_MANY, 'AuthAssignment', array('userid' => 'id')),
+            'roles' => array(self::HAS_MANY, 'AuthAssignment', ['userid' => 'id']),
         );
     }
 
@@ -166,15 +131,13 @@ class User extends \CActiveRecord
             'first_name' => 'Имя',
             'last_name' => 'Фамилия',
             'fullName' => 'Имя и фамилия',
-            'email' => 'Email', // (Например: user@mysite.com)
+            'email' => 'Email',
             'emailWithStatus' => 'Email',
             'password' => 'Password',
             'is_active' => 'Is Active',
             'last_login' => 'Последний вход',
             'date_joined' => 'Дата регистрации',
-            'password1' => 'Пароль',
-            'password2' => 'Пароль еще раз',
-            'role' => 'Выбирите вашу группу',
+            'role' => 'Кто вы?',
             'roles' => 'Роли (группы)',
         );
     }
@@ -340,15 +303,6 @@ class User extends \CActiveRecord
     }
 
     /**
-     *  Возвращает соль для текущего юзера
-     **/
-    protected function getSalt()
-    {
-        list($alg, $iter, $salt, $hash) = explode('$', $this->password);
-        return $salt;
-    }
-
-    /**
      *  Возвращает модель User по его email
      **/
     public function findByEmail($email = false)
@@ -358,108 +312,6 @@ class User extends \CActiveRecord
         }
 
         return $this->findByAttributes(array('email' => $email));
-    }
-
-    /**
-     *  Проверка пароля
-     **/
-    public function validatePassword($password)
-    {
-        return $this->hashPassword($password, $this->salt) === $this->password;
-    }
-    /**
-     * Синоним метода validatePassword для расширения hoauth
-     */
-    public function verifyPassword($password)
-    {
-        return $this->validatePassword($password);
-    }
-
-    /**
-     *   Хэш функция из Django
-     **/
-    public function hashPassword($password, $salt = false)
-    {
-        $algorythm = 'pbkdf2_sha256';
-        $iterations = 10000;
-        if (!$salt) {
-            $salt = $this->generateRandStr(12);
-        }
-
-        $hash = $this->pbkdf2('sha256', $password, $salt, $iterations, false, true);
-        $hash = base64_encode($hash);
-        return $algorythm . '$' . $iterations . '$' . $salt . '$' . $hash;
-    }
-
-    /**
-     * Implementation of the PBKDF2 key derivation function as described in
-     * RFC 2898.
-     *
-     * @param string $PRF Hash algorithm.
-     * @param string $P Password.
-     * @param string $S Salt.
-     * @param int $c Iteration count.
-     * @param mixed $dkLen Derived key length (in octets). If $dkLen is FALSE
-     *                     then length will be set to $PRF output length (in
-     *                     octets).
-     * @param bool $raw_output When set to TRUE, outputs raw binary data. FALSE
-     *                         outputs lowercase hexits.
-     * @return mixed Derived key or FALSE if $dkLen > (2^32 - 1) * hLen (hLen
-     *               denotes the length in octets of $PRF output).
-     */
-    public function pbkdf2($PRF, $P, $S, $c, $dkLen = false, $raw_output = false)
-    {
-        //default $hLen is $PRF output length
-        $hLen = strlen(hash($PRF, '', true));
-        if ($dkLen === false) {
-            $dkLen = $hLen;
-        }
-
-        if ($dkLen <= (pow(2, 32) - 1) * $hLen) {
-            $DK = '';
-
-            //create key
-            for ($block = 1; $block <= $dkLen; $block++) {
-                //initial hash for this block
-                $ib = $h = hash_hmac($PRF, $S . pack('N', $block), $P, true);
-
-                //perform block iterations
-                for ($i = 1; $i < $c; $i++) {
-                    $ib ^= ($h = hash_hmac($PRF, $h, $P, true));
-                }
-
-                //append iterated block
-                $DK .= $ib;
-            }
-
-            $DK = substr($DK, 0, $dkLen);
-            if (!$raw_output) {
-                $DK = bin2hex($DK);
-            }
-
-            return $DK;
-
-            //derived key too long
-        } else {
-            return false;
-        }
-    }
-
-    public function generateRandStr($length)
-    {
-        /*$randstr = "";
-        for($i=0; $i<$length; $i++){
-        $randnum = mt_rand(0,61);
-        if($randnum < 10){
-        $randstr .= chr($randnum+48);
-        }else if($randnum < 36){
-        $randstr .= chr($randnum+55);
-        }else{
-        $randstr .= chr($randnum+61);
-        }
-        }*/
-        $randstr = substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', 5)), 0, $length);
-        return $randstr;
     }
 
     /**
@@ -475,8 +327,6 @@ class User extends \CActiveRecord
             'first_name' => 'text',
             'last_name' => 'text',
             'email' => 'text',
-            'password1' => 'password',
-            'password2' => 'password',
         );
     }
 
@@ -571,6 +421,24 @@ class User extends \CActiveRecord
         }
         $roles .= '<div><a href="" class="icon_add icon_label roleAssign" data-id="' . $this->primaryKey . '">Добавить роль</a></div>';
         return $roles;
+    }
+
+    /**
+     * Returns the static model of the specified AR class.
+     * @param string $className active record class name.
+     * @return User the static model class
+     */
+    public static function model($className = __CLASS__)
+    {
+        return parent::model($className);
+    }
+
+    /**
+     * @return string the associated database table name
+     */
+    public function tableName()
+    {
+        return 'auth_user';
     }
 
     /**
