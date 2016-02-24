@@ -21,7 +21,7 @@ class HModuleUrlRule extends \CBaseUrlRule
      */
     public function createUrl($manager, $route, $params, $ampersand)
     {
-        $routeParts = explode("/", $route);
+        $routeParts = explode('/', $route);
 
         //exception for standard yii module 'Gii'
         if ($routeParts[0] == 'gii') {
@@ -41,7 +41,7 @@ class HModuleUrlRule extends \CBaseUrlRule
             // если это случилось, значит где-то ошибка FIXME (в будущем можно будет логировать и убрать этот баг для оптимизации системы)
             $message = get_class($this)."::createUrl(): Wrong params number (".implode(', ', $routeParts).")";
             \Yii::log($message, \CLogger::LEVEL_ERROR);
-            throw new \CException($message);
+            throw new \InvalidArgumentException($message);
         }
 
         if (count($routeParts) == 3) {
@@ -53,9 +53,13 @@ class HModuleUrlRule extends \CBaseUrlRule
 
             // узнаем, изменен ли у модуля не стандартный url
             if (isset(\Yii::app()->modules[$routeParts[0]]['params']['moduleUrl'])) {
-                $routeParts[0] = \Yii::app()->modules[$routeParts[0]]['params']['moduleUrl'];
-            }
+                $moduleUrl = \Yii::app()->modules[$routeParts[0]]['params']['moduleUrl'];
 
+                if (empty($moduleUrl)) {
+                    throw new \DomainException("moduleUrl of {$routeParts[0]} module is empty");
+                }
+                $routeParts[0] = $moduleUrl;
+            }
         }
 
         if (isset($routeParts[1]) && $routeParts[1] == 'view') {
