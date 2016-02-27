@@ -3,10 +3,6 @@
  * Mailer wrapper for sending emails from hamstercms
  * This wrapper is similar to yii-mail, but with slightly simplier better api
  * In the same time it's supports fallback to YiiMail::send() method of yii-mailer (but ignores second, optional arg)
- *
- * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @copyright  Copyright &copy; 2015 Sviatoslav Danylenko (http://hamstercms.com)
- * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
 
 namespace ext\hamster;
@@ -19,14 +15,14 @@ class Mailer extends \CApplicationComponent
     /**
      * @var array settings for yii-mail.YiiMail compoenent
      */
-    public $mailerConfig = array();
+    public $mailerConfig = [];
 
     private $_mailer;
 
     public function send($params)
     {
         if ($params instanceof \YiiMailMessage) {
-            return $this->mailer->send($params);
+            return $this->getMailer()->send($params);
         }
 
         if (!isset($params['subject'])) {
@@ -121,9 +117,9 @@ class Mailer extends \CApplicationComponent
     private function getMailer()
     {
         if (!isset($this->_mailer)) {
-            $this->_mailer = \Yii::createComponent(\CMap::mergeArray(array(
-                'class' => 'YiiMail',
-            ), $this->mailerConfig));
+            $this->_mailer = \Yii::createComponent(\CMap::mergeArray([
+                'class' => \YiiMail::class,
+            ], $this->mailerConfig));
         }
 
         return $this->_mailer;

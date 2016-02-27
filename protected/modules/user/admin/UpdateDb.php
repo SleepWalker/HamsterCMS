@@ -5,7 +5,7 @@ class UpdateDb extends \admin\components\HUpdateDb
 {
     public function verHistory()
     {
-        return [0, 1, 1.1, '1.1.2'];
+        return [0, 1, 1.1, '1.1.2', '1.2.1'];
     }
 
     public function update1()
@@ -57,5 +57,16 @@ class UpdateDb extends \admin\components\HUpdateDb
                 'private' => $user['password'],
             ]);
         }
+    }
+
+    public function update1_2_1()
+    {
+        $tableName = '{{user}}';
+        $this->renameTable('{{auth_user}}', $tableName);
+
+        $this->addColumn($tableName, 'middle_name', 'VARCHAR(30) AFTER `last_name`');
+        $this->addColumn($tableName, 'photo', 'VARCHAR(255) NULL AFTER `email`');
+        $this->addColumn($tableName, 'birthdate', 'date NULL AFTER `photo`');
+        $this->addColumn($tableName, 'bio', 'TEXT NULL AFTER `birthdate`');
     }
 }

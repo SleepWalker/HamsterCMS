@@ -7,6 +7,9 @@
  * @package Yii-Mail
  */
 
+\Yii::setPathOfAlias('yii-mail', __DIR__);
+\Yii::import('yii-mail.YiiMail');
+
 /**
  * Any requests to set or get attributes or call methods on this class that are
  * not found in that class are redirected to the {@link Swift_Mime_Message}
@@ -120,7 +123,7 @@ class YiiMailMessage extends CComponent
      */
     public function __construct($subject = null, $body = null, $contentType = null, $charset = null)
     {
-        YiiMail::registerScripts();
+        \YiiMail::registerScripts();
         $this->message = Swift_Message::newInstance($subject, $body, $contentType, $charset);
     }
 
@@ -159,9 +162,8 @@ class YiiMailMessage extends CComponent
             //$viewPath = Yii::getPathOfAlias(Yii::app()->mail->viewPath.'.'.$this->view).'.php';
             //$body = $controller->renderInternal($viewPath, array_merge($body, array('mail'=>$this)), true);
 
-            if ($this->view[0] != '/' && strpos($this->view, '.') === false)
-            // пускай папка с шаблонами писем находится в папке mail в папке вьюх текущего контроллера
-            {
+            if ($this->view[0] != '/' && strpos($this->view, '.') === false) {
+                // пускай папка с шаблонами писем находится в папке mail в папке вьюх текущего контроллера
                 $this->view = 'mail/' . $this->view;
             }
 

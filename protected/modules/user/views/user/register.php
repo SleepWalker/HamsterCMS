@@ -35,8 +35,6 @@ parseCFormElements($form, $model, $this);
 
 $form['enctype'] = 'multipart/form-data';
 $form['model'] = $model;
-if(isset($_SERVER['HTTP_REFERER']))
-  $form['elements'][] = CHtml::hiddenField('backUrl', $_SERVER['HTTP_REFERER']);
 
 $form = new CForm($form);
 echo '<div class="form registerForm">';
@@ -47,29 +45,29 @@ echo '</div>';
 function parseCFormElements(&$form, $model, $controller)
 {
   foreach ($model->fieldTypes as $fieldName => $fieldType)
-  { 
+  {
     $fieldValue = isset($model->attributes[$fieldName]) ? $model->attributes[$fieldName] : null;
 
     $fieldParams = ''; // Очищаем переменную от старых значений
-    
+
     if (is_array($fieldType))
     {
       $fieldParams = $fieldType; // настройки поля, к примеру items для dropdownlist
       unset($fieldParams[0]);
       $fieldType = $fieldType[0];
     }
-     
+
     $fieldParams['type'] = $fieldType;
-    
-    
+
+
     if(strpos($fieldType, "html:") === 0)// html строка
     {
       $form['elements'][]  = substr($fieldType, 5);
       $form['elements'][] = '<p>';
       continue;
     }
-       
+
     $form['elements'][$fieldName] = $fieldParams;
-  }  
+  }
 }
 ?>

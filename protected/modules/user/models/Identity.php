@@ -24,6 +24,22 @@ class Identity extends \CActiveRecord
     const PROVIDER_DEFAULT = 'default';
 
     /**
+     * @return array validation rules for model attributes.
+     */
+    public function rules()
+    {
+        return [
+            // TODO: should be forced by db in future?
+            ['provider', 'unique', 'criteria' => [
+                'condition' => '`public` = :public',
+                'params' => [
+                    ':public' => $this->public
+                ],
+            ]],
+        ];
+    }
+
+    /**
      * @param  string $public
      * @param  string $provider
      *

@@ -19,11 +19,11 @@
 namespace user\models;
 
 use user\models\LoginForm;
+use \AuthItem;
 
 class User extends \CActiveRecord
 {
-    public $password1;
-    public $password2;
+    public $meta;
 
     /**
      * @property string $role роль выбранная юзером при регистрации
@@ -45,35 +45,44 @@ class User extends \CActiveRecord
      */
     public function rules()
     {
-        return array(
-            array('first_name, email', 'required'),
-            array('first_name, last_name', 'match', 'pattern' => '/^[a-zA-Zа-яА-Я0-9_\- ]+$/u', 'message' => 'Поле содержит не допустимые знаки.'),
-            array('is_active', 'boolean'),
-            array('email', 'length', 'max' => 75),
-            array('email', 'email'),
-            array('email', 'unique'),
+        return [
+            ['first_name', 'required'],
+            ['first_name, last_name, middle_name', 'match',
+                'pattern' => '/^[a-zA-Zа-яА-Я0-9_\- ]+$/u',
+                'message' => 'Поле содержит не допустимые знаки.'
+            ],
+            ['is_active', 'boolean'],
+            ['first_name, last_name, middle_name', 'length', 'max' => 30],
+            ['email', 'length', 'max' => 75],
+            ['email', 'email'],
+            ['email', 'unique'],
+            ['bio, role', 'safe'],
 
-            array('is_active', 'default', 'value' => 0),
-            //array('date_joined','default','value'=>time(), 'on'=>'insert'),
+            ['photo', 'file', 'allowEmpty' => true],
+
+            ['birthdate', 'match', 'pattern' => '/\d{2}\.\d{2}\.\d{4}/'],
+
+            ['is_active', 'default', 'value' => 0],
+            //['date_joined','default','value'=>time(), 'on'=>'insert'],
 
             // The following rule is used by search().
             // Please remove those attributes that should not be searched.
-            array('id, first_name, last_name, email, is_active, last_login, date_joined', 'safe', 'on' => 'search'),
-        );
+            ['id, first_name, last_name, email, is_active, last_login, date_joined', 'safe', 'on' => 'search'],
+        ];
     }
 
     public function scopes()
     {
-        return array(
-            'inactive' => array(
+        return [
+            'inactive' => [
                 'condition' => 'is_active=0',
-            ),
-        );
+            ],
+        ];
     }
 
     /**
-     *  Сохраняем ip юзера
-     *  Обновляем даты
+     * Сохраняем ip юзера
+     * Обновляем даты
      */
     protected function beforeSave()
     {
@@ -114,11 +123,11 @@ class User extends \CActiveRecord
     {
         // NOTE: you may need to adjust the relation name and the related
         // class name for the relations automatically generated below.
-        return array(
-            'shopRatings' => array(self::HAS_MANY, 'ShopRating', 'user_id'),
-            'address' => array(self::HAS_MANY, 'OrderAddress', 'user_id'),
-            'roles' => array(self::HAS_MANY, 'AuthAssignment', ['userid' => 'id']),
-        );
+        return [
+            'shopRatings' => [self::HAS_MANY, 'ShopRating', 'user_id'],
+            'address' => [self::HAS_MANY, 'OrderAddress', 'user_id'],
+            'roles' => [self::HAS_MANY, 'AuthAssignment', ['userid' => 'id']],
+        ];
     }
 
     /**
@@ -126,10 +135,14 @@ class User extends \CActiveRecord
      */
     public function attributeLabels()
     {
-        return array(
+        return [
             'id' => 'ID',
             'first_name' => 'Имя',
             'last_name' => 'Фамилия',
+            'middle_name' => 'Отчество',
+            'photo' => 'Фото',
+            'bio' => 'Расскажите о себе',
+            'birthdate' => 'Дата рождения',
             'fullName' => 'Имя и фамилия',
             'email' => 'Email',
             'emailWithStatus' => 'Email',
@@ -139,12 +152,12 @@ class User extends \CActiveRecord
             'date_joined' => 'Дата регистрации',
             'role' => 'Кто вы?',
             'roles' => 'Роли (группы)',
-        );
+        ];
     }
 
     /**
-     *  Аутентификация через модель LoginForm
-     **/
+     * Аутентификация через модель LoginForm
+     */
     public function login($rememberMe = 1)
     {
         $model = new LoginForm();
@@ -157,60 +170,60 @@ class User extends \CActiveRecord
     }
 
     /**
-     *  Возвращает hash для подтверждения на основе $suff
-     **/
+     * Возвращает hash для подтверждения на основе $suff
+     */
     protected function confirmationHash($suff)
     {
-        return md5($this->salt . $this->password . $this->date_joined . $suff);
+        return md5($this->id . $this->first_name . $this->date_joined . $suff);
     }
 
     /**
-     *  Возвращает url для подтверждения для действия $action
-     **/
+     * Возвращает url для подтверждения для действия $action
+     */
     protected function confirmationUrl($action)
     {
-        return \Yii::app()->createAbsoluteUrl('user/' . $action, array('h' => $this->{$action . 'Hash'}, 'email' => $this->email));
+        return \Yii::app()->createAbsoluteUrl('user/' . $action, ['h' => $this->{$action . 'Hash'}, 'email' => $this->email]);
     }
 
     /**
-     *  Возвращает url для подтверждения email
-     **/
+     * Возвращает url для подтверждения email
+     */
     public function getConfirmUrl()
     {
         return $this->confirmationUrl('confirm');
     }
 
     /**
-     *  Возвращает hash для подтверждения email
-     **/
+     * Возвращает hash для подтверждения email
+     */
     public function getConfirmHash()
     {
         return $this->confirmationHash('mail');
     }
 
     /**
-     *  Возвращает url для подтверждения смены пароля
-     **/
+     * Возвращает url для подтверждения смены пароля
+     */
     public function getChpassUrl()
     {
         return $this->confirmationUrl('chpass');
     }
 
     /**
-     *  Возвращает hash для подтверждения смены пароля
-     **/
+     * Возвращает hash для подтверждения смены пароля
+     */
     public function getChpassHash()
     {
         return $this->confirmationHash('psw');
     }
 
     /**
-     *  Отправляет письмо пользователю
+     * Отправляет письмо пользователю
      */
     public function mail($view, $subject)
     {
         if (is_string($view)) {
-            $view = array($view);
+            $view = [$view];
         }
 
         $view['user'] = $this;
@@ -241,16 +254,16 @@ class User extends \CActiveRecord
      */
     protected static function mailInternal($view, $subject, $to = false, $from = false)
     {
-        $message = new YiiMailMessage;
+        $message = new \YiiMailMessage();
 
         if (!is_array($view)) {
-            $view = array($view);
+            $view = [$view];
         }
 
-        list($view, $params) = array(array_shift($view), $view);
+        list($view, $params) = [array_shift($view), $view];
 
         if (!$from) {
-            $from = array(\Yii::app()->params['noReplyEmail'] => \Yii::app()->params['shortName']);
+            $from = [\Yii::app()->params['noReplyEmail'] => \Yii::app()->params['shortName']];
         }
 
         if (!$to) {
@@ -258,7 +271,7 @@ class User extends \CActiveRecord
         }
 
         if (is_string($to)) {
-            $to = array($to);
+            $to = [$to];
         }
 
         $message->view = $view;
@@ -287,31 +300,31 @@ class User extends \CActiveRecord
     }
 
     /**
-     *  Отправляет письмо для подтверждения Email адреса
-     **/
+     * Отправляет письмо для подтверждения Email адреса
+     */
     public function sendMailConfirm()
     {
         $this->mail('//mail/confirmMail', 'Активация аккаунта на ' . \Yii::app()->params['shortName']);
     }
 
     /**
-     *  Отправляет письмо для подтверждения Email адреса
-     **/
+     * Отправляет письмо для подтверждения Email адреса
+     */
     public function sendChpassMail()
     {
         $this->mail('//mail/changePassword', 'Смена пароля на ' . \Yii::app()->params['shortName']);
     }
 
     /**
-     *  Возвращает модель User по его email
-     **/
+     * Возвращает модель User по его email
+     */
     public function findByEmail($email = false)
     {
         if (!$email) {
             $email = \Yii::app()->user->email;
         }
 
-        return $this->findByAttributes(array('email' => $email));
+        return $this->findByAttributes(['email' => $email]);
     }
 
     /**
@@ -319,15 +332,15 @@ class User extends \CActiveRecord
      */
     public function getFieldTypes()
     {
-        return array(
-            'role' => array(
+        return [
+            'role' => [
                 'radiolist',
                 'items' => $this->rolesList,
-            ),
+            ],
             'first_name' => 'text',
             'last_name' => 'text',
             'email' => 'text',
-        );
+        ];
     }
 
     /**
@@ -361,7 +374,7 @@ class User extends \CActiveRecord
     public function getRolesList()
     {
         if (!isset($this->_rolesList)) {
-            $rolesList = array();
+            $rolesList = [];
             // список групп, которые можно выбирать при регистрации
             $roles = \Yii::app()->authManager->getAuthItems(AuthItem::TYPE_ROLE);
             foreach ($roles as $id => $role) {
@@ -438,7 +451,7 @@ class User extends \CActiveRecord
      */
     public function tableName()
     {
-        return 'auth_user';
+        return '{{user}}';
     }
 
     /**
@@ -456,13 +469,12 @@ class User extends \CActiveRecord
         $criteria->compare('first_name', $this->first_name, true);
         $criteria->compare('last_name', $this->last_name, true);
         $criteria->compare('email', $this->email, true);
-        $criteria->compare('password', $this->password, true);
         $criteria->compare('is_active', $this->is_active);
         $criteria->compare('last_login', $this->last_login, true);
         $criteria->compare('date_joined', $this->date_joined, true);
 
-        return new \CActiveDataProvider($this, array(
+        return new \CActiveDataProvider($this, [
             'criteria' => $criteria,
-        ));
+        ]);
     }
 }

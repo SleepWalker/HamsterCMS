@@ -5,8 +5,11 @@
 
 namespace user\controllers;
 
+use user\models\Identity;
 use user\models\User;
+use user\models\RegisterForm;
 use user\models\LoginForm;
+use user\components\PasswordHash;
 
 class UserController extends \Controller
 {
@@ -37,6 +40,9 @@ class UserController extends \Controller
         if (!\Yii::app()->user->isGuest) {
             $this->redirect();
         }
+
+        $this->pageTitle = 'Вход — ' . \Yii::app()->name;
+        $this->breadcrumbs = ['Вход'];
 
         $renderType = isset($_GET['ajax']) ? 'renderPartial' : 'render';
         if (isset($_GET['ajax'])) {
@@ -73,6 +79,15 @@ class UserController extends \Controller
         ], false, !empty($_GET['ajax']));
     }
 
+    public function actionProfile()
+    {
+        $model = new User();
+
+        $this->render('profile', [
+            'model' => $model,
+        ]);
+    }
+
     /**
      * Logs out the current user and redirect to homepage.
      */
@@ -87,48 +102,128 @@ class UserController extends \Controller
      **/
     public function actionRegister()
     {
-        \Yii::import('application.modules.user.models.*');
-
-        $this->pageTitle = 'Регистрация';
-
         if (!\Yii::app()->user->isGuest) {
             $this->redirect('/');
         }
 
-        $model = new User('register');
+        $this->pageTitle = 'Регистрация — ' . \Yii::app()->name;
+        $this->breadcrumbs = ['Регистрация'];
 
-        // AJAX валидация
-        if (isset($_POST['ajax'])) {
-            $model->attributes = $_POST['User'];
-            echo CActiveForm::validate($model);
+        $identityKey = \Yii::app()->request->getParam('identityKey');
+        $identity = \Yii::app()->session->get($identityKey);
+        if (!$identity) {
+            $this->renderRegisterForm();
+        } else {
+            $form = new RegisterForm();
+            $form->attributes = $identity;
+            if ($form->validate()) {
+                $this->renderProfileForm($identityKey, $form);
+            } else {
+                throw new \DomainException('Bronken identity data');
+            }
+        }
+    }
+
+    private function renderRegisterForm()
+    {
+        $model = new RegisterForm();
+
+        $modelName = \CHtml::modelName($model);
+        $data = \Yii::app()->request->getPost($modelName);
+
+        if (\Yii::app()->request->getPost('ajax')) {
+            echo \CActiveForm::validate($model);
             \Yii::app()->end();
         }
 
-        if (isset($_POST['User'])) {
-            $model->attributes = $_POST['User'];
+        if ($data) {
+            $model->attributes = $data;
 
-            if ($model->save()) {
-                $model->sendMailConfirm(); // Отправляем письмо с ссылкой подтверждения Email
+            if ($model->validate()) {
+                $identityKey = uniqid();
 
-                if (isset($_POST['User']['role'])) {
-                    // включена возможность выбирать роли при регистрации
-                    // перенаправим обработку этого выбора на модель AuthItem
-                    $authItem = AuthItem::model()->addToTransfer($model, $_POST['User']['role']);
-                }
+                \Yii::app()->session->add(
+                    $identityKey,
+                    $model->attributes
+                );
 
-                $this->renderText('
-         <h1>Успешная регистрация</h1>
-         <p>Ваш аккаунт был успешно зарегистрирован. Вскоре на ваш почтовый ящик придет письмо с ссылкой для активации аккаунта.</p>
-         <p>Вернуться на <a href="/">главную страницу</a> или воспользоваться формой входа:</p>
-         <p><a href="/user/login">Войти на сайт</a></p>
-         ');
-                \Yii::app()->end();
+                $this->redirect(['register', 'identityKey' => $identityKey]);
             }
         }
 
-        $this->render('register', array(
+        $model->resetPasswords();
+        $this->render('register_identity', [
             'model' => $model,
-        ));
+        ]);
+    }
+
+    private function renderProfileForm($identityKey, RegisterForm $form)
+    {
+        $model = new User();
+
+        $modelName = \CHtml::modelName($model);
+        $data = \Yii::app()->request->getPost($modelName);
+
+        if (\Yii::app()->request->getPost('ajax')) {
+            echo \CActiveForm::validate($model);
+            \Yii::app()->end();
+        }
+
+        if ($data) {
+            $model->attributes = $data;
+
+            $transaction = \Yii::app()->db->beginTransaction();
+
+            try {
+                $this->saveOrThrow($model);
+
+                $identity = new Identity();
+                $identity->public = $form->email;
+                $identity->private = PasswordHash::from($form->password)->getValue();
+                $identity->user_id = $model->primaryKey;
+                $identity->provider = Identity::PROVIDER_DEFAULT;
+
+                $this->saveOrThrow($identity);
+
+                if (isset($data['role'])) {
+                    // включена возможность выбирать роли при регистрации
+                    // перенаправим обработку этого выбора на модель AuthItem
+                    $authItem = \AuthItem::model()->addToTransfer(
+                        $model,
+                        $data['role']
+                    );
+                }
+
+                $model->sendMailConfirm(); // TODO: test this mail
+
+                $transaction->commit();
+
+                $this->render('registerSuccess');
+
+                \Yii::app()->end();
+            } catch (\Exception $e) {
+                $transaction->rollBack();
+
+                \Yii::log('Error adding request: ' . $e->getMessage(), \CLogger::LEVEL_ERROR);
+
+                throw new \Exception('Error saving data', 0, $e);
+            }
+        }
+
+        $this->render('register_profile', [
+            'model' => $model,
+            'identityKey' => $identityKey,
+        ]);
+    }
+
+    private function saveOrThrow(\CActiveRecord $model)
+    {
+        if (!$model->save()) {
+            throw new \Exception(
+                'Error saving ' . get_class($model) . ': '
+                . var_export($model->getErrors(), true)
+            );
+        }
     }
 
     /**

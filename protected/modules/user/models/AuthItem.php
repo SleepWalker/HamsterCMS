@@ -264,17 +264,19 @@ class AuthItem extends CActiveRecord
     public function addToTransfer(User $user, $chosenRole)
     {
         if (!in_array($chosenRole, $user->rolesList)) {
-            return;
+            throw new \InvalidArgumentException("The role $chosenRole does not exists");
         }
-        // эту роль нельзя выбирать
 
-        $authAss = $this->am->assign('transfer', $user->primaryKey, null, array('chosenRole' => $chosenRole));
+        $authAss = $this->am->assign('transfer', $user->primaryKey, null, [
+            'chosenRole' => $chosenRole
+        ]);
+
         // Отправляем емейл администратору
-        User::mailAdmin(array(
+        User::mailAdmin([
             'application.modules.user.views.mail.transfer_admin',
             'user' => $user,
             'chosenRole' => $chosenRole,
-        ), '[Новый пользователь] Запрос на перемещение в группу');
+        ], '[Новый пользователь] Запрос на перемещение в группу');
     }
 
     /**

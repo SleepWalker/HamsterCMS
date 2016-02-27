@@ -11,7 +11,7 @@ if (Yii::app()->user->isGuest) {
 
 <?php $form=$this->beginWidget('CActiveForm', [
     'id' => 'login-form',
-    'action' => Yii::app()->createUrl('user/login'),
+    'action' => Yii::app()->user->loginUrl,
     'enableClientValidation' => true,
     'clientOptions' => [
         'validateOnSubmit' => true,
@@ -66,12 +66,6 @@ if (Yii::app()->user->isGuest) {
         <?= $form->error($model, 'rememberMe'); ?>
         <p><?= CHtml::link('Забыли пароль?', Yii::app()->createUrl('user/chpass')); ?></p>
     </div>
-
-<?php
-if (isset($_SERVER['HTTP_REFERER'])) {
-    echo CHtml::hiddenField('backUrl', $_SERVER['HTTP_REFERER']);
-}
-?>
 
 <?php $this->endWidget('CActiveForm'); ?>
 </div><!-- form -->
