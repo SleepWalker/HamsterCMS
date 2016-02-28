@@ -81,7 +81,30 @@ class UserController extends \Controller
 
     public function actionProfile()
     {
-        $model = new User();
+        $userId = \Yii::app()->user->id;
+        $model = User::model()->findByPk($userId);
+        $modelName = \CHtml::modelName($model);
+
+        if (!$model) {
+            $this->redirect('/');
+            \Yii::log('Can not find user by id: ' . $userId, CLogger::LEVEL_ERROR);
+        }
+
+        if (\Yii::app()->request->getPost('ajax')) {
+            echo \CActiveForm::validate($model);
+            \Yii::app()->end();
+        }
+
+        $data = \Yii::app()->request->getPost($modelName);
+        if ($data) {
+            $model->attributes = $data;
+
+            if ($model->save()) {
+                \Yii::app()->user->setFlash('success', 'Профиль успешно сохранен');
+                $this->refresh();
+                \Yii::app()->end();
+            }
+        }
 
         $this->render('profile', [
             'model' => $model,
@@ -171,6 +194,7 @@ class UserController extends \Controller
 
         if ($data) {
             $model->attributes = $data;
+            $model->email = $form->email;
 
             $transaction = \Yii::app()->db->beginTransaction();
 

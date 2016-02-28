@@ -87,10 +87,14 @@ class User extends \CActiveRecord
     protected function beforeSave()
     {
         if (parent::beforeSave()) {
+            if (preg_match('/\d{2}\.\d{2}\.\d{4}/', $this->birthdate)) {
+                $this->birthdate = implode('-', array_reverse(explode('.', $this->birthdate)));
+            } elseif (!preg_match('/\d{4}\-\d{2}\-\d{2}/', $this->birthdate)) {
+                $this->birthdate = new \CDbExpression('NULL');
+            }
+
             if ($this->isNewRecord) {
-                $this->date_joined = $this->last_login = new \CDbExpression('NOW()');
-            } else {
-                $this->last_login = new \CDbExpression('NOW()');
+                $this->date_joined = new \CDbExpression('NOW()');
             }
 
             return true;
@@ -100,20 +104,22 @@ class User extends \CActiveRecord
 
     }
 
-    /**
-     * Если у нас новая запись,
-     * то мы после insert сразу обновляем ее содержимое,
-     * что бы получить актуальные даты для хэша
-     *
-     * @access public
-     * @return void
-     */
-    public function afterSave()
+    protected function afterSave()
     {
+        parent::afterSave();
         if ($this->isNewRecord) {
+            // Если у нас новая запись,
+            // то мы после insert сразу обновляем ее содержимое,
+            // что бы получить актуальные даты для хэша
             $this->refresh();
         }
+        $this->birthdate = date('d.m.Y', strtotime($this->birthdate));
+    }
 
+    protected function afterFind()
+    {
+        parent::afterFind();
+        $this->birthdate = date('d.m.Y', strtotime($this->birthdate));
     }
 
     /**

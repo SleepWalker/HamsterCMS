@@ -44,7 +44,7 @@ class UserIdentity extends \CUserIdentity
 
                 $this->errorCode = self::ERROR_NONE;
 
-                // Обновляем дату последнего входа
+                $this->user->last_login = new \CDbExpression('NOW()');
                 $this->user->save();
             }
         }
