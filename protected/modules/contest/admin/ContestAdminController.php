@@ -260,11 +260,15 @@ class ContestAdminController extends \admin\components\HAdminController
             if (count($requests)) {
                 $musician = $requests[0]->musicians[0];
 
-                return \Yii::app()->getModule('contest')->mailer->render($musician, [
+                return \Yii::app()->getModule('contest')->mailer->render([
                     'view' => 'custom_email',
-                    'viewData' => [
-                        'message' => (new \CMarkdownParser())->transform($message)
-                    ],
+                    'viewData' => array_merge(
+                        $requests[0]->attributes,
+                        $musician->attributes,
+                        [
+                            'message' => (new \CMarkdownParser())->transform($message)
+                        ]
+                    ),
                 ]);
             } else {
                 return 'Не найдены адресаты для отправки';

@@ -100,7 +100,13 @@ class Request extends \CActiveRecord
      */
     public function getMainName()
     {
-        return !empty($this->name) ? $this->name : $this->musicians[0]->getFullName();
+        if (!empty($this->name)) {
+            return $this->name;
+        } if (!empty($this->contact_name)) {
+            return $this->contact_name;
+        } else {
+            return $this->musicians[0]->getFullName();
+        }
     }
 
     public function getConfirmationKey()

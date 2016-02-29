@@ -5,57 +5,89 @@
 
 namespace contest\components;
 
+use ext\hamster\Mailer as HamsterMailer;
+use contest\models\Request;
+use contest\models\Musician;
+use contest\crud\RequestCrud;
+
 class Mailer extends \CApplicationComponent
 {
-    public function notifyMusicians(\contest\models\Request $request, array $options)
+    private $mailer;
+    private $adminEmail;
+
+    public function __construct(HamsterMailer $mailer = null, $adminEmail = null)
+    {
+        if (!$mailer) {
+            $mailer = \Yii::app()->mail;
+        }
+        $this->mailer = $mailer;
+        if (!$adminEmail) {
+            $adminEmail = \Yii::app()->getModule('contest')->getAdminEmail();
+        }
+        $this->adminEmail = $adminEmail;
+    }
+
+    public function notifyMusicians(Request $request, array $options)
     {
         $success = true;
-        foreach ($request->musicians as $musician) {
-            if (!empty($musician->email)) {
-                $curOptions = $options;
-                if (isset($curOptions['viewData'])) {
-                    $viewData = $curOptions['viewData'];
-
-                    if (is_callable($viewData)) {
-                        $curOptions['viewData'] = $viewData($musician, $request);
-                    }
+        if (!empty($request->contact_email)) {
+            $success = $this->sendNotification(
+                $request,
+                $request->contact_email,
+                $options
+            );
+        } else {
+            foreach ($request->musicians as $musician) {
+                if (!empty($musician->email)) {
+                    $success = $success && $this->sendNotification(
+                        $request,
+                        $musician->email,
+                        $options
+                    );
                 }
-
-                $success = $success && \Yii::app()->mail->send(\CMap::mergeArray([
-                    'to' => $musician->email,
-                    'viewData' => $musician->attributes,
-                ], $curOptions));
             }
         }
 
         return $success;
     }
 
+    private function sendNotification($request, $email, array $options = [])
+    {
+        if (isset($options['viewData'])) {
+            $viewData = $options['viewData'];
+
+            if (is_callable($viewData)) {
+                $options['viewData'] = $viewData($request);
+            }
+        }
+
+        return $this->mailer->send(\CMap::mergeArray([
+            'to' => $email,
+            'viewData' => [
+                'fullName' => $request->getMainName(),
+            ],
+        ], $options));
+    }
+
     /**
      * Renders mailing message as it will be send to user
      * @return string
      */
-    public function render(\CModel $musician, array $params = [])
+    public function render(array $params = [])
     {
         if (!isset($params['viewData'])) {
             $params['viewData'] = [];
         }
 
-        $params['viewData'] = \CMap::mergeArray(
-            $musician->attributes,
-            $params['viewData']
-        );
-
-        return \Yii::app()->mail->render($params);
+        return $this->mailer->render($params);
     }
 
     public function notifyAdmin(array $options)
     {
-        $adminEmail = $this->getModule()->getAdminEmail();
-        if (!empty($adminEmail)) {
-            return \Yii::app()->mail->send(array_merge([
-                'to' => $adminEmail,
-            ], $options));
+        if (!empty($this->adminEmail)) {
+            return $this->mailer->send(array_merge($options, [
+                'to' => $this->adminEmail,
+            ]));
         }
 
         return true;
@@ -67,17 +99,16 @@ class Mailer extends \CApplicationComponent
      */
     public function sendConfirmations()
     {
-        $requests = \contest\crud\RequestCrud::findNotConfirmed();
+        $requests = RequestCrud::findNotConfirmed();
 
         foreach ($requests as $request) {
             $this->notifyMusicians($request, [
-                'subject' => 'Подтверждение участия в конкурсе «Рок єднає нас» 2015',
+                'subject' => 'Подтверждение участия в конкурсе «Рок єднає нас» 2016',
                 'view' => 'request_confirm',
-                'viewData' => function ($musician, $request) {
+                'viewData' => function ($request) {
                     $confirmationKey = $request->getConfirmationKey();
 
                     return [
-                        'fullName' => $musician->getFullName(),
                         'confirmationUrl' => \Yii::app()->createAbsoluteUrl('contest/contest/confirm', [
                             'id' => $request->primaryKey,
                             'key' => $confirmationKey,
@@ -91,10 +122,5 @@ class Mailer extends \CApplicationComponent
             $request->status = $request::STATUS_WAIT_CONFIRM;
             $request->save();
         }
-    }
-
-    private function getModule()
-    {
-        return \Yii::app()->getModule('contest');
     }
 }

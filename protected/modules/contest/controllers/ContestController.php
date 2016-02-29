@@ -164,7 +164,6 @@ class ContestController extends \Controller
         $this->module->mailer->notifyAdmin([
             'subject' => 'Новая заявка на участие в конкурсе',
             'view' => 'admin_new_request',
-            'viewData' => $model->attributes,
         ]);
     }
 }
