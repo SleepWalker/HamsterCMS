@@ -22,6 +22,8 @@ class MailerTest extends \CTestCase
             'contact_email' => 'foo@bar.com',
         ];
 
+        $expected = true;
+
         $this->hmailer
             ->expects($this->once())
             ->method('send')
@@ -31,11 +33,10 @@ class MailerTest extends \CTestCase
                     'fullName' => $request->contact_name,
                 ],
             ]))
-            ->willReturn(true)
+            ->willReturn($expected)
             ;
 
         $actual = $this->mailer->notifyMusicians($request, []);
-        $expected = true;
 
         $this->assertEquals($expected, $actual);
     }
@@ -48,6 +49,7 @@ class MailerTest extends \CTestCase
             'contact_email' => 'foo@bar.com',
         ];
 
+        $expected = true;
         $this->hmailer
             ->expects($this->once())
             ->method('send')
@@ -58,7 +60,7 @@ class MailerTest extends \CTestCase
                     'customData' => 'customData',
                 ],
             ]))
-            ->willReturn(true)
+            ->willReturn($expected)
             ;
 
         $actual = $this->mailer->notifyMusicians($request, [
@@ -68,7 +70,6 @@ class MailerTest extends \CTestCase
                 ];
             },
         ]);
-        $expected = true;
 
         $this->assertEquals($expected, $actual);
     }
@@ -81,6 +82,7 @@ class MailerTest extends \CTestCase
             'contact_email' => 'foo@bar.com',
         ];
 
+        $expected = true;
         $this->hmailer
             ->expects($this->once())
             ->method('send')
@@ -90,7 +92,7 @@ class MailerTest extends \CTestCase
                     'fullName' => $request->contact_name,
                 ],
             ]))
-            ->willReturn(true)
+            ->willReturn($expected)
             ;
 
         $actual = $this->mailer->notifyAdmin([
@@ -99,13 +101,13 @@ class MailerTest extends \CTestCase
                 'fullName' => $request->contact_name,
             ],
         ]);
-        $expected = true;
 
         $this->assertEquals($expected, $actual);
     }
 
     public function testRender()
     {
+        $expected = 'passed';
         $this->hmailer
             ->expects($this->once())
             ->method('render')
@@ -114,7 +116,7 @@ class MailerTest extends \CTestCase
                     'custom' => 'custom',
                 ],
             ]))
-            ->willReturn('passed')
+            ->willReturn($expected)
             ;
 
         $actual = $this->mailer->render([
@@ -122,7 +124,6 @@ class MailerTest extends \CTestCase
                 'custom' => 'custom',
             ],
         ]);
-        $expected = 'passed';
 
         $this->assertEquals($expected, $actual);
     }

@@ -7,6 +7,8 @@
 
 namespace ext\hamster;
 
+use KoKoKo\assert\Assert;
+
 \Yii::import('ext.yii-mail.YiiMailMessage');
 \Yii::import('ext.yii-mail.YiiMail');
 
@@ -17,23 +19,51 @@ class Mailer extends \CApplicationComponent
      */
     public $mailerConfig = [];
 
-    private $_mailer;
+    private $mailer;
+    private $fromEmail;
+
+    public function __construct(\YiiMail $mailer = null, $fromEmail = null)
+    {
+        $this->mailer = $mailer;
+
+        if (!$fromEmail) {
+            $fromEmail = \Yii::app()->params['noReplyEmail'];
+        }
+        $this->fromEmail = $fromEmail;
+    }
+
+    public function init()
+    {
+        parent::init();
+
+        if (!$this->mailer) {
+            $this->mailer = \Yii::createComponent(\CMap::mergeArray([
+                'class' => \YiiMail::class,
+            ], $this->mailerConfig));
+        }
+    }
 
     public function send($params)
     {
         if ($params instanceof \YiiMailMessage) {
-            return $this->getMailer()->send($params);
+            return $this->mailer->send($params);
         }
 
+        Assert::assert($params, 'params')->isArray();
+
         if (!isset($params['subject'])) {
-            throw new \Exception('The subject is required');
+            throw new \InvalidArgumentException('The subject is required');
+        }
+
+        if (!isset($params['to'])) {
+            throw new \InvalidArgumentException('The to email is required');
         }
 
         $params = $this->normalizeParams($params);
 
         $m = $this->composeEmail($params);
 
-        return $this->getMailer()->send($m);
+        return $this->mailer->send($m);
     }
 
     /**
@@ -46,6 +76,9 @@ class Mailer extends \CApplicationComponent
     public function render(array $params)
     {
         if (isset($params['view'])) {
+            if (!isset($params['viewData'])) {
+                $params['viewData'] = [];
+            }
             $message = $this->renderMessage($params['view'], $params['viewData']);
         } elseif (isset($params['message'])) {
             $message = $params['message'];
@@ -58,11 +91,11 @@ class Mailer extends \CApplicationComponent
 
     private function normalizeParams($params)
     {
-        return \CMap::mergeArray(array(
-            'from' => \Yii::app()->params['noReplyEmail'],
-            'viewData' => array(),
-            'attachments' => array(),
-        ), $params);
+        return \CMap::mergeArray([
+            'from' => $this->fromEmail,
+            'viewData' => [],
+            'attachments' => [],
+        ], $params);
     }
 
     private function composeEmail($params)
@@ -77,7 +110,7 @@ class Mailer extends \CApplicationComponent
         return $m;
     }
 
-    private function addTo($m, $params)
+    private function addTo(\YiiMailMessage $m, array $params)
     {
         $to = is_array($params['to']) ? $params['to'] : [$params['to']];
 
@@ -86,7 +119,7 @@ class Mailer extends \CApplicationComponent
         }
     }
 
-    private function addAttachments($m, $params)
+    private function addAttachments(\YiiMailMessage $m, array $params)
     {
         foreach ($params['attachments'] as $file) {
             $swiftAttachment = \Swift_Attachment::fromPath($file);
@@ -94,17 +127,19 @@ class Mailer extends \CApplicationComponent
         }
     }
 
-    private function setMessage($m, $params)
+    private function setMessage(\YiiMailMessage $m, array $params)
     {
         $m->setBody($this->render($params), 'text/html');
     }
 
-    private function renderMessage($view, $data)
+    private function renderMessage($view, array $data)
     {
+        Assert::assert($view, 'view')->string();
+
         $oldRenderer = \Yii::app()->getViewRenderer();
-        $mdRenderer = \Yii::createComponent(array(
+        $mdRenderer = \Yii::createComponent([
             'class' => '\ext\hamster\MdViewRenderer',
-        ));
+        ]);
         \Yii::app()->setComponent('viewRenderer', $mdRenderer);
 
         $output = \Yii::app()->controller->renderPartial($view, $data, true);
@@ -112,16 +147,5 @@ class Mailer extends \CApplicationComponent
         \Yii::app()->setComponent('viewRenderer', $oldRenderer);
 
         return $output;
-    }
-
-    private function getMailer()
-    {
-        if (!isset($this->_mailer)) {
-            $this->_mailer = \Yii::createComponent(\CMap::mergeArray([
-                'class' => \YiiMail::class,
-            ], $this->mailerConfig));
-        }
-
-        return $this->_mailer;
     }
 }
