@@ -15,7 +15,7 @@
             message = 'Unexpected error message type: {' + messageString + '}';
 
             source = source || '';
-            source = lineno || 0;
+            lineno = lineno || 0;
         }
 
         if (window.debug) {
