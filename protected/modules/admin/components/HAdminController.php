@@ -264,11 +264,7 @@ class HAdminController extends \CController
      */
     public function getCrudid()
     {
-        if (empty($_GET['id'])) {
-            return null;
-        }
-
-        return $_GET['id'];
+        return \Yii::app()->request->getParam('id');
     }
 
     /**

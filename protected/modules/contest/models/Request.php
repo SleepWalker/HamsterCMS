@@ -382,6 +382,7 @@ class Request extends \CActiveRecord
     {
         $criteria = new \CDbCriteria();
 
+        $criteria->compare('contest_id', $this->contest_id);
         // $criteria->compare('title', $this->title, true);
         // $criteria->compare('content', $this->content, true);
 

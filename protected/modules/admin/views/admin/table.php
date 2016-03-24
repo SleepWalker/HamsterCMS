@@ -24,7 +24,7 @@
  */
 //$pageSize=Yii::app()->user->getState('pageSize',Yii::app()->params['defaultPageSize']);
 if (!isset($buttons)) {
-    $buttons = array('update', 'delete', 'view');
+    $buttons = ['update', 'delete', 'view'];
 }
 
 if (!isset($options)) {
@@ -49,11 +49,9 @@ if (isset($disableButtons) && $disableButtons) {
         ],
         'view' => [
             'url' => 'method_exists($data, "getViewUrl") ? $data->viewUrl : ""',
-            'options' => array(
-                'target' => '_blank',
-            ),
+            'options' => ['target' => '_blank'],
             'imageUrl' => $this->adminAssetsUrl . '/images/icon_view.png',
-            'visible' => 'method_exists($data, "getViewUrl")',
+            'visible' => '!is_object($data) || method_exists($data, "getViewUrl")',
         ],
         'more' => [
             'url' => '["more", "id" => $data->primaryKey]',

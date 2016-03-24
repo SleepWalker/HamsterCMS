@@ -7,28 +7,63 @@
 
 class ContestAdminController extends \admin\components\HAdminController
 {
-    public $defaultAction = 'list';
-
     /**
      * @return меню для табов
      */
     public function tabs()
     {
         return [
+            'index' => 'Конкурсы',
             'list' => 'Заявки',
             'export' => 'Экспорт',
             'mailing' => 'Рассылки',
         ];
     }
 
+    public function actionIndex()
+    {
+        $model = new \contest\models\Request('search');
+        $model->unsetAttributes();
+
+        $dataProvider = new \CArrayDataProvider([
+            [
+                'id' => 1,
+                'title' => 'Рок єднає нас 2015',
+            ],
+            [
+                'id' => 2,
+                'title' => 'Рок єднає нас 2016',
+            ]
+        ]);
+
+        $this->render('table', [
+            'dataProvider' => $dataProvider,
+            'buttons' => [
+                'view' => [
+                    'url' => '["list", "id" => $data["id"]]',
+                    'label' => 'Принять',
+                    'options' => ['target' => null],
+                ],
+            ],
+            'columns' => [
+                [
+                    'name' => 'title',
+                    'header' => 'Title',
+                ],
+            ],
+        ]);
+    }
+
     /**
      *  Выводит таблицу всех товаров
      */
-    public function actionList()
+    public function actionList($id)
     {
         $model = new \contest\models\Request('search');
         $model->unsetAttributes();
         $modelName = \CHtml::modelName($model);
+
+        $model->contest_id = $id;
 
         if (($attributes = \Yii::app()->request->getParam($modelName))) {
             $model->attributes = $attributes;

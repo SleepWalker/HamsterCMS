@@ -26,9 +26,17 @@ use contest\models\Request;
         з <?= \CHtml::link('правилами конкурсу', ['rules']) ?>.<br>
         Зверніть увагу, що заява заповнюється українською мовою.
     </p>
+
+    <!-- TODO
+    <p class="note">
+        Якщо ви викладач, <?= \CHtml::link('зареєструйтесь', [\Yii::app()->user->registerUrl]) ?>
+        у нас на сайті та керуйте заявами усіх учнів з вашого особистого кабінету.
+    </p>
+    -->
 </div>
 
 <?php
+// TODO: if teacher is authorized - show him link to his cabinet
 Yii::app()->clientScript->registerScript(__FILE__.'#group-solo-switch', '$(function() {
     $("#'.\CHtml::activeId($model->request, 'format').'").change(function() {
         var selected = parseInt($(this).val(), 10);
@@ -50,7 +58,7 @@ Yii::app()->clientScript->registerScript(__FILE__.'#group-solo-switch', '$(funct
 })');
 ?>
 
-<div class="form__row form">
+<div class="form__row">
     <?= $form->labelEx($model, 'nomination'); ?>
 
     <div class="form__row__right">
