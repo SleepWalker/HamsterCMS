@@ -98,7 +98,7 @@ class ContestAdminController extends \admin\components\HAdminController
                     'type' => 'raw',
                     'filter' => false,
                     'value' => '$this->grid->owner->renderPartial("_composition_grid_cell", [
-                        "compositions" => $data->compositions
+                        "compositions" => $data->compositions,
                     ])',
                 ],
                 [
@@ -106,7 +106,8 @@ class ContestAdminController extends \admin\components\HAdminController
                     'type' => 'raw',
                     'filter' => false,
                     'value' => '$this->grid->owner->renderPartial("_musician_grid_cell", [
-                        "musicians" => $data->musicians
+                        "request" => $data,
+                        "musicians" => $data->musicians,
                     ])',
                 ],
                 [

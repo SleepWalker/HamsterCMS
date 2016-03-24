@@ -2,6 +2,15 @@
 /**
  * @var \contest\models\Musician[] $musicians
  */
+?>
+
+    <p>
+        <?= CHtml::encode($request->contact_name); ?>
+        <?= CHtml::encode($request->contact_email); ?>
+        <?= CHtml::encode($request->contact_phone); ?>
+    </p>
+
+<?php
 foreach ($musicians as $musician) {
     ?>
     <p>
