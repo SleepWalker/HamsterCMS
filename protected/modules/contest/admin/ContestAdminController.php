@@ -88,7 +88,6 @@ class ContestAdminController extends \admin\components\HAdminController
             ],
             'columns' => [
                 'id',
-                'name',
                 [
                     'name' => 'format',
                     'value' => '$data->getFormatLabel()',

@@ -3,6 +3,9 @@
  * @var \contest\models\Musician[] $musicians
  */
 ?>
+    <?php if(!empty($request->name)): ?>
+        <h3><?= CHtml::encode($request->name); ?></h3>
+    <?php endif; ?>
 
     <p>
         <?= CHtml::encode($request->contact_name); ?>
