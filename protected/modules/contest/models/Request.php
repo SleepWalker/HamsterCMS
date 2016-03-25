@@ -5,8 +5,12 @@
  * The followings are the available columns in table 'contest_request':
  * @property string $id
  * @property string $name
+ * @property string $contact_name
+ * @property string $contact_email
+ * @property string $contact_phone
  * @property string $type
  * @property string $format
+ * @property string $age_category
  * @property string $demos
  * @property integer $status
  * @property string $meta
@@ -76,12 +80,12 @@ class Request extends \CActiveRecord
             ['contact_phone', 'length', 'max' => 25],
             ['contact_phone', 'match',
                 'pattern' => '/\+38 \(\d{3}\) \d{3}\-\d{2}\-\d{2}/',
-                'message' => 'Введите телефон в формате +38 (00) 000-00-00',
+                'message' => 'Введите телефон в формате +38 (000) 000-00-00',
             ],
 
             ['contact_email', 'email'],
 
-            ['name', 'required', 'except' => self::SCENARIO_SOLO],
+            ['name', 'required', 'on' => self::SCENARIO_GROUP],
 
             ['contest_id', 'length', 'max' => 11],
         ];

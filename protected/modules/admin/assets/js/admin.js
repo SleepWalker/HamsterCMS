@@ -751,15 +751,19 @@ function ajax(url, data, func)
     startLoad();
     jQuery.ajax({
       url: url,
-      data: data,
-      success: function(answ)
-      {
-        if(func){func(answ); return;}
-        if(/function *[^\(]+\([^\)]*\) *\{/.test(data))data(answ);
-      },
-      error: function(xhr, textStatus, errorThrown){alert(xhr.responseText)},
-      complete: stopLoad
-    });
+      data: data
+    }).then(function(resp) {
+        if (func) {
+          func(resp);
+          return;
+        }
+
+        if(/function *[^\(]+\([^\)]*\) *\{/.test(data)) {
+          data(resp);
+        }
+    }, function(xhr) {
+      alert(xhr.responseText);
+    }).always(stopLoad);
 }
 
 function var_dump(obj)
