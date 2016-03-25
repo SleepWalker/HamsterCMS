@@ -152,9 +152,9 @@ class ContestAdminController extends \admin\components\HAdminController
         $this->render('export');
     }
 
-    public function actionExportRequests()
+    public function actionExportRequests($id = null)
     {
-        $requests = \contest\crud\RequestCrud::findAll();
+        $requests = \contest\crud\RequestCrud::findAll($id ? (int)$id : null);
 
         $html = $this->renderPartial('export_requests', [
             'requests' => $requests,

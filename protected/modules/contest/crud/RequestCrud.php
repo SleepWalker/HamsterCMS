@@ -9,6 +9,8 @@ use contest\models\view\ApplyForm;
 use contest\models\Request;
 use contest\models\Musician;
 use contest\models\Composition;
+use KoKoKo\assert\Assert;
+
 
 class RequestCrud
 {
@@ -95,9 +97,16 @@ class RequestCrud
         return Request::model()->with('compositions', 'musicians')->findByPk($pk);
     }
 
-    public static function findAll()
+    public static function findAll($contestId = null)
     {
-        return Request::model()->with('compositions', 'musicians')->findAll();
+        $criteria = [];
+        if ($contestId) {
+            Assert::assert($contestId, 'contestId')->int();
+
+            $criteria['contest_id'] = $contestId;
+        }
+
+        return Request::model()->with('compositions', 'musicians')->findAllByAttributes($criteria);
     }
 
     public static function findNotConfirmed()
