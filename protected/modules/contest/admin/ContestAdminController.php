@@ -5,6 +5,8 @@
  * @package    hamster.modules.sectionvideo.admin.SectionvideoAdminController
  */
 
+use contest\models\ContestId;
+
 class ContestAdminController extends \admin\components\HAdminController
 {
     /**
@@ -15,7 +17,6 @@ class ContestAdminController extends \admin\components\HAdminController
         return [
             'index' => 'Конкурсы',
             'list' => 'Заявки',
-            'export' => 'Экспорт',
             'mailing' => 'Рассылки',
         ];
     }
@@ -57,7 +58,7 @@ class ContestAdminController extends \admin\components\HAdminController
     /**
      *  Выводит таблицу всех товаров
      */
-    public function actionList($id)
+    public function actionList($id = null)
     {
         $model = new \contest\models\Request('search');
         $model->unsetAttributes();
@@ -84,6 +85,27 @@ class ContestAdminController extends \admin\components\HAdminController
                     'url' => '["decline", "id" => $data->primaryKey]',
                     'label' => 'Отклонить',
                     'options' => ['confirmation' => false],
+                ],
+            ],
+            'batchButtons' => [
+                'exportRequests' => [
+                    'url' => '["exportRequests", "id" => "' . $id . '"]',
+                    'label' => 'Экспортировать заявки',
+                    'options' => ['target' => '_blank'],
+                ],
+                'exportJury' => [
+                    'url' => '["exportJury", "id" => "' . $id . '"]',
+                    'label' => 'Карточки для жюри',
+                    'options' => ['target' => '_blank'],
+                ],
+                'exportContributionsList' => [
+                    'url' => '["exportContributionsList", "id" => "' . $id . '"]',
+                    'label' => 'Список для регистрации взносов',
+                    'options' => ['target' => '_blank'],
+                ],
+                'sendConfirm' => [
+                    'url' => '["sendConfirm", "id" => "' . $id . '"]',
+                    'label' => 'Разослать письма подтверждения',
                 ],
             ],
             'columns' => [
@@ -146,14 +168,9 @@ class ContestAdminController extends \admin\components\HAdminController
         }
     }
 
-    public function actionExport()
-    {
-        $this->render('export');
-    }
-
     public function actionExportRequests($id = null)
     {
-        $requests = \contest\crud\RequestCrud::findAll($id ? (int)$id : null);
+        $requests = \contest\crud\RequestCrud::findAll($id ? new ContestId((int)$id) : null);
 
         $html = $this->renderPartial('export_requests', [
             'requests' => $requests,
@@ -165,10 +182,11 @@ class ContestAdminController extends \admin\components\HAdminController
         \Yii::app()->end();
     }
 
-    public function actionExportJury()
+    public function actionExportJury($id = null)
     {
-        $requests = \contest\crud\RequestCrud::findAccepted();
+        $requests = \contest\crud\RequestCrud::findAccepted($id ? new ContestId((int)$id) : null);
 
+        $lists = [];
         foreach ($requests as $request) {
             $nomination = $request->getNominationLabel();
             $ageCategory = $request->getAgeCategoryLabel();
@@ -199,9 +217,9 @@ class ContestAdminController extends \admin\components\HAdminController
         \Yii::app()->end();
     }
 
-    public function actionExportContributionsList()
+    public function actionExportContributionsList($id = null)
     {
-        $requests = \contest\crud\RequestCrud::findAccepted();
+        $requests = \contest\crud\RequestCrud::findAccepted($id ? new ContestId((int)$id) : null);
 
         // sort alphabeticaly by group name or musician name
         usort($requests, function ($one, $two) {
@@ -226,18 +244,20 @@ class ContestAdminController extends \admin\components\HAdminController
         \Yii::app()->end();
     }
 
-    public function actionMailing()
+    public function actionSendConfirm($id = null)
     {
-        if (\Yii::app()->request->getPost('sendConfirm')) {
-            try {
-                \Yii::app()->getModule('contest')->mailer->sendConfirmations();
-                \Yii::app()->user->setFlash('success', 'Письма разосланы!');
-            } catch (\Exception $e) {
-                \Yii::app()->user->setFlash('error', 'Во время рассылки произошла не предвиденная ошибка: ' . $e->getMessage());
-            }
-            $this->refresh();
+        try {
+            \Yii::app()->getModule('contest')->mailer->sendConfirmations($id ? new ContestId((int)$id) : null);
+            \Yii::app()->user->setFlash('success', 'Письма разосланы!');
+        } catch (\Exception $e) {
+            \Yii::app()->user->setFlash('error', 'Во время рассылки произошла не предвиденная ошибка: ' . $e->getMessage());
         }
 
+        $this->redirect(['list', 'id' => $id]);
+    }
+
+    public function actionMailing()
+    {
         if (\Yii::app()->request->getPost('sendPreview')) {
             echo $this->renderPreview();
             \Yii::app()->end();

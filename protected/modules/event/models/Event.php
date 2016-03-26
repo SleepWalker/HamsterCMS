@@ -169,9 +169,9 @@ class Event extends \CActiveRecord
     /**
      * @return string Html код части карты с метом проведения мероприятия
      */
-    public function getMapImage($params = array())
+    public function getMapImage($params = [], $htmlOptions = [])
     {
-        return \CHtml::image($this->getMapSrc($params), $this->name);
+        return \CHtml::image($this->getMapSrc($params), $this->name, $htmlOptions);
     }
 
     /**

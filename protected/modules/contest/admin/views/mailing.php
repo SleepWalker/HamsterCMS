@@ -2,12 +2,6 @@
 /**
  */
 ?>
-
-<?= \CHtml::beginForm() ?>
-<p><?= \CHtml::submitButton('Разослать письма подтверждения', ['name' => 'sendConfirm']) ?></p>
-<?= \CHtml::endForm() ?>
-
-
 <div class="form">
 <?= \CHtml::beginForm('', 'post', [
     'id' => 'js-mailing-form',

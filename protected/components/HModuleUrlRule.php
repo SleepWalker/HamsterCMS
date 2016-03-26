@@ -252,6 +252,10 @@ class HModuleUrlRule extends \CBaseUrlRule
         $urlParts = array_map('strtolower', $urlParts);
         $urlParts = array_values($urlParts);
 
+        if (count($urlParts) === 1 && !isset($_GET['id'])) {
+            $_GET['id'] = $urlParts[0];
+        }
+
         $actionParams = $this->getActionParams($controllerClass, $actionId);
         if ($actionParams) {
             $lastParam = end($actionParams);

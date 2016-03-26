@@ -2,10 +2,7 @@
 /**
  * Admin action class for event module
  *
- * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
  * @package    Hamster.modules.event.admin.EventAdminController
- * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
- * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
 
 class EventAdminController extends \admin\components\HAdminController
@@ -15,17 +12,17 @@ class EventAdminController extends \admin\components\HAdminController
      */
     public function tabs()
     {
-        return array(
+        return [
             'index' => 'Все мероприятия',
-            'update' => array(
+            'update' => [
                 'name' => 'Редактирование мероприятия',
                 'display' => 'whenActive',
-            ),
-            'create' => array(
+            ],
+            'create' => [
                 'name' => 'Добавить мероприятие',
                 'display' => 'index',
-            ),
-        );
+            ],
+        ];
     }
 
     /**
@@ -36,7 +33,7 @@ class EventAdminController extends \admin\components\HAdminController
         if ($this->crudid) {
             $model = \event\models\Event::model()->findByPk($this->crudid);
         } else {
-            $model = new \event\models\Event;
+            $model = new \event\models\Event();
         }
 
         $modelName = \CHtml::modelName($model);

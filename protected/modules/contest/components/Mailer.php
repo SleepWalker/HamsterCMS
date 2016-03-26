@@ -97,9 +97,9 @@ class Mailer extends \CApplicationComponent
      * Отправляет письма с ссылками на подтверждение участия.
      * Письма будут отправлены только участникам, чьи заявки были одобрены
      */
-    public function sendConfirmations()
+    public function sendConfirmations($contestId = null)
     {
-        $requests = RequestCrud::findNotConfirmed();
+        $requests = RequestCrud::findNotConfirmed($contestId);
 
         foreach ($requests as $request) {
             $this->notifyMusicians($request, [

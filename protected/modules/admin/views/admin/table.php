@@ -16,12 +16,15 @@
  *  ),
  *  ...
  *
+ * @var array $batchButtons array with buttons options for batch actions.
+ *                          Will be displayed before table
  *
- * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
+ *
  * @package    hamster.modules.admin.views.admin.table
- * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
- * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
+
+use KoKoKo\assert\Assert;
+
 //$pageSize=Yii::app()->user->getState('pageSize',Yii::app()->params['defaultPageSize']);
 if (!isset($buttons)) {
     $buttons = ['update', 'delete', 'view'];
@@ -29,6 +32,23 @@ if (!isset($buttons)) {
 
 if (!isset($options)) {
     $options = [];
+}
+
+if (isset($batchButtons)) {
+    Assert::assert($batchButtons, 'batchButtons')->isArray();
+
+    echo '<p>';
+    foreach ($batchButtons as $item) {
+        echo \CHtml::link(
+            $item['label'],
+            $this->evaluateExpression($item['url']),
+            array_merge(
+                ['class' => 'button'],
+                isset($item['options']) ? $item['options'] : []
+            )
+        ) . ' ';
+    }
+    echo '</p>';
 }
 
 if (isset($disableButtons) && $disableButtons) {

@@ -9,8 +9,8 @@ use contest\models\view\ApplyForm;
 use contest\models\Request;
 use contest\models\Musician;
 use contest\models\Composition;
+use contest\models\ContestId;
 use KoKoKo\assert\Assert;
-
 
 class RequestCrud
 {
@@ -97,28 +97,48 @@ class RequestCrud
         return Request::model()->with('compositions', 'musicians')->findByPk($pk);
     }
 
-    public static function findAll($contestId = null)
+    public static function findAll(ContestId $contestId = null)
     {
-        $criteria = [];
+        $attributes = [];
         if ($contestId) {
-            Assert::assert($contestId, 'contestId')->int();
-
-            $criteria['contest_id'] = $contestId;
+            $attributes['contest_id'] = $contestId->getValue();
         }
 
-        return Request::model()->with('compositions', 'musicians')->findAllByAttributes($criteria);
+        return Request::model()
+            ->with('compositions', 'musicians')
+            ->findAllByAttributes($attributes);
     }
 
-    public static function findNotConfirmed()
+    public static function findNotConfirmed(ContestId $contestId = null)
     {
-        return Request::model()->with('compositions', 'musicians')
-            ->findAll('status = ' . Request::STATUS_ACCEPTED);
+        $attributes = [
+            'status' => Request::STATUS_ACCEPTED,
+        ];
+        if ($contestId) {
+            $attributes['contest_id'] = $contestId->getValue();
+        }
+
+        return Request::model()
+            ->with('compositions', 'musicians')
+            ->findAllByAttributes($attributes);
     }
 
-    public static function findAccepted()
+    public static function findAccepted(ContestId $contestId = null)
     {
-        return Request::model()->with('compositions', 'musicians')
-            ->findAll('status NOT IN (' . implode(', ', [Request::STATUS_NEW, Request::STATUS_DECLINED]) . ')');
+        $attributes = [
+            'status' => [
+                Request::STATUS_ACCEPTED,
+                Request::STATUS_WAIT_CONFIRM,
+                Request::STATUS_CONFIRMED,
+            ],
+        ];
+        if ($contestId) {
+            $attributes['contest_id'] = $contestId->getValue();
+        }
+
+        return Request::model()
+            ->with('compositions', 'musicians')
+            ->findAllByAttributes($attributes);
     }
 
     public static function decline($pk)

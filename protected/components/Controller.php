@@ -55,7 +55,7 @@ class Controller extends CController
 
         // инициализируем цсс классы
         $layoutId = explode('/', $this->layout);
-        $this->bodyCssClasses = array(end($layoutId), $this->id, $this->id . ucfirst($this->action->id));
+        $this->bodyCssClasses = array('layout-' . end($layoutId), 'page-' . $this->id, 'page-' . $this->id . ucfirst($this->action->id));
 
         return true;
     }

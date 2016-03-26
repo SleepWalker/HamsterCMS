@@ -1,15 +1,16 @@
 <?php
-$this->breadcrumbs=array(
-	$this->module->params->moduleName,
-);
+$this->breadcrumbs = [
+    $this->module->params->moduleName,
+];
 
 $this->pageTitle = $this->module->params->moduleName;
 ?>
 
-<h1><?php echo $this->module->params->moduleName ?></h1>
+<h1><?= $this->module->params->moduleName ?></h1>
 
-<?php $this->widget('zii.widgets.CListView', array(
-	'dataProvider'=>$dataProvider,
-	'itemView'=>'_view',
-  'summaryText' => '',
-)); ?>
+<?php $this->widget('zii.widgets.CListView', [
+    'dataProvider' => $dataProvider,
+    'itemView' => '_view',
+    'summaryText' => '',
+    'cssFile' => false,
+]); ?>
