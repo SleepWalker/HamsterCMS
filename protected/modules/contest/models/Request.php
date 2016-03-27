@@ -154,21 +154,13 @@ class Request extends \CActiveRecord
     public function getFormatLabel()
     {
         $format = $this->format;
+        $formatMap = $this->getFormatsList();
 
         if ($this->isGroup()) {
             $format = self::FORMAT_GROUP;
         }
 
-        $map = [
-            self::FORMAT_SOLO => 'Соло',
-            self::FORMAT_MINUS => 'Минус',
-            self::FORMAT_CONCERTMASTER => 'Концертмейстер',
-            self::FORMAT_INSTRUMENTAL_SOLO => 'Инструментальное соло',
-            self::FORMAT_VOCAL_SOLO => 'Вокальное соло',
-            self::FORMAT_GROUP => 'Вокально-инстр. ансамбль',
-        ];
-
-        return !empty($this->format) ? $map[$format] : '';
+        return !empty($this->format) ? $formatMap[$format] : '';
     }
 
     public function getStatusLabel()
@@ -177,83 +169,11 @@ class Request extends \CActiveRecord
         return !empty($this->status) ? $map[$this->status] : 'Undefined';
     }
 
-    public function getNominationLabel()
-    {
-        $isGroup = $this->isGroup();
-        $hasVocal = count(array_filter($this->musicians, function ($musician) {
-            return preg_match('/вокал/iu', $musician->instrument);
-        })) > 0;
-
-        switch ((int)$isGroup.(int)$hasVocal) {
-            case '00':
-                $nomination = 'Инструментальное соло';
-                break;
-            case '10':
-                $nomination = 'Инстр. ансамбль';
-                break;
-            case '01':
-                $nomination = 'Вокальное соло';
-                break;
-            case '11':
-                $nomination = 'Вокально-инстр. ансамбль';
-                break;
-        }
-
-        return $nomination;
-    }
-
     public function getAgeCategoryLabel()
     {
-        $ageMap = [
-            10 => 'до 10 лет',
-            14 => '11-14 лет',
-            17 => '15-17 лет',
-            100 => '18 лет и старше',
-        ];
-        $ageMap = array_reverse($ageMap, true);
+        $ageMap = $this->getAgeCategoriesList();
 
-        if ($this->isGroup()) {
-            $ages = array_map(function ($musician) {
-                return $musician->age;
-            }, $this->musicians);
-            $age = min(self::median($ages), self::average($ages));
-        } else {
-            $age = $this->musicians[0]->age;
-        }
-
-        foreach ($ageMap as $ageThreshold => $label) {
-            if ($age <= $ageThreshold) {
-                $ageCategory = $label;
-            }
-        }
-
-        return $ageCategory;
-    }
-
-    private static function median($arr)
-    {
-        sort($arr);
-        $count = count($arr); //total numbers in array
-        $middleval = floor(($count-1)/2); // find the middle value, or the lowest middle value
-        if ($count % 2) { // odd number, middle is the median
-            $median = $arr[$middleval];
-        } else { // even number, calculate avg of 2 medians
-            $low = $arr[$middleval];
-            $high = $arr[$middleval+1];
-            $median = (($low+$high)/2);
-        }
-        return $median;
-    }
-
-    private static function average($arr)
-    {
-        $total = 0;
-        $count = count($arr); //total numbers in array
-        foreach ($arr as $value) {
-            $total +=  + $value; // total value of array numbers
-        }
-        $average = ($total/$count); // get average value
-        return $average;
+        return $ageMap[$this->age_category];
     }
 
     public function isGroup()

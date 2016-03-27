@@ -188,7 +188,7 @@ class ContestAdminController extends \admin\components\HAdminController
 
         $lists = [];
         foreach ($requests as $request) {
-            $nomination = $request->getNominationLabel();
+            $nomination = $request->getFormatLabel();
             $ageCategory = $request->getAgeCategoryLabel();
             if (!isset($lists[$nomination])) {
                 $lists[$nomination] = [];
