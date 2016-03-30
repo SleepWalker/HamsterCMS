@@ -14,6 +14,7 @@ $config = require($protected . '/config/test.php');
 
 // require_once(dirname(__FILE__) . '/WebTestCase.php');
 
+$_SERVER['SERVER_NAME'] = 'foo.bar';
 
 $config['components']['assetManager'] = isset($config['components']['assetManager']) && is_array($config['components']['assetManager']) ? $config['components']['assetManager'] : [];
 $config['components']['assetManager']['basePath'] = $webRoot . '/assets';

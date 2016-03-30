@@ -109,6 +109,7 @@ class Mailer extends \CApplicationComponent
                     $confirmationKey = $request->getConfirmationKey();
 
                     return [
+                        'contestName' => '«Рок єднає нас» 2016',
                         'confirmationUrl' => \Yii::app()->createAbsoluteUrl('contest/contest/confirm', [
                             'id' => $request->primaryKey,
                             'key' => $confirmationKey,

@@ -93,10 +93,6 @@ class HAdminController extends \CController
             $viewPath = \Yii::getPathOfAlias('application.modules.' . $this->id) . '/admin/views';
             $moduleViewPath = $viewPath;
 
-            $themeBasePath = \Yii::app()->getTheme()->getViewPath();
-            $themeModuleViewPath = $themeBasePath . '/' . $this->action->id;
-            $themeViewPath = $themeModuleViewPath . '/admin';
-
             $viewFile = $this->resolveViewFile($viewName, $viewPath, $basePath, $moduleViewPath);
 
             if (!$viewFile) {
