@@ -31,7 +31,9 @@ class RequestCrudTest extends \CTestCase
     public function testAcceptSoloRequest()
     {
         self::$ar->willFind([
-            'id' => -100,
+            'id' => '-100',
+            'contest_id' => '1',
+            'status' => '1',
             'contact_name' => 'foo',
             'contact_email' => 'foo@bar.com',
             'contact_phone' => '+38 (000) 000-00-00',
@@ -49,13 +51,15 @@ class RequestCrudTest extends \CTestCase
     public function testAcceptGroupRequest()
     {
         self::$ar->willFind([
-                'id' => -100,
-                'name' => 'NoName',
-                'contact_name' => 'foo',
-                'contact_email' => 'foo@bar.com',
-                'contact_phone' => '+38 (000) 000-00-00',
-                'age_category' => Request::AGE_CATEGORY_10,
-                'format' => Request::FORMAT_GROUP,
+            'id' => '-100',
+            'contest_id' => '1',
+            'status' => '1',
+            'name' => 'NoName',
+            'contact_name' => 'foo',
+            'contact_email' => 'foo@bar.com',
+            'contact_phone' => '+38 (000) 000-00-00',
+            'age_category' => Request::AGE_CATEGORY_10,
+            'format' => Request::FORMAT_GROUP,
         ]);
 
         self::$ar->willSave([
@@ -68,7 +72,9 @@ class RequestCrudTest extends \CTestCase
     public function testDeclineSoloRequest()
     {
         self::$ar->willFind([
-            'id' => -100,
+            'id' => '-100',
+            'contest_id' => '1',
+            'status' => '1',
             'contact_name' => 'foo',
             'contact_email' => 'foo@bar.com',
             'contact_phone' => '+38 (000) 000-00-00',
@@ -86,13 +92,15 @@ class RequestCrudTest extends \CTestCase
     public function testDeclineGroupRequest()
     {
         self::$ar->willFind([
-                'id' => -100,
-                'name' => 'NoName',
-                'contact_name' => 'foo',
-                'contact_email' => 'foo@bar.com',
-                'contact_phone' => '+38 (000) 000-00-00',
-                'age_category' => Request::AGE_CATEGORY_10,
-                'format' => Request::FORMAT_GROUP,
+            'id' => -100,
+            'contest_id' => '1',
+            'status' => '1',
+            'name' => 'NoName',
+            'contact_name' => 'foo',
+            'contact_email' => 'foo@bar.com',
+            'contact_phone' => '+38 (000) 000-00-00',
+            'age_category' => Request::AGE_CATEGORY_10,
+            'format' => Request::FORMAT_GROUP,
         ]);
 
         self::$ar->willSave([

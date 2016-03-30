@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "cc0325c102e667c512458730fbffa393",
-    "content-hash": "26d8b2b1e6e5fb9df72b18794321f3f0",
+    "hash": "5236de274643e005c6eb032fc0ba210b",
+    "content-hash": "8483907d0125f30144e9c08f60e85ab1",
     "packages": [
         {
             "name": "eventviva/php-image-resize",
@@ -96,16 +96,16 @@
         },
         {
             "name": "ko-ko-ko/assert",
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ko-ko-ko/php-assert.git",
-                "reference": "a5b91c2c1f8651cd0a00f8a9b740708a4ddac891"
+                "reference": "69a8ae54fa173f21da0bc5a943744b786dab138a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ko-ko-ko/php-assert/zipball/a5b91c2c1f8651cd0a00f8a9b740708a4ddac891",
-                "reference": "a5b91c2c1f8651cd0a00f8a9b740708a4ddac891",
+                "url": "https://api.github.com/repos/ko-ko-ko/php-assert/zipball/69a8ae54fa173f21da0bc5a943744b786dab138a",
+                "reference": "69a8ae54fa173f21da0bc5a943744b786dab138a",
                 "shasum": ""
             },
             "require-dev": {
@@ -129,7 +129,7 @@
                 }
             ],
             "description": "Fast flexible php assert",
-            "time": "2016-01-09 05:11:50"
+            "time": "2016-03-26 16:26:34"
         },
         {
             "name": "mpdf/mpdf",
@@ -905,16 +905,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "5.2.10",
+            "version": "5.2.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "37fa29b17b87a3e9f0a4d77c42f0aac5183b84d1"
+                "reference": "6f0948bab32270352f97d1913d82a49338dcb0da"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/37fa29b17b87a3e9f0a4d77c42f0aac5183b84d1",
-                "reference": "37fa29b17b87a3e9f0a4d77c42f0aac5183b84d1",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/6f0948bab32270352f97d1913d82a49338dcb0da",
+                "reference": "6f0948bab32270352f97d1913d82a49338dcb0da",
                 "shasum": ""
             },
             "require": {
@@ -975,20 +975,20 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2016-03-03 08:52:58"
+            "time": "2016-03-15 05:59:58"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
-            "version": "3.0.6",
+            "version": "3.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit-mock-objects.git",
-                "reference": "49bc700750196c04dd6bc2c4c99cb632b893836b"
+                "reference": "7c34c9bdde4131b824086457a3145e27dba10ca1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit-mock-objects/zipball/49bc700750196c04dd6bc2c4c99cb632b893836b",
-                "reference": "49bc700750196c04dd6bc2c4c99cb632b893836b",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit-mock-objects/zipball/7c34c9bdde4131b824086457a3145e27dba10ca1",
+                "reference": "7c34c9bdde4131b824086457a3145e27dba10ca1",
                 "shasum": ""
             },
             "require": {
@@ -1006,7 +1006,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.0.x-dev"
+                    "dev-master": "3.1.x-dev"
                 }
             },
             "autoload": {
@@ -1031,7 +1031,7 @@
                 "mock",
                 "xunit"
             ],
-            "time": "2015-12-08 08:47:06"
+            "time": "2016-03-24 05:58:25"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",

@@ -22,7 +22,6 @@ namespace contest\models;
 use KoKoKo\assert\Assert;
 
 use contest\models\view\ApplyForm;
-use contest\models\view\ConfirmForm;
 
 class Request extends \CActiveRecord
 {
@@ -136,19 +135,13 @@ class Request extends \CActiveRecord
     /**
      * @throws \DomainException IF the key is invalid
      */
-    public function confirm($key, ConfirmForm $confirmModel)
+    public function confirm($key)
     {
-        if (!$confirmModel->validate()) {
-            throw new \InvalidArgumentException('Invalid confirmation form data');
-        }
-
         if (!$this->isValidConfirmationKey($key)) {
             throw new \InvalidArgumentException('Invalid confirmation key');
         }
 
         $this->status = self::STATUS_CONFIRMED;
-
-        $this->meta['confirmation'] = $confirmModel->attributes;
     }
 
     public function getFormatLabel()
@@ -219,8 +212,8 @@ class Request extends \CActiveRecord
 
     protected function beforeSave()
     {
-        Assert::assert($this->contest_id, 'contest_id')->numeric();
-        Assert::assert($this->status, 'status')->inArray(array_keys($this->getStatusesList()));
+        Assert::assert((int) $this->contest_id, 'contest_id')->greater(1);
+        Assert::assert((int) $this->status, 'status')->inArray(array_keys($this->getStatusesList()));
 
         if (parent::beforeSave()) {
             $this->meta = \CJSON::encode($this->meta);
@@ -272,20 +265,6 @@ class Request extends \CActiveRecord
         }
 
         return new ApplyForm($this, $this->musicians, $this->compositions);
-    }
-
-    /**
-     * @return  ConfirmForm
-     */
-    public function getConfirmForm()
-    {
-        $model = new ConfirmForm();
-
-        if (isset($this->meta['confirmation'])) {
-            $model->attributes = $this->meta['confirmation'];
-        }
-
-        return $model;
     }
 
     public static function model($className = __CLASS__)

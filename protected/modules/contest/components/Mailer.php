@@ -97,7 +97,7 @@ class Mailer extends \CApplicationComponent
      * Отправляет письма с ссылками на подтверждение участия.
      * Письма будут отправлены только участникам, чьи заявки были одобрены
      */
-    public function sendConfirmations($contestId = null)
+    public function sendConfirmations(ContestId $contestId = null)
     {
         $requests = RequestCrud::findNotConfirmed($contestId);
 

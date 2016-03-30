@@ -6,7 +6,6 @@
 namespace contest\controllers;
 
 use contest\models\view\ApplyForm;
-use contest\models\view\ConfirmForm;
 use contest\models\Request;
 
 class ContestController extends \Controller
@@ -61,9 +60,8 @@ class ContestController extends \Controller
         }
 
         $applyForm = $request->getApplyForm();
-        $confirmForm = $request->getConfirmForm();
 
-        if ($this->processConfirmForm($key, $applyForm, $confirmForm)) {
+        if ($this->processConfirmForm($key, $applyForm)) {
             \Yii::app()->user->setFlash(
                 'success',
                 'Спасибо, ваши данные успешно обработаны!'
@@ -71,24 +69,19 @@ class ContestController extends \Controller
         }
 
         $this->render('confirm', [
-            'confirmForm' => $confirmForm,
+            'contestName' => '«Рок єднає нас» 2016',
             'applyForm' => $applyForm,
         ]);
     }
 
-    private function processConfirmForm($key, ApplyForm $applyForm, ConfirmForm $confirmForm)
+    private function processConfirmForm($key, ApplyForm $applyForm)
     {
-        $modelName = \CHtml::modelName($confirmForm);
-
-        $confirmModelData = \Yii::app()->request->getPost($modelName);
-
-        if ($confirmModelData && $this->isApplyFormSubmitted()) {
+        if ($this->isApplyFormSubmitted()) {
             $applyForm->load(\Yii::app()->request);
-            $confirmForm->attributes = $confirmModelData;
 
-            if ($confirmForm->validate() && $applyForm->validate()) {
+            if ($applyForm->validate()) {
                 try {
-                    $applyForm->request->confirm($key, $confirmForm);
+                    $applyForm->request->confirm($key);
 
                     \contest\crud\RequestCrud::update($applyForm->request);
 
