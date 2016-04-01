@@ -1,6 +1,10 @@
 <?php
 use contest\components\Mailer;
 use contest\models\Request;
+use contest\models\Composition;
+use contest\models\ContestId;
+use contest\components\RequestRepository;
+use ext\hamster\Mailer as HamsterMailer;
 
 class MailerTest extends \CTestCase
 {
@@ -9,9 +13,10 @@ class MailerTest extends \CTestCase
 
     public function setUp()
     {
-        $this->hmailer = $this->getMockBuilder('ext\hamster\Mailer')->getMock();
+        $this->hmailer = $this->getMockBuilder(HamsterMailer::class)->getMock();
+        $this->repository = $this->getMockBuilder(RequestRepository::class)->getMock();
 
-        $this->mailer = new Mailer($this->hmailer, 'admin@foo.bar');
+        $this->mailer = new Mailer($this->hmailer, $this->repository, 'admin@foo.bar');
     }
 
     public function testSuccessNotifyMusicians()
@@ -126,5 +131,72 @@ class MailerTest extends \CTestCase
         ]);
 
         $this->assertEquals($expected, $actual);
+    }
+
+    public function testSendConfirmations()
+    {
+        $contestId = new ContestId(1);
+        $composition = new Composition();
+        $composition->attributes = [
+            'author' => 'author',
+            'title' => 'title',
+        ];
+
+        $requestMock = $this->getMockBuilder(Request::class)
+            ->setMethods(['save'])
+            ->getMock();
+        $requestMock->attributes = [
+            'contact_name' => 'foo',
+            'contact_email' => 'foo@bar.mail',
+        ];
+        $requestMock->primaryKey = 123;
+        $requestMock->compositions = [
+            $composition,
+            $composition,
+        ];
+
+        $requests = [
+            $requestMock,
+            $requestMock,
+        ];
+
+        $this->repository
+            ->expects($this->once())
+            ->method('findNotConfirmed')
+            ->with($this->identicalTo($contestId))
+            ->willReturn($requests)
+            ;
+
+        // TODO: separate service for confirmation key and url generation
+        // TODO: new ConfirmationEmail($request);
+        $confirmationKey = $requestMock->getConfirmationKey();
+        $this->hmailer
+            ->expects($this->exactly(count($requests)))
+            ->method('send')
+            ->with($this->equalTo([
+                'to' => $requestMock->contact_email,
+                'subject' => 'Подтверждение участия в конкурсе «Рок єднає нас» 2016',
+                'view' => 'request_confirm',
+                'viewData' => [
+                    'fullName' => $requestMock->contact_name,
+                    'contestName' => '«Рок єднає нас» 2016',
+                    'firstComposition' => $composition->getFullName(),
+                    'secondComposition' => $composition->getFullName(),
+                    'confirmationUrl' => \Yii::app()->createAbsoluteUrl('contest/contest/confirm', [
+                        'id' => $requestMock->primaryKey,
+                        'key' => $confirmationKey,
+                    ]),
+                ],
+            ]))
+            ;
+
+        $requestMock->expects($this->exactly(count($requests)))->method('save');
+
+        $this->mailer->sendConfirmations($contestId);
+
+        $this->assertEquals(
+            Request::STATUS_WAIT_CONFIRM,
+            $requestMock->status
+        );
     }
 }

@@ -2,10 +2,12 @@
 /**
  * Admin action class for contest module
  *
- * @package    hamster.modules.sectionvideo.admin.SectionvideoAdminController
+ * @package hamster.modules.contest.admin
  */
 
 use contest\models\ContestId;
+use contest\crud\RequestCrud;
+use contest\models\Request;
 
 class ContestAdminController extends \admin\components\HAdminController
 {
@@ -23,7 +25,7 @@ class ContestAdminController extends \admin\components\HAdminController
 
     public function actionIndex()
     {
-        $model = new \contest\models\Request('search');
+        $model = new Request('search');
         $model->unsetAttributes();
 
         $dataProvider = new \CArrayDataProvider([
@@ -60,7 +62,7 @@ class ContestAdminController extends \admin\components\HAdminController
      */
     public function actionList($id = null)
     {
-        $model = new \contest\models\Request('search');
+        $model = new Request('search');
         $model->unsetAttributes();
         $modelName = \CHtml::modelName($model);
 
@@ -153,7 +155,7 @@ class ContestAdminController extends \admin\components\HAdminController
     public function actionDecline($id)
     {
         try {
-            \contest\crud\RequestCrud::decline($id);
+            RequestCrud::decline($id);
         } catch (\Exception $e) {
             throw new \CHttpException(503, $e->getMessage());
         }
@@ -162,7 +164,7 @@ class ContestAdminController extends \admin\components\HAdminController
     public function actionAccept($id)
     {
         try {
-            \contest\crud\RequestCrud::accept($id);
+            RequestCrud::accept($id);
         } catch (\Exception $e) {
             throw new \CHttpException(503, $e->getMessage());
         }
@@ -170,7 +172,7 @@ class ContestAdminController extends \admin\components\HAdminController
 
     public function actionExportRequests($id = null)
     {
-        $requests = \contest\crud\RequestCrud::findAll($id ? new ContestId((int)$id) : null);
+        $requests = RequestCrud::findAll($id ? new ContestId((int)$id) : null);
 
         $html = $this->renderPartial('export_requests', [
             'requests' => $requests,
@@ -184,7 +186,7 @@ class ContestAdminController extends \admin\components\HAdminController
 
     public function actionExportJury($id = null)
     {
-        $requests = \contest\crud\RequestCrud::findAccepted($id ? new ContestId((int)$id) : null);
+        $requests = RequestCrud::findAccepted($id ? new ContestId((int)$id) : null);
 
         $lists = [];
         foreach ($requests as $request) {
@@ -219,7 +221,7 @@ class ContestAdminController extends \admin\components\HAdminController
 
     public function actionExportContributionsList($id = null)
     {
-        $requests = \contest\crud\RequestCrud::findAccepted($id ? new ContestId((int)$id) : null);
+        $requests = RequestCrud::findAccepted($id ? new ContestId((int)$id) : null);
 
         // sort alphabeticaly by group name or musician name
         usort($requests, function ($one, $two) {
@@ -341,20 +343,20 @@ class ContestAdminController extends \admin\components\HAdminController
 
         switch ($requestType) {
             case 'accepted':
-                $requests = \contest\crud\RequestCrud::findAccepted();
+                $requests = RequestCrud::findAccepted();
                 break;
 
             case 'notConfirmed':
-                $requests = \contest\crud\RequestCrud::findNotConfirmed();
+                $requests = RequestCrud::findNotConfirmed();
                 break;
 
             case 'any':
             default:
-                $requests = \contest\crud\RequestCrud::findAll();
+                $requests = RequestCrud::findAll();
                 break;
         }
 
-        if ($type != 'any' && ($type == \contest\models\Request::TYPE_SOLO || $type == \contest\models\Request::TYPE_GROUP)) {
+        if ($type != 'any' && ($type == Request::TYPE_SOLO || $type == Request::TYPE_GROUP)) {
             $requests = array_filter($requests, function ($request) use ($type) {
                 return $request->type == $type;
             });
