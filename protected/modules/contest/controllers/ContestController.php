@@ -59,6 +59,11 @@ class ContestController extends \Controller
             throw new \CHttpException(404, 'Not found');
         }
 
+        if (!$applyForm->request->isConfirmed()) {
+            $applyForm->request->confirm($key);
+            $applyForm->save();
+        }
+
         $applyForm = $request->getApplyForm();
 
         if ($this->processConfirmForm($key, $applyForm)) {
@@ -81,8 +86,6 @@ class ContestController extends \Controller
 
             if ($applyForm->validate()) {
                 try {
-                    $applyForm->request->confirm($key);
-
                     \contest\crud\RequestCrud::update($applyForm->request);
 
                     return true;
