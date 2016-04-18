@@ -10,6 +10,9 @@
 
 namespace blog\controllers;
 
+use blog\models\Post;
+use blog\models\Categorie;
+
 class BlogController extends \Controller
 {
     /**
@@ -55,7 +58,7 @@ array('deny',  // deny all users
      */
     protected function beforeAction($action)
     {
-        $this->menu = \blog\models\Categorie::model()->catsMenu;
+        $this->menu = Categorie::model()->catsMenu;
         return parent::beforeAction($action);
     }
 
@@ -82,12 +85,18 @@ array('deny',  // deny all users
             $criteria->addSearchCondition('cat.alias', $_GET['alias'], true);
         }
 
-        return new \CActiveDataProvider(\blog\models\Post::model()->latest()->published()->with('cat', 'user'), array(
-            /*'pagination'=>array(
-            'pageSize'=>Yii::app()->params['postsPerPage'],
-            ),*/
-            'criteria' => $criteria,
-        ));
+        return new \CActiveDataProvider(
+            Post::model()
+                ->latest()
+                ->published()
+                ->with('cat', 'user'),
+            [
+                /*'pagination'=>array(
+                'pageSize'=>Yii::app()->params['postsPerPage'],
+                ),*/
+                'criteria' => $criteria,
+            ]
+        );
     }
 
     /**
@@ -127,7 +136,11 @@ array('deny',  // deny all users
      */
     public function loadModel($id)
     {
-        $model = \blog\models\Post::model()->with('cat', 'user')->findByAttributes(array('alias' => $id));
+        $model = Post::model()
+            ->published()
+            ->with('cat', 'user')
+            ->findByAttributes(['alias' => $id]);
+
         if ($model === null) {
             throw new \CHttpException(404, 'The requested page does not exist.');
         }

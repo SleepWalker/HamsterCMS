@@ -70,9 +70,22 @@ class Post extends \CActiveRecord
     public function defaultScope()
     {
         $alias = $this->getTableAlias(true, false);
-        return array(
+        return [
             'order' => $alias . '.add_date DESC',
-        );
+        ];
+    }
+
+    public function scopes()
+    {
+        return [
+            'published' => [
+                // TODO: need BL improvement here
+                'condition' => \Yii::app()->user->isGuest ? 'status = ' . self::STATUS_PUBLISHED : '',
+            ],
+            'latest' => [
+                'order' => 'add_date DESC',
+            ],
+        ];
     }
 
     /**
@@ -142,18 +155,6 @@ http://stackoverflow.com/questions/1852223/mysql-keep-server-timezone-or-user-ti
     public function normalizeTags($attribute, $params)
     {
         $this->tags = Tag::array2string(array_unique(Tag::string2array($this->tags)));
-    }
-
-    public function scopes()
-    {
-        return array(
-            'published' => array(
-                'condition' => 'status = ' . self::STATUS_PUBLISHED,
-            ),
-            'latest' => array(
-                'order' => 'add_date DESC',
-            ),
-        );
     }
 
     /**
