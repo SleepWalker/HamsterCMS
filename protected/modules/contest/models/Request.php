@@ -242,6 +242,7 @@ class Request extends \CActiveRecord
             'name' => 'Назва гурту',
             'demos' => 'Демо та додаткова інформація',
             'type' => 'Номінація',
+            'age_category' => 'Вікова категорія',
             'format' => 'Формат номеру',
             'compositions' => 'Виконувані композиції',
             'musicians' => 'Виконавець(-ці)',
