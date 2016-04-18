@@ -59,12 +59,11 @@ class ContestController extends \Controller
             throw new \CHttpException(404, 'Not found');
         }
 
+        $applyForm = $request->getApplyForm();
         if (!$applyForm->request->isConfirmed()) {
             $applyForm->request->confirm($key);
-            $applyForm->save();
+            $applyForm->request->save();
         }
-
-        $applyForm = $request->getApplyForm();
 
         if ($this->processConfirmForm($key, $applyForm)) {
             \Yii::app()->user->setFlash(
