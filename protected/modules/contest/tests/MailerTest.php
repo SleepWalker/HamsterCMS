@@ -175,6 +175,7 @@ class MailerTest extends \CTestCase
             ->method('send')
             ->with($this->equalTo([
                 'to' => $requestMock->contact_email,
+                'from' => 'contest@estrocksection.kiev.ua',
                 'subject' => 'Подтверждение участия в конкурсе «Рок єднає нас» 2016',
                 'view' => 'request_confirm',
                 'viewData' => [

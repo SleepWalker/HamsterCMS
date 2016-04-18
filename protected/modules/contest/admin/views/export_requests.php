@@ -51,6 +51,20 @@ foreach ($requests as $index => $request) {
             </table>
         </td>
     </tr>
+    <tr>
+        <td>
+            <table>
+                <tr>
+                    <td>
+                        Контакти:
+                        <b><?= $request->contact_name ?></b>,
+                        <?= $request->contact_email ?>,
+                        <?= $request->contact_phone ?>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
     <?php if ($request->isGroup()): ?>
     <tr>
         <td>

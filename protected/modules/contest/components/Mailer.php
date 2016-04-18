@@ -115,6 +115,7 @@ class Mailer extends \CApplicationComponent
         foreach ($requests as $request) {
             $this->notifyMusicians($request, [
                 'subject' => 'Подтверждение участия в конкурсе «Рок єднає нас» 2016',
+                'from' => 'contest@estrocksection.kiev.ua',
                 'view' => 'request_confirm',
                 'viewData' => function ($request) {
                     // TODO: separate service for confirmation key and url generation
