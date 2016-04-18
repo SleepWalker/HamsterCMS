@@ -69,7 +69,7 @@ class ContestAdminController extends \admin\components\HAdminController
         $model->contest_id = $id;
 
         if (($attributes = \Yii::app()->request->getParam($modelName))) {
-            $model->attributes = $attributes;
+            $model->setAttributes($attributes, false);
         }
 
         $this->render('table', [
@@ -95,14 +95,14 @@ class ContestAdminController extends \admin\components\HAdminController
                     'label' => 'Экспортировать заявки',
                     'options' => ['target' => '_blank'],
                 ],
-                'exportJury' => [
-                    'url' => '["exportJury", "id" => "' . $id . '"]',
-                    'label' => 'Карточки для жюри',
-                    'options' => ['target' => '_blank'],
-                ],
                 'exportContributionsList' => [
                     'url' => '["exportContributionsList", "id" => "' . $id . '"]',
                     'label' => 'Список для регистрации взносов',
+                    'options' => ['target' => '_blank'],
+                ],
+                'exportJury' => [
+                    'url' => '["exportJury", "id" => "' . $id . '"]',
+                    'label' => 'Карточки для жюри',
                     'options' => ['target' => '_blank'],
                 ],
                 'sendConfirm' => [

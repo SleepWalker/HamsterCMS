@@ -99,14 +99,12 @@ class Request extends \CActiveRecord
     }
 
     /**
-     * @return string group name or first musician name
+     * @return string group name or first musician name for e.g. export tables
      */
     public function getMainName()
     {
         if (!empty($this->name)) {
             return $this->name;
-        } if (!empty($this->contact_name)) {
-            return $this->contact_name;
         } else {
             return $this->musicians[0]->getFullName();
         }
@@ -286,6 +284,7 @@ class Request extends \CActiveRecord
         $criteria = new \CDbCriteria();
 
         $criteria->compare('contest_id', $this->contest_id);
+        $criteria->compare('status', $this->status);
         // $criteria->compare('title', $this->title, true);
         // $criteria->compare('content', $this->content, true);
 
