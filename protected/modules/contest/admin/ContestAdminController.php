@@ -113,12 +113,12 @@ class ContestAdminController extends \admin\components\HAdminController
             'columns' => [
                 'id',
                 [
-                    'name' => 'age_category',
-                    'value' => '$data->getAgeCategoryLabel()',
-                ],
-                [
                     'name' => 'format',
                     'value' => '$data->getFormatLabel()',
+                ],
+                [
+                    'name' => 'age_category',
+                    'value' => '$data->getAgeCategoryLabel()',
                 ],
                 [
                     'name' => 'compositions',
