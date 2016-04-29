@@ -51,6 +51,7 @@ class VideoMusicians extends \CActiveRecord
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
+            ['id', 'safe'],
             array('video_id, musician_id', 'required'),
             array('class', 'numerical', 'integerOnly' => true),
             array('video_id, musician_id, instrument_id, teacher_id', 'length', 'max' => 10),

@@ -57,9 +57,11 @@ echo '</div>';
 
 function parseCFormElements(&$form, $model, $params, $index = null)
 {
-    $params = CMap::mergeArray(array(
+    $form['inputElementClass'] = ext\fields\HFormInputElement::class;
+
+    $params = CMap::mergeArray([
         'inline' => false, // переключение отображения формы: вертикальная/горизонтальная
-    ), $params);
+    ], $params);
     $controller = $params['controller'];
     foreach ($model->fieldTypes as $fieldName => $fieldType) {
         $fieldParams = array();
@@ -76,7 +78,12 @@ function parseCFormElements(&$form, $model, $params, $index = null)
             $relForms = array();
             foreach ($relModels as $i => $relModel) {
                 $relForm = array();
-                parseCFormElements($relForm, $relModel, CMap::mergeArray($params, array('inline' => true)), $isTabular ? $i : null);
+                parseCFormElements(
+                    $relForm,
+                    $relModel,
+                    CMap::mergeArray($params, ['inline' => true]),
+                    $isTabular ? $i : null
+                );
                 $relForm = new CForm($relForm, $relModel);
                 $relForm->renderBegin();
                 $relFormHtml = $relForm->renderBody();

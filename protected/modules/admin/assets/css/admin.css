@@ -1354,3 +1354,6 @@ body .redactor_editor
   /* Исправление иконки крестика в диалоге, которая поплыла, судя по всему из-за новой версии jQuery UI */
   display: none;
 }
+.ui-sortable {
+  list-style: none;
+}
