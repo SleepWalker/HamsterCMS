@@ -217,10 +217,13 @@ class HAdminController extends \CController
     /**
      * Гибридный рендеринг (render/renderPartial) для форм редактирования в админке
      *
+     * @var CActiveRecord $model
+     * @var array $params additional params for view
+     *
      * @access public
      * @return void
      */
-    public function renderForm($model, array $params = [])
+    public function renderForm(\CActiveRecord $model, array $params = [])
     {
         $params = \CMAp::mergeArray(['model' => $model], $params);
 
@@ -251,7 +254,6 @@ class HAdminController extends \CController
             } else {
                 $this->render('update', $params);
             }
-
         }
     }
 

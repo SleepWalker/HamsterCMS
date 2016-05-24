@@ -44,7 +44,11 @@ class SectionvideoAdminController extends \admin\components\HAdminController
             $model = new Video();
         }
 
-        $musicians = count($model->musicians) > 0 ? $model->musicians : array(new VideoMusicians());
+        if (!$model) {
+            throw new \CHttpException(404, 'Video not found');
+        }
+
+        $musicians = count($model->musicians) > 0 ? $model->musicians : [new VideoMusicians()];
 
         $modelName = CHtml::modelName($model);
         $vmModelName = CHtml::modelName($musicians[0]);
@@ -53,20 +57,28 @@ class SectionvideoAdminController extends \admin\components\HAdminController
         // AJAX валидация
         if (isset($_POST['ajax'])) {
             echo CActiveForm::validate($model);
-            Yii::app()->end();
+            \Yii::app()->end();
         }
 
         if (isset($_POST[$modelName])) {
             $model->attributes = $_POST[$modelName];
+            $saveOrThrow = function ($model) {
+                if (!$model->save()) {
+                    throw new \Exception(
+                        'Error saving ' . get_class($model) . ': '
+                        . var_export($model->getErrors(), true)
+                    );
+                }
+            };
 
             $transaction = Yii::app()->db->beginTransaction();
             try {
-                $valid = $model->save();
+                $saveOrThrow($model);
 
-                VideoMusicians::model()->deleteAllByAttributes(array('video_id' => $model->primaryKey));
-                $musicians = array();
+                VideoMusicians::model()->deleteAllByAttributes(['video_id' => $model->primaryKey]);
+                $musicians = [];
                 if (isset($_POST['sortOrder'][$vmModelName])) {
-                    $recentlyAddedIds = array(); // id добавленных в этой транзакции внешних связей
+                    $recentlyAddedIds = []; // id добавленных в этой транзакции внешних связей
                     foreach ($_POST['sortOrder'][$vmModelName] as $oid => $postId) {
                         $data = $_POST[$vmModelName][$postId];
 
@@ -79,7 +91,7 @@ class SectionvideoAdminController extends \admin\components\HAdminController
                             $mData = $_POST[CHtml::modelName($m)][$postId];
                             if (!empty($mData['name'])) {
                                 $m->name = $mData['name'];
-                                $valid = $valid && $m->save();
+                                $saveOrThrow($m);
                                 $musician_id = $m->primaryKey;
                                 $recentlyAddedIds[CHtml::modelName($m)][$mData['name']] = $m->primaryKey;
                             }
@@ -93,7 +105,7 @@ class SectionvideoAdminController extends \admin\components\HAdminController
                                     $instrument_id = $recentlyAddedIds[CHtml::modelName($m)][$mData['name']];
                                 } else {
                                     $m->name = $mData['name'];
-                                    $valid = $valid && $m->save();
+                                    $saveOrThrow($m);
                                     $instrument_id = $m->primaryKey;
                                     $recentlyAddedIds[CHtml::modelName($m)][$mData['name']] = $m->primaryKey;
                                 }
@@ -117,52 +129,45 @@ class SectionvideoAdminController extends \admin\components\HAdminController
                                         $m->middle_name = implode(' ', $parts);
                                     }
 
-                                    $valid = $valid && $m->save();
+                                    $saveOrThrow($m);
                                     $teacher_id = $m->primaryKey;
                                     $recentlyAddedIds[CHtml::modelName($m)][$mData['fullName']] = $m->primaryKey;
                                 }
                             }
                         }
 
-                        $vmModel = new VideoMusicians;
-                        $vmModel->attributes = array(
+                        $vmModel = new VideoMusicians();
+                        $vmModel->attributes = [
                             'video_id' => $model->primaryKey,
                             'musician_id' => $musician_id,
                             'instrument_id' => $instrument_id,
                             'teacher_id' => $teacher_id,
                             'class' => $data['class'],
                             'sort_order' => $oid + 1,
-                        );
+                        ];
 
-                        $valid = $valid && $vmModel->save();
+                        $saveOrThrow($vmModel);
 
                         array_push($musicians, $vmModel);
                     }
                 }
 
-                if ($valid) {
-                    $transaction->commit();
-                } else {
-                    $transaction->rollback();
-                }
-
+                $transaction->commit();
             } catch (Exception $e) {
                 $transaction->rollback();
                 $model->addError('composition_name', $e->getMessage());
                 $valid = false;
             }
             if (count($musicians) == 0) {
-                $musicians = count($model->musicians) > 0 ? $model->musicians : array(new VideoMusicians);
-            }
-
-            if (!$valid) {
-                $musicians[0]->addError('musician_id', 'Ошибка при обработке данных музыкантов');
+                $musicians = count($model->musicians) > 0
+                    ? $model->musicians
+                    : [new VideoMusicians()];
             }
         }
 
-        $this->renderForm($model, array(
+        $this->renderForm($model, [
             'VideoMusicians' => $musicians,
-        ));
+        ]);
     }
 
     /**
@@ -185,27 +190,27 @@ class SectionvideoAdminController extends \admin\components\HAdminController
         }
 
         $tags = $model->tagModel()->findAll();
-        $tagsMenu = array();
+        $tagsMenu = [];
         foreach ($tags as $tag) {
             array_push($tagsMenu, $tag->name);
         }
-        $this->aside = CMap::mergeArray($this->aside, array('Теги' => $tagsMenu));
+        $this->aside = CMap::mergeArray($this->aside, ['Теги' => $tagsMenu]);
 
-        $this->render('table', array(
+        $this->render('table', [
             'dataProvider' => $model->search(),
-            'options' => array(
+            'options' => [
                 'filter' => $model,
-            ),
-            'columns' => array(
-                array(
+            ],
+            'columns' => [
+                [
                     'name' => 'image',
-                    'value' => 'Chtml::image($data->thumbnail, $data->caption, array("width" => 100))',
+                    'value' => 'Chtml::image($data->thumbnail, $data->caption, ["width" => 100])',
                     'type' => 'raw',
                     'filter' => '',
-                ),
+                ],
                 'fullTitle',
-            ),
-        ));
+            ],
+        ]);
     }
 
     /**

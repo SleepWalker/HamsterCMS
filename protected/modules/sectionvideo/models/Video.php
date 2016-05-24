@@ -152,7 +152,7 @@ class Video extends \CActiveRecord
      */
     public function attributeLabels()
     {
-        return array(
+        return [
             'id' => 'ID',
             'type' => 'Тип видео',
             'title' => 'Название концерта / Имя группы',
@@ -166,7 +166,7 @@ class Video extends \CActiveRecord
             'views' => 'Просмотры',
             'tags' => 'Теги',
             'date_create' => 'Дата добавления',
-        );
+        ];
     }
 
     public function getFullTitle()
@@ -222,7 +222,7 @@ class Video extends \CActiveRecord
      * @see Video::getYtVideoCode()
      * @return string html код плеера
      */
-    public function getVideoCode($params = array())
+    public function getVideoCode($params = [])
     {
         return $this->getGoogleYoutubeVideo()->getPlayerCode();
     }
@@ -232,7 +232,7 @@ class Video extends \CActiveRecord
      */
     public function getComposition()
     {
-        $compositionName = array();
+        $compositionName = [];
         if (!empty($this->composition_author)) {
             $compositionName[] = $this->composition_author;
         }
@@ -253,7 +253,7 @@ class Video extends \CActiveRecord
      */
     public function getEventUrl()
     {
-        $event = Event::model()->findByAttributes(array('name' => $this->event));
+        $event = Event::model()->findByAttributes(['name' => $this->event]);
         return $event ? $event->viewUrl : null;
     }
 
@@ -262,21 +262,21 @@ class Video extends \CActiveRecord
      */
     public function getViewUrl()
     {
-        return Yii::app()->createUrl('sectionvideo/sectionvideo/view', array('id' => $this->primaryKey));
+        return Yii::app()->createUrl('sectionvideo/sectionvideo/view', ['id' => $this->primaryKey]);
     }
 
     public function tagViewUrl($tag = false)
     {
-        return Yii::app()->createUrl('sectionvideo/sectionvideo/index', array('tag' => $tag));
+        return Yii::app()->createUrl('sectionvideo/sectionvideo/index', ['tag' => $tag]);
     }
 
     public static function getTypesList()
     {
-        return array(
+        return [
             self::TYPE_SOLO => 'Сольный номер',
             self::TYPE_GROUP => 'Группа/Ансамбль',
             self::TYPE_CONCERT => 'Концерт',
-        );
+        ];
     }
 
     public function getTypeString()
@@ -287,10 +287,10 @@ class Video extends \CActiveRecord
 
     public static function getStatusesList()
     {
-        return array(
+        return [
             self::STATUS_DRAFT => 'Черновик',
             self::STATUS_PUBLISHED => 'Опубликовано',
-        );
+        ];
     }
 
     /**
@@ -386,8 +386,8 @@ class Video extends \CActiveRecord
         $criteria->compare('tags', $this->tags, true);
         $criteria->compare('date_create', $this->date_create, true);
 
-        return new CActiveDataProvider($this, array(
+        return new CActiveDataProvider($this, [
             'criteria' => $criteria,
-        ));
+        ]);
     }
 }
