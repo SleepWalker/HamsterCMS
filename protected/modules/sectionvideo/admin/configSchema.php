@@ -1,25 +1,25 @@
 <?php
-return array(
+return [
     // modulewide params schema
-    'moduleName' => array(
+    'moduleName' => [
         'label' => 'Название модуля',
         'type' => 'text',
         'default' => 'Видео',
-    ),
-    'moduleUrl' => array(
+    ],
+    'moduleUrl' => [
         'label' => 'URI Адрес модуля',
         'type' => 'text',
         'default' => 'video',
-    ),
+    ],
 
     // global params schema and admin panel settings
-    'hamster' => array(
-        'admin' => array(
+    'hamster' => [
+        'admin' => [
             'title' => 'Видео секции',
             'description' => 'Модуль реализирующий функционал видео-каталога со специфическими для музыкальной секции модификациями',
-            'db' => array(
-                'version' => '1.2.1',
-                'tables' => array(
+            'db' => [
+                'version' => '1.4.0',
+                'tables' => [
                     'section_instrument',
                     'section_musician',
                     'section_school',
@@ -28,12 +28,12 @@ return array(
                     'section_video_musicians',
                     'section_video_rating',
                     'section_video_tag',
-                ),
-            ),
-            'routes' => array(
+                ],
+            ],
+            'routes' => [
                 'sectionvideo/index',
                 'sectionvideo/view',
-            ),
-        ),
-    ),
-);
+            ],
+        ],
+    ],
+];

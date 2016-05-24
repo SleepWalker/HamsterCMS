@@ -5,7 +5,7 @@ class UpdateDb extends \admin\components\HUpdateDb
 {
     public function verHistory()
     {
-        return ['1.1', '1.2.0', '1.2.1'];
+        return ['1.1', '1.2.0', '1.2.1', '1.2.2', '1.3.0', '1.4.0'];
     }
 
     /**
@@ -166,10 +166,36 @@ class UpdateDb extends \admin\components\HUpdateDb
     }
 
     /**
-     * Добавил views
+     * Adds `views`
      */
     public function update1_2_1()
     {
         $this->addColumn('{{section_video}}', 'views', 'INT(10) UNSIGNED NOT NULL DEFAULT 0');
+    }
+
+    /**
+     * Rearranges `views`
+     */
+    public function update1_2_2()
+    {
+        $this->alterColumn('{{section_video}}', 'views', 'INT(10) UNSIGNED NOT NULL DEFAULT 0 AFTER `likes`');
+    }
+
+    /**
+     * Adds `date_update`
+     */
+    public function update1_3_0()
+    {
+        $this->alterColumn('{{section_video}}', 'date_create', 'timestamp NOT NULL DEFAULT "0000-00-00 00:00:00"');
+        $this->addColumn('{{section_video}}', 'date_update', 'timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `date_create`');
+    }
+
+    /**
+     * Adds `status`
+     */
+    public function update1_4_0()
+    {
+        $this->addColumn('{{section_video}}', 'status', 'TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 AFTER `type`');
+        $this->update('{{section_video}}', ['status' => 2]);
     }
 }

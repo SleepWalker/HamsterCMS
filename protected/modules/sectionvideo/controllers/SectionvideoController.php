@@ -1,13 +1,11 @@
 <?php
 /**
  * SectionVideoController class for video module
- *
- * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @copyright  Copyright &copy; 2013 Sviatoslav Danylenko (http://hamstercms.com)
- * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
 
 namespace sectionvideo\controllers;
+
+use sectionvideo\models\Video;
 
 class SectionvideoController extends \Controller
 {
@@ -62,7 +60,7 @@ class SectionvideoController extends \Controller
             $criteria->compare('teacher.id', $_GET['teacher'], false);
         }
 
-        return new \CActiveDataProvider('\sectionvideo\models\Video', array(
+        return new \CActiveDataProvider(Video::model()->published(), [
             'pagination' => [
                 'pageSize' => 20,
                 'route' => 'index',
@@ -80,12 +78,12 @@ class SectionvideoController extends \Controller
                     ],
                 ],
                 'defaultOrder' => [
-                    'likes' => \CSort::SORT_DESC,
+                    'likes' => 'desc',
                 ],
                 'sortVar' => 'sort',
             ],
             'criteria' => $criteria,
-        ));
+        ]);
     }
 
     /**

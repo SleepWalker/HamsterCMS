@@ -41,10 +41,10 @@ class SectionvideoAdminController extends \admin\components\HAdminController
         if ($this->crudid) {
             $model = Video::model()->findByPk($this->crudid);
         } else {
-            $model = new Video;
+            $model = new Video();
         }
 
-        $musicians = count($model->musicians) > 0 ? $model->musicians : array(new VideoMusicians);
+        $musicians = count($model->musicians) > 0 ? $model->musicians : array(new VideoMusicians());
 
         $modelName = CHtml::modelName($model);
         $vmModelName = CHtml::modelName($musicians[0]);
@@ -158,7 +158,6 @@ class SectionvideoAdminController extends \admin\components\HAdminController
             if (!$valid) {
                 $musicians[0]->addError('musician_id', 'Ошибка при обработке данных музыкантов');
             }
-
         }
 
         $this->renderForm($model, array(

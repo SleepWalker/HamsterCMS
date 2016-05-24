@@ -33,23 +33,11 @@ class Video extends \CActiveRecord
     const TYPE_GROUP = 2;
     const TYPE_CONCERT = 3;
 
-    /**
-     * Returns the static model of the specified AR class.
-     * @param string $className active record class name.
-     * @return sectionvideo the static model class
-     */
-    public static function model($className = __CLASS__)
-    {
-        return parent::model($className);
-    }
+    const STATUS_REMOVED = 0;
+    const STATUS_DRAFT = 1;
+    const STATUS_PUBLISHED = 2;
 
-    /**
-     * @return string the associated database table name
-     */
-    public function tableName()
-    {
-        return '{{section_video}}';
-    }
+    public $status = self::STATUS_DRAFT;
 
     /**
      * @return array validation rules for model attributes.
@@ -58,39 +46,39 @@ class Video extends \CActiveRecord
     {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
-        return array(
-            array('event, video_url, type', 'required'),
-            array('event_id', 'numerical', 'integerOnly' => true),
-            array('composition_author, composition_name, event, title', 'length', 'max' => 128),
-            array('video_url', 'url', 'defaultScheme' => 'http'),
-            array('likes', 'length', 'max' => 7),
-            array('description, tags', 'safe'),
+        return [
+            ['event, video_url, type, status', 'required'],
+            ['event_id', 'numerical', 'integerOnly' => true],
+            ['composition_author, composition_name, event, title', 'length', 'max' => 128],
+            ['video_url', 'url', 'defaultScheme' => 'http'],
+            ['likes', 'length', 'max' => 7],
+            ['description, tags', 'safe'],
             // The following rule is used by search().
             // Please remove those attributes that should not be searched.
-            array('id, composition_author, composition_name, event, video, thumbnail, description, likes, tags, date_create', 'safe', 'on' => 'search'),
-        );
+            ['id, composition_author, composition_name, event, video, thumbnail, description, likes, tags, date_create', 'safe', 'on' => 'search'],
+        ];
     }
 
     public function behaviors()
     {
-        return array(
-            'HRating' => array(
+        return [
+            'HRating' => [
                 'class' => 'HRatingBehavior',
                 'attribute' => 'likes',
                 'ratingModelClass' => '\sectionvideo\models\VideoRating',
-            ),
-            'HTag' => array(
+            ],
+            'HTag' => [
                 'class' => '\hamster\components\HTagBehavior',
-            ),
-            'HtmlEncode' => array(
+            ],
+            'HtmlEncode' => [
                 'class' => 'HtmlEncodeBehavior',
-                'attributes' => array(
+                'attributes' => [
                     'composition_author',
                     'composition_name',
                     'title',
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
     }
 
     /**
@@ -102,6 +90,9 @@ class Video extends \CActiveRecord
         if (parent::beforeSave()) {
             if ($this->isNewRecord) {
                 $this->date_create = new \CDbExpression('NOW()');
+                $this->date_update = new \CDbExpression('NOW()');
+            } else {
+                $this->date_update = date('Y-m-d H:i:s');
             }
 
             // TODO: это должно устанавливаться извне. к примеру в репозитории. Причем сама картинка должна попадать из сервиса
@@ -116,9 +107,22 @@ class Video extends \CActiveRecord
     public function defaultScope()
     {
         $alias = $this->getTableAlias(true, false);
-        return array(
+        return [
             'order' => $alias . '.date_create DESC',
-        );
+        ];
+    }
+
+    public function scopes()
+    {
+        return [
+            'published' => [
+                // TODO: need BL improvement here
+                'condition' => \Yii::app()->user->isGuest ? 'status = ' . self::STATUS_PUBLISHED : '',
+            ],
+            'latest' => [
+                'order' => 'date_create DESC',
+            ],
+        ];
     }
 
     /**
@@ -128,9 +132,9 @@ class Video extends \CActiveRecord
     {
         // NOTE: you may need to adjust the relation name and the related
         // class name for the relations automatically generated below.
-        return array(
-            'musicians' => array(self::HAS_MANY, 'sectionvideo\models\VideoMusicians', 'video_id'),
-        );
+        return [
+            'musicians' => [self::HAS_MANY, VideoMusicians::class, 'video_id'],
+        ];
     }
 
     protected function beforeDelete()
@@ -281,17 +285,30 @@ class Video extends \CActiveRecord
         return isset($types[$this->type]) ? $types[$this->type] : '';
     }
 
+    public static function getStatusesList()
+    {
+        return array(
+            self::STATUS_DRAFT => 'Черновик',
+            self::STATUS_PUBLISHED => 'Опубликовано',
+        );
+    }
+
     /**
      * @return array типы полей для форм администрирования модуля
      */
     public function getFieldTypes()
     {
-        return array(
+        return [
+            'status' => [
+                'type' => 'dropdownlist',
+                'items' => $this->getStatusesList(),
+                'prompt' => '--Выберите--',
+            ],
             'composition_name' => 'text',
             'composition_author' => 'text',
-            'type' => array(
+            'type' => [
                 'type' => 'dropdownlist',
-                'items' => $this->typesList,
+                'items' => $this->getTypesList(),
                 'prompt' => '--Выберите--',
                 'js' => new CJavaScriptExpression('
 					var $title = $("#' . CHtml::activeId($this, 'title') . '");
@@ -308,26 +325,44 @@ class Video extends \CActiveRecord
 							break;
 						}
 					}).change();'),
-            ),
+            ],
             'title' => 'text',
             'VideoMusicians' => 'hasManyForm',
             'video_url' => 'text',
             'event_id' => 'hidden',
-            'event' => array(
+            'event' => [
                 'type' => 'ext.fields.jui.JuiAutoDepComplete',
                 'source' => '/admin/sectionvideo/acevent',
-                'select' => array(
+                'select' => [
                     'id' => 'event_id',
                     'value' => 'event',
-                ),
-                'iconOptions' => array(
+                ],
+                'iconOptions' => [
                     'class' => 'icon_delete',
-                ),
-            ),
+                ],
+            ],
 
             'tags' => 'tags',
             'description' => 'markdown',
-        );
+        ];
+    }
+
+    /**
+     * Returns the static model of the specified AR class.
+     * @param string $className active record class name.
+     * @return sectionvideo the static model class
+     */
+    public static function model($className = __CLASS__)
+    {
+        return parent::model($className);
+    }
+
+    /**
+     * @return string the associated database table name
+     */
+    public function tableName()
+    {
+        return '{{section_video}}';
     }
 
     /**
