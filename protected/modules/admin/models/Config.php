@@ -19,7 +19,7 @@ class Config extends \CFormModel
     protected $_curModConfig;
     // массив с настройками модулей Hamster (application.config.hamsterModules)
     // в конце этот массив будет сливаться с массивом настроек сайта application.config.hamster
-    protected $_hamsterModules = array();
+    protected $_hamsterModules = [];
     // переменная, в которой хранится конфиг текущего модуля (application.modules.{moduleId}.admin.configSchema)
     protected $_configSchema;
     // индикатор, говорящий, что массив {@link _curModConfig} уже обьединен с {@link _hamsterModules}
@@ -33,11 +33,11 @@ class Config extends \CFormModel
     // массив с правилами для аттрибутов модели
     protected $_rules;
     // массив с безопастными атрибутами
-    protected $_attributes = array();
+    protected $_attributes = [];
     // массив с значениями аттрибутов
-    protected $_attVals = array();
+    protected $_attVals = [];
     // массив с значениями аттрибутов по умолчанию
-    protected $_attValsDef = array();
+    protected $_attValsDef = [];
     // id модуля для которого строится модель
     protected $_moduleId;
 
@@ -543,7 +543,7 @@ HEADER;
     {
         $file = \Yii::getPathOfAlias('application.config') . '/hamsterModules.php';
 
-        return file_exists($file) ? require($file) : array();
+        return file_exists($file) ? require($file) : [];
     }
 
     public function getHamsterModules()
@@ -559,7 +559,7 @@ HEADER;
      */
     public function getModulesInfo()
     {
-        return  is_array($this->hamsterModules['modulesInfo']) ? $this->hamsterModules['modulesInfo'] : array();
+        return  is_array($this->hamsterModules['modulesInfo']) ? $this->hamsterModules['modulesInfo'] : [];
     }
 
     /**
@@ -567,7 +567,7 @@ HEADER;
      */
     public function getEnabledModules()
     {
-        return is_array($this->hamsterModules['enabledModules']) ? $this->hamsterModules['enabledModules'] : array();
+        return is_array($this->hamsterModules['enabledModules']) ? $this->hamsterModules['enabledModules'] : [];
     }
 
     /**

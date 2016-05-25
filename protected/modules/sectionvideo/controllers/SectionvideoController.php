@@ -17,12 +17,12 @@ class SectionvideoController extends \Controller
     {
         $model = $this->loadModel($id);
         if (isset($_GET['ajax'])) {
-            $data = array(
-                'content' => $this->renderPartial('view', array(
+            $data = [
+                'content' => $this->renderPartial('view', [
                     'model' => $model,
-                ), true, true),
+                ], true, true),
                 'title' => $this->pageTitle,
-            );
+            ];
             header('Content-Type: application/json');
             echo \CJSON::encode($data);
             \Yii::app()->end();
@@ -35,9 +35,9 @@ class SectionvideoController extends \Controller
                 'updatedTime' => $model->date_create,
             ]);
 
-            $this->render('view', array(
+            $this->render('view', [
                 'model' => $model,
-            ));
+            ]);
         }
     }
 
@@ -92,9 +92,9 @@ class SectionvideoController extends \Controller
      */
     public function actionIndex()
     {
-        $this->render('index', array(
+        $this->render('index', [
             'dataProvider' => $this->getIndexDataProvider(),
-        ));
+        ]);
     }
 
     public function actionLike()

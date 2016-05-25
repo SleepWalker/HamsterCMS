@@ -195,7 +195,7 @@ return
 
         'errorHandler' => [
             // use 'site/error' action to display errors
-            'errorAction' => 'site/error',
+            'errorAction' => YII_DEBUG ? null : 'site/error',
         ],
 
         'log' => [

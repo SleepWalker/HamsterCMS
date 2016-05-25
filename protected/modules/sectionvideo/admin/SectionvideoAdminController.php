@@ -50,13 +50,13 @@ class SectionvideoAdminController extends \admin\components\HAdminController
 
         $musicians = count($model->musicians) > 0 ? $model->musicians : [new VideoMusicians()];
 
-        $modelName = CHtml::modelName($model);
-        $vmModelName = CHtml::modelName($musicians[0]);
+        $modelName = \CHtml::modelName($model);
+        $vmModelName = \CHtml::modelName($musicians[0]);
 
         // TODO: Ajax валидация related полей
         // AJAX валидация
         if (isset($_POST['ajax'])) {
-            echo CActiveForm::validate($model);
+            echo \CActiveForm::validate($model);
             \Yii::app()->end();
         }
 
@@ -71,7 +71,7 @@ class SectionvideoAdminController extends \admin\components\HAdminController
                 }
             };
 
-            $transaction = Yii::app()->db->beginTransaction();
+            $transaction = \Yii::app()->db->beginTransaction();
             try {
                 $saveOrThrow($model);
 
@@ -88,36 +88,36 @@ class SectionvideoAdminController extends \admin\components\HAdminController
 
                         if (empty($musician_id)) {
                             $m = new Musician('simple');
-                            $mData = $_POST[CHtml::modelName($m)][$postId];
+                            $mData = $_POST[\CHtml::modelName($m)][$postId];
                             if (!empty($mData['name'])) {
                                 $m->name = $mData['name'];
                                 $saveOrThrow($m);
                                 $musician_id = $m->primaryKey;
-                                $recentlyAddedIds[CHtml::modelName($m)][$mData['name']] = $m->primaryKey;
+                                $recentlyAddedIds[\CHtml::modelName($m)][$mData['name']] = $m->primaryKey;
                             }
                         }
 
                         if (empty($instrument_id)) {
                             $m = new Instrument('simple');
-                            $mData = $_POST[CHtml::modelName($m)][$postId];
+                            $mData = $_POST[\CHtml::modelName($m)][$postId];
                             if (!empty($mData['name'])) {
-                                if (isset($recentlyAddedIds[CHtml::modelName($m)][$mData['name']])) {
-                                    $instrument_id = $recentlyAddedIds[CHtml::modelName($m)][$mData['name']];
+                                if (isset($recentlyAddedIds[\CHtml::modelName($m)][$mData['name']])) {
+                                    $instrument_id = $recentlyAddedIds[\CHtml::modelName($m)][$mData['name']];
                                 } else {
                                     $m->name = $mData['name'];
                                     $saveOrThrow($m);
                                     $instrument_id = $m->primaryKey;
-                                    $recentlyAddedIds[CHtml::modelName($m)][$mData['name']] = $m->primaryKey;
+                                    $recentlyAddedIds[\CHtml::modelName($m)][$mData['name']] = $m->primaryKey;
                                 }
                             }
                         }
 
                         if (empty($teacher_id)) {
                             $m = new Teacher('simple');
-                            $mData = $_POST[CHtml::modelName($m)][$postId];
+                            $mData = $_POST[\CHtml::modelName($m)][$postId];
                             if (!empty($mData['fullName'])) {
-                                if (isset($recentlyAddedIds[CHtml::modelName($m)][$mData['fullName']])) {
-                                    $teacher_id = $recentlyAddedIds[CHtml::modelName($m)][$mData['fullName']];
+                                if (isset($recentlyAddedIds[\CHtml::modelName($m)][$mData['fullName']])) {
+                                    $teacher_id = $recentlyAddedIds[\CHtml::modelName($m)][$mData['fullName']];
                                 } else {
                                     $parts = explode(' ', $mData['fullName']);
                                     $m->last_name = array_shift($parts);
@@ -131,7 +131,7 @@ class SectionvideoAdminController extends \admin\components\HAdminController
 
                                     $saveOrThrow($m);
                                     $teacher_id = $m->primaryKey;
-                                    $recentlyAddedIds[CHtml::modelName($m)][$mData['fullName']] = $m->primaryKey;
+                                    $recentlyAddedIds[\CHtml::modelName($m)][$mData['fullName']] = $m->primaryKey;
                                 }
                             }
                         }
@@ -158,6 +158,7 @@ class SectionvideoAdminController extends \admin\components\HAdminController
                 $model->addError('composition_name', $e->getMessage());
                 $valid = false;
             }
+
             if (count($musicians) == 0) {
                 $musicians = count($model->musicians) > 0
                     ? $model->musicians
@@ -194,7 +195,7 @@ class SectionvideoAdminController extends \admin\components\HAdminController
         foreach ($tags as $tag) {
             array_push($tagsMenu, $tag->name);
         }
-        $this->aside = CMap::mergeArray($this->aside, ['Теги' => $tagsMenu]);
+        $this->aside = \CMap::mergeArray($this->aside, ['Теги' => $tagsMenu]);
 
         $this->render('table', [
             'dataProvider' => $model->search(),
@@ -204,11 +205,15 @@ class SectionvideoAdminController extends \admin\components\HAdminController
             'columns' => [
                 [
                     'name' => 'image',
-                    'value' => 'Chtml::image($data->thumbnail, $data->caption, ["width" => 100])',
+                    'value' => '\Chtml::image($data->thumbnail, $data->caption, ["width" => 100])',
                     'type' => 'raw',
                     'filter' => '',
                 ],
                 'fullTitle',
+                [
+                    'name' => 'status',
+                    'value' => '$data->getStatusString()',
+                ],
             ],
         ]);
     }
@@ -231,7 +236,7 @@ class SectionvideoAdminController extends \admin\components\HAdminController
 
     public function actionHrac()
     {
-        Yii::import('ext.fields.jui.HRelationAutoComplete');
+        \Yii::import('ext.fields.jui.HRelationAutoComplete');
         HRelationAutoComplete::executeAction();
     }
 

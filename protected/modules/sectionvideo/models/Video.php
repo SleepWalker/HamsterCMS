@@ -5,6 +5,8 @@
  *
  * The followings are the available columns in table 'section_video':
  * @property integer $id
+ * @property integer $type
+ * @property integer $status
  * @property string $composition_author
  * @property string $composition_name
  * @property string $event
@@ -16,6 +18,7 @@
  * @property integer $views
  * @property string $tags
  * @property string $create_date
+ * @property string $update_date
  */
 
 namespace sectionvideo\models;
@@ -89,11 +92,10 @@ class Video extends \CActiveRecord
     {
         if (parent::beforeSave()) {
             if ($this->isNewRecord) {
-                $this->date_create = new \CDbExpression('NOW()');
-                $this->date_update = new \CDbExpression('NOW()');
-            } else {
-                $this->date_update = date('Y-m-d H:i:s');
+                $this->date_create = date('Y-m-d H:i:s');
             }
+
+            $this->date_update = date('Y-m-d H:i:s');
 
             // TODO: это должно устанавливаться извне. к примеру в репозитории. Причем сама картинка должна попадать из сервиса
             $this->thumbnail = $this->getImageSrc();
@@ -291,6 +293,12 @@ class Video extends \CActiveRecord
             self::STATUS_DRAFT => 'Черновик',
             self::STATUS_PUBLISHED => 'Опубликовано',
         ];
+    }
+
+    public function getStatusString()
+    {
+        $types = self::getStatusesList();
+        return isset($types[$this->status]) ? $types[$this->status] : '';
     }
 
     /**
