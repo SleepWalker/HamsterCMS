@@ -68,18 +68,19 @@ class UserController extends \Controller
             \Yii::app()->clientscript->scriptMap['jquery.js'] = \Yii::app()->clientscript->scriptMap['jquery.min.js'] = false;
         }
 
-        $model = new LoginForm();
-        $modelName = \CHtml::modelName($model);
+        $loginForm = new LoginForm();
+        $modelName = \CHtml::modelName($loginForm);
+        $data = \Yii::app()->request->getPost($modelName);
 
         // ставим по умолчанию галочку rememberMe
-        $model->rememberMe = 1;
+        $loginForm->rememberMe = 1;
 
         // collect user input data
-        if (\Yii::app()->request->getPost($modelName)) {
-            $model->attributes = \Yii::app()->request->getPost($modelName);
+        if ($data) {
+            $loginForm->attributes = $data;
 
             // validate user input and redirect to the previous page if valid
-            if ($model->validate() && $model->login()) {
+            if ($loginForm->validate() && $loginForm->login()) {
                 if (!\Yii::app()->request->isAjaxRequest) {
                     $this->redirect();
                 } else {
@@ -94,7 +95,7 @@ class UserController extends \Controller
 
         // display the login form
         $this->{$renderType}('login', [
-            'model' => $model
+            'model' => $loginForm
         ], false, !empty($_GET['ajax']));
     }
 

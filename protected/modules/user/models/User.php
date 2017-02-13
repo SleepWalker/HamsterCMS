@@ -7,7 +7,9 @@
  * @property string $first_name
  * @property string $last_name
  * @property string $email
- * @property string $password
+ * @property string $bio
+ * @property string $birthdate
+ * @property string $photo
  * @property integer $is_active
  * @property string $last_login
  * @property string $date_joined
@@ -24,6 +26,7 @@ use \AuthItem;
 class User extends \CActiveRecord
 {
     public $meta;
+    public $uploadedPhoto;
 
     /**
      * @property string $role роль выбранная юзером при регистрации
@@ -58,7 +61,11 @@ class User extends \CActiveRecord
             ['email', 'unique'],
             ['bio, role', 'safe'],
 
-            ['photo', 'file', 'allowEmpty' => true],
+            ['uploadedPhoto', 'file',
+                'allowEmpty' => true,
+                'types' => 'jpg, gif, png',
+                'maxSize' => 10485760, // 10mb
+            ],
 
             ['birthdate', 'match', 'pattern' => '/\d{2}\.\d{2}\.\d{4}/'],
 
@@ -147,6 +154,7 @@ class User extends \CActiveRecord
             'last_name' => 'Фамилия',
             'middle_name' => 'Отчество',
             'photo' => 'Фото',
+            'uploadedPhoto' => 'Фото',
             'bio' => 'Расскажите о себе',
             'birthdate' => 'Дата рождения',
             'fullName' => 'Имя и фамилия',
@@ -161,18 +169,9 @@ class User extends \CActiveRecord
         ];
     }
 
-    /**
-     * Аутентификация через модель LoginForm
-     */
-    public function login($rememberMe = 1)
+    public function getPhotoUrl()
     {
-        $model = new LoginForm();
-
-        $model->user_email = $this->email;
-        $model->user_password = $this->password1;
-        $model->rememberMe = $rememberMe;
-
-        return $model->validate() && $model->login();
+        return 'http://placekitten.com/g/150/200';
     }
 
     /**
