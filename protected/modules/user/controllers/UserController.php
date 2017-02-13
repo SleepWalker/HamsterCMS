@@ -106,8 +106,9 @@ class UserController extends \Controller
         $modelName = \CHtml::modelName($model);
 
         if (!$model) {
-            $this->redirect('/');
             \Yii::log('Can not find user by id: ' . $userId, CLogger::LEVEL_ERROR);
+            $this->redirect('/');
+            \Yii::app()->end();
         }
 
         if (\Yii::app()->request->getPost('ajax')) {
@@ -118,11 +119,34 @@ class UserController extends \Controller
         $data = \Yii::app()->request->getPost($modelName);
         if ($data) {
             $model->attributes = $data;
+            $model->uploadedPhoto = \CUploadedFile::getInstance($model, 'uploadedPhoto');
 
-            if ($model->save()) {
-                \Yii::app()->user->setFlash('success', 'Профиль успешно сохранен');
-                $this->refresh();
-                \Yii::app()->end();
+            if ($model->validate()) {
+                $canBeSaved = true;
+
+                if ($model->uploadedPhoto) { // TODO: shoould be implemented
+                    try {
+                        $file = \Yii::app()->fileStorage->store($model->uploadedPhoto, 'user/photo');
+
+                        // prepare preview
+
+                        $model->photo_id = $file->primaryKey;
+
+                        $photo = \Yii::app()->fileStorage->get($model->photo, new TeacherPhotoStrategy());
+
+                        $model->photo->getUrl();
+                    } catch (\Exception $e) {
+                        $canBeSaved = false;
+                        \Yii::log('Can not save user photo: ' . $e->getMessage(), \CLogger::LEVEL_ERROR);
+                    }
+                }
+
+                if ($canBeSaved) {
+                    $model->save();
+                    \Yii::app()->user->setFlash('success', 'Профиль успешно сохранен');
+                    $this->refresh();
+                    \Yii::app()->end();
+                }
             }
         }
 
