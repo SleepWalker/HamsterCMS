@@ -13,6 +13,25 @@ use user\components\PasswordHash;
 
 class UserController extends \Controller
 {
+    public function filters()
+    {
+        return ['accessControl'];
+    }
+
+    public function accessRules()
+    {
+        return [
+            ['deny',
+                'actions' => ['login', 'register'],
+                'users' => ['@'],
+            ],
+            ['deny',
+                'actions' => ['profile', 'logout'],
+                'users' => ['?'],
+            ],
+        ];
+    }
+
     /**
      * Declares class-based actions.
      */
