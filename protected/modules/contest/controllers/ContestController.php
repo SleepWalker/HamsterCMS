@@ -6,6 +6,7 @@
 namespace contest\controllers;
 
 use contest\models\Request;
+use hamster\models\UserId;
 use hamster\components\exceptions\InvalidUserInputException;
 
 class ContestController extends \Controller
@@ -21,7 +22,7 @@ class ContestController extends \Controller
         if ($this->isApplyFormSubmitted()) {
             try {
                 $form = $this->module->contestService->applyToContest(
-                    \Yii::app()->user->id,
+                    new UserId(\Yii::app()->user->id),
                     \Yii::app()->request
                 );
 

@@ -2,6 +2,7 @@
 namespace contest\components;
 
 use hamster\components\exceptions\InvalidUserInputException;
+use hamster\models\UserId;
 use contest\models\view\ApplyForm;
 use contest\components\Factory;
 use contest\components\Mailer;
@@ -36,7 +37,7 @@ class ContestService
     }
 
     /**
-     * @param  string       $userId
+     * @param  UserId       $userId
      * @param  CHttpRequest $httpRequest
      *
      * @throws InvalidUserInputException
@@ -45,7 +46,7 @@ class ContestService
      * @return ApplyForm
      */
     public function applyToContest(
-        string $userId,
+        UserId $userId,
         CHttpRequest $httpRequest
     ) : ApplyForm
     {

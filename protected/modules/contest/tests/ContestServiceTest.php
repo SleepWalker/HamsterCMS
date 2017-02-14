@@ -5,13 +5,14 @@ use contest\components\Factory;
 use contest\crud\RequestCrud;
 use contest\models\Request;
 use contest\models\view\ApplyForm;
+use hamster\models\UserId;
 use hamster\components\exceptions\InvalidUserInputException;
 
 class ContestServiceTest extends \CTestCase
 {
     public function testApplyToContestSuccess()
     {
-        $userId = '123';
+        $userId = new UserId('123');
 
         $form = $this->createMock(ApplyForm::class);
         $httpRequest = $this->createMock(\CHttpRequest::class);
@@ -53,7 +54,7 @@ class ContestServiceTest extends \CTestCase
 
     public function testApplyToContestWithInvalidData()
     {
-        $userId = '123';
+        $userId = new UserId('123');
 
         $form = $this->createMock(ApplyForm::class);
         $httpRequest = $this->createMock(\CHttpRequest::class);
