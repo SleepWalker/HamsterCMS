@@ -101,10 +101,12 @@ class Request extends \CActiveRecord
     /**
      * @return string group name or first musician name for e.g. export tables
      */
-    public function getMainName()
+    public function getMainName() : string
     {
         if (!empty($this->name)) {
             return $this->name;
+        } elseif (!empty($this->contact_name)) {
+            return $this->contact_name;
         } else {
             return $this->musicians[0]->getFullName();
         }

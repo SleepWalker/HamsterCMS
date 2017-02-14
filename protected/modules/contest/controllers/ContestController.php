@@ -7,6 +7,7 @@ namespace contest\controllers;
 
 use contest\models\view\ApplyForm;
 use contest\models\Request;
+use hamster\components\exceptions\InvalidUserInputException;
 
 class ContestController extends \Controller
 {
@@ -20,9 +21,34 @@ class ContestController extends \Controller
 
         $form = new ApplyForm();
 
-        if ($this->processApplyForm($form)) {
-            \Yii::app()->user->setFlash(self::FLASH_APPLY, true);
-            $this->redirect('success');
+        if ($this->isApplyFormSubmitted()) {
+            try {
+                $this->module->contestService->applyToContest(
+                    \Yii::app()->request->user->id,
+                    $form,
+                    \Yii::app()->request
+                );
+
+                \Yii::app()->user->setFlash(self::FLASH_APPLY, true);
+                $this->redirect('success');
+            } catch (InvalidUserInputException $ex) {
+                if (\Yii::app()->request->isAjaxRequest
+                    && \Yii::app()->request->getPost('ajaxValidation')
+                ) {
+                    echo $ex->toActiveFormResponse();
+
+                    \Yii::app()->end();
+                }
+            } catch (\Exception $ex) {
+                \Yii::log('Error processing apply form: ' . $e->getMessage(), \CLogger::LEVEL_ERROR);
+
+                \Yii::app()->user->setFlash(
+                    'error',
+                    'Во время обработки заявки возникли не предвиденные ошибки. Пожалуйста попробуйте еще раз или свяжитесь с нами.'
+                );
+
+                $this->refresh();
+            }
         }
 
         $this->render('apply_form', array(
@@ -104,40 +130,6 @@ class ContestController extends \Controller
         return false;
     }
 
-    private function processApplyForm(ApplyForm $form)
-    {
-        if ($this->isApplyFormSubmitted()) {
-            $form->load(\Yii::app()->request);
-
-            if (\Yii::app()->request->isAjaxRequest && \Yii::app()->request->getPost('ajaxValidation')) {
-                echo \CActiveForm::validate($form->getModels(), null, false);
-
-                \Yii::app()->end();
-            }
-
-            if ($form->validate()) {
-                try {
-                    $request = \contest\crud\RequestCrud::create($form);
-
-                    $this->sendNotifications($request);
-
-                    return true;
-                } catch (\Exception $e) {
-                    \Yii::log('Error processing apply form: ' . $e->getMessage(), \CLogger::LEVEL_ERROR);
-
-                    \Yii::app()->user->setFlash(
-                        'error',
-                        'Во время обработки заявки возникли не предвиденные ошибки. Пожалуйста попробуйте еще раз или свяжитесь с нами.'
-                    );
-
-                    $this->refresh();
-                }
-            }
-        }
-
-        return false;
-    }
-
     /**
      * @return boolean
      */
@@ -147,18 +139,5 @@ class ContestController extends \Controller
             \CHtml::modelName(ApplyForm::class),
             false
         );
-    }
-
-    private function sendNotifications(Request $model)
-    {
-        $this->module->mailer->notifyMusicians($model, [
-            'subject' => 'Заявка на участие в конкурсе',
-            'view' => 'user_new_request',
-        ]);
-
-        $this->module->mailer->notifyAdmin([
-            'subject' => 'Новая заявка на участие в конкурсе',
-            'view' => 'admin_new_request',
-        ]);
     }
 }

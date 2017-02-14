@@ -21,7 +21,7 @@ class RequestCrud
      *
      * @return Request
      */
-    public static function create(ApplyForm $form)
+    public function create(ApplyForm $form) : Request
     {
         $transaction = \Yii::app()->db->beginTransaction();
 

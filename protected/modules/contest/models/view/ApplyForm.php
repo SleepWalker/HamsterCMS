@@ -95,9 +95,9 @@ class ApplyForm extends \CFormModel
         parent::setScenario($value);
     }
 
-    public function getModels()
+    public function getModels() : array
     {
-        return array_merge($this->musicians, $this->compositions, [$this->request]);
+        return array_merge($this->musicians, $this->compositions, [$this->request]) ?? [];
     }
 
     public function load(\CHttpRequest $request)

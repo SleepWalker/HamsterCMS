@@ -36,7 +36,7 @@ class Mailer extends \CApplicationComponent
         $this->adminEmail = $adminEmail;
     }
 
-    public function notifyMusicians(Request $request, array $options)
+    public function notifyMusicians(Request $request, array $options = [])
     {
         $success = true;
         if (!empty($request->contact_email)) {

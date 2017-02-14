@@ -13,4 +13,11 @@ $container['mailer'] = function () {
     );
 };
 
+$container['contestService'] = function ($c) {
+    return new \contest\components\ContestService(
+        $c['mailer'],
+        new \contest\crud\RequestCrud()
+    );
+};
+
 return $container;
