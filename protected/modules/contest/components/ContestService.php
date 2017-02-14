@@ -3,12 +3,18 @@ namespace contest\components;
 
 use hamster\components\exceptions\InvalidUserInputException;
 use contest\models\view\ApplyForm;
+use contest\components\Factory;
 use contest\components\Mailer;
 use contest\crud\RequestCrud;
 use CHttpRequest;
 
 class ContestService
 {
+    /**
+     * @var Factory
+     */
+    private $factory;
+
     /**
      * @var Mailer
      */
@@ -19,29 +25,34 @@ class ContestService
      */
     private $requestCrud;
 
-    public function __construct(Mailer $mailer, RequestCrud $requestCrud)
-    {
+    public function __construct(
+        Factory $factory,
+        Mailer $mailer,
+        RequestCrud $requestCrud
+    ) {
+        $this->factory = $factory;
         $this->mailer = $mailer;
         $this->requestCrud = $requestCrud;
     }
 
     /**
      * @param  string       $userId
-     * @param  ApplyForm    $form
      * @param  CHttpRequest $httpRequest
      *
      * @throws InvalidUserInputException
      * @throws Exception
+     *
+     * @return ApplyForm
      */
     public function applyToContest(
         string $userId,
-        ApplyForm $form,
         CHttpRequest $httpRequest
-    ) {
-        $form->load($httpRequest);
+    ) : ApplyForm
+    {
+        $form = $this->factory->createApplyForm($httpRequest);
 
         if (!$form->validate()) {
-            throw new InvalidUserInputException($form->getModels());
+            throw new InvalidUserInputException($form);
         }
 
         $request = $this->requestCrud->create($form);
@@ -55,5 +66,7 @@ class ContestService
             'subject' => 'Новая заявка на участие в конкурсе',
             'view' => 'admin_new_request',
         ]);
+
+        return $form;
     }
 }

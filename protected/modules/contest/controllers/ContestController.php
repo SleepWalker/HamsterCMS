@@ -5,7 +5,6 @@
 
 namespace contest\controllers;
 
-use contest\models\view\ApplyForm;
 use contest\models\Request;
 use hamster\components\exceptions\InvalidUserInputException;
 
@@ -19,17 +18,15 @@ class ContestController extends \Controller
 
         $this->pageTitle = 'Заява на участь у конкурсі - ' . \Yii::app()->name;
 
-        $form = new ApplyForm();
-
         if ($this->isApplyFormSubmitted()) {
             try {
-                $this->module->contestService->applyToContest(
-                    \Yii::app()->request->user->id,
-                    $form,
+                $form = $this->module->contestService->applyToContest(
+                    \Yii::app()->user->id,
                     \Yii::app()->request
                 );
 
                 \Yii::app()->user->setFlash(self::FLASH_APPLY, true);
+
                 $this->redirect('success');
             } catch (InvalidUserInputException $ex) {
                 if (\Yii::app()->request->isAjaxRequest
@@ -39,6 +36,8 @@ class ContestController extends \Controller
 
                     \Yii::app()->end();
                 }
+
+                $form = $ex->getModel();
             } catch (\Exception $ex) {
                 \Yii::log('Error processing apply form: ' . $e->getMessage(), \CLogger::LEVEL_ERROR);
 
@@ -49,6 +48,8 @@ class ContestController extends \Controller
 
                 $this->refresh();
             }
+        } else {
+            $form = $this->module->factory->createApplyForm();
         }
 
         $this->render('apply_form', array(

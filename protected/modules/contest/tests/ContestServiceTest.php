@@ -1,6 +1,7 @@
 <?php
 use contest\components\Mailer;
 use contest\components\ContestService;
+use contest\components\Factory;
 use contest\crud\RequestCrud;
 use contest\models\Request;
 use contest\models\view\ApplyForm;
@@ -14,14 +15,16 @@ class ContestServiceTest extends \CTestCase
 
         $form = $this->createMock(ApplyForm::class);
         $httpRequest = $this->createMock(\CHttpRequest::class);
+        $factory = $this->createMock(Factory::class);
         $mailer = $this->createMock(Mailer::class);
         $requestCrud = $this->createMock(RequestCrud::class);
         $request = $this->createMock(Request::class);
-        $service = new ContestService($mailer, $requestCrud);
+        $service = new ContestService($factory, $mailer, $requestCrud);
 
-        $form->expects($this->once())
-            ->method('load')
-            ->with($httpRequest);
+        $factory->expects($this->once())
+            ->method('createApplyForm')
+            ->with($httpRequest)
+            ->willReturn($form);
         $form->expects($this->once())
             ->method('validate')
             ->willReturn(true);
@@ -42,7 +45,10 @@ class ContestServiceTest extends \CTestCase
                 'view' => 'admin_new_request',
             ]);
 
-        $service->applyToContest($userId, $form, $httpRequest);
+        $this->assertInstanceOf(
+            ApplyForm::class,
+            $service->applyToContest($userId, $httpRequest)
+        );
     }
 
     public function testApplyToContestWithInvalidData()
@@ -51,10 +57,11 @@ class ContestServiceTest extends \CTestCase
 
         $form = $this->createMock(ApplyForm::class);
         $httpRequest = $this->createMock(\CHttpRequest::class);
+        $factory = $this->createMock(Factory::class);
         $mailer = $this->createMock(Mailer::class);
         $requestCrud = $this->createMock(RequestCrud::class);
         $request = $this->createMock(Request::class);
-        $service = new ContestService($mailer, $requestCrud);
+        $service = new ContestService($factory, $mailer, $requestCrud);
 
         $requestCrud->expects($this->never())
             ->method('create');
@@ -62,14 +69,18 @@ class ContestServiceTest extends \CTestCase
             ->method('notifyMusicians');
         $mailer->expects($this->never())
             ->method('notifyAdmin');
-        $form->expects($this->once())
-            ->method('load')
-            ->with($httpRequest);
+        $factory->expects($this->once())
+            ->method('createApplyForm')
+            ->with($httpRequest)
+            ->willReturn($form);
         $form->expects($this->once())
             ->method('validate')
             ->willReturn(false);
-        $this->expectException(InvalidUserInputException::class);
 
-        $service->applyToContest($userId, $form, $httpRequest);
+        try {
+            $service->applyToContest($userId, $httpRequest);
+        } catch (InvalidUserInputException $ex) {
+            $this->assertSame($form, $ex->getModel());
+        }
     }
 }

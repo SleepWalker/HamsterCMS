@@ -7,8 +7,9 @@ namespace contest\models\view;
 use contest\models\Request;
 use contest\models\Musician;
 use contest\models\Composition;
+use hamster\models\Aggregate;
 
-class ApplyForm extends \CFormModel
+class ApplyForm extends \CFormModel implements Aggregate
 {
     public $contacts = 'this is for label only';
     public $nomination = 'this is for label only';
