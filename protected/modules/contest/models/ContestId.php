@@ -6,15 +6,39 @@ use KoKoKo\assert\Assert;
 
 class ContestId
 {
-    public function __construct($value)
+    const CONTEST_ID = 3; // TODO: remove hardcode, when we will be able to create contest
+
+    public function __construct(int $value)
     {
-        Assert::assert($value, 'value')->int()->inArray([1, 2]);
+        Assert::assert($value, 'value')->int()->inArray([1, 2, 3]);
 
         $this->value = $value;
     }
 
-    public function getValue()
+    public function getValue() : int
     {
         return $this->value;
+    }
+
+    /**
+     * The list of available contests
+     * TODO: should be removed, when we will store contests in db
+     */
+    public static function getAll() : array
+    {
+        return [
+            [
+                'id' => 1,
+                'title' => 'Рок єднає нас 2015',
+            ],
+            [
+                'id' => 2,
+                'title' => 'Рок єднає нас 2016',
+            ],
+            [
+                'id' => 3,
+                'title' => 'Рок єднає нас 2017',
+            ],
+        ];
     }
 }

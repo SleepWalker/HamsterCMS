@@ -28,16 +28,7 @@ class ContestAdminController extends \admin\components\HAdminController
         $model = new Request('search');
         $model->unsetAttributes();
 
-        $dataProvider = new \CArrayDataProvider([
-            [
-                'id' => 1,
-                'title' => 'Рок єднає нас 2015',
-            ],
-            [
-                'id' => 2,
-                'title' => 'Рок єднає нас 2016',
-            ]
-        ]);
+        $dataProvider = new \CArrayDataProvider(ContestId::getAll());
 
         $this->render('table', [
             'dataProvider' => $dataProvider,

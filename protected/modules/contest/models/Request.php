@@ -28,7 +28,7 @@ class Request extends \CActiveRecord
     public $meta = [];
     public $status = self::STATUS_NEW;
 
-    public $contest_id = 2; // TODO: remove hardcode, when we will be able to create contest
+    public $contest_id = ContestId::CONTEST_ID;
 
     const STATUS_NEW = 1;
     const STATUS_DECLINED = 2;
