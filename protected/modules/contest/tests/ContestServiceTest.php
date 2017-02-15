@@ -46,10 +46,7 @@ class ContestServiceTest extends \CTestCase
                 'view' => 'admin_new_request',
             ]);
 
-        $this->assertInstanceOf(
-            ApplyForm::class,
-            $service->applyToContest($userId, $httpRequest)
-        );
+        $service->applyToContest($userId, $httpRequest);
     }
 
     public function testApplyToContestWithInvalidData()

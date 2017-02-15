@@ -6,6 +6,8 @@
 namespace contest\controllers;
 
 use contest\models\Request;
+use contest\models\ContestId;
+use contest\models\view\ApplyForm;
 use hamster\models\UserId;
 use hamster\components\exceptions\InvalidUserInputException;
 
@@ -19,9 +21,22 @@ class ContestController extends \Controller
 
         $this->pageTitle = 'Заява на участь у конкурсі - ' . \Yii::app()->name;
 
+        $isAjaxValidation = \Yii::app()->request->isAjaxRequest
+                    && \Yii::app()->request->getPost('ajaxValidation');
+
         if ($this->isApplyFormSubmitted()) {
+            if ($isAjaxValidation) {
+                $form = $this->module->factory->createApplyForm(
+                    \Yii::app()->request
+                );
+
+                echo \CActiveForm::validate($form->getModels(), null, false);
+
+                \Yii::app()->end();
+            }
+
             try {
-                $form = $this->module->contestService->applyToContest(
+                $this->module->contestService->applyToContest(
                     new UserId(\Yii::app()->user->id),
                     \Yii::app()->request
                 );
@@ -30,14 +45,6 @@ class ContestController extends \Controller
 
                 $this->redirect('success');
             } catch (InvalidUserInputException $ex) {
-                if (\Yii::app()->request->isAjaxRequest
-                    && \Yii::app()->request->getPost('ajaxValidation')
-                ) {
-                    echo $ex->toActiveFormResponse();
-
-                    \Yii::app()->end();
-                }
-
                 $form = $ex->getModel();
             } catch (\Exception $ex) {
                 \Yii::log('Error processing apply form: ' . $e->getMessage(), \CLogger::LEVEL_ERROR);
@@ -53,9 +60,10 @@ class ContestController extends \Controller
             $form = $this->module->factory->createApplyForm();
         }
 
-        $this->render('apply_form', array(
+        $this->render('apply_form', [
             'model' => $form,
-        ));
+            'isContest' => ContestId::IS_CONTEST,
+        ]);
     }
 
     public function actionSuccess()
@@ -70,6 +78,11 @@ class ContestController extends \Controller
     public function actionRules()
     {
         $this->render('rules');
+    }
+
+    public function actionFestRules()
+    {
+        $this->render('fest-rules');
     }
 
     public function actionConfirm()
@@ -135,9 +148,9 @@ class ContestController extends \Controller
     /**
      * @return boolean
      */
-    private function isApplyFormSubmitted()
+    private function isApplyFormSubmitted() : bool
     {
-        return !!\Yii::app()->request->getPost(
+        return (bool) \Yii::app()->request->getPost(
             \CHtml::modelName(ApplyForm::class),
             false
         );

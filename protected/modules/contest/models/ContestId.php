@@ -6,6 +6,8 @@ use KoKoKo\assert\Assert;
 
 class ContestId
 {
+    const IS_CONTEST_ACTIVE = true;
+    const IS_CONTEST = false; // whether this is a contest or a fest
     const CONTEST_ID = 3; // TODO: remove hardcode, when we will be able to create contest
 
     public function __construct(int $value)

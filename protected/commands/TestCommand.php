@@ -7,7 +7,7 @@ class TestCommand extends \CConsoleCommand
         $path = \Yii::getPathOfAlias('application.modules.' . $moduleId) . '/tests';
 
         if (!is_dir($path)) {
-            throw new \Exception('The module or tests directory is not exists');
+            throw new \Exception('The module or tests directory does not exists');
         }
 
         $this->runUnitTests($path);
