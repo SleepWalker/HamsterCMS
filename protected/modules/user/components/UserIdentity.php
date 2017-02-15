@@ -51,12 +51,12 @@ class UserIdentity extends \CUserIdentity
         return $this->errorCode == self::ERROR_NONE;
     }
 
-    public function getId()
+    public function getId() : string
     {
         return $this->user->primaryKey;
     }
 
-    public function getName()
+    public function getName() : string
     {
         return $this->user->first_name;
     }

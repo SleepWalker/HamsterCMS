@@ -7,6 +7,16 @@ $composerPath = $protected . '/vendor/composer/vendor';
 
 require_once $composerPath . '/autoload.php';
 
+use PHPUnit\Framework\TestCase;
+/**
+ * CTestCase is the base class for all test case classes.
+ *
+ * Redeclare class to support phpunit 6+
+ */
+abstract class CTestCase extends TestCase
+{
+}
+
 $yiit = $composerPath . '/yiisoft/yii/framework/yiit.php';
 
 require_once($yiit);

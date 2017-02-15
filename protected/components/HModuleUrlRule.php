@@ -128,7 +128,8 @@ class HModuleUrlRule extends \CBaseUrlRule
 
         if (count($url)) {
             $modules = \Yii::app()->modules;
-            $moduleUrls = array();
+            $moduleUrls = [];
+
             foreach ($modules as $moduleId => $moduleConfig) {
                 if (isset($moduleConfig['params']['aliases'][$pathInfo]['route'])) {
                     // Новый вариант роутинга. когда все пути задаются в админке

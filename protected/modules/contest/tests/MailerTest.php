@@ -10,6 +10,7 @@ class MailerTest extends \CTestCase
 {
     private $mailer;
     private $hmailer;
+    private $repository;
 
     public function setUp()
     {
@@ -41,7 +42,7 @@ class MailerTest extends \CTestCase
             ->willReturn($expected)
             ;
 
-        $actual = $this->mailer->notifyMusicians($request, []);
+        $actual = $this->mailer->notifyMusicians($request);
 
         $this->assertEquals($expected, $actual);
     }

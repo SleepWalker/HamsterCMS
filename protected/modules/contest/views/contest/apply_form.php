@@ -1,10 +1,10 @@
 <?php
 /**
- * @var  \contest\models\view\ApplyForm $model
+ * @var \contest\models\view\ApplyForm $model
+ * @var bool $isContest whether this is a contest
  */
 
 use contest\models\Request;
-
 ?>
 
 <div class="form form--inline">
@@ -16,24 +16,38 @@ use contest\models\Request;
     ],
 ]); ?>
 
-<div class="form__row">
-    <div class="form__row__right--push">
-        <h1>Заява на участь у конкурсі</h1>
+<?php if ($isContest ?? true): ?>
+    <div class="form__row">
+        <div class="form__row__right--push">
+            <h1>Заява на участь у конкурсі</h1>
+        </div>
+
+        <p class="note">
+            Будь ласка, перед тим, як подавати заяву, ознайомтесь
+            з <?= \CHtml::link('правилами конкурсу', ['rules']) ?>.<br>
+            Зверніть увагу, що заява заповнюється українською мовою.
+        </p>
+
+        <!-- TODO
+        <p class="note">
+            Якщо ви викладач, <?= \CHtml::link('зареєструйтесь', [\Yii::app()->user->registerUrl]) ?>
+            у нас на сайті та керуйте заявами усіх учнів з вашого особистого кабінету.
+        </p>
+        -->
     </div>
+<?php else: ?>
+    <div class="form__row">
+        <div class="form__row__right--push">
+            <h1>Заява на участь у фестивалі</h1>
+        </div>
 
-    <p class="note">
-        Будь ласка, перед тим, як подавати заяву, ознайомтесь
-        з <?= \CHtml::link('правилами конкурсу', ['rules']) ?>.<br>
-        Зверніть увагу, що заява заповнюється українською мовою.
-    </p>
-
-    <!-- TODO
-    <p class="note">
-        Якщо ви викладач, <?= \CHtml::link('зареєструйтесь', [\Yii::app()->user->registerUrl]) ?>
-        у нас на сайті та керуйте заявами усіх учнів з вашого особистого кабінету.
-    </p>
-    -->
-</div>
+        <p class="note">
+            Будь ласка, перед тим, як подавати заяву, ознайомтесь
+            з <?= \CHtml::link('правилами фестивалю', ['fest-rules']) ?>.<br>
+            Зверніть увагу, що заява заповнюється українською мовою.
+        </p>
+    </div>
+<?php endif; ?>
 
 <?php
 // TODO: if teacher is authorized - show him link to his cabinet

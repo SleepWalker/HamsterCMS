@@ -7,7 +7,7 @@ class UserTest extends CDbTestCase
         'users' => 'User',
     );
 
-    public function testRegister()
+    public function xtestRegister()
     {
         $user = new User('register');
         $login = 'test@test.com';

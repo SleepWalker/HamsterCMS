@@ -2,10 +2,14 @@
 /**
  * Contest module
  *
- * @package    contest
+ * @package contest
  */
 
-class ContestModule extends CWebModule
+use contest\components\Mailer;
+use contest\components\ContestService;
+use contest\components\Factory;
+
+class ContestModule extends \CWebModule
 {
     public $controllerNamespace = '\contest\controllers';
 
@@ -16,12 +20,22 @@ class ContestModule extends CWebModule
         $this->container = require(__DIR__ . '/container.php');
     }
 
-    public function getMailer()
+    public function getMailer() : Mailer
     {
         return $this->container['mailer'];
     }
 
-    public function getAdminEmail()
+    public function getContestService() : ContestService
+    {
+        return $this->container['contestService'];
+    }
+
+    public function getFactory() : Factory
+    {
+        return $this->container['factory'];
+    }
+
+    public function getAdminEmail() : string
     {
         return isset($this->params['adminEmail'])
             ? $this->params['adminEmail']
