@@ -91,22 +91,32 @@ class ContestController extends \Controller
 
         $id = \Yii::app()->request->getParam('id');
         $key = \Yii::app()->request->getParam('key');
-        if (!$id || !$key) {
+
+        if (!$id) {
             throw new \CHttpException(404, 'Not found');
         }
 
         $request = \contest\crud\RequestCrud::findByPk($id);
-        if (!$request || !$request->isValidConfirmationKey($key)) {
+        if (!$request) {
             throw new \CHttpException(404, 'Not found');
         }
 
         $applyForm = $request->getApplyForm();
-        if (!$applyForm->request->isConfirmed()) {
-            $applyForm->request->confirm($key);
-            $applyForm->request->save();
+
+        if ($key) {
+            if (!$request->isValidConfirmationKey($key)) {
+                throw new \CHttpException(404, 'Not found');
+            }
+
+            if (!$applyForm->request->isConfirmed()) {
+                $applyForm->request->confirm($key);
+                $applyForm->request->save();
+            }
+        } else if (!\Yii::app()->user->checkAccess('admin')) {
+            throw new \CHttpException(404, 'Not found');
         }
 
-        if ($this->processConfirmForm($key, $applyForm)) {
+        if ($this->processConfirmForm($applyForm)) {
             \Yii::app()->user->setFlash(
                 'success',
                 'Спасибо, ваши данные успешно обработаны!'
@@ -119,7 +129,7 @@ class ContestController extends \Controller
         ]);
     }
 
-    private function processConfirmForm($key, ApplyForm $applyForm)
+    private function processConfirmForm(ApplyForm $applyForm)
     {
         if ($this->isApplyFormSubmitted()) {
             $applyForm->load(\Yii::app()->request);
@@ -146,7 +156,7 @@ class ContestController extends \Controller
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     private function isApplyFormSubmitted() : bool
     {

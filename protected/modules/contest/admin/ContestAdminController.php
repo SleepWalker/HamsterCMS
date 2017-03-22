@@ -69,6 +69,12 @@ class ContestAdminController extends \admin\components\HAdminController
                 'filter' => $model,
             ],
             'buttons' => [
+                'update' => [
+                    'url' => '["/contest/contest/confirm", "id" => $data->primaryKey]',
+                    'options' => [
+                        'target' => '_blank',
+                    ],
+                ],
                 'ok' => [
                     'url' => '["accept", "id" => $data->primaryKey]',
                     'label' => 'Принять',
