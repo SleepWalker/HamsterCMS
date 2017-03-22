@@ -52,8 +52,8 @@ class Composition extends \CActiveRecord
     public function attributeLabels()
     {
         return [
-            'author' => 'Автор',
-            'title' => 'Назва',
+            'author' => 'Виконавець/Назва гурту',
+            'title' => 'Назва композиції',
             'duration' => 'Тривалість, хв',
         ];
     }
