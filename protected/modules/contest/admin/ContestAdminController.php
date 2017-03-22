@@ -92,6 +92,15 @@ class ContestAdminController extends \admin\components\HAdminController
                     'label' => 'Экспортировать заявки',
                     'options' => ['target' => '_blank'],
                 ],
+                'exportAcceptedRequests' => [
+                    'url' => '["exportRequests", "id" => "' . $id . '", "status" => [
+                        ' . Request::STATUS_ACCEPTED . ',
+                        ' . Request::STATUS_WAIT_CONFIRM . ',
+                        ' . Request::STATUS_CONFIRMED . ',
+                    ]]',
+                    'label' => 'Экспортировать принятые заявки',
+                    'options' => ['target' => '_blank'],
+                ],
                 'exportContributionsList' => [
                     'url' => '["exportContributionsList", "id" => "' . $id . '"]',
                     'label' => 'Список для регистрации взносов',
@@ -174,9 +183,25 @@ class ContestAdminController extends \admin\components\HAdminController
         }
     }
 
-    public function actionExportRequests($id = null)
+    public function actionExportRequests($id = null, array $status = null)
     {
-        $requests = RequestCrud::findAll($id ? new ContestId((int)$id) : null);
+        $availableStatuses = Request::getStatusesList();
+        $attributes = [];
+
+        foreach ($status as $key) {
+            if (!array_key_exists($key, $availableStatuses)) {
+                throw new CHttpException(422, 'Bad status values');
+            }
+        }
+
+        if (!empty($status)) {
+            $attributes['status'] = $status;
+        }
+
+        $requests = RequestCrud::findAll(
+            $id ? new ContestId((int)$id) : null,
+            $attributes
+        );
 
         $html = $this->renderPartial('export_requests', [
             'requests' => $requests,

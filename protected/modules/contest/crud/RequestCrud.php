@@ -97,9 +97,8 @@ class RequestCrud
         return Request::model()->with('compositions', 'musicians')->findByPk($pk);
     }
 
-    public static function findAll(ContestId $contestId = null)
+    public static function findAll(ContestId $contestId = null, array $attributes = [])
     {
-        $attributes = [];
         if ($contestId) {
             $attributes['contest_id'] = $contestId->getValue();
         }

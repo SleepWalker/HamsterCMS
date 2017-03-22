@@ -199,7 +199,7 @@ class Request extends \CActiveRecord
         ];
     }
 
-    public function getStatusesList()
+    public static function getStatusesList()
     {
         return [
             self::STATUS_NEW => 'Новая заявка',
