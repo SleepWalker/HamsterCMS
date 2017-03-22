@@ -132,7 +132,10 @@ class ContestAdminController extends \admin\components\HAdminController
                     'name' => 'demos',
                     'type' => 'raw',
                     'filter' => false,
-                    'value' => '"<pre>".\CHtml::encode($data->demos)."</pre>"',
+                    'value' => '"<pre style=\"white-space: normal\">".\CHtml::encode($data->demos)."</pre>"',
+                    'htmlOptions' => [
+                        'style' => 'max-width: 300px; overflow-x: auto;',
+                    ],
                 ],
                 [
                     'name' => 'status',
