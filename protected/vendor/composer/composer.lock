@@ -49,6 +49,7 @@
                 "resize",
                 "scale"
             ],
+            "abandoned": "gumlet/php-image-resize",
             "time": "2017-01-19T10:34:05+00:00"
         },
         {
@@ -430,20 +431,25 @@
         },
         {
             "name": "yiisoft/yii",
-            "version": "1.1.17",
+            "version": "1.1.19",
             "source": {
                 "type": "git",
                 "url": "https://github.com/yiisoft/yii.git",
-                "reference": "467ff50a77bf7030a168defc1d47f446136d6228"
+                "reference": "5790cbff82cb4837d445f995932f5d069ab4ba4c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yiisoft/yii/zipball/467ff50a77bf7030a168defc1d47f446136d6228",
-                "reference": "467ff50a77bf7030a168defc1d47f446136d6228",
+                "url": "https://api.github.com/repos/yiisoft/yii/zipball/5790cbff82cb4837d445f995932f5d069ab4ba4c",
+                "reference": "5790cbff82cb4837d445f995932f5d069ab4ba4c",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.1.0"
+            },
+            "require-dev": {
+                "phing/phing": "2.*",
+                "phpunit/phpunit": "~3.7",
+                "phpunit/phpunit-selenium": "~1.4.0"
             },
             "bin": [
                 "framework/yiic"
@@ -516,7 +522,7 @@
                 "framework",
                 "yii"
             ],
-            "time": "2016-01-13T16:23:58+00:00"
+            "time": "2017-06-08T07:19:07+00:00"
         },
         {
             "name": "zhuravljov/yii2-debug",
