@@ -28,8 +28,6 @@ class Request extends \CActiveRecord
     public $meta = [];
     public $status = self::STATUS_NEW;
 
-    public $contest_id = ContestId::CONTEST_ID;
-
     const STATUS_NEW = 1;
     const STATUS_DECLINED = 2;
     const STATUS_ACCEPTED = 3;
@@ -85,8 +83,6 @@ class Request extends \CActiveRecord
             ['contact_email', 'email'],
 
             ['name', 'required', 'on' => self::SCENARIO_GROUP],
-
-            ['contest_id', 'length', 'max' => 11],
         ];
     }
 
@@ -144,7 +140,7 @@ class Request extends \CActiveRecord
         $this->status = self::STATUS_CONFIRMED;
     }
 
-    public function getFormatLabel()
+    public function getFormatLabel(): string
     {
         $format = $this->format;
         $formatMap = $this->getFormatsList();
@@ -153,23 +149,24 @@ class Request extends \CActiveRecord
             $format = self::FORMAT_GROUP;
         }
 
-        return !empty($this->format) ? $formatMap[$format] : '';
+        return $formatMap[$format] ?? 'Нет данных';
     }
 
-    public function getStatusLabel()
+    public function getStatusLabel(): string
     {
         $map = $this->getStatusesList();
-        return !empty($this->status) ? $map[$this->status] : 'Undefined';
+
+        return $map[$this->status] ?? 'Нет данных';
     }
 
-    public function getAgeCategoryLabel()
+    public function getAgeCategoryLabel(): string
     {
         $ageMap = $this->getAgeCategoriesList();
 
-        return $ageMap[$this->age_category];
+        return $ageMap[$this->age_category] ?? 'Нет данных';
     }
 
-    public function isGroup()
+    public function isGroup(): bool
     {
         return $this->type === self::TYPE_GROUP || (int)$this->format === self::FORMAT_GROUP;
     }
@@ -255,14 +252,14 @@ class Request extends \CActiveRecord
     }
 
     /**
-     * @throws  Exception IF it is a new model without pk
+     * @throws  DomainException IF it is a new model without pk
      *
      * @return  ApplyForm
      */
     public function getApplyForm()
     {
         if ($this->isNewRecord) {
-            throw new \Exception('The model should be created from persisted entity');
+            throw new \DomainException('The model should be created from persisted entity');
         }
 
         return new ApplyForm($this, $this->musicians, $this->compositions);

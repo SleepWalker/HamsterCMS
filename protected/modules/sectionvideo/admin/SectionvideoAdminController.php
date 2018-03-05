@@ -256,28 +256,7 @@ class SectionvideoAdminController extends \admin\components\HAdminController
      */
     public function actionAcevent()
     {
-        $events = Event::model()->findAll([
-            'condition' => 'name LIKE :keyword',
-            'limit' => 10,
-            'params' => [
-                ':keyword' => '%' . strtr($_GET['term'], [
-                    '%' => '\%',
-                    '_' => '\_',
-                    '\\' => '\\\\'
-                ]) . '%',
-            ],
-        ]);
-
-        foreach ($events as &$event) {
-            $event = [
-                'id' => $event->primaryKey,
-                'value' => $event->name,
-                'label' => $event->name,
-            ];
-        }
-
-        header('application/json');
-        echo CJSON::encode($events);
+        $this->autoCompleteResponse(Event::model(), 'name');
     }
 
     public function actionRefreshCounters()

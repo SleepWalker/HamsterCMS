@@ -40,6 +40,7 @@ class ContestService
      * @param  CHttpRequest $httpRequest
      *
      * @throws InvalidUserInputException
+     * @throws DomainException in case, when we have no active contests
      * @throws Exception
      */
     public function applyToContest(

@@ -7,6 +7,8 @@ namespace contest\controllers;
 
 use contest\models\Request;
 use contest\models\ContestId;
+use contest\models\Contest;
+use contest\models\Settings;
 use contest\models\view\ApplyForm;
 use hamster\models\UserId;
 use hamster\components\exceptions\InvalidUserInputException;
@@ -18,6 +20,12 @@ class ContestController extends \Controller
     public function actionApply()
     {
         \Yii::app()->language = 'uk';
+        $contest = Settings::getInstance()->getActiveContest();
+
+        if (!$contest || !$contest->canApply()) {
+            $this->redirect('/');
+            \Yii::app()->end();
+        }
 
         $this->pageTitle = 'Заява на участь у конкурсі - ' . \Yii::app()->name;
 
@@ -62,7 +70,7 @@ class ContestController extends \Controller
 
         $this->render('apply_form', [
             'model' => $form,
-            'isContest' => ContestId::IS_CONTEST,
+            'isContest' => $contest->type === Contest::TYPE_CONTEST,
         ]);
     }
 

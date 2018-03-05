@@ -71,7 +71,6 @@ if (isset($disableButtons) && $disableButtons) {
             'url' => 'method_exists($data, "getViewUrl") ? $data->viewUrl : ""',
             'options' => ['target' => '_blank'],
             'imageUrl' => $this->adminAssetsUrl . '/images/icon_view.png',
-            'visible' => '!is_object($data) || method_exists($data, "getViewUrl")',
         ],
         'more' => [
             'url' => '["more", "id" => $data->primaryKey]',
@@ -123,6 +122,7 @@ if (isset($disableButtons) && $disableButtons) {
 
     $buttCol['buttons'] = $buttArr;
 }
+
 
 // Назначаем размер страницы провайдера
 $dataProvider->pagination->pageSize = \Yii::app()->params['defaultPageSize'];

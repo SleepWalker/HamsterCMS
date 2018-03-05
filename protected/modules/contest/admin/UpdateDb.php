@@ -5,7 +5,17 @@ class UpdateDb extends \admin\components\HUpdateDb
 {
     public function verHistory()
     {
-        return ['1.1.0', '1.2.0', '1.3.0', '1.4.0', '1.5.0', '1.5.1'];
+        return [
+            '1.1.0',
+            '1.2.0',
+            '1.3.0',
+            '1.4.0',
+            '1.5.0',
+            '1.5.1',
+            '1.6.0',
+            '1.6.1',
+            '1.6.2',
+        ];
     }
 
     /**
@@ -84,7 +94,7 @@ class UpdateDb extends \admin\components\HUpdateDb
     }
 
     /**
-     * Добавлен статус заявки
+     * Добавлено поле для дополнительных данных
      */
     public function update1_4_0()
     {
@@ -92,7 +102,7 @@ class UpdateDb extends \admin\components\HUpdateDb
     }
 
     /**
-     * Добавлен статус заявки
+     * Добавлены контактные данные, выбор категории, а так же привязка к конкретному конскурсу
      */
     public function update1_5_0()
     {
@@ -108,5 +118,65 @@ class UpdateDb extends \admin\components\HUpdateDb
         $this->update('{{contest_request}}', [
             'contest_id' => 1
         ], 'date_Created < NOW()');
+    }
+
+    /**
+     * Create table for contest management
+     */
+    public function update1_6_0()
+    {
+        $this->createTable('{{contest_contest}}', [
+            'id' => 'INT(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY',
+            'title' => 'VARCHAR(128) NOT NULL COMMENT "Название конкурса"',
+            'isActive' => "enum('1','0') NOT NULL DEFAULT '0'",
+            'dateCreated' => "timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        ], 'ENGINE=InnoDB DEFAULT CHARSET=utf8');
+    }
+
+    /**
+     * Add settings table and type column for contests
+     * add previous contests
+     */
+    public function update1_6_1()
+    {
+        $this->createTable('{{contest_store}}', [
+            'id' => 'INT(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY',
+            'key' => 'VARCHAR(128) NOT NULL',
+            'value' => "TEXT",
+        ], 'ENGINE=InnoDB DEFAULT CHARSET=utf8');
+
+        $this->addColumn('{{contest_contest}}', 'type', 'enum("contest", "festival") NOT NULL DEFAULT "contest" AFTER title');
+        $this->dropColumn('{{contest_contest}}', 'isActive');
+
+        $this->insert('{{contest_store}}', [
+            'id' => 1,
+            'key' => 'settings',
+            'value' => '{}',
+        ]);
+
+        $this->insert('{{contest_contest}}', [
+            'id' => 1,
+            'type' => 'contest',
+            'title' => 'Рок єднає нас 2015',
+        ]);
+        $this->insert('{{contest_contest}}', [
+            'id' => 2,
+            'type' => 'contest',
+            'title' => 'Рок єднає нас 2016',
+        ]);
+        $this->insert('{{contest_contest}}', [
+            'id' => 3,
+            'type' => 'festival',
+            'title' => 'Рок єднає нас 2017',
+        ]);
+    }
+
+    /**
+     * Add applicationStartDate, applicationEndDate
+     */
+    public function update1_6_2()
+    {
+        $this->addColumn('{{contest_contest}}', 'applicationStartDate', 'timestamp NULL AFTER type');
+        $this->addColumn('{{contest_contest}}', 'applicationEndDate', 'timestamp NULL AFTER type');
     }
 }

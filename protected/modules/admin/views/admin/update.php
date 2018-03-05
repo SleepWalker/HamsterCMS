@@ -5,11 +5,6 @@
  * @var CActiverRecord $model модель для которой создается форма
  * @var array $buttons массив с дополнительными кнопками формы
  * @var array $elements массив с настройками дополнительных полей формы
- *
- * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @package    hamster.modules.admin.views.admin.update
- * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
- * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
 
 // TODO: у CForm можно переопределить класс CFormInputElement. Есть смысл переопределить его и расширить с новыми типами полей
@@ -150,10 +145,11 @@ function parseCFormElements(&$form, $model, $params, $index = null)
             ];
         }
 
-        if (in_array($fieldType, array('autocomplete', 'tags'))) {
-            $additionaryOptions = array();
-            if ($fieldType == 'tags') {
-                $additionaryOptions = array(
+        if (in_array($fieldType, ['autocomplete', 'tags'])) {
+            $additionaryOptions = [];
+
+            if ($fieldType === 'tags') {
+                $additionaryOptions = [
                     'search' => 'js:function() {
                         // custom minLength
                         var term = this.value.split( /,\s*/ ).pop();
@@ -176,24 +172,25 @@ function parseCFormElements(&$form, $model, $params, $index = null)
                         this.value = terms.join( ", " );
                         return false;
                     }',
-                );
+                ];
             }
+
             // Вторым параметром передаем (captureOutput) true.
             // таким образом мы запустим инициализацию скриптов, но текстовое поле писать не будем,
             // это сделает за нас CForm
-            $fieldParams = array(
+            $fieldParams = [
                 'type' => 'zii.widgets.jui.CJuiAutoComplete',
                 'model' => $model,
                 'attribute' => $fieldName,
                 'sourceUrl' => $controller->createUrl('ac' . $fieldName),
                 // additional javascript options for the autocomplete plugin
                 'options' => CMap::mergeArray(
-                    array(
+                    [
                         'minLength' => '2',
-                    ),
+                    ],
                     $additionaryOptions
                 ),
-            );
+            ];
         }
 
         // Textarea более маленького размера и без использования виджета redactorJs
@@ -223,9 +220,9 @@ function parseCFormElements(&$form, $model, $params, $index = null)
                 //'mode'    => 'datetime',//'datetime' or 'time' ('datetime' default)
                 'options' => array(
                     'dateFormat' => 'yy-mm-dd',
+                    // 'timeFormat' => 'hh:mm:ss',//'hh:mm tt' default
                     'addSliderAccess' => 'true',
                     'stepMinute' => 10,
-                    //'timeFormat' => '',//'hh:mm tt' default
                 ),
             );
         }

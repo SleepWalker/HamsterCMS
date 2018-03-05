@@ -18,8 +18,10 @@ return [
             'title' => 'Конкурсы',
             'description' => 'Модуль для управления конкурсами',
             'db' => [
-                'version' => '1.5.1',
+                'version' => '1.6.2',
                 'tables' => [
+                    'contest_store',
+                    'contest_contest',
                     'contest_request',
                     'contest_musician',
                     'contest_composition',

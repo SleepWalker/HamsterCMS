@@ -6,6 +6,8 @@
  */
 
 use contest\models\ContestId;
+use contest\models\Settings;
+use contest\models\Contest;
 use contest\crud\RequestCrud;
 use contest\models\Request;
 
@@ -14,10 +16,19 @@ class ContestAdminController extends \admin\components\HAdminController
     /**
      * @return меню для табов
      */
-    public function tabs()
+    public function tabs(): array
     {
         return [
             'index' => 'Конкурсы',
+            'update' => [
+                'name' => 'Редактирование конкурса',
+                'display' => 'whenActive',
+            ],
+            'create' => [
+                'name' => 'Добавить конкурс',
+                'display' => 'index',
+            ],
+            'settings' => 'Настройки',
             'list' => 'Заявки',
             'mailing' => 'Рассылки',
         ];
@@ -25,17 +36,16 @@ class ContestAdminController extends \admin\components\HAdminController
 
     public function actionIndex()
     {
-        $model = new Request('search');
+        $model = new Contest('search');
         $model->unsetAttributes();
 
-        $dataProvider = new \CArrayDataProvider(ContestId::getAll());
-
         $this->render('table', [
-            'dataProvider' => $dataProvider,
+            'dataProvider' => $model->search(),
             'buttons' => [
+                'update',
                 'view' => [
-                    'url' => '["list", "id" => $data["id"]]',
-                    'label' => 'Принять',
+                    'url' => '["list", "id" => $data->primaryKey]',
+                    'label' => 'Список заявок',
                     'options' => ['target' => null],
                 ],
             ],
@@ -46,6 +56,89 @@ class ContestAdminController extends \admin\components\HAdminController
                 ],
             ],
         ]);
+    }
+
+    public function actionUpdate()
+    {
+        if ($this->crudid) {
+            $model = Contest::model()->findByPk($this->crudid);
+        } else {
+            $model = new Contest();
+        }
+
+        $this->ajaxValidate($model);
+
+        $modelName = \CHtml::modelName($model);
+
+        if (isset($_POST[$modelName])) {
+            $model->attributes = $_POST[$modelName];
+
+            $model->save();
+        }
+
+        $this->renderForm($model);
+    }
+
+    public function actionCreate()
+    {
+        $this->actionUpdate();
+    }
+
+    public function actionSettings()
+    {
+        $model = Settings::getInstance();
+
+        $this->ajaxValidate($model);
+
+        $modelName = \CHtml::modelName($model);
+
+        if (isset($_POST[$modelName])) {
+            $model->attributes = $_POST[$modelName];
+
+            $model->save();
+        }
+
+        $this->renderForm($model);
+    }
+
+    /**
+     * Autocomplete for contest id
+     */
+    public function actionAcnextContestId()
+    {
+        $this->autoCompleteResponse(Contest::model(), 'title', [
+            'valueAttribute' => 'primaryKey',
+        ]);
+    }
+
+    public function actionRequest(int $id)
+    {
+        $request = RequestCrud::findByPk($id);
+
+        if (!$request) {
+            throw new \CHttpException(404, 'Not found');
+        }
+
+        header('Content-Type: application/json');
+        echo json_encode($this->requestToArray($request));
+    }
+
+    public function actionComposition(int $id)
+    {
+        $composition = \contest\models\Composition::model()->findByPk($id);
+
+        if (!$composition) {
+            throw new \CHttpException(404, 'Not found');
+        }
+
+        $resp = $this->requestToArray($composition->request);
+
+        $resp['compositions'] = array_values(array_filter($resp['compositions'], function ($composition) use ($id) {
+            return $composition['id'] == $id;
+        }));
+
+        header('Content-Type: application/json');
+        echo json_encode($resp);
     }
 
     /**
@@ -183,7 +276,7 @@ class ContestAdminController extends \admin\components\HAdminController
         }
     }
 
-    public function actionExportRequests($id = null, array $status = null)
+    public function actionExportRequests(int $id = null, array $status = null, string $format = 'pdf')
     {
         $availableStatuses = Request::getStatusesList();
         $attributes = [];
@@ -203,14 +296,44 @@ class ContestAdminController extends \admin\components\HAdminController
             $attributes
         );
 
-        $html = $this->renderPartial('export_requests', [
-            'requests' => $requests,
-        ], true);
+        switch ($format) {
+            case 'json':
+                $data = [];
 
-        $mpdf = new \mPDF();
-        $mpdf->WriteHTML($html);
-        $mpdf->Output();
-        \Yii::app()->end();
+                foreach ($requests as $request) {
+                    array_push($data, $this->requestToArray($request));
+                }
+
+                header('Content-Type: application/json');
+                echo json_encode($data);
+                break;
+
+            case 'pdf':
+            default:
+                $html = $this->renderPartial('export_requests', [
+                    'requests' => $requests,
+                ], true);
+
+                $mpdf = new \mPDF();
+                $mpdf->WriteHTML($html);
+                $mpdf->Output();
+                break;
+        }
+    }
+
+    private function requestToArray(Request $request) : array
+    {
+        $item = $request->attributes;
+
+        $item['musicians'] = array_map(function ($musician) {
+            return $musician->attributes;
+        }, $request->musicians);
+
+        $item['compositions'] = array_map(function ($composition) {
+            return $composition->attributes;
+        }, $request->compositions);
+
+        return $item;
     }
 
     public function actionExportJury($id = null)

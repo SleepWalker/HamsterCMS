@@ -214,6 +214,47 @@ class HAdminController extends \CController
         return parent::renderPartial($view, $data, $return, $processOutput);
     }
 
+    protected function ajaxValidate(\CActiveRecord $model)
+    {
+        if (isset($_POST['ajax'])) {
+            echo \CActiveForm::validate($model);
+            \Yii::app()->end();
+        }
+    }
+
+    protected function autoCompleteResponse(\CActiveRecord $model, string $attribute, array $options = [])
+    {
+        $term = \Yii::app()->request->getParam('term');
+        $valueAttribute = $options['valueAttribute'] ?? $attribute;
+
+        if ($term && strlen($term) > 1) {
+            $results = $model->findAll([
+                'condition' => $attribute . ' LIKE :keyword',
+                'limit' => 10,
+                'params' => [
+                    ':keyword' => '%' . strtr($term, [
+                        '%' => '\%',
+                        '_' => '\_',
+                        '\\' => '\\\\'
+                    ]) . '%',
+                ],
+            ]);
+
+            foreach ($results as &$item) {
+                $item = [
+                    'id' => $item->primaryKey,
+                    'value' => $item->$valueAttribute,
+                    'label' => $item->$attribute,
+                ];
+            }
+        } else {
+            $results = [];
+        }
+
+        header('application/json');
+        echo json_encode($results);
+    }
+
     /**
      * Гибридный рендеринг (render/renderPartial) для форм редактирования в админке
      *
