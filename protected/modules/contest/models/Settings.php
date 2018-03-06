@@ -39,7 +39,7 @@ class Settings extends \CActiveRecord
         return $cache;
     }
 
-    public function getActiveContest(): ?Contest
+    public function getActiveContest() //: ?Contest
     {
         if ($this->nextContestId) {
             return Contest::model()->findByPk($this->nextContestId);
