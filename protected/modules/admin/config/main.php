@@ -66,7 +66,7 @@ return
         ),
         'user' => array(
             // enable cookie-based authentication
-            'class' => 'application.modules.user.components.HWebUser',
+            'class' => 'user\components\HWebUser',
             'allowAutoLogin' => true,
         ),
         'mail' => array(

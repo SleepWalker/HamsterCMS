@@ -65,7 +65,7 @@ class RequestCrud
      *
      * @return Request
      */
-    public static function update(Request $request)
+    public function update(Request $request)
     {
         $transaction = \Yii::app()->db->beginTransaction();
 
@@ -92,7 +92,7 @@ class RequestCrud
         }
     }
 
-    public static function findByPk($pk)
+    public function findByPk($pk)
     {
         return Request::model()->with('compositions', 'musicians')->findByPk($pk);
     }

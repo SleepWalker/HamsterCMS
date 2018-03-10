@@ -18,7 +18,11 @@
             <h1>Страница финалиста</h1>
         </div>
 
-        <p class="note">Поздравляем, вы только что подтвердили свое участие в финале конкурса <?= $contestName ?>. Прежде чем идти отмечать этот праздник, будьте добры, перепроверьте ваши данные:</p>
+        <p class="note">
+            Поздравляем, вы только что подтвердили свое участие в финале
+            конкурса <?= $contestName ?>. Прежде чем идти отмечать этот праздник,
+            будьте добры, перепроверьте ваши данные:
+        </p>
     </div>
     <?php if ($applyForm->request->isGroup()): ?>
         <div class="form__row">
@@ -115,7 +119,12 @@
         </div>
     </div>
     <div class="form__row">
-        <div class="hint">Для экономии нашего и вашего времени, пожалуйста, заранее отправьте минус на нашу почту <a href="mailto:contest@estrocksection.kiev.ua">contest@estrocksection.kiev.ua</a>. Спасибо!</div>
+        <div class="hint">
+            Для экономии нашего и вашего времени, пожалуйста, заранее отправьте
+            минус на нашу почту
+            <a href="mailto:contest@estrocksection.kiev.ua">contest@estrocksection.kiev.ua</a>.
+            Спасибо!
+        </div>
     </div>
     <div class="form__controls">
         <?= \CHtml::hiddenField(\CHtml::modelName($applyForm) . '[submitted]', 1) ?>
@@ -124,4 +133,3 @@
 </div>
 
 <?php $this->endWidget('CActiveForm'); ?>
-

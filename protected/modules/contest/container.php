@@ -17,7 +17,8 @@ $container['contestService'] = function ($c) {
     return new \contest\components\ContestService(
         $c['factory'],
         $c['mailer'],
-        new \contest\crud\RequestCrud()
+        new \contest\crud\RequestCrud(),
+        \Yii::app()->user
     );
 };
 

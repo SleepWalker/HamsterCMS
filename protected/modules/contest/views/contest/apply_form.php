@@ -1,6 +1,7 @@
 <?php
 /**
  * @var \contest\models\view\ApplyForm $model
+ * @var string $contestName
  * @var bool $isContest whether this is a contest
  */
 
@@ -16,38 +17,28 @@ use contest\models\Request;
     ],
 ]); ?>
 
-<?php if ($isContest ?? true): ?>
-    <div class="form__row">
-        <div class="form__row__right--push">
-            <h1>Заява на участь у конкурсі</h1>
-        </div>
-
-        <p class="note">
-            Будь ласка, перед тим, як подавати заяву, ознайомтесь
-            з <?= \CHtml::link('правилами конкурсу', ['rules']) ?>.<br>
-            Зверніть увагу, що заява заповнюється українською мовою.
-        </p>
-
-        <!-- TODO
-        <p class="note">
-            Якщо ви викладач, <?= \CHtml::link('зареєструйтесь', [\Yii::app()->user->registerUrl]) ?>
-            у нас на сайті та керуйте заявами усіх учнів з вашого особистого кабінету.
-        </p>
-        -->
+<div class="form__row">
+    <div class="form__row__right--push">
+        <h1><?= $contestName ?></h1>
+        <h2>Заява на участь</h2>
     </div>
-<?php else: ?>
-    <div class="form__row">
-        <div class="form__row__right--push">
-            <h1>Заява на участь у фестивалі</h1>
-        </div>
 
-        <p class="note">
-            Будь ласка, перед тим, як подавати заяву, ознайомтесь
-            з <?= \CHtml::link('правилами фестивалю', ['fest-rules']) ?>.<br>
-            Зверніть увагу, що заява заповнюється українською мовою.
-        </p>
-    </div>
-<?php endif; ?>
+    <p class="note">
+        Будь ласка, перед тим, як подавати заяву, ознайомтесь з
+        <?= $isContest
+            ? \CHtml::link('правилами конкурсу', ['rules'])
+            : \CHtml::link('правилами', ['fest-rules'])
+        ?>.<br>
+        Зверніть увагу, що заява заповнюється українською мовою.
+    </p>
+
+    <!-- TODO
+    <p class="note">
+        Якщо ви викладач, <?= \CHtml::link('зареєструйтесь', [\Yii::app()->user->registerUrl]) ?>
+        у нас на сайті та керуйте заявами усіх учнів з вашого особистого кабінету.
+    </p>
+    -->
+</div>
 
 <?php
 // TODO: if teacher is authorized - show him link to his cabinet
@@ -252,8 +243,8 @@ Yii::app()->clientScript->registerScript(__FILE__.'#group-solo-switch', '$(funct
     ]); ?>
     <?= $form->error($model->request, 'demos'); ?>
     <p class="note">
-        Ви можете безкоштовно завантажити свої записи на <a href="http://yotube.com">youtube.com</a>
-        або <a href="http://ex.ua">ex.ua</a>. Для нас не важливо який сервіс ви використаєте, головне, щоб ваш демо-запис був достипним для перегляду.<br>
+        Ви можете безкоштовно завантажити свої записи на <a href="http://yotube.com">youtube.com</a>.
+        Для нас не важливо який сервіс ви використаєте, головне, щоб ваш демо-запис був достипним для перегляду.<br>
         Для завантаження на youtube, можете скористатися <?= \CHtml::link('інструкцією', ['/page/view', 'id' => 'how-to-youtube'], ['target' => '_blank']) ?>.
     </p>
     <p class="note">

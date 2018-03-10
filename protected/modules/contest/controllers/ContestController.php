@@ -20,24 +20,21 @@ class ContestController extends \Controller
     public function actionApply()
     {
         \Yii::app()->language = 'uk';
-        $contest = Settings::getInstance()->getActiveContest();
+        $this->pageTitle = 'Заява на участь у конкурсі - ' . \Yii::app()->name;
+
+        $contest = $this->module->contestService->getActiveContest();
 
         if (!$contest || !$contest->canApply()) {
             $this->redirect('/');
             \Yii::app()->end();
         }
 
-        $this->pageTitle = 'Заява на участь у конкурсі - ' . \Yii::app()->name;
+        $request = \Yii::app()->request;
+        $isAjaxValidation = $request->isAjaxRequest && $request->getPost('ajaxValidation');
+        $form = $this->module->factory->createApplyForm($request);
 
-        $isAjaxValidation = \Yii::app()->request->isAjaxRequest
-                    && \Yii::app()->request->getPost('ajaxValidation');
-
-        if ($this->isApplyFormSubmitted()) {
+        if ($form->isFormRequest($request)) {
             if ($isAjaxValidation) {
-                $form = $this->module->factory->createApplyForm(
-                    \Yii::app()->request
-                );
-
                 echo \CActiveForm::validate($form->getModels(), null, false);
 
                 \Yii::app()->end();
@@ -46,15 +43,15 @@ class ContestController extends \Controller
             try {
                 $this->module->contestService->applyToContest(
                     new UserId(\Yii::app()->user->id),
-                    \Yii::app()->request
+                    $form
                 );
 
                 \Yii::app()->user->setFlash(self::FLASH_APPLY, true);
 
                 $this->redirect('success');
-            } catch (InvalidUserInputException $ex) {
-                $form = $ex->getModel();
-            } catch (\Exception $ex) {
+            } catch (InvalidUserInputException $e) {
+                $form = $e->getModel();
+            } catch (\Exception $e) {
                 \Yii::log('Error processing apply form: ' . $e->getMessage(), \CLogger::LEVEL_ERROR);
 
                 \Yii::app()->user->setFlash(
@@ -64,12 +61,11 @@ class ContestController extends \Controller
 
                 $this->refresh();
             }
-        } else {
-            $form = $this->module->factory->createApplyForm();
         }
 
         $this->render('apply_form', [
             'model' => $form,
+            'contestName' => $contest->title,
             'isContest' => $contest->type === Contest::TYPE_CONTEST,
         ]);
     }
@@ -93,84 +89,73 @@ class ContestController extends \Controller
         $this->render('fest-rules');
     }
 
-    public function actionConfirm()
+    public function actionRequest()
     {
         $this->pageTitle = 'Страница финалиста - ' . \Yii::app()->name;
 
-        $id = \Yii::app()->request->getParam('id');
+        $id = (int) \Yii::app()->request->getParam('id');
         $key = \Yii::app()->request->getParam('key');
 
-        if (!$id) {
-            throw new \CHttpException(404, 'Not found');
-        }
-
-        $request = \contest\crud\RequestCrud::findByPk($id);
-        if (!$request) {
+        try {
+            $request = $this->module->contestService->getRequest($id, $key);
+        } catch (\Throwable $e) {
             throw new \CHttpException(404, 'Not found');
         }
 
         $applyForm = $request->getApplyForm();
+        $contest = $request->contest;
+        $httpRequest = \Yii::app()->request;
 
-        if ($key) {
-            if (!$request->isValidConfirmationKey($key)) {
-                throw new \CHttpException(404, 'Not found');
+        if ($applyForm->isFormRequest($httpRequest)) {
+            $applyForm->load($httpRequest);
+
+            try {
+                $this->module->contestService->updateRequest($applyForm);
+
+                \Yii::app()->user->setFlash(
+                    'success',
+                    'Спасибо, ваши данные успешно обработаны!'
+                );
+            } catch (InvalidUserInputException $e) {
+                $applyForm = $e->getModel();
+            } catch (\Exception $e) {
+                \Yii::log('Error while updating request: ' . $e->getMessage(), \CLogger::LEVEL_ERROR);
+
+                \Yii::app()->user->setFlash(
+                    'error',
+                    'Возникла не предвиденная ошибка! Пожалуйста, свяжитесь с нами.'
+                );
+
+                $this->refresh();
             }
-
-            if (!$applyForm->request->isConfirmed()) {
-                $applyForm->request->confirm($key);
-                $applyForm->request->save();
-            }
-        } else if (!\Yii::app()->user->checkAccess('admin')) {
-            throw new \CHttpException(404, 'Not found');
-        }
-
-        if ($this->processConfirmForm($applyForm)) {
-            \Yii::app()->user->setFlash(
-                'success',
-                'Спасибо, ваши данные успешно обработаны!'
-            );
         }
 
         $this->render('confirm', [
-            'contestName' => '«Рок єднає нас» 2016',
+            'contestName' => $contest->title,
             'applyForm' => $applyForm,
         ]);
     }
 
-    private function processConfirmForm(ApplyForm $applyForm)
+    public function actionConfirm()
     {
-        if ($this->isApplyFormSubmitted()) {
-            $applyForm->load(\Yii::app()->request);
+        $id = (int) \Yii::app()->request->getParam('id');
+        $key = \Yii::app()->request->getParam('key');
 
-            if ($applyForm->validate()) {
-                try {
-                    \contest\crud\RequestCrud::update($applyForm->request);
+        try {
+            $this->module->contestService->confirmRequest($id, $key);
+        } catch (\InvalidArgumentException $e) {
+            throw new \CHttpException(404, 'Not found');
+        } catch (\Throwable $e) {
+            \Yii::log('Error confirming request: ' . $e->getMessage(), \CLogger::LEVEL_ERROR);
 
-                    return true;
-                } catch (\Exception $e) {
-                    \Yii::log('Error while confirming request: ' . $e->getMessage(), \CLogger::LEVEL_ERROR);
+            \Yii::app()->user->setFlash(
+                'error',
+                'Во время подтверждения заявки возникли не предвиденные ошибки. Пожалуйста попробуйте еще раз или свяжитесь с нами.'
+            );
 
-                    \Yii::app()->user->setFlash(
-                        'error',
-                        'Возникла не предвиденная ошибка! Пожалуйста, свяжитесь с нами.'
-                    );
-
-                    $this->refresh();
-                }
-            }
+            throw new \CHttpException(500, 'Internal error');
         }
 
-        return false;
-    }
-
-    /**
-     * @return bool
-     */
-    private function isApplyFormSubmitted() : bool
-    {
-        return (bool) \Yii::app()->request->getPost(
-            \CHtml::modelName(ApplyForm::class),
-            false
-        );
+        $this->redirect(['request', 'id' => $id, 'key' => $key]);
     }
 }

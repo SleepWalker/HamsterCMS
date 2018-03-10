@@ -199,7 +199,7 @@ class InstallController extends Controller
                 'defaultRoles' => array('guest', 'user'),
             );
             $config['components']['user'] = array(
-                'class' => 'application.modules.user.components.HWebUser',
+                'class' => 'user\components\HWebUser',
                 'allowAutoLogin' => true,
             );
             /*

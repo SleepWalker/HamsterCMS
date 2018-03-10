@@ -111,39 +111,6 @@ class ContestAdminController extends \admin\components\HAdminController
         ]);
     }
 
-    public function actionRequest(int $id)
-    {
-        $request = RequestCrud::findByPk($id);
-
-        if (!$request) {
-            throw new \CHttpException(404, 'Not found');
-        }
-
-        header('Content-Type: application/json');
-        echo json_encode($this->requestToArray($request));
-    }
-
-    public function actionComposition(int $id)
-    {
-        $composition = \contest\models\Composition::model()->findByPk($id);
-
-        if (!$composition) {
-            throw new \CHttpException(404, 'Not found');
-        }
-
-        $resp = $this->requestToArray($composition->request);
-
-        $resp['compositions'] = array_values(array_filter($resp['compositions'], function ($composition) use ($id) {
-            return $composition['id'] == $id;
-        }));
-
-        header('Content-Type: application/json');
-        echo json_encode($resp);
-    }
-
-    /**
-     *  Выводит таблицу всех товаров
-     */
     public function actionList($id = null)
     {
         $model = new Request('search');
@@ -163,7 +130,7 @@ class ContestAdminController extends \admin\components\HAdminController
             ],
             'buttons' => [
                 'update' => [
-                    'url' => '["/contest/contest/confirm", "id" => $data->primaryKey]',
+                    'url' => '["/contest/contest/request", "id" => $data->primaryKey]',
                     'options' => [
                         'target' => '_blank',
                     ],

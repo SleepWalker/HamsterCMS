@@ -1,9 +1,16 @@
 <?php
+namespace contest\models;
+
+use KoKoKo\assert\Assert;
+
+use contest\models\view\ApplyForm;
+
 /**
  * The model for supporting registering for contest
  *
  * The followings are the available columns in table 'contest_request':
  * @property string $id
+ * @property string $contest_id
  * @property string $name
  * @property string $contact_name
  * @property string $contact_email
@@ -16,13 +23,6 @@
  * @property string $meta
  * @property string $date_created
  */
-
-namespace contest\models;
-
-use KoKoKo\assert\Assert;
-
-use contest\models\view\ApplyForm;
-
 class Request extends \CActiveRecord
 {
     public $meta = [];
@@ -89,6 +89,7 @@ class Request extends \CActiveRecord
     public function relations()
     {
         return [
+            'contest' => [self::BELONGS_TO, Contest::class, 'contest_id'],
             'musicians' => [self::HAS_MANY, Musician::class, 'request_id'],
             'compositions' => [self::HAS_MANY, Composition::class, 'request_id'],
         ];

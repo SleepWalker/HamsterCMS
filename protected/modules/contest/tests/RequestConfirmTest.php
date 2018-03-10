@@ -8,7 +8,10 @@ class RequestConfirmTest extends \CTestCase
     {
         \Yii::app()->setTheme(null);
         \Yii::app()->setController(
-            new ContestAdminController('contest', \Yii::app()->getModule('contest'))
+            new ContestAdminController(
+                'contest',
+                \Yii::app()->getModule('contest')
+            )
         );
 
         $data = [

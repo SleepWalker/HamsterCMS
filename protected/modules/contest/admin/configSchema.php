@@ -28,6 +28,7 @@ return [
                 ],
             ],
             'routes' => [
+                'contest/request',
                 'contest/apply',
                 'contest/rules',
                 'contest/festRules',

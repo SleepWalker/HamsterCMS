@@ -17,6 +17,27 @@ abstract class CTestCase extends TestCase
 {
 }
 
+function bootstrapAliases()
+{
+    $modulesDir = \Yii::getPathOfAlias('application.modules');
+
+    if (!$modulesDir) {
+        throw new \DomainException('Can not locate modules directory');
+    }
+
+    \Yii::setPathOfAlias('hamster', \Yii::getPathOfAlias('application'));
+
+    $dirs = scandir($modulesDir);
+
+    foreach ($dirs as $dir) {
+        $dirPath = \Yii::getPathOfAlias('hamster.modules.' . $dir);
+
+        if (is_dir($dirPath)) {
+            \Yii::setPathOfAlias($dir, $dirPath);
+        }
+    }
+}
+
 $yiit = $composerPath . '/yiisoft/yii/framework/yiit.php';
 
 require_once($yiit);
@@ -33,3 +54,5 @@ $config['components']['assetManager']['basePath'] = $webRoot . '/assets';
 YiiBase::$enableIncludePath = false;
 
 Yii::createWebApplication($config);
+
+bootstrapAliases();

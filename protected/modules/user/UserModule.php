@@ -14,7 +14,6 @@ class UserModule extends CWebModule
         $this->setImport([
             'user.models.AuthItem',
             'user.models.AuthAssignment',
-            'user.components.HWebUser',
         ]);
     }
 }

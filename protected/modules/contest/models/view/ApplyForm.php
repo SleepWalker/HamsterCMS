@@ -136,6 +136,14 @@ class ApplyForm extends \CFormModel implements Aggregate
         return $this->request->getFormatsList();
     }
 
+    public function isFormRequest(\CHttpRequest $request): bool
+    {
+        return (bool) $request->getPost(
+            \CHtml::modelName(ApplyForm::class),
+            false
+        );
+    }
+
     /**
      * Returns a value indicating whether there is any validation error.
      * @param string $attribute attribute name. Use null to check all attributes.
