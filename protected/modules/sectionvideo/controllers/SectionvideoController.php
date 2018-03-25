@@ -9,13 +9,10 @@ use sectionvideo\models\Video;
 
 class SectionvideoController extends \Controller
 {
-    /**
-     * Displays a particular model.
-     * @param integer $id the ID of the model to be displayed
-     */
     public function actionView($id)
     {
         $model = $this->loadModel($id);
+
         if (isset($_GET['ajax'])) {
             $data = [
                 'content' => $this->renderPartial('view', [
@@ -34,6 +31,10 @@ class SectionvideoController extends \Controller
                 'image' => $model->getImageSrc('full'),
                 'updatedTime' => $model->date_create,
             ]);
+
+            $canonicalUrl = $this->createAbsoluteUrl('', ['id' => $id]);
+
+            \Yii::app()->clientScript->registerLinkTag('canonical', null, $canonicalUrl);
 
             $this->render('view', [
                 'model' => $model,
@@ -86,14 +87,64 @@ class SectionvideoController extends \Controller
         ]);
     }
 
-    /**
-     * Lists all models.
-     * А так же фильтрует модели по тегам из $_GET['tag']
-     */
     public function actionIndex()
     {
+        $request = \Yii::app()->request;
+        $page = (int)$request->getParam('page');
+        $event = $request->getParam('event');
+        $teacher = $request->getParam('teacher');
+
+        $dataProvider = $this->getIndexDataProvider();
+        $dataProvider->getData(); // force data fetching to get pagination info
+        $pagesCount = $dataProvider->getPagination()->getPageCount();
+
+        $query = [];
+
+        if ($page > 1) {
+            $query['page'] = min($page, $pagesCount); // ensure we are in the pages range
+        }
+
+        if ($teacher) {
+            $query['teacher'] = $teacher;
+        }
+
+        if ($event) {
+            $query['event'] = $event;
+        }
+
+        $canonicalUrl = $this->createAbsoluteUrl('', $query);
+
+        if ($page === 1 || $page > $pagesCount) {
+            $this->redirect($canonicalUrl, true, 301);
+        }
+
+        if ($page === 0) {
+            $page = 1;
+        }
+
+        \Yii::app()->clientScript->registerLinkTag('canonical', null, $canonicalUrl);
+
+        $prevPage = $page - 1;
+        $nextPage = $page + 1;
+
+        if ($prevPage > 0) {
+            $prevPageUrl = $this->createAbsoluteUrl('', array_merge($query, [
+                'page' => $prevPage,
+            ]));
+            \Yii::app()->clientScript->registerLinkTag('prev', null, $prevPageUrl);
+        }
+
+        if ($nextPage <= $pagesCount) {
+            $nextPageUrl = $this->createAbsoluteUrl('', array_merge($query, [
+                'page' => $nextPage,
+            ]));
+            \Yii::app()->clientScript->registerLinkTag('next', null, $nextPageUrl);
+        }
+
+
         $this->render('index', [
-            'dataProvider' => $this->getIndexDataProvider(),
+            'showSortLinks' => $pagesCount > 1,
+            'dataProvider' => $dataProvider,
         ]);
     }
 
