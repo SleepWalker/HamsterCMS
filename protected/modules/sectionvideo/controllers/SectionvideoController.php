@@ -143,7 +143,6 @@ class SectionvideoController extends \Controller
 
 
         $this->render('index', [
-            'showSortLinks' => $pagesCount > 1,
             'dataProvider' => $dataProvider,
         ]);
     }
