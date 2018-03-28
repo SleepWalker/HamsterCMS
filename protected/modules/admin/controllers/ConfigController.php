@@ -156,7 +156,9 @@ class ConfigController extends \admin\components\HAdminController
         } else {
             // $config = new \admin\models\Config::(array(), 'admin');
 
-            // TODO: написать еще одну прослойку, которая будет принимать полный конфиг и хранить при себе все сгенерированные модели и потом уже выдавать CForm
+            // TODO: написать еще одну прослойку, которая будет принимать полный
+            // конфиг и хранить при себе все сгенерированные модели и потом
+            // уже выдавать CForm
             /*
             'global' => array(
             'type' => 'form',
@@ -196,6 +198,10 @@ class ConfigController extends \admin\components\HAdminController
                     'label' => 'Емейл робота (Например: noreply@mysite.com)',
                     'type' => 'email',
                 ),
+                'googleApiKey' => [
+                    'label' => 'Ключ API для Google Maps',
+                    'type' => 'text',
+                ],
                 'i18n[enabled]' => array(
                     'label' => 'Активировано',
                     'type' => 'checkbox',
@@ -250,6 +256,7 @@ class ConfigController extends \admin\components\HAdminController
                             'shortName' => $params->cformConfig['shortName'],
                             'adminEmail' => $params->cformConfig['adminEmail'],
                             'noReplyEmail' => $params->cformConfig['noReplyEmail'],
+                            'googleApiKey' => $params->cformConfig['googleApiKey'],
                             'i18n' => array(
                                 'type' => 'form',
                                 'title' => 'Интернационализация',

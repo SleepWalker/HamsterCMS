@@ -108,7 +108,7 @@ class Event extends \CActiveRecord
             'name' => 'text',
             'start_date' => 'datetime',
             'end_date' => 'datetime',
-            'where' => 'yandexAutoComplete',
+            'where' => 'address',
             'location' => 'textareaTiny',
             'desc' => 'textarea',
             'longitude' => 'hidden',
@@ -230,7 +230,7 @@ class Event extends \CActiveRecord
      */
     public function getViewUrl()
     {
-        return \Yii::app()->createUrl('event/event/view', array($this->eventId));
+        return \Yii::app()->createUrl('event/event/view', [$this->eventId]);
     }
 
     /**

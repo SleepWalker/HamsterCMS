@@ -227,19 +227,15 @@ function parseCFormElements(&$form, $model, $params, $index = null)
             );
         }
 
-        // autocomplete field for yandexMap
-        if ($fieldType == 'yandexAutoComplete') {
-            $fieldParams = array(
-                'type' => 'application.widgets.yandex.YandexAutoComplete',
+        // autocomplete field for addresses
+        if ($fieldType == 'address') {
+            $fieldParams = [
+                'type' => 'hamster\\widgets\\PlacesAutoComplete',
                 'model' => $model,
                 'attribute' => $fieldName,
                 'latitudeAtt' => 'latitude',
                 'longitudeAtt' => 'longitude',
-                // additional javascript options for the autocomplete plugin
-                'options' => array(
-                    'minLength' => '2',
-                ),
-            );
+            ];
         }
 
         if ($fieldType == 'file') {
