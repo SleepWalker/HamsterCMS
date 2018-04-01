@@ -57,22 +57,28 @@ class EventAdminController extends \admin\components\HAdminController
      */
     public function actionIndex()
     {
-        $this->render('table', array(
+        $this->render('table', [
             'dataProvider' => new \CActiveDataProvider(Event::CLASS),
-            'columns' => array(
+            'columns' => [
+                // TODO: need reusable column class to show such images
+                [
+                    'name' => 'image',
+                    'value' => '$data->hasImage() ? \CHtml::image($data->image->getAdminThumbUrl()) : ""',
+                    'type'=>'raw',
+                ],
                 'eventId',
                 'name',
                 'where',
-                array(
+                [
                     'name' => 'start_date',
                     'type' => 'datetime',
-                ),
-                array(
+                ],
+                [
                     'name' => 'end_date',
                     'type' => 'datetime',
-                ),
-            ),
-        ));
+                ],
+            ],
+        ]);
     }
 
     /**
