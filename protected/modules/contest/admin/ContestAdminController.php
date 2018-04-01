@@ -68,13 +68,7 @@ class ContestAdminController extends \admin\components\HAdminController
 
         $this->ajaxValidate($model);
 
-        $modelName = \CHtml::modelName($model);
-
-        if (isset($_POST[$modelName])) {
-            $model->attributes = $_POST[$modelName];
-
-            $model->save();
-        }
+        $this->saveIfSubmitted($model);
 
         $this->renderForm($model);
     }
@@ -90,13 +84,7 @@ class ContestAdminController extends \admin\components\HAdminController
 
         $this->ajaxValidate($model);
 
-        $modelName = \CHtml::modelName($model);
-
-        if (isset($_POST[$modelName])) {
-            $model->attributes = $_POST[$modelName];
-
-            $model->save();
-        }
+        $this->saveIfSubmitted($model);
 
         $this->renderForm($model);
     }

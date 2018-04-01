@@ -46,7 +46,7 @@ if (isset($elements)) {
 }
 
 $form = new CForm($form, $model);
-echo '<div class="form">';
+echo '<div class="form js-ajax-form">';
 echo $form->render();
 echo '</div>';
 
@@ -59,7 +59,7 @@ function parseCFormElements(&$form, $model, $params, $index = null)
     ], $params);
     $controller = $params['controller'];
     foreach ($model->fieldTypes as $fieldName => $fieldType) {
-        $fieldParams = array();
+        $fieldParams = [];
 
         // форма на основе другой related (One-One или One-Many) модели
         if ($fieldType == 'form' || $fieldType == 'hasManyForm') {
@@ -238,10 +238,8 @@ function parseCFormElements(&$form, $model, $params, $index = null)
             ];
         }
 
-        if ($fieldType == 'file') {
-            $fieldParams = array(
-                'type' => 'ext.fields.HFileField',
-            );
+        if ($fieldType === 'file' || $fieldType === 'image') {
+            $fieldParams['type'] = 'ext\\fields\\HFileField';
         }
 
         if ($fieldType == 'textarea') {
@@ -281,51 +279,3 @@ function parseCFormElements(&$form, $model, $params, $index = null)
 
     }
 }
-
-ob_start();
-?>
-// вешаем обработчик на уровень выше, что бы он всегда срабатывал после валидации формы
-$('#<?php echo $form->id ?>').parent().on('submit.ajaxSubmit', '#<?php echo $form->id ?>', function() {
-    $.ajax({
-        type: 'POST',
-        dataType: 'JSON',
-        url: $(this).prop('action'),
-        beforeSend: startLoad,
-        complete: stopLoad,
-        data: $(this).serialize()+"&ajaxSubmit=1",
-        context: $(this),
-        error: function(xhr, textStatus, errorThrown){console.log(jQuery.parseJSON(xhr.responseText).content)},
-        success: function (data) {parseAnswer(this, data)},
-        cahe: false,
-    });
-    return false;
-});
-
-/**
- *  Обрабатывает ответ сервера
- **/
-function parseAnswer($form, answer)
-{
-    if(!answer) {
-        console.log('parseAnswer: No Data');
-        return;
-    }
-    switch(answer.action)
-        {
-            case 404:
-                 console.log(answer.content);
-            break;
-            case 'renewForm':
-                $form.parent().replaceWith( answer.content );
-                // Перезапускаем транспорт
-                //prepareForm();
-            break;
-            case 'redirect':
-                location.href = answer.content;
-            break;
-        }
-}
-<?php
-$formJs = ob_get_clean();
-
-Yii::app()->getClientScript()->registerScript('formJs', $formJs);

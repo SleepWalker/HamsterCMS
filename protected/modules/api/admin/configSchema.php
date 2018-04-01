@@ -18,8 +18,9 @@ return [
             'title' => 'Api',
             'description' => 'Модуль предоставляющий функционал API для других модулей',
             'db' => [
-                'version' => 0,
+                'version' => '1.0.0',
                 'tables' => [
+                    'uploads',
                 ],
             ],
             'routes' => [

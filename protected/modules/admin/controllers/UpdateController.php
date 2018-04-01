@@ -194,7 +194,7 @@ class UpdateController extends \admin\components\HAdminController
      */
     public function actionDb()
     {
-        $updateList = $this->getDbUpdateList(); // модули к обновлению
+        $updateList = $this->getDbUpdateList();
 
         ob_start();
 ?>
@@ -204,13 +204,13 @@ class UpdateController extends \admin\components\HAdminController
         $logMessage = ob_get_clean();
 
         if (\Yii::app()->request->getPost('update')) {
-            $status = true;
             // TODO: автобекап что бы можно было откатиться
+            $status = true;
+
             foreach ($updateList as $updateInfo) {
                 $status = $status && $this->runDBUpdate($updateInfo);
             }
 
-            // Пишем в лог
             \Yii::log($logMessage, 'info', 'hamster.update.db');
 
             if ($status === true) {
@@ -238,22 +238,27 @@ class UpdateController extends \admin\components\HAdminController
      * @access protected
      * @return array
      */
-    protected function getDbUpdateList()
+    protected function getDbUpdateList(): array
     {
-        $updateList = array(); // модули к обновлению
-        foreach (array_keys($this->enabledModules) as $moduleId) {
+        $updateList = []; // модули к обновлению
+        $modules = array_keys($this->enabledModules);
+
+        foreach ($modules as $moduleId) {
             $config = Config::load($moduleId); // конфиг, в котором лежит актуальная версия бд
+
             if (!$config) {
                 continue;
             }
 
             $config = $config->adminConfig;
             $newV = (string)$config['db']['version'];
+
             if (!isset($this->modulesInfo[$moduleId]['db']['version'])) {
                 \Yii::app()->user->setFlash('error', 'Ошибка в конфигурации модуля '.$moduleId.'. Отсутствует информация о базе данных');
             }
 
             $oldV = (string)$this->modulesInfo[$moduleId]['db']['version'];
+
             if ($newV != $oldV) {
                 $updateList[$this->modulesInfo[$moduleId]['title']] = array(
                     'moduleId' => $moduleId,

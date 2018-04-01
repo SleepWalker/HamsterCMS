@@ -1,12 +1,10 @@
 <?php
+namespace ext\fields;
+
+use hamster\models\UploadedFile;
 
 /**
  * HFileField виджет для облегчения загрузки и обработки файлов через ajax
- *
- * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @package    hamster.extensions.fields.HFileField
- * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
- * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
 class HFileField extends \CInputWidget
 {
@@ -15,12 +13,19 @@ class HFileField extends \CInputWidget
      */
     public $assetsUrl;
 
+    /**
+     * The relation, if provided, should point to hamster/models/UploadedFile model
+     *
+     * @var string the name of the relation attribute in model
+     */
+    public $relation;
+
     public function init()
     {
 
         list($this->name, $this->id) = $this->resolveNameId();
 
-        $this->registerClienScript();
+        $this->registerClientScript();
     }
 
     public function run()
@@ -28,12 +33,32 @@ class HFileField extends \CInputWidget
         if ($this->hasModel()) {
             $model = $this->model;
             $attribute = $this->attribute;
-            if (!empty($model[$attribute]) && !is_array($model[$attribute])) {
-                // Выводим картинку (только в случае если картинка одна, тоесть атрибут модели не содержит массив)
+            $src = null;
+
+            if ($this->relation) {
+                $file = $this->model->{$this->relation};
+
+                if ($file) {
+                    if ($file instanceof UploadedFile) {
+                        $src = $file->getAdminThumbUrl();
+                    } else {
+                        throw new \CException('Relation must be instance of UploadedFile');
+                    }
+                }
+            } else {
+                // @deprecated some old deprecated staff, that, probably, won't work
+                if (!empty($model[$attribute]) && !is_array($model[$attribute])) {
+                    // Выводим картинку (только в случае если картинка одна,
+                    // тоесть атрибут модели не содержит массив
+                    $src = $model->src();
+                }
+            }
+
+            if ($src) {
                 $this->htmlOptions['style'] = 'display:none;';
                 echo '<div class="renewImage">';
-                echo \CHtml::image($model->src(), $attribute, array('id' => $attribute . '_tag'));
-                echo \CHtml::link('Удалить', '#', array('class' => 'icon_delete'));
+                echo \CHtml::image($src, $attribute, ['id' => $attribute . '_tag']);
+                echo \CHtml::link('Удалить', '#', ['class' => 'icon_delete']);
                 echo '</div>';
 
                 $js = '$(".renewImage .icon_delete").on("click", function() {
@@ -46,7 +71,9 @@ class HFileField extends \CInputWidget
 
                     return false;
                 });';
-                \Yii::app()->getClientScript()->registerScript('renewImage', $js, \CClientScript::POS_END);
+
+                \Yii::app()->getClientScript()
+                    ->registerScript('renewImage', $js, \CClientScript::POS_END);
             }
 
             echo \CHtml::activeFileField($this->model, $this->attribute, $this->htmlOptions);
@@ -56,7 +83,7 @@ class HFileField extends \CInputWidget
 
     }
 
-    public function registerClienScript()
+    private function registerClientScript()
     {
         $this->assetsUrl = \Yii::app()->getAssetManager()->publish(dirname(__FILE__) . '/assets', false, -1, YII_DEBUG);
         $cs = \Yii::app()->clientScript;

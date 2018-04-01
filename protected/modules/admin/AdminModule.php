@@ -71,7 +71,7 @@ class AdminModule extends \CWebModule
      * Возвращает список идентификаторов лейаутов доступных для CMS
      * @return array идентификаторы
      */
-    public static function getLayoutIds()
+    public static function getLayoutIds(): array
     {
         $extension = '.php';
         $layoutPathes = array(\Yii::app()->getViewPath());
@@ -92,17 +92,16 @@ class AdminModule extends \CWebModule
         return $ids;
     }
 
-    public function getControllerMap()
+    public function getControllerMap(): array
     {
-        $enabledModules = $this->enabledModules;
-        return $enabledModules;
+        return $this->getEnabledModules();
     }
 
     /**
      * Загружает настройки модулей Hamster
      * @return array массив с настройками
      */
-    public function getHamsterModules()
+    public function getHamsterModules(): array
     {
         return $this->moduleManager->getHamsterModules();
     }
@@ -110,7 +109,7 @@ class AdminModule extends \CWebModule
     /**
      * @return array массив с информацией о модулях
      */
-    public function getModulesInfo()
+    public function getModulesInfo(): array
     {
         return $this->moduleManager->getModulesInfo();
     }
@@ -118,7 +117,7 @@ class AdminModule extends \CWebModule
     /**
      * @return array массив с информацией об активных модулях
      */
-    public function getEnabledModules()
+    public function getEnabledModules(): array
     {
         return $this->moduleManager->getEnabledModules();
     }

@@ -29,7 +29,8 @@ class HModuleManager extends \CApplicationComponent
         $hamsterModules = $this->getHamsterModules();
 
         // добавляем к массиву директорий те модули, которые уже есть в modulesInfo.php
-        // это обеспечит нам удаление модулей из конфига, если была удалена их папка, а в конфиге инфа осталась
+        // это обеспечит нам удаление модулей из конфига, если была удалена их папка,
+        // а в конфиге инфа осталась
         $dirs = array_merge($dirs, array_keys($oldModulesInfo), array_keys($enabledModules));
         $dirs = array_unique($dirs);
 
@@ -38,8 +39,9 @@ class HModuleManager extends \CApplicationComponent
                 continue;
             }
 
-            if (is_dir($path . '/' . $moduleName)) {
-                $modulePath = \Yii::getPathOfAlias('application.modules.' . $moduleName);
+            $modulePath = \Yii::getPathOfAlias('application.modules.' . $moduleName);
+
+            if (is_dir($modulePath)) {
                 if (is_dir($modulePath . '/admin')) {
                     $adminConfig = Config::load($moduleName)->adminConfig;
                     /*if($modulesInfo[$moduleName]['title'] == '')
@@ -59,7 +61,7 @@ class HModuleManager extends \CApplicationComponent
                     }
                 }
             } else {
-                // поудаляем информацию о модуле, если его нету в фс
+                // удаляем информацию о модуле, если его нету в фс
                 unset($enabledModules[$moduleName], $hamsterModules['config']['modules'][$moduleName]);
             }
         }
@@ -116,7 +118,7 @@ class HModuleManager extends \CApplicationComponent
      * Загружает настройки модулей Hamster
      * @return array массив с настройками
      */
-    public function getHamsterModules()
+    public function getHamsterModules(): array
     {
         if (!$this->_hamsterModules) {
             $this->_hamsterModules = \admin\models\HArrayConfig::load()->hamsterModules;
@@ -128,19 +130,23 @@ class HModuleManager extends \CApplicationComponent
     /**
      * @return array массив с информацией о модулях
      */
-    public function getModulesInfo()
+    public function getModulesInfo(): array
     {
         $hamsterModules = $this->getHamsterModules();
-        return isset($hamsterModules['modulesInfo']) && is_array($hamsterModules['modulesInfo']) ? $hamsterModules['modulesInfo'] : [];
+        return isset($hamsterModules['modulesInfo']) && is_array($hamsterModules['modulesInfo'])
+            ? $hamsterModules['modulesInfo']
+            : [];
     }
 
     /**
      * @return array массив с информацией об активных модулях
      */
-    public function getEnabledModules()
+    public function getEnabledModules(): array
     {
         $hamsterModules = $this->getHamsterModules();
-        return isset($hamsterModules['enabledModules']) && is_array($hamsterModules['enabledModules']) ? $hamsterModules['enabledModules'] : [];
+        return isset($hamsterModules['enabledModules']) && is_array($hamsterModules['enabledModules'])
+            ? $hamsterModules['enabledModules']
+            : [];
     }
 
     /**

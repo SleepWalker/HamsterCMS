@@ -139,7 +139,7 @@ class HAdminController extends \CController
      * Загружает настройки модулей Hamster
      * @return array массив с настройками
      */
-    public function getHamsterModules()
+    public function getHamsterModules(): array
     {
         return $this->module->getHamsterModules();
     }
@@ -147,7 +147,7 @@ class HAdminController extends \CController
     /**
      * @return array массив с информацией о модулях
      */
-    public function getModulesInfo()
+    public function getModulesInfo(): array
     {
         return $this->module->getModulesInfo();
     }
@@ -155,7 +155,7 @@ class HAdminController extends \CController
     /**
      * @return array массив с информацией об активных модулях
      */
-    public function getEnabledModules()
+    public function getEnabledModules(): array
     {
         return $this->module->getEnabledModules();
     }
@@ -219,6 +219,20 @@ class HAdminController extends \CController
         if (isset($_POST['ajax'])) {
             echo \CActiveForm::validate($model);
             \Yii::app()->end();
+        }
+    }
+
+    protected function saveIfSubmitted(\CActiveRecord $model)
+    {
+        $modelName = \CHtml::modelName($model);
+        $data = \Yii::app()->request->getParam($modelName);
+
+        if ($data) {
+            $model->attributes = $data;
+
+            if ($model->validate() && !$model->save(false)) {
+                throw new \CException('Can not save model');
+            }
         }
     }
 
@@ -304,33 +318,5 @@ class HAdminController extends \CController
     public function getCrudid()
     {
         return \Yii::app()->request->getParam('id');
-    }
-
-    /**
-     * Возвращает тип выполняемого crud действия
-     */
-    public function getCrud()
-    {
-        if (YII_DEBUG) {
-            throw new \CException(__CLASS__.'::getCrud - deparecated. use $this->action->id instead');
-        }
-
-        $action = $_GET['action'];
-        $parts = explode('/', $action);
-        if (strpos($action, 'create') !== false) {
-            $crud = 'create';
-        }
-
-        if (strpos($action, 'update') !== false) {
-            $crud = 'update';
-        }
-
-        if (strpos($action, 'delete') !== false) {
-            $crud = 'delete';
-        } else {
-            $crud = array_pop($parts);
-        }
-
-        return $crud;
     }
 }

@@ -3,11 +3,6 @@
  * UploadController class for admin module
  *
  * Обеспечивает централизованную загрузку файлов для модулей
- *
- * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @package    hamster.modules.admin.controllers.UploadController
- * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
- * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
 
 namespace admin\controllers;
@@ -15,7 +10,6 @@ namespace admin\controllers;
 // TODO: доступ только через ajax
 class UploadController extends \admin\components\HAdminController
 {
-
     public function filters()
     {
         return array(

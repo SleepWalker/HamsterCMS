@@ -1,9 +1,10 @@
 <?php
 /**
  * Admin action class for event module
- *
- * @package    Hamster.modules.event.admin.EventAdminController
  */
+
+use event\models\Event;
+use hamster\models\UploadedFile;
 
 class EventAdminController extends \admin\components\HAdminController
 {
@@ -31,24 +32,14 @@ class EventAdminController extends \admin\components\HAdminController
     public function actionUpdate()
     {
         if ($this->crudid) {
-            $model = \event\models\Event::model()->findByPk($this->crudid);
+            $model = Event::model()->findByPk($this->crudid);
         } else {
-            $model = new \event\models\Event();
+            $model = new Event();
         }
 
-        $modelName = \CHtml::modelName($model);
+        $this->ajaxValidate($model);
 
-        // AJAX валидация
-        if (isset($_POST['ajax'])) {
-            echo \CActiveForm::validate($model);
-            \Yii::app()->end();
-        }
-
-        if (isset($_POST[$modelName])) {
-            $model->attributes = $_POST[$modelName];
-
-            $model->save();
-        }
+        $this->saveIfSubmitted($model);
 
         $this->renderForm($model);
     }
@@ -67,7 +58,7 @@ class EventAdminController extends \admin\components\HAdminController
     public function actionIndex()
     {
         $this->render('table', array(
-            'dataProvider' => new \CActiveDataProvider('\event\models\Event'),
+            'dataProvider' => new \CActiveDataProvider(Event::CLASS),
             'columns' => array(
                 'eventId',
                 'name',
@@ -91,7 +82,7 @@ class EventAdminController extends \admin\components\HAdminController
      */
     public function actionDelete()
     {
-        if (!\Yii::app()->request->isPostRequest || !\event\models\Event::model()->deleteByPk($this->crudid)) {
+        if (!\Yii::app()->request->isPostRequest || !Event::model()->deleteByPk($this->crudid)) {
             throw new \CHttpException(400, 'Не правильный запрос. Пожалуйста не повторяйте этот запрос еще раз.');
         }
 

@@ -1,13 +1,6 @@
 <?php
 /**
  * HIUBehavior поведение, добавляющее моделям возможность загружать изображения
- *
- * @uses CActiveRecordBehavior
- * @package hamster.modules.admin.components.HIUBehavior
- * @version $id$
- * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
- * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
 class HIUBehavior extends CActiveRecordBehavior
 {
@@ -94,11 +87,11 @@ class HIUBehavior extends CActiveRecordBehavior
 		$validators = $owner->getValidatorList();
 
 		$params = array(
-			'types'=>'jpg, jpeg, gif, png',
-			'maxSize'=>1024 * 1024 * 5, // 5 MB
+			'types' => 'jpg, jpeg, gif, png',
+			'maxSize' => 1024 * 1024 * 5, // 5 MB
 			'maxFiles' => 1,
 			'allowEmpty' => true, // TODO разобраться с этим параметром и сделать, что бы все работало без него (если он отключен валидация жалуется...)
-			'tooLarge'=>'Файл весит больше 5 MB. Пожалуйста, загрузите файл меньшего размера.',
+			'tooLarge' => 'Файл весит больше 5 MB. Пожалуйста, загрузите файл меньшего размера.',
 			'safe' => true,
 		);
 

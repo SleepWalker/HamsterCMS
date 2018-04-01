@@ -1,11 +1,6 @@
 <?php
 /**
  * This is the model class for managing config files of models for Hamster
- *
- * @author     Sviatoslav Danylenko <Sviatoslav.Danylenko@udf.su>
- * @package    shop.ShopController
- * @copyright  Copyright &copy; 2012 Sviatoslav Danylenko (http://hamstercms.com)
- * @license    GPLv3 (http://www.gnu.org/licenses/gpl-3.0.html)
  */
 
 namespace admin\models;
@@ -88,9 +83,10 @@ class Config extends \CFormModel
      * @param string $moduleId название модуля, для которого будет генерироваться модель конфига
      * @return mixed модель конфига или null в случае, если у этого модуля нету конфига
      */
-    public static function load($moduleId)
+    public static function load(string $moduleId)
     {
         $config = \Yii::getPathOfAlias('application.modules.'.$moduleId.'.admin').'/configSchema.php';
+
         if (file_exists($config)) {
             return new self(require($config), $moduleId);
         } else {
@@ -105,9 +101,10 @@ class Config extends \CFormModel
     {
         // Настройки на уровне модуля
         foreach ($this->_configSchema as $name => $params) {
-            if ($name == 'hamster') {
+            if ($name === 'hamster') {
                 continue;
             }
+
             $this->hamsterConfigSchema($name, $params);
         }
 
