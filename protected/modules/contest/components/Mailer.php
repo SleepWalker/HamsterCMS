@@ -25,20 +25,21 @@ class Mailer extends \CApplicationComponent
     public function __construct(
         HamsterMailer $mailer,
         RequestRepository $repository,
-        $adminEmail
+        string $adminEmail
     ) {
-        $this->mailer = $mailer;
-        $this->repository = $repository;
-
         if (!filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
             throw new \InvalidArgumentException('Bad email format');
         }
+
+        $this->mailer = $mailer;
+        $this->repository = $repository;
         $this->adminEmail = $adminEmail;
     }
 
-    public function notifyMusicians(Request $request, array $options = [])
+    public function notifyMusicians(Request $request, array $options = []): bool
     {
         $success = true;
+
         if (!empty($request->contact_email)) {
             $success = $this->sendNotification(
                 $request,
@@ -60,7 +61,7 @@ class Mailer extends \CApplicationComponent
         return $success;
     }
 
-    private function sendNotification($request, $email, array $options = [])
+    private function sendNotification(Request $request, string $email, array $options = []): bool
     {
         if (isset($options['viewData'])) {
             $viewData = $options['viewData'];
@@ -73,6 +74,7 @@ class Mailer extends \CApplicationComponent
         return $this->mailer->send(\CMap::mergeArray([
             'to' => $email,
             'viewData' => [
+                'contestName' => $request->contest->title,
                 'fullName' => $request->getMainName(),
             ],
         ], $options));
@@ -82,7 +84,7 @@ class Mailer extends \CApplicationComponent
      * Renders mailing message as it will be send to user
      * @return string
      */
-    public function render(array $params = [])
+    public function render(array $params = []): string
     {
         if (!isset($params['viewData'])) {
             $params['viewData'] = [];
@@ -91,12 +93,10 @@ class Mailer extends \CApplicationComponent
         return $this->mailer->render($params);
     }
 
-    public function notifyAdmin(array $options)
+    public function notifyAdmin(Request $request, array $options): bool
     {
         if (!empty($this->adminEmail)) {
-            return $this->mailer->send(array_merge($options, [
-                'to' => $this->adminEmail,
-            ]));
+            return $this->sendNotification($request, $this->adminEmail, $options);
         }
 
         return true;
@@ -123,7 +123,6 @@ class Mailer extends \CApplicationComponent
                     $confirmationKey = $request->getConfirmationKey();
 
                     return [
-                        'contestName' => '«Рок єднає нас» 2016',
                         'confirmationUrl' => \Yii::app()->createAbsoluteUrl('contest/contest/confirm', [
                             'id' => $request->primaryKey,
                             'key' => $confirmationKey,

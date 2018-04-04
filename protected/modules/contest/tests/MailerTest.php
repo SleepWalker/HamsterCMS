@@ -1,6 +1,7 @@
 <?php
 use contest\components\Mailer;
 use contest\models\Request;
+use contest\models\Contest;
 use contest\models\Composition;
 use contest\models\ContestId;
 use contest\components\RequestRepository;
@@ -27,6 +28,8 @@ class MailerTest extends \CTestCase
             'contact_name' => 'foo',
             'contact_email' => 'foo@bar.com',
         ];
+        $request->contest = new Contest();
+        $request->contest->title = 'Test contest';
 
         $expected = true;
 
@@ -36,7 +39,8 @@ class MailerTest extends \CTestCase
             ->with($this->equalTo([
                 'to' => $request->contact_email,
                 'viewData' => [
-                    'fullName' => $request->contact_name,
+                    'fullName' => 'foo',
+                    'contestName' => 'Test contest',
                 ],
             ]))
             ->willReturn($expected)
@@ -54,6 +58,8 @@ class MailerTest extends \CTestCase
             'contact_name' => 'foo',
             'contact_email' => 'foo@bar.com',
         ];
+        $request->contest = new Contest();
+        $request->contest->title = 'Test contest';
 
         $expected = true;
         $this->hmailer
@@ -64,6 +70,7 @@ class MailerTest extends \CTestCase
                 'viewData' => [
                     'fullName' => $request->contact_name,
                     'customData' => 'customData',
+                    'contestName' => 'Test contest',
                 ],
             ]))
             ->willReturn($expected)
@@ -87,6 +94,8 @@ class MailerTest extends \CTestCase
             'contact_name' => 'foo',
             'contact_email' => 'foo@bar.com',
         ];
+        $request->contest = new Contest();
+        $request->contest->title = 'Test contest';
 
         $expected = true;
         $this->hmailer
@@ -96,15 +105,16 @@ class MailerTest extends \CTestCase
                 'to' => 'admin@foo.bar',
                 'viewData' => [
                     'fullName' => $request->contact_name,
+                    'contestName' => 'Test contest',
+                    'customData' => 'customData',
                 ],
             ]))
             ->willReturn($expected)
             ;
 
-        $actual = $this->mailer->notifyAdmin([
-            'to' => $request->contact_email,
+        $actual = $this->mailer->notifyAdmin($request, [
             'viewData' => [
-                'fullName' => $request->contact_name,
+                'customData' => 'customData',
             ],
         ]);
 
@@ -155,6 +165,8 @@ class MailerTest extends \CTestCase
             $composition,
             $composition,
         ];
+        $requestMock->contest = new Contest();
+        $requestMock->contest->title = 'Test contest';
 
         $requests = [
             $requestMock,
@@ -181,7 +193,7 @@ class MailerTest extends \CTestCase
                 'view' => 'request_confirm',
                 'viewData' => [
                     'fullName' => $requestMock->contact_name,
-                    'contestName' => '«Рок єднає нас» 2016',
+                    'contestName' => 'Test contest',
                     'firstComposition' => $composition->getFullName(),
                     'secondComposition' => $composition->getFullName(),
                     'confirmationUrl' => \Yii::app()->createAbsoluteUrl('contest/contest/confirm', [
@@ -190,6 +202,7 @@ class MailerTest extends \CTestCase
                     ]),
                 ],
             ]))
+            ->willReturn(true)
             ;
 
         $requestMock->expects($this->exactly(count($requests)))->method('save');

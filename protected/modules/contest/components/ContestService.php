@@ -114,12 +114,15 @@ class ContestService
 
         $this->mailer->notifyMusicians($request, [
             'subject' => 'Заявка на участие в конкурсе',
-            'view' => 'user_new_request',
+            'view' => 'mail_new_request',
         ]);
 
-        $this->mailer->notifyAdmin([
+        $this->mailer->notifyAdmin($request, [
             'subject' => 'Новая заявка на участие в конкурсе',
-            'view' => 'admin_new_request',
+            'view' => 'mail_new_request',
+            'viewData' => [
+                'header' => 'Доброго времени суток, поступила новая заявка на участие в конкурсе\n\n---\n\n',
+            ],
         ]);
 
         return $form;

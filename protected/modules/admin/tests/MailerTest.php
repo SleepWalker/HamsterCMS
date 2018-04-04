@@ -4,7 +4,6 @@
 \Yii::import('ext.yii-mail.YiiMail');
 
 use ext\hamster\Mailer;
-use contest\models\Request;
 use \YiiMailMessage as YiiMailMessage;
 
 class MailerTest extends \CTestCase
