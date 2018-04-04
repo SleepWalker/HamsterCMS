@@ -15,7 +15,7 @@
 <div class="form form--inline">
     <div class="form__row">
         <div class="form__row__right--push">
-            <h1>Страница финалиста</h1>
+            <h1>Страница участника</h1>
         </div>
 
         <p class="note">
@@ -118,6 +118,18 @@
             <?= $form->error($applyForm, 'compositions'); ?>
         </div>
     </div>
+
+    <?php if (!$applyForm->request->isAccepted()): ?>
+        <div class="form__row">
+            <?= $form->labelEx($applyForm->request, 'demos'); ?>
+            <?= $form->textArea($applyForm->request, 'demos', [
+                'class' => 'form__input',
+                'placeholder' => 'Вкажіть в цьому полі посилання на демо-записи, а також будь-яку додаткову інформацію'
+            ]); ?>
+            <?= $form->error($applyForm->request, 'demos'); ?>
+        </div>
+    <?php endif; ?>
+
     <div class="form__row">
         <div class="hint">
             Для экономии нашего и вашего времени, пожалуйста, заранее отправьте

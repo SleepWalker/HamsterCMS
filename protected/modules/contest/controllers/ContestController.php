@@ -91,7 +91,7 @@ class ContestController extends \Controller
 
     public function actionRequest()
     {
-        $this->pageTitle = 'Страница финалиста - ' . \Yii::app()->name;
+        $this->pageTitle = 'Страница участника - ' . \Yii::app()->name;
 
         $id = (int) \Yii::app()->request->getParam('id');
         $key = \Yii::app()->request->getParam('key');
@@ -116,6 +116,8 @@ class ContestController extends \Controller
                     'success',
                     'Спасибо, ваши данные успешно обработаны!'
                 );
+
+                $this->refresh();
             } catch (InvalidUserInputException $e) {
                 $applyForm = $e->getModel();
             } catch (\Exception $e) {
