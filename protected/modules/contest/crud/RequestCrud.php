@@ -97,7 +97,7 @@ class RequestCrud
         return Request::model()->with('compositions', 'musicians')->findByPk($pk);
     }
 
-    public static function findAll(ContestId $contestId = null, array $attributes = [])
+    public function findAll(ContestId $contestId = null, array $attributes = [])
     {
         if ($contestId) {
             $attributes['contest_id'] = $contestId->getValue();
@@ -108,7 +108,7 @@ class RequestCrud
             ->findAllByAttributes($attributes);
     }
 
-    public static function findNotConfirmed(ContestId $contestId = null)
+    public function findNotConfirmed(ContestId $contestId = null)
     {
         $attributes = [
             'status' => Request::STATUS_ACCEPTED,
@@ -122,7 +122,7 @@ class RequestCrud
             ->findAllByAttributes($attributes);
     }
 
-    public static function findAccepted(ContestId $contestId = null)
+    public function findAccepted(ContestId $contestId = null)
     {
         $attributes = [
             'status' => [
@@ -140,7 +140,7 @@ class RequestCrud
             ->findAllByAttributes($attributes);
     }
 
-    public static function decline($pk)
+    public function decline($pk)
     {
         $request = Request::model()->findByPk($pk);
         if (!$request) {
@@ -154,7 +154,7 @@ class RequestCrud
         }
     }
 
-    public static function accept($pk)
+    public function accept($pk)
     {
         $request = Request::model()->findByPk($pk);
         if (!$request) {

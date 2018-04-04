@@ -222,7 +222,8 @@ class ContestAdminController extends \admin\components\HAdminController
     public function actionDecline($id)
     {
         try {
-            RequestCrud::decline($id);
+            $requestCrud = new RequestCrud();
+            $requestCrud->decline($id);
         } catch (\Exception $e) {
             throw new \CHttpException(503, $e->getMessage());
         }
@@ -231,7 +232,8 @@ class ContestAdminController extends \admin\components\HAdminController
     public function actionAccept($id)
     {
         try {
-            RequestCrud::accept($id);
+            $requestCrud = new RequestCrud();
+            $requestCrud->accept($id);
         } catch (\Exception $e) {
             throw new \CHttpException(503, $e->getMessage());
         }
@@ -239,6 +241,7 @@ class ContestAdminController extends \admin\components\HAdminController
 
     public function actionExportRequests(int $id = null, array $status = null, string $format = 'pdf')
     {
+        $requestCrud = new RequestCrud();
         $availableStatuses = Request::getStatusesList();
         $attributes = [];
 
@@ -261,7 +264,7 @@ class ContestAdminController extends \admin\components\HAdminController
             $attributes['status'] = $status;
         }
 
-        $requests = RequestCrud::findAll(
+        $requests = $requestCrud->findAll(
             $id ? new ContestId((int)$id) : null,
             $attributes
         );
@@ -309,7 +312,8 @@ class ContestAdminController extends \admin\components\HAdminController
 
     public function actionExportJury($id = null)
     {
-        $requests = RequestCrud::findAccepted($id ? new ContestId((int)$id) : null);
+        $requestCrud = new RequestCrud();
+        $requests = $requestCrud->findAccepted($id ? new ContestId((int)$id) : null);
 
         $lists = [];
         foreach ($requests as $request) {
@@ -344,7 +348,8 @@ class ContestAdminController extends \admin\components\HAdminController
 
     public function actionExportContributionsList($id = null)
     {
-        $requests = RequestCrud::findAccepted($id ? new ContestId((int)$id) : null);
+        $requestCrud = new RequestCrud();
+        $requests = $requestCrud->findAccepted($id ? new ContestId((int)$id) : null);
 
         // sort alphabeticaly by group name or musician name
         usort($requests, function ($one, $two) {
@@ -372,7 +377,8 @@ class ContestAdminController extends \admin\components\HAdminController
     public function actionSendConfirm($id = null)
     {
         try {
-            \Yii::app()->getModule('contest')->mailer->sendConfirmations($id ? new ContestId((int)$id) : null);
+            \Yii::app()->getModule('contest')
+                ->contestService->sendConfirmations($id ? new ContestId((int)$id) : null);
             \Yii::app()->user->setFlash('success', 'Письма разосланы!');
         } catch (\Exception $e) {
             \Yii::app()->user->setFlash('error', 'Во время рассылки произошла не предвиденная ошибка: ' . $e->getMessage());
@@ -463,19 +469,20 @@ class ContestAdminController extends \admin\components\HAdminController
     {
         $requestType = $criteria['requestType'];
         $type = $criteria['type'];
+        $requestCrud = new RequestCrud();
 
         switch ($requestType) {
             case 'accepted':
-                $requests = RequestCrud::findAccepted();
+                $requests = $requestCrud->findAccepted();
                 break;
 
             case 'notConfirmed':
-                $requests = RequestCrud::findNotConfirmed();
+                $requests = $requestCrud->findNotConfirmed();
                 break;
 
             case 'any':
             default:
-                $requests = RequestCrud::findAll();
+                $requests = $requestCrud->findAll();
                 break;
         }
 

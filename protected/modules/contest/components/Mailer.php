@@ -9,22 +9,18 @@ use ext\hamster\Mailer as HamsterMailer;
 use contest\models\Request;
 use contest\models\Musician;
 use contest\models\ContestId;
-use contest\components\RequestRepository;
 
 class Mailer extends \CApplicationComponent
 {
     private $mailer;
-    private $repository;
     private $adminEmail;
 
     /**
      * @param HamsterMailer     $mailer
-     * @param RequestRepository $repository
      * @param string            $adminEmail
      */
     public function __construct(
         HamsterMailer $mailer,
-        RequestRepository $repository,
         string $adminEmail
     ) {
         if (!filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
@@ -32,7 +28,6 @@ class Mailer extends \CApplicationComponent
         }
 
         $this->mailer = $mailer;
-        $this->repository = $repository;
         $this->adminEmail = $adminEmail;
     }
 
@@ -103,38 +98,26 @@ class Mailer extends \CApplicationComponent
     }
 
     /**
-     * Отправляет письма с ссылками на подтверждение участия.
-     * Письма будут отправлены только участникам, чьи заявки были одобрены
-     *
-     * @param  ContestId|null $contestId
+     * Отправляет письмо с ссылкой на подтверждение участия.
      */
-    public function sendConfirmations(ContestId $contestId = null)
+    public function sendConfirmation(Request $request): bool
     {
-        $requests = $this->repository->findNotConfirmed($contestId);
+        return $this->notifyMusicians($request, [
+            'subject' => 'Подтверждение участия в конкурсе «Рок єднає нас» 2016',
+            'from' => 'contest@estrocksection.kiev.ua',
+            'view' => 'request_confirm',
+            'viewData' => function ($request) {
+                $confirmationKey = $request->getConfirmationKey();
 
-        foreach ($requests as $request) {
-            $this->notifyMusicians($request, [
-                'subject' => 'Подтверждение участия в конкурсе «Рок єднає нас» 2016',
-                'from' => 'contest@estrocksection.kiev.ua',
-                'view' => 'request_confirm',
-                'viewData' => function ($request) {
-                    // TODO: separate service for confirmation key and url generation
-                    // TODO: new ConfirmationEmail($request);
-                    $confirmationKey = $request->getConfirmationKey();
-
-                    return [
-                        'confirmationUrl' => \Yii::app()->createAbsoluteUrl('contest/contest/confirm', [
-                            'id' => $request->primaryKey,
-                            'key' => $confirmationKey,
-                        ]),
-                        'firstComposition' => $request->compositions[0]->getFullName(),
-                        'secondComposition' => $request->compositions[1]->getFullName(),
-                    ];
-                },
-            ]);
-
-            $request->status = $request::STATUS_WAIT_CONFIRM;
-            $request->save();
-        }
+                return [
+                    'confirmationUrl' => \Yii::app()->createAbsoluteUrl('contest/contest/confirm', [
+                        'id' => $request->primaryKey,
+                        'key' => $confirmationKey,
+                    ]),
+                    'firstComposition' => $request->compositions[0]->getFullName(),
+                    'secondComposition' => $request->compositions[1]->getFullName(),
+                ];
+            },
+        ]);
     }
 }

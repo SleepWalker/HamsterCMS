@@ -4,6 +4,7 @@ namespace contest\components;
 use hamster\components\exceptions\InvalidUserInputException;
 use hamster\models\UserId;
 use contest\models\Contest;
+use contest\models\ContestId;
 use contest\components\Factory;
 use contest\components\Mailer;
 use contest\crud\RequestCrud;
@@ -126,6 +127,24 @@ class ContestService
         ]);
 
         return $form;
+    }
+
+    /**
+     * Отправляет письма с ссылками на подтверждение участия.
+     * Письма будут отправлены только участникам, чьи заявки были одобрены
+     *
+     * @param  ContestId|null $contestId
+     */
+    public function sendConfirmations(ContestId $contestId = null)
+    {
+        $requests = $this->requestCrud->findNotConfirmed($contestId);
+
+        foreach ($requests as $request) {
+            $this->mailer->sendConfirmation($request);
+
+            $request->status = $request::STATUS_WAIT_CONFIRM;
+            $request->save();
+        }
     }
 
     /**

@@ -30,6 +30,8 @@ class RequestCrudTest extends \CTestCase
 
     public function testAcceptSoloRequest()
     {
+        $requestCrud = new RequestCrud();
+
         self::$ar->willFind([
             'id' => '-100',
             'contest_id' => '1',
@@ -45,11 +47,13 @@ class RequestCrudTest extends \CTestCase
             'status' => Request::STATUS_ACCEPTED,
         ]);
 
-        RequestCrud::accept(1);
+        $requestCrud->accept(1);
     }
 
     public function testAcceptGroupRequest()
     {
+        $requestCrud = new RequestCrud();
+
         self::$ar->willFind([
             'id' => '-100',
             'contest_id' => '1',
@@ -66,11 +70,13 @@ class RequestCrudTest extends \CTestCase
             'status' => Request::STATUS_ACCEPTED,
         ]);
 
-        RequestCrud::accept(1);
+        $requestCrud->accept(1);
     }
 
     public function testDeclineSoloRequest()
     {
+        $requestCrud = new RequestCrud();
+
         self::$ar->willFind([
             'id' => '-100',
             'contest_id' => '1',
@@ -86,11 +92,13 @@ class RequestCrudTest extends \CTestCase
             'status' => Request::STATUS_DECLINED,
         ]);
 
-        RequestCrud::decline(1);
+        $requestCrud->decline(1);
     }
 
     public function testDeclineGroupRequest()
     {
+        $requestCrud = new RequestCrud();
+
         self::$ar->willFind([
             'id' => -100,
             'contest_id' => '1',
@@ -107,6 +115,6 @@ class RequestCrudTest extends \CTestCase
             'status' => Request::STATUS_DECLINED,
         ]);
 
-        RequestCrud::decline(1);
+        $requestCrud->decline(1);
     }
 }

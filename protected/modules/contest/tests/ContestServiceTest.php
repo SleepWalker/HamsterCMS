@@ -6,6 +6,7 @@ use contest\crud\RequestCrud;
 use contest\models\Settings;
 use contest\models\Request;
 use contest\models\Contest;
+use contest\models\ContestId;
 use contest\models\view\ApplyForm;
 use user\components\HWebUser;
 use hamster\models\UserId;
@@ -322,6 +323,46 @@ class ContestServiceTest extends \CTestCase
         } catch (InvalidUserInputException $e) {
             $this->assertSame($form, $e->getModel());
         }
+    }
+
+    public function testSendConfirmations()
+    {
+        $contestId = new ContestId(1);
+
+        $factory = $this->createMock(Factory::class);
+        $mailer = $this->createMock(Mailer::class);
+        $requestCrud = $this->createMock(RequestCrud::class);
+        $request = $this->getMockBuilder(Request::class)
+            ->setMethods(['save'])
+            ->getMock();
+        $user = $this->createMock(HWebUser::class);
+        $service = new ContestService($factory, $mailer, $requestCrud, $user);
+
+        $requests = [
+            $request,
+            $request,
+        ];
+
+        $requestCrud
+            ->expects($this->once())
+            ->method('findNotConfirmed')
+            ->with($this->identicalTo($contestId))
+            ->willReturn($requests);
+
+        $mailer
+            ->expects($this->exactly(count($requests)))
+            ->method('sendConfirmation')
+            ->with($request)
+            ->willReturn(true);
+
+        $request->expects($this->exactly(count($requests)))->method('save');
+
+        $service->sendConfirmations($contestId);
+
+        $this->assertEquals(
+            Request::STATUS_WAIT_CONFIRM,
+            $request->status
+        );
     }
 
     public function testConfirmRequest()
