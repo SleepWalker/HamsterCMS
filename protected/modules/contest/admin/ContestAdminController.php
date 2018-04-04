@@ -195,7 +195,13 @@ class ContestAdminController extends \admin\components\HAdminController
                     'name' => 'demos',
                     'type' => 'raw',
                     'filter' => false,
-                    'value' => '"<pre style=\"white-space: normal\">".\CHtml::encode($data->demos)."</pre>"',
+                    'value' => '"<pre style=\"white-space: normal\">".(new \CMarkdownParser())->safeTransform(
+                        preg_replace(
+                            "@(http(s)?)?(://)?(([a-zA-Z])([-\w]+\.)+([^\s\.]+[^\s]*)+[^,.\s])@",
+                            \'<a href="http$2://$4">$0</a>\',
+                            $data->demos
+                        )
+                    )."</pre>"',
                     'htmlOptions' => [
                         'style' => 'max-width: 300px; overflow-x: auto;',
                     ],
@@ -236,9 +242,18 @@ class ContestAdminController extends \admin\components\HAdminController
         $availableStatuses = Request::getStatusesList();
         $attributes = [];
 
-        foreach ($status as $key) {
-            if (!array_key_exists($key, $availableStatuses)) {
-                throw new CHttpException(422, 'Bad status values');
+        if ($status === null) {
+            $attributes['status'] = [
+                Request::STATUS_NEW,
+                Request::STATUS_ACCEPTED,
+                Request::STATUS_WAIT_CONFIRM,
+                Request::STATUS_CONFIRMED,
+            ];
+        } else {
+            foreach ($status as $key) {
+                if (!array_key_exists($key, $availableStatuses)) {
+                    throw new CHttpException(422, 'Bad status values');
+                }
             }
         }
 
@@ -266,6 +281,7 @@ class ContestAdminController extends \admin\components\HAdminController
             case 'pdf':
             default:
                 $html = $this->renderPartial('export_requests', [
+                    'contest' => Contest::model()->findByPk($id),
                     'requests' => $requests,
                 ], true);
 

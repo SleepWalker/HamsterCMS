@@ -1,6 +1,7 @@
 <?php
 /**
  * @var \contest\models\Request[] $requests
+ * @var \contest\models\Contest[] $contest
  */
 ?>
 <style>
