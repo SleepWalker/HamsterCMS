@@ -28,7 +28,8 @@ class Contest extends \CActiveRecord
         $end = strtotime($this->applicationEndDate);
 
         if ($end && $end < $now) {
-            return false;
+            // allow admins to apply at any time
+            return \Yii::app()->user->checkAccess('admin');
         }
 
         return $start && $start < $now;
