@@ -103,7 +103,7 @@ class Mailer extends \CApplicationComponent
     public function sendConfirmation(Request $request): bool
     {
         return $this->notifyMusicians($request, [
-            'subject' => 'Подтверждение участия в конкурсе «Рок єднає нас» 2016',
+            'subject' => 'Подтверждение участия в ' . $request->contest->title,
             'from' => 'contest@estrocksection.kiev.ua',
             'view' => 'request_confirm',
             'viewData' => function ($request) {

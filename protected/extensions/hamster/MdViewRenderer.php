@@ -26,7 +26,7 @@ class MdViewRenderer extends \CViewRenderer
         $text = file_get_contents($sourceFile);
 
         // replacing {{var_name}} -> <?= $var_name ? >
-        $text = preg_replace('/\{\{([^\{]+)\}\}/', '<?= \$$1 ?>', $text);
+        $text = preg_replace('/\{\{([^\{]+)\}\}/', '<?= \$$1 ?? "" ?>', $text);
 
         $html = (new \CMarkdownParser())->transform($text);
 

@@ -169,7 +169,7 @@ class MailerTest extends \CTestCase
             ->with($this->equalTo([
                 'to' => $request->contact_email,
                 'from' => 'contest@estrocksection.kiev.ua',
-                'subject' => 'Подтверждение участия в конкурсе «Рок єднає нас» 2016',
+                'subject' => 'Подтверждение участия в Test contest',
                 'view' => 'request_confirm',
                 'viewData' => [
                     'fullName' => $request->contact_name,
